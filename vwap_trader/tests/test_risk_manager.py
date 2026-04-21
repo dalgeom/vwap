@@ -272,6 +272,52 @@ def test_can_enter_rejection_increments_roundtrip_counter_blocked(rm: RiskManage
 # TC-09  승리 시 카운터 리셋 (회귀 방지 — 부록 H.2 L.2600~L.2606)
 # ---------------------------------------------------------------------------
 
+def test_daily_entries_limit_blocks_fifth_entry(rm: RiskManager):
+    """MAX_DAILY_ENTRIES=4 초과 시 진입 거부 (부록 I.5, 회의 #19 옵션 4 P1).
+
+    on_trade_opened() 4회 → 5번째 can_enter() 는 daily_entries_limit 반환.
+    """
+    for _ in range(rm.MAX_DAILY_ENTRIES):
+        ok, reason = rm.can_enter(module="A", direction="long", funding_rate=0.0)
+        assert ok is True, f"4회 한도 내 진입이 거부됨: {reason}"
+        rm.on_trade_opened()
+
+    ok, reason = rm.can_enter(module="A", direction="long", funding_rate=0.0)
+    assert ok is False
+    assert reason == "daily_entries_limit"
+    assert rm.daily_entries == 4
+
+
+def test_daily_entries_boundary_exactly_at_limit(rm: RiskManager):
+    """daily_entries == MAX_DAILY_ENTRIES 정확히 경계값에서 차단 (strict >= 검증)."""
+    for _ in range(rm.MAX_DAILY_ENTRIES - 1):
+        rm.on_trade_opened()
+
+    ok, _ = rm.can_enter(module="B", direction="short", funding_rate=0.0)
+    assert ok is True, "MAX-1 진입까지는 허용"
+
+    rm.on_trade_opened()
+    ok, reason = rm.can_enter(module="B", direction="short", funding_rate=0.0)
+    assert ok is False
+    assert reason == "daily_entries_limit"
+
+
+def test_reset_daily_clears_daily_entries(rm: RiskManager):
+    """reset_daily() 호출 시 daily_entries 리셋 → 신규 진입 재허용."""
+    for _ in range(rm.MAX_DAILY_ENTRIES):
+        rm.on_trade_opened()
+
+    ok, reason = rm.can_enter(module="A", direction="long", funding_rate=0.0)
+    assert ok is False
+    assert reason == "daily_entries_limit"
+
+    rm.reset_daily()
+    assert rm.daily_entries == 0
+
+    ok, _ = rm.can_enter(module="A", direction="long", funding_rate=0.0)
+    assert ok is True, "reset_daily() 후 재진입 가능해야 함"
+
+
 def test_winning_trade_resets_module_and_system_counters(rm: RiskManager):
     """승리(pnl>=0) 기록 시 해당 모듈 + 시스템 카운터 동시 리셋 (부록 H.2 L.2600~L.2606)."""
     rm.on_trade_closed("A", pnl=-50.0)

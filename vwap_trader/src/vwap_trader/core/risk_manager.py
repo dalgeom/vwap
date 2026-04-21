@@ -81,8 +81,10 @@ class RiskManager:
     MODULE_B_MAX_HOLD_H: int = 32
     FUNDING_RATE_THRESHOLD: float = 0.001
     MAX_POSITIONS: int = 2
+    MAX_DAILY_ENTRIES: int = 4
 
     daily_realized_loss: float = 0.0
+    daily_entries: int = 0
     module_a_consecutive_losses: int = 0
     module_b_consecutive_losses: int = 0
     system_consecutive_losses: int = 0
@@ -149,6 +151,8 @@ class RiskManager:
             return False, "module_a_halt"
         if module == "B" and self.current_state == TradingState.MODULE_B_HALT:
             return False, "module_b_halt"
+        if self.daily_entries >= self.MAX_DAILY_ENTRIES:
+            return False, "daily_entries_limit"
         if len(self.open_positions) >= self.MAX_POSITIONS:
             return False, "max_positions_reached"
         module_positions = [p for p in self.open_positions if p.module == module]
@@ -173,9 +177,14 @@ class RiskManager:
         elapsed = current_time - position.entry_time
         return elapsed >= timedelta(hours=max_hold_h)
 
+    def on_trade_opened(self) -> None:
+        """진입 확정 시 호출. 일간 진입 카운터 증가 (부록 I.5)."""
+        self.daily_entries += 1
+
     def reset_daily(self) -> None:
         """UTC 00:00 호출. 연속 손실 카운터 포함 전체 리셋."""
         self.daily_realized_loss = 0.0
+        self.daily_entries = 0
         self.module_a_consecutive_losses = 0
         self.module_b_consecutive_losses = 0
         self.system_consecutive_losses = 0

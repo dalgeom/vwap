@@ -97,8 +97,9 @@ def _build_long_pass_candles() -> list[Candle]:
 
     # 이탈 캔들 (idx=15):
     #  - close=94.0 < threshold 95.0 → close 기준 이탈 조건 만족 (부록 B.1(i) 개정)
-    #  - low=90.0 → deviation_candle.low 구조 기준점 (VAL=90 근접, structural_support)
-    #  - wick-only 케이스(low만 90 찍고 close는 threshold 이상)는 TC-10 negative 참조
+    #  - low=90.0 → evidence["deviation_low"] SL anchor용 (VP 근접 체크에는 미사용)
+    #  - VP 근접 체크 기준: deviation_ref = close = 94.0 (회의 #19 P2)
+    #  - wick-only 케이스(low만 90 찍고 close는 threshold 이상)는 TC-12 negative 참조
     candles.append(
         _mk_candle(
             idx=15,
@@ -203,11 +204,15 @@ def long_inputs():
     본 fixture 에선 idx=15 close=94.0 이 이를 만족한다.
     """
     candles_1h = _build_long_pass_candles()
+    # VP 근접 기준점 = deviation_close=94.0 (회의 #19 P2).
+    # _calc_atr_from_candles(candles) ≈ 1.29, STRUCTURAL_ATR_MULT*atr ≈ 0.645.
+    # val=94.5: |94.0-94.5|=0.5 ≤ 0.645 → near_val True.
+    # (deviation_low=90 은 evidence["deviation_low"] SL anchor 전용 — VP 근접 무관)
     vp_layer = VolumeProfile(
         poc=100.0,
-        val=90.0,           # 이탈 저점(90) 근처 → 구조적 지지 성립
+        val=94.5,           # deviation_close(94.0) 근처 → 구조적 지지 성립 (회의 #19 P2)
         vah=110.0,
-        hvn_prices=[90.0],  # HVN 도 90 근처 존재
+        hvn_prices=[94.5],  # HVN 도 deviation_close 근처 존재
     )
     return {
         "candles_1h": candles_1h,
@@ -219,6 +224,7 @@ def long_inputs():
         "rsi": 30.0,            # <= 38 (RSI_OVERSOLD)
         "volume_ma20": 120.0,   # reversal threshold = 120*1.2 = 144
     }
+
 
 
 @pytest.fixture

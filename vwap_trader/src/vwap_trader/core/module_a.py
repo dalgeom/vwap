@@ -166,10 +166,10 @@ def check_module_a_long(
         return EntryDecision(enter=False, reason="no_deviation")
 
     # 조건 2: 구조적 지지 OR 극단적 거래량 소진
-    dev_low = deviation_candle.low
-    near_val = abs(dev_low - vp_layer.val) <= STRUCTURAL_ATR_MULT * atr
-    near_poc = abs(dev_low - vp_layer.poc) <= STRUCTURAL_ATR_MULT * atr
-    near_hvn = any(abs(dev_low - hvn) <= STRUCTURAL_ATR_MULT * atr for hvn in vp_layer.hvn_prices)
+    deviation_ref = deviation_candle.close  # VP 근접 체크 기준점 (회의 #19 P2)
+    near_val = abs(deviation_ref - vp_layer.val) <= STRUCTURAL_ATR_MULT * atr
+    near_poc = abs(deviation_ref - vp_layer.poc) <= STRUCTURAL_ATR_MULT * atr
+    near_hvn = any(abs(deviation_ref - hvn) <= STRUCTURAL_ATR_MULT * atr for hvn in vp_layer.hvn_prices)
     structural_support = near_val or near_poc or near_hvn
     extreme_exhaustion = deviation_candle.volume < volume_ma20 * VOLUME_EXHAUSTION_MULT
 

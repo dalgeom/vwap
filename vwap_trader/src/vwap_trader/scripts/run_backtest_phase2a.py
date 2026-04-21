@@ -349,10 +349,12 @@ class _CMetricCounter:
         }
 
 
-def _wrap_check_module_a_c_metric(c_counter: _CMetricCounter):
+def _wrap_check_module_a_c_metric(c_counter: _CMetricCounter, use_close: bool = False):
     """engine 네임스페이스 check_module_a_long 에 C 지표 계측 훅 추가.
 
     조건 재계산은 원본 _module_a_mod 상수를 참조해 독립 수행 (모듈 무손상).
+    use_close=True: BUG-CORE-003 수정 반영 — deviation_candle.close 기준점 사용 (회의 #19 P2).
+    use_close=False: 이전 동작 — deviation_candle.low 기준점 (post-bugcore002 호환).
     """
     orig = _engine_mod.check_module_a_long
 
@@ -369,10 +371,10 @@ def _wrap_check_module_a_c_metric(c_counter: _CMetricCounter):
         c_met = False
         if deviation_candle is not None:
             half_atr = _module_a_mod.STRUCTURAL_ATR_MULT * atr_int  # 0.5 × ATR
-            dev_low = deviation_candle.low
-            near_val = abs(dev_low - vp_layer.val) <= half_atr
-            near_poc = abs(dev_low - vp_layer.poc) <= half_atr
-            near_hvn = any(abs(dev_low - hvn) <= half_atr for hvn in vp_layer.hvn_prices)
+            dev_ref = deviation_candle.close if use_close else deviation_candle.low
+            near_val = abs(dev_ref - vp_layer.val) <= half_atr
+            near_poc = abs(dev_ref - vp_layer.poc) <= half_atr
+            near_hvn = any(abs(dev_ref - hvn) <= half_atr for hvn in vp_layer.hvn_prices)
             c_met = near_val or near_poc or near_hvn  # close < threshold 는 deviation_candle 존재로 보장
         c_counter.record(candles_1h[-1].timestamp, c_met)
         return result
@@ -579,11 +581,13 @@ def run_single_diagnostic(
     regime_params: dict,
     combo: dict,
     collect_c_metric: bool = False,
+    c_metric_use_close: bool = False,
 ) -> tuple[dict, list[dict], _ReasonCounter, _SLBindingCounter, "_CMetricCounter | None"]:
     """단일 조합 1회 실행. F 옵션 1 — S2 신호 품질 진단 전용.
 
     Grid 탐색 아님. ATR_BUFFER / MIN_SL_PCT / σ 값은 combo 에 고정.
     collect_c_metric=True 시 _CMetricCounter 도 반환 (5번째 원소).
+    c_metric_use_close=True: BUG-CORE-003 수정 후 C 지표 — deviation_candle.close 기준.
     """
     atr_buf = combo["ATR_BUFFER"]
     min_sl = combo["MIN_SL_PCT"]
@@ -607,7 +611,7 @@ def run_single_diagnostic(
         _engine_mod.check_module_a_short = w_short
         # C 지표 훅 — reason wrapper 위에 추가 적층 (long 만, Q3 의무)
         if c_counter is not None:
-            w_long_c, orig_long_c = _wrap_check_module_a_c_metric(c_counter)
+            w_long_c, orig_long_c = _wrap_check_module_a_c_metric(c_counter, use_close=c_metric_use_close)
             _engine_mod.check_module_a_long = w_long_c
         try:
             engine = BacktestEngine(config={"regime": regime_params})
@@ -673,6 +677,61 @@ def save_post_bugcore002_outputs(
     c_path = out_dir / f"phase2a_post_bugcore002_C_metric_{ts}.json"
     d_path = out_dir / f"phase2a_post_bugcore002_D_metric_{ts}.json"
     a_path = out_dir / f"phase2a_post_bugcore002_A_reversal_conditions_{ts}.json"
+
+    distribution = _signal_distribution(trades)
+    breakdown = reason_counter.summary()
+
+    main_path.write_text(json.dumps(
+        {"meta": run_meta, "metrics": metrics,
+         "signal_distribution": distribution,
+         "condition_breakdown_ref": breakdown["top_bottleneck"]},
+        indent=2,
+    ))
+    with trades_path.open("w") as f:
+        for t in trades:
+            f.write(json.dumps(t) + "\n")
+    c_path.write_text(json.dumps({"meta": run_meta, "c_metric": c_metric}, indent=2))
+    d_path.write_text(json.dumps({"meta": run_meta, "d_metric": d_metric}, indent=2))
+    a_path.write_text(json.dumps({"meta": run_meta, "reversal_conditions": reversal_conditions}, indent=2))
+
+    for p in (main_path, trades_path, c_path, d_path, a_path):
+        logger.info("Saved: %s", p)
+
+    return {
+        "main": main_path,
+        "trades": trades_path,
+        "c_metric": c_path,
+        "d_metric": d_path,
+        "a_reversal": a_path,
+    }
+
+
+def save_post_bugcore003_outputs(
+    metrics: dict,
+    trades: list[dict],
+    reason_counter: "_ReasonCounter",
+    c_metric: dict,
+    d_metric: dict,
+    reversal_conditions: dict,
+    out_dir: Path,
+    run_meta: dict,
+) -> dict:
+    """Post-BUGCORE003 산출물 4종 저장.
+
+    phase2a_post_bugcore003_{ts}.json                — 메인 결과
+    phase2a_post_bugcore003_{ts}_trades.jsonl        — trade-level 상세 (Postmortem 의무)
+    phase2a_post_bugcore003_C_metric_{ts}.json       — C 지표 (close 기준, 회의 #19 P2)
+    phase2a_post_bugcore003_D_metric_{ts}.json       — D 지표 + 95% CI
+    phase2a_post_bugcore003_A_reversal_conditions_{ts}.json — C1/C2/C3 관측치
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+
+    main_path = out_dir / f"phase2a_post_bugcore003_{ts}.json"
+    trades_path = out_dir / f"phase2a_post_bugcore003_{ts}_trades.jsonl"
+    c_path = out_dir / f"phase2a_post_bugcore003_C_metric_{ts}.json"
+    d_path = out_dir / f"phase2a_post_bugcore003_D_metric_{ts}.json"
+    a_path = out_dir / f"phase2a_post_bugcore003_A_reversal_conditions_{ts}.json"
 
     distribution = _signal_distribution(trades)
     breakdown = reason_counter.summary()
@@ -863,6 +922,12 @@ def main() -> None:
              "단일 조합 고정 (ATR_BUFFER=2.8 / MIN_SL_PCT=0.015 / σ=-2.0). Grid 탐색 금지.")
     ap.add_argument("--baseline-json", default=None,
         help="D 지표 baseline 경로. 미지정 시 data/backtest_results/phase2a_S2_diagnostic_20260421_065357.json 사용.")
+    # F 옵션 3 — Post-BUGCORE003 재실행 (회의 #19 P2: VP 근접 close 기준, MAX_DAILY_ENTRIES=4)
+    ap.add_argument("--post-bugcore003", action="store_true",
+        help="BUG-CORE-003 수정 후 재실행 모드. C 지표 close 기준 재측정 + n≥20 판정. "
+             "단일 조합 고정 (ATR_BUFFER=2.8 / MIN_SL_PCT=0.015 / σ=-2.0). Grid 탐색 금지.")
+    ap.add_argument("--baseline-bugcore002", default=None,
+        help="Post-BUGCORE003 D 지표 baseline 경로. 미지정 시 data/backtest_results/phase2a_post_bugcore002_20260421_110828.json 사용.")
     args = ap.parse_args()
 
     # Regime 파라미터 결정
@@ -960,6 +1025,65 @@ def main() -> None:
             f"PF {pf_s} / EV {ev_s} / "
             f"C metric {c_pct}% / 순EV 델타 median {d_med_s} [95% CI: {ci_s}] / "
             f"B 우려(2) 트리거: {q4_s} (95% CI 하한 음수 여부)"
+        )
+        return
+
+    # ── F 옵션 3: Post-BUGCORE003 재실행 (회의 #19 P2) ───────────────
+    if args.post_bugcore003:
+        default_baseline = (
+            Path(args.out_dir) / "phase2a_post_bugcore002_20260421_110828.json"
+        )
+        baseline_path = Path(args.baseline_bugcore002) if args.baseline_bugcore002 else default_baseline
+        baseline_trades = _load_baseline_trades(baseline_path)
+        baseline_n = len(baseline_trades)
+        logger.info("Baseline loaded: %d trades from %s", baseline_n, baseline_path)
+
+        metrics, trades_ser, reason_counter, _sl_counter, c_counter = run_single_diagnostic(
+            candles_1h, candles_4h, regime_params, S2_DIAGNOSTIC_COMBO,
+            collect_c_metric=True,
+            c_metric_use_close=True,  # BUG-CORE-003: close 기준 C 지표
+        )
+        assert c_counter is not None
+
+        c_metric = c_counter.summary()
+        d_metric = _compute_d_metric(trades_ser, baseline_trades)
+        reversal = _compute_reversal_conditions(metrics, d_metric, baseline_n)
+
+        run_meta = {
+            "mode": "post_bugcore003_single_combo",
+            "bugcore_fix": "BUG-CORE-003 (VP 근접 기준점 low→close, MAX_DAILY_ENTRIES=4)",
+            "combo": S2_DIAGNOSTIC_COMBO,
+            "symbols": args.symbols.split(","),
+            "date_from": args.date_from,
+            "date_to": args.date_to,
+            "regime_params": regime_params,
+            "baseline_json": str(baseline_path),
+            "baseline_n": baseline_n,
+            "note": "F 옵션 3 — C 지표 close 기준 재측정 + n≥20 판정 (회의 #19 P2)",
+        }
+        save_post_bugcore003_outputs(
+            metrics, trades_ser, reason_counter,
+            c_metric, d_metric, reversal,
+            Path(args.out_dir), run_meta,
+        )
+
+        pf_s = f"{metrics['pf']:.2f}" if metrics["pf"] is not None else "inf"
+        ev_s = f"{metrics['ev_per_trade']:.4f}"
+        c_pct = c_metric["c_metric_overall_pct"]
+        d_med = d_metric.get("delta_median")
+        ci_lo = d_metric.get("ci_95_lower")
+        ci_hi = d_metric.get("ci_95_upper")
+        q4 = d_metric.get("q4_trigger")
+        n_new = metrics["n_trades"]
+        n20_ok = n_new >= 20
+        d_med_s = f"{d_med:.4f}" if d_med is not None else "N/A"
+        ci_s = (f"{ci_lo:.4f}, {ci_hi:.4f}" if ci_lo is not None else "N/A (n<2)")
+        q4_s = "Y" if q4 else ("N" if q4 is not None else "N/A")
+        print(
+            f"[Post-BUGCORE003] 39개월 / n_trades {n_new} (baseline {baseline_n} 대비) / "
+            f"PF {pf_s} / EV {ev_s} / "
+            f"C metric {c_pct}% / 순EV 델타 median {d_med_s} [95% CI: {ci_s}] / "
+            f"n≥20: {'Y' if n20_ok else 'N'} / B 우려(2) 트리거: {q4_s}"
         )
         return
 
