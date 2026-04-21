@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "mode": "post_bugcore002_single_combo",
+    "bugcore_fix": "BUG-CORE-002 (X2 std\u2192ATR(14), X4 low\u2192close, \ubc30\uc218 -2.0)",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "date_from": "2023-01-01",
+    "date_to": "2026-03-31",
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "baseline_json": "C:\\Users\\PC\\Desktop\\\ud604\uc9c4\\code\\vwap_trader\\data\\backtest_results\\phase2a_S2_diagnostic_20260421_065357.json",
+    "baseline_n": 3,
+    "note": "F \uc635\uc158 2 \u2014 Q3 C/D \uc9c0\ud45c + \uc21cEV \ub378\ud0c0 95% CI (\ud68c\uc758 #18 \uacb0\uc815)"
+  },
+  "d_metric": {
+    "baseline_n": 3,
+    "baseline_ev": -0.018105,
+    "new_n": 3,
+    "new_ev": -0.018105,
+    "delta_mean": 0.0,
+    "delta_median": -0.003908,
+    "ci_95_lower": -0.039288,
+    "ci_95_upper": 0.039288,
+    "q4_trigger": true,
+    "by_month": {
+      "2023-01": {
+        "n": 1,
+        "ev_new": -0.0316,
+        "ev_baseline": -0.0316,
+        "delta": 0.0
+      },
+      "2023-05": {
+        "n": 1,
+        "ev_new": -0.000701,
+        "ev_baseline": -0.000701,
+        "delta": 0.0
+      },
+      "2023-06": {
+        "n": 1,
+        "ev_new": -0.022012,
+        "ev_baseline": -0.022012,
+        "delta": 0.0
+      }
+    },
+    "by_symbol": {
+      "BTCUSDT": {
+        "n": 3,
+        "ev_new": -0.018105,
+        "ev_baseline": -0.018105,
+        "delta": 0.0
+      }
+    },
+    "by_regime": {
+      "Accumulation": {
+        "n": 3,
+        "ev_new": -0.018105,
+        "ev_baseline": -0.018105,
+        "delta": 0.0
+      }
+    }
+  }
+}

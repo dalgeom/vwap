@@ -1,7 +1,7 @@
 # VWAP-Trader 기획서
 
 > **상태**: 작성 중 (회의 진행에 따라 점진적 완성)  
-> **최종 업데이트**: 회의 #14 완료 후 (Chapter 10~12, 부록 M 추가)  
+> **최종 업데이트**: 회의 #19 완료 후 (DOC-PATCH-006: B-0.4·I.5 신규, B.1 조건 2 개정)  
 > **완성도**: 14/14 챕터 — 전체 설계 완료 ✅  
 > **원칙**: Chapter = Narrative / 부록 = Reference
 
@@ -1253,6 +1253,20 @@ assert current_regime in ["Accumulation", "Markup", "Markdown", "Distribution"]
 - [ ] 현재 시간과 마지막 캔들 시간 비교
 - [ ] 반환 시 `enter=False` 사유 명확히 기술
 
+## B-0.4 코드 선행 절차 원칙 (회의 #19 P4, 2026-04-21)
+
+> **근거**: B·D 요청 3항목 F 전원 채택 / 회의 #19 §5 P4  
+> **적용 범위**: 본 프로젝트 전체 (모든 에이전트, 모든 모듈)
+
+1. **코드 구현은 반드시 회의 결정 후** — 선행 구현 = 절차 위반 (예외 없음)
+2. **이번 한해 소급 흡수 허용**:
+   - 대상: BUG-CORE-002 (S2 진단 시점 선행 적용)
+   - 근거: post-BUGCORE002 = S2 진단 동일 결과 → 측정 오염 없음
+3. **향후 재발 시**:
+   - 해당 코드 변경을 기준선으로 불인정
+   - 코드 선행 시점~회의 결정 구간 데이터는 오염 구간으로 격리 후 재검증
+   - "지난번도 흡수했으니" 논리 적용 불가 (BUG-CORE-002 건이 유일한 선례)
+
 ---
 
 # 부록 B — Module A (Accumulation) 롱 진입 명세
@@ -1303,11 +1317,14 @@ def module_a_long_entry_check(
     
     # ─── 조건 2. 구조적 지지 OR 극단적 거래량 소진 ───────
     # ✅ 합의 (OR 조건 타협)
-    deviation_low = deviation_candle.low
-    near_val = abs(deviation_low - vp_layer.val) <= 0.5 * atr
-    near_poc = abs(deviation_low - vp_layer.poc) <= 0.5 * atr
+    # ✅ 개정 — 회의 #19 (2026-04-21, P2 옵션 A): VP 근접 기준점 low→close 교체
+    #    근거: trigger(close 기준) ↔ VP 근접 체크(low 기준) 단절 → C metric 0.0% 구조적 차단
+    #    F.2 SL anchor(deviation_candle.low)는 무변경 — deviation_low 변수명 유지 (하단 evidence 필드)
+    deviation_ref = deviation_candle.close   # VP 근접 체크 기준점 (trigger와 동일 close)
+    near_val = abs(deviation_ref - vp_layer.val) <= 0.5 * atr
+    near_poc = abs(deviation_ref - vp_layer.poc) <= 0.5 * atr
     near_hvn = any(
-        abs(deviation_low - hvn) <= 0.5 * atr 
+        abs(deviation_ref - hvn) <= 0.5 * atr 
         for hvn in vp_layer.hvn_prices
     )
     structural_support = near_val or near_poc or near_hvn
@@ -1500,6 +1517,19 @@ Module A 롱 진입의 후속 설계:
 | (c) 폐기 임계값 | **C1** 순 EV 델타 ≤ -0.15 R (100거래/90일) / **C2** 승률 < 55% (최근 60거래 rolling) / **C3** 신호 빈도 -40% 이상 감소 (3개월 연속) |
 | 운영 | 2026-04-21부터 90일 병렬 (실거래 ATR+close vs 섀도우 std+low), 2주 리뷰 |
 | 모니터링 담당 | Dev-Backtest (정민호) |
+
+**사례 #2 — Module A Long 조건 2 VP 근접 기준점 교체 (회의 #19, 2026-04-21)**
+
+| 항목 | 내용 |
+|---|---|
+| 변경 | VP 근접 체크 기준점 `deviation_candle.low` → `deviation_candle.close` (F.2 SL anchor 무변경) |
+| 근거 문서 | [meeting_19 §1·§5](./meetings/meeting_19_module_a_long_root_redesign_2026_04_21.md) |
+| 변경 성격 | 원리적 수정 (trigger-proximity 불일치 제거) — preprocessing, 해결책 아님 (F P2 명기) |
+| (a) 대안 가설 | H1: VP level이 threshold 극단에 구조적 부재(LVN 구간) — C 진단 (코드 확인 사실) |
+| (b) 무효화 기준 | n≥20 확보 후 C metric < 5% 유지 시 structural_support 재설계(P3) 발동 |
+| (c) 폐기 임계값 | n≥20 확보 후 C metric = 0.0% → VP 기준점 교체 효과 없음 판정 → P3 발동 |
+| 운영 | Option A 구현 → n≥20 확보 대기 → 데이터 기반 추가 조치 판단 |
+| 모니터링 담당 | Dev-Backtest (정민호) — n≥20 달성 시 C metric 보고 의무 |
 
 ---
 
@@ -3042,6 +3072,21 @@ def compute_position_size(
 
 - 최서연+이지원: "레버리지 설정 5x 선호 (청산가격 여유 확보)"
 - 박정우+김도현: "10x 선호 (실질 레버리지 낮으므로 설정은 여유있게)"
+
+## I.5 일간 진입 건수 상한 (회의 #19 P1, 2026-04-21)
+
+> **근거**: F Q4 트리거 Y → B 우려(2) 방어 의무화 / F 판결 P1 (n=3은 상한 보류 이유가 아닌 설치 이유)  
+> **적용 범위**: 전략 전체 (BTC + ETH 합산, Module A + Module B 포함)
+
+```python
+MAX_DAILY_ENTRIES = 4  # ✅ F 확정 (2026-04-21, P1) — C 권고 M≥4 채택
+```
+
+- 심볼 합산 일 최대 진입 **M = 4건**
+- 초과 시 당일 신규 진입 차단 (Module A Long 포함 전 모듈)
+- **M 수치 사후 하향 조정 금지** — 백테스트 결과 보고 후 하향 = p-hacking (F 명문화)
+- Q2 재설계(옵션 A) 이후 실측 빈도가 M에 도달하는지 검증용 — 튜닝 아님
+- 현재 C metric 0.0% 상태에서는 사실상 미발동 → Q2 개선 후 자동 게이트 역할
 
 ---
 
