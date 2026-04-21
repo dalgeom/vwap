@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "mode": "S2_diagnostic_single_combo",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "date_from": "2023-01-01",
+    "date_to": "2026-03-31",
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "note": "F \uc635\uc158 1 \u2014 \uc2e0\ud638 \ud488\uc9c8 \uce21\uc815 \uc804\uc6a9, Grid \ud0d0\uc0c9 \uc544\ub2d8 (2026-04-21 \uc0c1\uc704 \uacb0\uc815)"
+  },
+  "metrics": {
+    "ATR_BUFFER": 2.8,
+    "MIN_SL_PCT": 0.015,
+    "vwap_sigma_entry": 2.0,
+    "n_trades": 3,
+    "pf": 0.0,
+    "mdd": 0.0543,
+    "win_rate": 0.0,
+    "ev_per_trade": -0.018105,
+    "binding_rate_pct": 33.33,
+    "sl_n_calls": 6,
+    "sl_raw_bound": 4,
+    "sl_min_clamp_bound": 2
+  },
+  "signal_distribution_ref": "phase2a_S2_diagnostic_signal_distribution_20260421_065357.json",
+  "condition_breakdown_ref": "phase2a_S2_diagnostic_condition_breakdown_20260421_065357.json"
+}

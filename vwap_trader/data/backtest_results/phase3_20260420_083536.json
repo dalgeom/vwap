@@ -1,0 +1,253 @@
+{
+  "params": {
+    "regime": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "atr_buffer": 0.3,
+    "min_sl_pct": 0.015,
+    "sigma_entry": 2.0,
+    "chandelier_mult": 3.0
+  },
+  "wf_folds": [
+    {
+      "fold": 1,
+      "is_start": "2023-01-01",
+      "is_end": "2023-07-01",
+      "oos_start": "2023-07-01",
+      "oos_end": "2023-10-01",
+      "is": {
+        "n_trades": 5,
+        "pf": 0.0,
+        "mdd": 0.06,
+        "win_rate": 0.0,
+        "ev_per_trade": -0.012,
+        "sharpe": -1.1023,
+        "annual_return": -0.1385,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 1,
+        "pf": 0.0,
+        "mdd": 0.0001,
+        "win_rate": 0.0,
+        "ev_per_trade": -5.4e-05,
+        "sharpe": 0.0,
+        "annual_return": -0.0597,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 2,
+      "is_start": "2023-04-01",
+      "is_end": "2023-10-01",
+      "oos_start": "2023-10-01",
+      "oos_end": "2024-01-01",
+      "is": {
+        "n_trades": 2,
+        "pf": 0.0,
+        "mdd": 0.0139,
+        "win_rate": 0.0,
+        "ev_per_trade": -0.006967,
+        "sharpe": -0.7127,
+        "annual_return": -0.1852,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 2,
+        "pf": 0.1673,
+        "mdd": 0.0106,
+        "win_rate": 0.5,
+        "ev_per_trade": -0.004399,
+        "sharpe": -0.5044,
+        "annual_return": -0.2577,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 3,
+      "is_start": "2023-07-01",
+      "is_end": "2024-01-01",
+      "oos_start": "2024-01-01",
+      "oos_end": "2024-04-01",
+      "is": {
+        "n_trades": 3,
+        "pf": 0.1664,
+        "mdd": 0.0106,
+        "win_rate": 0.3333,
+        "ev_per_trade": -0.002951,
+        "sharpe": -0.4433,
+        "annual_return": -0.081,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 2,
+        "pf": 0.3599,
+        "mdd": 0.015,
+        "win_rate": 0.5,
+        "ev_per_trade": -0.004811,
+        "sharpe": -0.3328,
+        "annual_return": -0.1552,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 4,
+      "is_start": "2023-10-01",
+      "is_end": "2024-04-01",
+      "oos_start": "2024-04-01",
+      "oos_end": "2024-07-01",
+      "is": {
+        "n_trades": 4,
+        "pf": 0.2804,
+        "mdd": 0.0238,
+        "win_rate": 0.5,
+        "ev_per_trade": -0.004605,
+        "sharpe": -0.4723,
+        "annual_return": -0.0492,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 1,
+        "pf": 0.0,
+        "mdd": 0.0229,
+        "win_rate": 0.0,
+        "ev_per_trade": -0.02287,
+        "sharpe": 0.0,
+        "annual_return": -18.2132,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 5,
+      "is_start": "2024-01-01",
+      "is_end": "2024-07-01",
+      "oos_start": "2024-07-01",
+      "oos_end": "2024-10-01",
+      "is": {
+        "n_trades": 2,
+        "pf": 0.3599,
+        "mdd": 0.015,
+        "win_rate": 0.5,
+        "ev_per_trade": -0.004811,
+        "sharpe": -0.3328,
+        "annual_return": -0.1552,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 5,
+        "pf": 0.8556,
+        "mdd": 0.0323,
+        "win_rate": 0.4,
+        "ev_per_trade": -0.001115,
+        "sharpe": -0.0552,
+        "annual_return": -0.0257,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 6,
+      "is_start": "2024-04-01",
+      "is_end": "2024-10-01",
+      "oos_start": "2024-10-01",
+      "oos_end": "2025-01-01",
+      "is": {
+        "n_trades": 3,
+        "pf": 0.0755,
+        "mdd": 0.0313,
+        "win_rate": 0.3333,
+        "ev_per_trade": -0.010434,
+        "sharpe": -0.8202,
+        "annual_return": -0.0803,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 5,
+        "pf": 1.743,
+        "mdd": 0.0232,
+        "win_rate": 0.4,
+        "ev_per_trade": 0.003491,
+        "sharpe": 0.1932,
+        "annual_return": 0.172,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 7,
+      "is_start": "2024-07-01",
+      "is_end": "2025-01-01",
+      "oos_start": "2025-01-01",
+      "oos_end": "2025-04-01",
+      "is": {
+        "n_trades": 10,
+        "pf": 1.3927,
+        "mdd": 0.0456,
+        "win_rate": 0.5,
+        "ev_per_trade": 0.002178,
+        "sharpe": 0.1208,
+        "annual_return": 0.056,
+        "score": 13.9265
+      },
+      "oos": {
+        "n_trades": 2,
+        "pf": 0.0,
+        "mdd": 0.0107,
+        "win_rate": 0.0,
+        "ev_per_trade": -0.005374,
+        "sharpe": -20.023,
+        "annual_return": -4.955,
+        "score": -999.0
+      }
+    },
+    {
+      "fold": 8,
+      "is_start": "2024-10-01",
+      "is_end": "2025-04-01",
+      "oos_start": "2025-04-01",
+      "oos_end": "2025-07-01",
+      "is": {
+        "n_trades": 7,
+        "pf": 1.1959,
+        "mdd": 0.0232,
+        "win_rate": 0.2857,
+        "ev_per_trade": 0.000958,
+        "sharpe": 0.0623,
+        "annual_return": 0.0239,
+        "score": -999.0
+      },
+      "oos": {
+        "n_trades": 2,
+        "pf": 10.0,
+        "mdd": 0.0,
+        "win_rate": 1.0,
+        "ev_per_trade": 0.009662,
+        "sharpe": 0.9449,
+        "annual_return": 1.6277,
+        "score": -999.0
+      }
+    }
+  ],
+  "wf_efficiency": 0.0,
+  "mean_is_score": 13.9265,
+  "mean_oos_score": 0.0,
+  "final_oos": {
+    "n_trades": 7,
+    "pf": 1.2477,
+    "mdd": 0.0382,
+    "win_rate": 0.4286,
+    "ev_per_trade": 0.002104,
+    "sharpe": 0.0727,
+    "annual_return": 0.0463,
+    "score": -999.0
+  },
+  "pass_fail": {
+    "ev >= 0.15%": true,
+    "annual_ret >= 30%": false,
+    "mdd <= 15%": true,
+    "pf >= 1.3": false,
+    "sharpe >= 1.5": false,
+    "wf_eff >= 70%": false
+  },
+  "overall_pass": false
+}

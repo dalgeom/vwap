@@ -1,0 +1,67 @@
+{
+  "label": "A_atrbuf0.1_sigma2.0",
+  "config": {
+    "ATR_BUFFER": 0.1,
+    "MIN_SL_PCT": 0.015,
+    "vwap_sigma_entry": 2.0,
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "symbol": "BTCUSDT",
+    "window_days": 180,
+    "date_from": "2025-10-03T00:00:00+00:00",
+    "date_to": "2026-04-01T00:00:00+00:00",
+    "bars_1h": 4321
+  },
+  "metrics": {
+    "n_trades": 2,
+    "pf": 0.607,
+    "mdd": 0.0166,
+    "win_rate": 0.5,
+    "ev_per_trade": -0.003262
+  },
+  "sl_binding_stats": {
+    "n_calls": 2,
+    "raw_sl_bound": 0,
+    "min_sl_pct_bound": 2,
+    "min_sl_binding_fraction": 1.0
+  },
+  "deviation_stats": {
+    "long_calls": 650,
+    "long_deviation_found": 534,
+    "short_calls": 648,
+    "short_deviation_found": 50
+  },
+  "trades": [
+    {
+      "position_id": "74dd6538-917",
+      "symbol": "BTCUSDT",
+      "module": "A",
+      "direction": "long",
+      "entry_price": 111245.8,
+      "exit_price": 112544.7,
+      "entry_time": "2025-10-14T11:00:00+00:00",
+      "exit_time": "2025-10-14T19:00:00+00:00",
+      "qty": 1.0,
+      "pnl_pct": 0.010075946417752349,
+      "exit_reason": "timeout",
+      "regime": "Accumulation"
+    },
+    {
+      "position_id": "e58027a4-ef3",
+      "symbol": "BTCUSDT",
+      "module": "A",
+      "direction": "long",
+      "entry_price": 66236.4,
+      "exit_price": 65242.85399999999,
+      "entry_time": "2026-02-27T13:00:00+00:00",
+      "exit_time": "2026-02-27T17:00:00+00:00",
+      "qty": 1.0,
+      "pnl_pct": -0.01660000000000003,
+      "exit_reason": "sl",
+      "regime": "Accumulation"
+    }
+  ]
+}

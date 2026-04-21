@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "mode": "S2_diagnostic_single_combo",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "date_from": "2024-07-01",
+    "date_to": "2024-07-07",
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "note": "F \uc635\uc158 1 \u2014 \uc2e0\ud638 \ud488\uc9c8 \uce21\uc815 \uc804\uc6a9, Grid \ud0d0\uc0c9 \uc544\ub2d8 (2026-04-21 \uc0c1\uc704 \uacb0\uc815)"
+  },
+  "distribution": {
+    "n_trades_total": 1,
+    "by_month": {
+      "2024-07": 1
+    },
+    "by_quarter": {
+      "2024-Q3": 1
+    },
+    "by_regime": {
+      "Accumulation": 1,
+      "Markup": 0,
+      "Markdown": 0,
+      "Distribution": 0
+    },
+    "by_symbol_regime": {
+      "BTCUSDT": {
+        "Accumulation": 1
+      }
+    },
+    "by_direction": {
+      "long": 1,
+      "short": 0
+    }
+  }
+}

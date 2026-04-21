@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "mode": "S2_diagnostic_single_combo",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "date_from": "2024-07-01",
+    "date_to": "2024-07-07",
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "note": "F \uc635\uc158 1 \u2014 \uc2e0\ud638 \ud488\uc9c8 \uce21\uc815 \uc804\uc6a9, Grid \ud0d0\uc0c9 \uc544\ub2d8 (2026-04-21 \uc0c1\uc704 \uacb0\uc815)"
+  },
+  "breakdown": {
+    "long_total_calls": 87,
+    "short_total_calls": 86,
+    "long_breakdown": [
+      {
+        "reason": "no_reversal_candle",
+        "count": 50,
+        "pct": 57.47
+      },
+      {
+        "reason": "no_support_no_exhaustion",
+        "count": 18,
+        "pct": 20.69
+      },
+      {
+        "reason": "no_deviation",
+        "count": 12,
+        "pct": 13.79
+      },
+      {
+        "reason": "rsi_not_oversold",
+        "count": 6,
+        "pct": 6.9
+      },
+      {
+        "reason": "enter",
+        "count": 1,
+        "pct": 1.15
+      }
+    ],
+    "short_breakdown": [
+      {
+        "reason": "no_deviation",
+        "count": 86,
+        "pct": 100.0
+      }
+    ],
+    "top_bottleneck": {
+      "reason": "no_deviation",
+      "count": 98
+    }
+  }
+}

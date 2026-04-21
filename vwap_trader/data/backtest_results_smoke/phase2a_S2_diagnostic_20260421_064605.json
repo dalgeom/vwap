@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "mode": "S2_diagnostic_single_combo",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "date_from": "2024-07-01",
+    "date_to": "2024-07-07",
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "note": "F \uc635\uc158 1 \u2014 \uc2e0\ud638 \ud488\uc9c8 \uce21\uc815 \uc804\uc6a9, Grid \ud0d0\uc0c9 \uc544\ub2d8 (2026-04-21 \uc0c1\uc704 \uacb0\uc815)"
+  },
+  "metrics": {
+    "ATR_BUFFER": 2.8,
+    "MIN_SL_PCT": 0.015,
+    "vwap_sigma_entry": 2.0,
+    "n_trades": 1,
+    "pf": 0.0,
+    "mdd": 0.0038,
+    "win_rate": 0.0,
+    "ev_per_trade": -0.003764,
+    "binding_rate_pct": 0.0,
+    "sl_n_calls": 1,
+    "sl_raw_bound": 1,
+    "sl_min_clamp_bound": 0
+  },
+  "signal_distribution_ref": "phase2a_S2_diagnostic_signal_distribution_20260421_064605.json",
+  "condition_breakdown_ref": "phase2a_S2_diagnostic_condition_breakdown_20260421_064605.json"
+}

@@ -1,0 +1,45 @@
+# VWAP-Trader 전략 파라미터
+# 변경 시 반드시 PLAN.md 부록 근거 명시
+
+regime:
+  atr_threshold: 0.015        # 1.5% — 부록 A 확정
+  ema_slope_threshold: 0.003  # 0.3% — 부록 A 확정
+  va_slope_threshold: 0.005   # 0.5% — 부록 A 확정
+  hysteresis_hours: 24
+
+volume_profile:
+  n_bins: 200                 # 부록 H-1 확정
+  lookback_hours: 168         # 7일
+  value_area_pct: 0.70        # 70%
+  hvn_top_pct: 0.25           # 상위 25%
+
+avwap:
+  hysteresis_pct: 0.0015      # 0.15% — 부록 H-2 확정
+
+module_a:
+  rsi_threshold_long: 38      # 부록 B 확정
+  rsi_threshold_short: 62     # 부록 C (대칭)
+  volume_mult: 1.2
+  min_rr: 1.5
+
+module_b:
+  chandelier_mult: 3.0        # 부록 G 확정
+  min_rr: 2.0
+
+risk:
+  daily_loss_limit_pct: 0.05
+  module_a_cb_count: 3
+  module_b_cb_count: 2
+  system_cb_count: 5
+  module_a_max_hold_h: 8
+  module_b_max_hold_h: 32
+  funding_rate_threshold: 0.001
+  max_positions: 2
+  base_risk_pct: 0.02
+
+universe:
+  min_volume_usdt: 50_000_000  # 부록 K 확정
+
+exchange:
+  testnet: true
+  leverage: 10

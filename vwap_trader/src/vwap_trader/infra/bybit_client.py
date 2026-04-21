@@ -1,0 +1,275 @@
+"""
+Bybit V5 API 클라이언트 — pybit.unified_trading.HTTP 기반
+Dev-Infra(박소연) 구현
+"""
+from __future__ import annotations
+
+import logging
+import os
+import time
+from datetime import datetime, timezone
+
+from pybit.unified_trading import HTTP
+
+from vwap_trader.models import Candle
+
+logger = logging.getLogger(__name__)
+
+_MAX_RETRIES = 3
+_BACKOFF_BASE = 1.0  # seconds
+
+
+def _call_with_retry(fn, *args, **kwargs):
+    """API 호출 래퍼: 최대 3회 재시도, 지수 백오프."""
+    for attempt in range(_MAX_RETRIES):
+        try:
+            return fn(*args, **kwargs)
+        except Exception as e:
+            err_msg = str(e).lower()
+            is_rate_limit = "rate limit" in err_msg or "10006" in err_msg or "429" in err_msg
+            if is_rate_limit and attempt < _MAX_RETRIES - 1:
+                wait = _BACKOFF_BASE * (2 ** attempt)
+                logger.warning("Rate limit hit — retrying in %.1fs (attempt %d/%d)", wait, attempt + 1, _MAX_RETRIES)
+                time.sleep(wait)
+            else:
+                raise
+    return None  # unreachable
+
+
+class BybitClient:
+    def __init__(self, api_key: str, api_secret: str, testnet: bool = True):
+        self._dry_run = os.environ.get("DRY_RUN", "").lower() == "true"
+        self._session = HTTP(
+            testnet=testnet,
+            api_key=api_key,
+            api_secret=api_secret,
+        )
+        if self._dry_run:
+            logger.info("BybitClient initialized in DRY_RUN mode (testnet=%s)", testnet)
+        else:
+            logger.info("BybitClient initialized (testnet=%s)", testnet)
+
+    # ── 내부 헬퍼 ──────────────────────────────────────────────
+
+    def _ok(self, resp: dict) -> bool:
+        """retCode 0 이면 성공."""
+        return isinstance(resp, dict) and resp.get("retCode") == 0
+
+    # ── 공개 메서드 ────────────────────────────────────────────
+
+    def ensure_hedge_mode(self) -> bool:
+        """포지션 모드를 헤지(BothSide)로 설정. 부팅 시 필수 호출."""
+        try:
+            resp = _call_with_retry(
+                self._session.switch_position_mode,
+                coin="USDT",
+                mode=3,  # 3 = BothSide hedge
+            )
+            if self._ok(resp):
+                logger.info("Hedge mode confirmed")
+                return True
+            # retCode 110025: 이미 해지 모드 → 성공으로 처리
+            if isinstance(resp, dict) and resp.get("retCode") == 110025:
+                logger.info("Hedge mode already set")
+                return True
+            logger.error("ensure_hedge_mode failed: %s", resp)
+            return False
+        except Exception as exc:
+            logger.error("ensure_hedge_mode exception: %s", exc)
+            return False
+
+    def ensure_isolated_margin(self, symbol: str) -> bool:
+        """심볼을 Isolated margin 모드로 설정."""
+        try:
+            resp = _call_with_retry(
+                self._session.switch_margin_mode,
+                category="linear",
+                symbol=symbol,
+                tradeMode=1,   # 1 = Isolated
+                buyLeverage="1",
+                sellLeverage="1",
+            )
+            if self._ok(resp):
+                logger.info("Isolated margin confirmed for %s", symbol)
+                return True
+            # retCode 110026: 이미 isolated → 성공으로 처리
+            if isinstance(resp, dict) and resp.get("retCode") == 110026:
+                logger.info("Isolated margin already set for %s", symbol)
+                return True
+            logger.error("ensure_isolated_margin failed for %s: %s", symbol, resp)
+            return False
+        except Exception as exc:
+            logger.error("ensure_isolated_margin exception for %s: %s", symbol, exc)
+            return False
+
+    def get_candles(self, symbol: str, interval: str, limit: int) -> list[Candle]:
+        """
+        OHLCV 캔들 리스트 반환.
+        interval: "60"(1h), "240"(4h) — Bybit kline interval 형식
+        """
+        try:
+            resp = _call_with_retry(
+                self._session.get_kline,
+                category="linear",
+                symbol=symbol,
+                interval=interval,
+                limit=limit,
+            )
+            if not self._ok(resp):
+                logger.error("get_candles failed for %s: %s", symbol, resp)
+                return []
+
+            raw_list = resp["result"]["list"]
+            candles: list[Candle] = []
+            for row in raw_list:
+                # Bybit kline row: [startTime, open, high, low, close, volume, turnover]
+                ts_ms, o, h, l, c, v = row[0], row[1], row[2], row[3], row[4], row[5]
+                candles.append(
+                    Candle(
+                        timestamp=datetime.fromtimestamp(int(ts_ms) / 1000, tz=timezone.utc),
+                        open=float(o),
+                        high=float(h),
+                        low=float(l),
+                        close=float(c),
+                        volume=float(v),
+                        symbol=symbol,
+                        interval=interval,
+                    )
+                )
+            # Bybit는 최신순 반환 → 시간순 정렬
+            candles.sort(key=lambda c: c.timestamp)
+            return candles
+        except Exception as exc:
+            logger.error("get_candles exception for %s: %s", symbol, exc)
+            return []
+
+    def get_funding_rate(self, symbol: str) -> float | None:
+        """현재 펀딩비 반환. 실패 시 None."""
+        try:
+            resp = _call_with_retry(
+                self._session.get_tickers,
+                category="linear",
+                symbol=symbol,
+            )
+            if not self._ok(resp):
+                logger.error("get_funding_rate failed for %s: %s", symbol, resp)
+                return None
+            items = resp["result"]["list"]
+            if not items:
+                return None
+            return float(items[0]["fundingRate"])
+        except Exception as exc:
+            logger.error("get_funding_rate exception for %s: %s", symbol, exc)
+            return None
+
+    def place_order(
+        self,
+        symbol: str,
+        side: str,
+        qty: float,
+        sl: float,
+        tp: float,
+        reduce_only: bool = False,
+    ) -> dict | None:
+        """
+        시장가 주문 실행.
+        side: "Buy" | "Sell"
+        DRY_RUN=true 이면 mock dict 반환.
+        """
+        if self._dry_run:
+            mock = {
+                "dry_run": True,
+                "symbol": symbol,
+                "side": side,
+                "qty": qty,
+                "sl": sl,
+                "tp": tp,
+                "reduce_only": reduce_only,
+                "orderId": "DRY_RUN_ORDER_ID",
+            }
+            logger.info("DRY_RUN place_order: %s", mock)
+            return mock
+
+        try:
+            params: dict = dict(
+                category="linear",
+                symbol=symbol,
+                side=side,
+                orderType="Market",
+                qty=str(qty),
+                stopLoss=str(sl),
+                takeProfit=str(tp),
+                reduceOnly=reduce_only,
+                timeInForce="IOC",
+                positionIdx=1 if side == "Buy" else 2,  # hedge mode
+            )
+            resp = _call_with_retry(self._session.place_order, **params)
+            if self._ok(resp):
+                logger.info("place_order success: %s %s qty=%s", side, symbol, qty)
+                return resp["result"]
+            logger.error("place_order failed for %s: %s", symbol, resp)
+            return None
+        except Exception as exc:
+            logger.error("place_order exception for %s: %s", symbol, exc)
+            return None
+
+    def cancel_order(self, symbol: str, order_id: str) -> bool:
+        """주문 취소. 성공 시 True."""
+        try:
+            resp = _call_with_retry(
+                self._session.cancel_order,
+                category="linear",
+                symbol=symbol,
+                orderId=order_id,
+            )
+            if self._ok(resp):
+                logger.info("cancel_order success: %s %s", symbol, order_id)
+                return True
+            logger.error("cancel_order failed for %s/%s: %s", symbol, order_id, resp)
+            return False
+        except Exception as exc:
+            logger.error("cancel_order exception for %s/%s: %s", symbol, order_id, exc)
+            return False
+
+    def get_position(self, symbol: str) -> dict | None:
+        """현재 포지션 정보 반환. 포지션 없으면 빈 dict, 실패 시 None."""
+        try:
+            resp = _call_with_retry(
+                self._session.get_positions,
+                category="linear",
+                symbol=symbol,
+            )
+            if not self._ok(resp):
+                logger.error("get_position failed for %s: %s", symbol, resp)
+                return None
+            items = resp["result"]["list"]
+            if not items:
+                return {}
+            # hedge mode: 두 항목(Buy/Sell) 반환 가능 → size > 0인 항목 우선
+            for item in items:
+                if float(item.get("size", 0)) > 0:
+                    return item
+            return items[0]
+        except Exception as exc:
+            logger.error("get_position exception for %s: %s", symbol, exc)
+            return None
+
+    def get_balance(self) -> float | None:
+        """통합 계좌 USDT 사용 가능 잔고 반환. 실패 시 None."""
+        try:
+            resp = _call_with_retry(
+                self._session.get_wallet_balance,
+                accountType="UNIFIED",
+                coin="USDT",
+            )
+            if not self._ok(resp):
+                logger.error("get_balance failed: %s", resp)
+                return None
+            coins = resp["result"]["list"][0]["coin"]
+            for coin in coins:
+                if coin["coin"] == "USDT":
+                    return float(coin["availableToWithdraw"])
+            return 0.0
+        except Exception as exc:
+            logger.error("get_balance exception: %s", exc)
+            return None
