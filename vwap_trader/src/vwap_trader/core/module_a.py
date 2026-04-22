@@ -13,8 +13,10 @@ RSI_OVERSOLD: float = 38             # 부록 B.1: 긴급 재회의 확정
 RSI_OVERBOUGHT: float = 65           # 부록 C.1: 부분 합의 초기값
 VOLUME_REVERSAL_MULT: float = 1.2    # 반전 캔들 거래량 기준
 VOLUME_EXHAUSTION_MULT: float = 0.5  # 극단적 거래량 소진
-STRUCTURAL_ATR_MULT: float = 0.5     # 구조적 레벨 근접 판단
+STRUCTURAL_ATR_MULT: float = 0.5     # 구조적 레벨 근접 판단 (near_poc / near_hvn)
+BELOW_VAL_ZONE_ATR_MULT: float = 1.0  # P3-2 VAL 하방 존 폭 (DOC-PATCH-007, 회의 #20 F 옵션 4)
 ATR_PERIOD: int = 14                 # 부록 B.1(i) 개정: Long 이탈 트리거 ATR 기간 (Wilder)
+VBZ_VOLUME_RATIO_THRESHOLD: float = 0.8   # 결정 #28: VBZ 저거래량 판정 기준
 
 
 # ─── 반전 캔들 패턴 (부록 B.2 / C.2) ─────────────────────────
@@ -165,12 +167,14 @@ def check_module_a_long(
     if deviation_candle is None:
         return EntryDecision(enter=False, reason="no_deviation")
 
-    # 조건 2: 구조적 지지 OR 극단적 거래량 소진
+    # 조건 2: 구조적 지지 OR 극단적 거래량 소진 (P3-2, DOC-PATCH-007)
+    #   VAL 근접 → VAL 하방 존(1.0·ATR) 으로 개정, near_poc/near_hvn 는 기존 유지
     deviation_ref = deviation_candle.close  # VP 근접 체크 기준점 (회의 #19 P2)
-    near_val = abs(deviation_ref - vp_layer.val) <= STRUCTURAL_ATR_MULT * atr
+    below_val_zone_lower = vp_layer.val - BELOW_VAL_ZONE_ATR_MULT * atr
+    below_val_zone = below_val_zone_lower <= deviation_ref < vp_layer.val
     near_poc = abs(deviation_ref - vp_layer.poc) <= STRUCTURAL_ATR_MULT * atr
     near_hvn = any(abs(deviation_ref - hvn) <= STRUCTURAL_ATR_MULT * atr for hvn in vp_layer.hvn_prices)
-    structural_support = near_val or near_poc or near_hvn
+    structural_support = below_val_zone or near_poc or near_hvn
     extreme_exhaustion = deviation_candle.volume < volume_ma20 * VOLUME_EXHAUSTION_MULT
 
     if not (structural_support or extreme_exhaustion):
@@ -189,13 +193,24 @@ def check_module_a_long(
     if last_candle.volume < volume_ma20 * VOLUME_REVERSAL_MULT:
         return EntryDecision(enter=False, reason="weak_reversal_volume")
 
+    in_value_area: bool = vp_layer.val <= last_candle.close <= vp_layer.vah
+    volume_ratio: float = last_candle.volume / volume_ma20 if volume_ma20 > 0 else 0.0
+    low_volume: bool = volume_ratio < VBZ_VOLUME_RATIO_THRESHOLD
+    vbz_active: bool = in_value_area and low_volume
+    vbz_consecutive_hours: int = _count_vbz_consecutive(candles_1h, vp_layer, volume_ma20)
+
     return EntryDecision(
         enter=True,
         direction="long",
         module="A",
         trigger_price=last_candle.close,
         evidence={
-            "regime": "Accumulation",
+            "regime": "VBZ",
+            "vbz_active": vbz_active,
+            "in_value_area": in_value_area,
+            "low_volume": low_volume,
+            "volume_ratio": volume_ratio,
+            "vbz_consecutive_hours": vbz_consecutive_hours,
             "daily_vwap": daily_vwap,
             "atr_14": atr_14,
             "deviation_threshold": deviation_threshold,
@@ -204,6 +219,9 @@ def check_module_a_long(
             "deviation_close": deviation_candle.close,
             "deviation_low": deviation_candle.low,  # SL structural_anchor 소비자 유지 (main.py:371 / engine.py:447)
             "structural_support": structural_support,
+            "below_val_zone": below_val_zone,           # P3-2 판정 결과 (DOC-PATCH-007)
+            "below_val_zone_lower": below_val_zone_lower,
+            "vp_val": vp_layer.val,
             "extreme_exhaustion": extreme_exhaustion,
             "reversal_pattern": _get_bullish_pattern_name(candles_1h),
             "rsi": rsi,
@@ -260,13 +278,24 @@ def check_module_a_short(
     if last_candle.volume < volume_ma20 * VOLUME_REVERSAL_MULT:
         return EntryDecision(enter=False, reason="weak_reversal_volume")
 
+    in_value_area: bool = vp_layer.val <= last_candle.close <= vp_layer.vah
+    volume_ratio: float = last_candle.volume / volume_ma20 if volume_ma20 > 0 else 0.0
+    low_volume: bool = volume_ratio < VBZ_VOLUME_RATIO_THRESHOLD
+    vbz_active: bool = in_value_area and low_volume
+    vbz_consecutive_hours: int = _count_vbz_consecutive(candles_1h, vp_layer, volume_ma20)
+
     return EntryDecision(
         enter=True,
         direction="short",
         module="A",
         trigger_price=last_candle.close,
         evidence={
-            "regime": "Accumulation",
+            "regime": "VBZ",
+            "vbz_active": vbz_active,
+            "in_value_area": in_value_area,
+            "low_volume": low_volume,
+            "volume_ratio": volume_ratio,
+            "vbz_consecutive_hours": vbz_consecutive_hours,
             "daily_vwap": daily_vwap,
             "deviation_candle_time": str(deviation_candle.timestamp),
             "deviation_high": deviation_candle.high,
@@ -277,6 +306,23 @@ def check_module_a_short(
             "reversal_volume_ratio": last_candle.volume / volume_ma20,
         },
     )
+
+
+def _count_vbz_consecutive(
+    candles_1h: list[Candle],
+    vp_layer: VolumeProfile,
+    volume_ma20: float,
+) -> int:
+    """최근 봉부터 역순으로 연속 VBZ 활성 봉 수를 반환 (C-22-6 모니터링용)."""
+    count = 0
+    for c in reversed(candles_1h):
+        in_va = vp_layer.val <= c.close <= vp_layer.vah
+        low_vol = (c.volume / volume_ma20 < VBZ_VOLUME_RATIO_THRESHOLD) if volume_ma20 > 0 else False
+        if in_va and low_vol:
+            count += 1
+        else:
+            break
+    return count
 
 
 def _calc_atr_from_candles(candles: list[Candle], period: int = ATR_PERIOD) -> float:

@@ -23,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from vwap_trader.core.module_a import (
+    _calc_atr_from_candles,  # BUG-CORE-004 경계 TC 에서 내부 atr 재현에 사용
     check_module_a_long,
     check_module_a_short,
 )
@@ -205,14 +206,18 @@ def long_inputs():
     """
     candles_1h = _build_long_pass_candles()
     # VP 근접 기준점 = deviation_close=94.0 (회의 #19 P2).
-    # _calc_atr_from_candles(candles) ≈ 1.29, STRUCTURAL_ATR_MULT*atr ≈ 0.645.
-    # val=94.5: |94.0-94.5|=0.5 ≤ 0.645 → near_val True.
+    # _calc_atr_from_candles(candles) ≈ 1.29048834.
+    #   · BELOW_VAL_ZONE_ATR_MULT*atr ≈ 1.2905  (P3-2 VAL 하방 존 폭, DOC-PATCH-007)
+    #   · STRUCTURAL_ATR_MULT*atr     ≈ 0.6452  (near_poc / near_hvn 허용 반경)
+    # val=94.5 → below_val_zone_lower = 94.5 - 1.2905 = 93.2095.
+    # below_val_zone 판정: 93.2095 <= 94.0 < 94.5 → True (신 공식, BUG-CORE-004).
+    # HVN=94.5 도 near_hvn |94.0-94.5|=0.5 ≤ 0.6452 → True 이므로 이중 안전망.
     # (deviation_low=90 은 evidence["deviation_low"] SL anchor 전용 — VP 근접 무관)
     vp_layer = VolumeProfile(
         poc=100.0,
-        val=94.5,           # deviation_close(94.0) 근처 → 구조적 지지 성립 (회의 #19 P2)
+        val=94.5,           # deviation_close(94.0) 가 val 하방 1.0·atr 존 안 → 구조적 지지 성립
         vah=110.0,
-        hvn_prices=[94.5],  # HVN 도 deviation_close 근처 존재
+        hvn_prices=[94.5],  # near_hvn 경로도 동시 성립 (이중 보강)
     )
     return {
         "candles_1h": candles_1h,
@@ -282,7 +287,7 @@ def test_long_all_conditions_pass_with_evidence(long_inputs):
     assert "deviation_low" in ev
     assert ev["deviation_low"] == pytest.approx(90.0)
     assert ev["structural_support"] is True
-    assert ev["regime"] == "Accumulation"
+    assert ev["regime"] == "VBZ"
     assert ev["reversal_pattern"] in (
         "hammer",
         "bullish_engulfing",
@@ -543,6 +548,143 @@ def test_long_rejects_wick_only_deviation(long_inputs):
 
 
 # ---------------------------------------------------------------------------
+# TC-new-1  Long: dev_ref == vp.val → below_val_zone=False (상단 배제 `<` 경계)
+#           BUG-CORE-004 회귀 가드. 하방 존 상단은 strict < 로 val 자체는 제외.
+# ---------------------------------------------------------------------------
+
+def test_long_below_val_zone_excludes_upper_boundary(long_inputs):
+    """dev_ref 가 정확히 vp.val 과 같을 때 below_val_zone=False 검증.
+
+    BUG-CORE-004 (DOC-PATCH-007) — 공식:
+        below_val_zone = (val - 1.0·atr) <= dev_ref < val   ← 상단은 strict <
+    dev_ref(=deviation_close)=94.0 을 vp.val 과 일치시키면 상단 조건 94.0 < 94.0
+    이 False 이므로 below_val_zone 은 반드시 False 이어야 한다.
+
+    structural_support 는 near_poc 경로로 별도 성립시켜 decision.enter=True 를
+    유지한 채로 evidence["below_val_zone"] False 만 단독 검증한다 (signal 분리).
+    """
+    long_inputs["vp_layer"] = VolumeProfile(
+        poc=94.0,           # dev_ref 와 일치 → near_poc True (|0| ≤ 0.5·atr)
+        val=94.0,           # ★ 경계: dev_ref == val → below_val_zone False 기대
+        vah=110.0,
+        hvn_prices=[300.0], # HVN 은 원거리 (near_hvn False 로 격리)
+    )
+
+    decision = check_module_a_long(**long_inputs)
+
+    assert decision.enter is True, f"near_poc 로 support 유지돼야 함. reason={decision.reason}"
+    ev = decision.evidence
+    assert ev["below_val_zone"] is False, "dev_ref == val 은 하방 존 상단 배제"
+    assert ev["vp_val"] == pytest.approx(94.0)
+    assert ev["structural_support"] is True  # near_poc 경로로 유지
+
+
+# ---------------------------------------------------------------------------
+# TC-new-2  Long: dev_ref == vp.val - 1.0·atr → below_val_zone=True (하단 `<=`)
+#           BUG-CORE-004 회귀 가드. 하방 존 하단은 inclusive `<=` 로 포함.
+# ---------------------------------------------------------------------------
+
+def test_long_below_val_zone_includes_lower_boundary(long_inputs):
+    """dev_ref 가 정확히 (val - 1.0·atr) 과 같을 때 below_val_zone=True 검증.
+
+    BUG-CORE-004 — 공식의 하단은 `(val - 1.0·atr) <= dev_ref` (inclusive).
+    _calc_atr_from_candles(candles) 를 호출해 내부 ATR 을 동일 계산식으로 재현한
+    뒤 val 을 `dev_ref + atr` 로 맞춘다. 이러면 below_val_zone_lower 가 정확히
+    dev_ref 와 같아져 경계 포함 여부를 직접 검증한다.
+
+    다른 지지 경로(near_poc/near_hvn) 는 원거리로 격리하여 오직 below_val_zone
+    으로만 structural_support 가 성립함을 확인한다.
+    """
+    atr_internal = _calc_atr_from_candles(long_inputs["candles_1h"])
+    dev_ref = 94.0  # = idx=15 close
+    val_exact = dev_ref + atr_internal  # → below_val_zone_lower == dev_ref
+
+    long_inputs["vp_layer"] = VolumeProfile(
+        poc=200.0,           # near_poc False (원거리)
+        val=val_exact,       # ★ 경계: dev_ref == val - 1.0·atr → True 기대
+        vah=300.0,
+        hvn_prices=[400.0],  # near_hvn False (원거리)
+    )
+
+    decision = check_module_a_long(**long_inputs)
+
+    assert decision.enter is True, (
+        f"하단 경계 포함(<=) 이므로 below_val_zone 단독으로 통과해야 함. "
+        f"reason={decision.reason}"
+    )
+    ev = decision.evidence
+    assert ev["below_val_zone"] is True, "dev_ref == val - 1.0·atr 은 하방 존 하단 포함"
+    assert ev["below_val_zone_lower"] == pytest.approx(dev_ref)
+    assert ev["vp_val"] == pytest.approx(val_exact)
+    assert ev["structural_support"] is True
+
+
+# ---------------------------------------------------------------------------
+# TC-new-3  Long: dev_ref > vp.val + near_poc 존재 → structural_support=True
+#           below_val_zone 경로가 실패해도 near_poc 대체 경로로 지지 성립.
+# ---------------------------------------------------------------------------
+
+def test_long_structural_support_via_near_poc_when_dev_ref_above_val(long_inputs):
+    """dev_ref 가 val 위쪽이라도 near_poc 근접 시 structural_support True.
+
+    BUG-CORE-004 — structural_support = below_val_zone OR near_poc OR near_hvn.
+    dev_ref(94.0) > val(90.0) 이므로 below_val_zone=False.
+    poc=94.0 으로 설정 → near_poc: |94.0-94.0|=0 ≤ 0.5·atr(≈0.645) → True.
+    → structural_support True → 통과.
+    """
+    long_inputs["vp_layer"] = VolumeProfile(
+        poc=94.0,            # dev_ref 와 일치 → near_poc True
+        val=90.0,            # dev_ref 위쪽 → below_val_zone False 기대
+        vah=110.0,
+        hvn_prices=[300.0],  # 원거리 → near_hvn False 로 경로 고립
+    )
+
+    decision = check_module_a_long(**long_inputs)
+
+    assert decision.enter is True, f"near_poc 로 지지 성립해야 함. reason={decision.reason}"
+    ev = decision.evidence
+    assert ev["below_val_zone"] is False, "dev_ref > val → 하방 존 밖"
+    assert ev["structural_support"] is True
+    assert ev["vp_val"] == pytest.approx(90.0)
+
+
+# ---------------------------------------------------------------------------
+# TC-new-4  Long: 구 공식 퇴행 방지 —
+#           dev_ref 가 val 위쪽 0.5·atr 영역 (구 near_val True 지점), near_poc/
+#           near_hvn/exhaustion 모두 없음 → 신 공식 기준 거부.
+# ---------------------------------------------------------------------------
+
+def test_long_rejects_dev_ref_above_val_old_near_val_window(long_inputs):
+    """구 near_val (|dev_ref - val| ≤ 0.5·atr, 대칭 창) 에서는 통과했던 지점을
+    신 공식(하방 존 한정) 에서는 거부함을 확인한다.
+
+    BUG-CORE-004 회귀 가드 — 공식 변경 전(대칭 near_val) 로 되돌아가면 본 TC 가
+    enter=True 로 거꾸러지므로 퇴행 즉시 실패한다.
+
+    setup:
+      dev_ref = 94.0, val = 93.8  (dev_ref - val = +0.2, 구 공식 창(≈0.645) 안)
+      poc = 200 (원거리), hvn_prices = [300] (원거리)
+      volume_ma20 = 120, 이탈 캔들 volume = 100 → exhaustion 불성립 (100 >= 60)
+    expect:
+      신 공식: 94.0 > 93.8 → below_val_zone=False, near_poc/hvn False,
+              exhaustion False → reject "no_support_no_exhaustion".
+    """
+    long_inputs["vp_layer"] = VolumeProfile(
+        poc=200.0,
+        val=93.8,            # ★ dev_ref 보다 살짝 아래 → below_val_zone False 기대
+        vah=210.0,
+        hvn_prices=[300.0],
+    )
+
+    decision = check_module_a_long(**long_inputs)
+
+    assert decision.enter is False, (
+        "구 대칭 near_val 공식이면 통과했을 지점 — 신 공식에서는 반드시 거부"
+    )
+    assert decision.reason == "no_support_no_exhaustion"
+
+
+# ---------------------------------------------------------------------------
 # TC-09  Short: 모든 조건 통과 + Evidence 필드 검증
 #         (TICKET §1.1 #9 숏 측면 보강)
 # ---------------------------------------------------------------------------
@@ -569,7 +711,7 @@ def test_short_all_conditions_pass_with_evidence(short_inputs):
     assert "deviation_high" in ev
     assert ev["deviation_high"] == pytest.approx(110.0)
     assert ev["structural_resistance"] is True
-    assert ev["regime"] == "Accumulation"
+    assert ev["regime"] == "VBZ"
     assert ev["reversal_pattern"] in (
         "shooting_star",
         "bearish_engulfing",

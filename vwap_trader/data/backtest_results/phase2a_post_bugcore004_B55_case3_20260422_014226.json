@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "mode": "post_bugcore004_single_combo",
+    "bugcore_fix": "BUG-CORE-004 (P3-2 below_val_zone \ud65c\uc131, BELOW_VAL_ZONE_ATR_MULT=1.0, near_val\u2192below_val_zone \uc804\ud658, DOC-PATCH-007)",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "below_val_zone_atr_mult": 1.0,
+    "structural_atr_mult": 0.5,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "date_from": "2023-01-01",
+    "date_to": "2026-03-31",
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "baseline_json": "C:\\Users\\DEV_BASIC\\Downloads\\code\\vwap_trader\\data\\backtest_results\\phase2a_post_bugcore002_20260421_110828.json",
+    "baseline_n": 3,
+    "baseline_set": "near_val (\u22642026-04-22)",
+    "new_set": "below_val_zone (\u22652026-04-22)",
+    "note": "F \uc635\uc158 4 \u2014 P3-2 1\uc21c\uc704 / P3-3 fallback \ube44\ud65c\uc131. B.5.5 \uc0ac\ub840 #3 (a)~(d) + M5 \uc6d4 \ube48\ub3c4 \ud0c0\uc784\ub77c\uc778 \uc2e0\uaddc. \ud1b5\uacfc \uae30\uc900 (C3 \uc774\uc911 \uac8c\uc774\ud2b8): n\u226550 \uc6d0\uce59 / n=30 \uc2dc WR\u226563% (p<0.05) / EV+ 55% \ubcd1\uc6a9."
+  },
+  "b55_case3": {
+    "n_deviation_calls": 0,
+    "below_val_zone_hits": 0,
+    "below_val_zone_ratio": null,
+    "near_poc_hits": 0,
+    "near_hvn_hits": 0,
+    "structural_support_hits": 0,
+    "structural_support_hit_rate": null,
+    "n_structural_support_trades": 0,
+    "structural_support_wr": null,
+    "verdicts": {
+      "a_below_val_zone_degen": {
+        "verdict": "n_\ubd80\uc871",
+        "threshold": "> 0.90 (n\u226510)",
+        "action_if_Y": "P3-3 \uc774\ud589 \ud2b8\ub9ac\uac70 (\uc989\uc2dc \ud3d0\uae30)"
+      },
+      "b_below_val_zone_absent": {
+        "verdict": "n_\ubd80\uc871",
+        "threshold": "< 0.05 (n\u226520)",
+        "action_if_Y": "P3-3 \ub610\ub294 \uc870\uac74 2 \ud3d0\uc9c0"
+      },
+      "c_structural_support_wr": {
+        "verdict": "n_\ubd80\uc871",
+        "threshold": "< 0.50 (n\u226530 SS trades \ub204\uc801)",
+        "action_if_Y": "\uc870\uac74 2 \uc804\uba74 \ud3d0\uc9c0"
+      },
+      "d_structural_support_degen": {
+        "verdict": "n_\ubd80\uc871",
+        "threshold": "> 0.60 (n\u226520, B \uc694\uad6c)",
+        "action_if_Y": "\ud1f4\ud654 \ud0d0\uc9c0 \u2014 \ud558\ud55c \uacc4\uc218 \uc7ac\uc870\uc815 \ub610\ub294 P3-3"
+      }
+    },
+    "any_triggered": false
+  }
+}

@@ -24,7 +24,11 @@ from vwap_trader.models import (
 from vwap_trader.core.regime import RegimeDetector
 from vwap_trader.core.volume_profile import compute_volume_profile, compute_va_slope
 from vwap_trader.core.avwap import compute_daily_vwap
-from vwap_trader.core.module_a import check_module_a_long, check_module_a_short
+from vwap_trader.core.module_a import (
+    check_module_a_long,
+    check_module_a_short,
+    VBZ_VOLUME_RATIO_THRESHOLD,
+)
 from vwap_trader.core.module_b import check_module_b_long, check_module_b_short
 from vwap_trader.core.sl_tp import (
     compute_sl_distance,
@@ -353,8 +357,13 @@ class BacktestEngine:
 
         state = risk_manager.current_state
 
-        # Module A (Accumulation)
-        if mode in ("module_a_only", "integrated") and regime == Regime.ACCUMULATION:
+        # Module A (VBZ)
+        _vbz_in_va: bool = vp.val <= bar.close <= vp.vah
+        _vbz_low_vol: bool = (
+            bar.volume < vol_ma20 * VBZ_VOLUME_RATIO_THRESHOLD if vol_ma20 > 0 else False
+        )
+        _is_vbz: bool = _vbz_in_va and _vbz_low_vol
+        if mode in ("module_a_only", "integrated") and _is_vbz:
             if state == TradingState.MODULE_A_HALT:
                 return None
 

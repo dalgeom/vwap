@@ -349,12 +349,17 @@ class _CMetricCounter:
         }
 
 
-def _wrap_check_module_a_c_metric(c_counter: _CMetricCounter, use_close: bool = False):
+def _wrap_check_module_a_c_metric(
+    c_counter: _CMetricCounter,
+    use_close: bool = False,
+    b55_counter: "_B55Case3Counter | None" = None,
+):
     """engine 네임스페이스 check_module_a_long 에 C 지표 계측 훅 추가.
 
     조건 재계산은 원본 _module_a_mod 상수를 참조해 독립 수행 (모듈 무손상).
     use_close=True: BUG-CORE-003 수정 반영 — deviation_candle.close 기준점 사용 (회의 #19 P2).
     use_close=False: 이전 동작 — deviation_candle.low 기준점 (post-bugcore002 호환).
+    b55_counter: BUG-CORE-004 / 회의 #20 B.5.5 사례 #3 (a)~(d) 계측용. None 이면 B.5.5 비수집.
     """
     orig = _engine_mod.check_module_a_long
 
@@ -369,17 +374,259 @@ def _wrap_check_module_a_c_metric(c_counter: _CMetricCounter, use_close: bool = 
                 deviation_candle = c
                 break
         c_met = False
+        below_val_zone = near_poc = near_hvn = False
         if deviation_candle is not None:
-            half_atr = _module_a_mod.STRUCTURAL_ATR_MULT * atr_int  # 0.5 × ATR
+            # 계측용 독립 재계산 (core single source of truth 아님).
+            # module_a.py check_module_a_long 조건 2 공식 변경 시 본 블록 동시 갱신 의무.
+            # 동기화 대상: below_val_zone / BELOW_VAL_ZONE_ATR_MULT(=1.0) / STRUCTURAL_ATR_MULT(=0.5)
+            # (회의 #20 F 판결, DOC-PATCH-007, BUG-CORE-004, 2026-04-22)
+            half_atr = _module_a_mod.STRUCTURAL_ATR_MULT * atr_int                 # 0.5 × ATR (near_poc/near_hvn)
+            below_zone = _module_a_mod.BELOW_VAL_ZONE_ATR_MULT * atr_int           # 1.0 × ATR (VAL 하방 존)
             dev_ref = deviation_candle.close if use_close else deviation_candle.low
-            near_val = abs(dev_ref - vp_layer.val) <= half_atr
+            below_val_zone_lower = vp_layer.val - below_zone
+            below_val_zone = below_val_zone_lower <= dev_ref < vp_layer.val
             near_poc = abs(dev_ref - vp_layer.poc) <= half_atr
             near_hvn = any(abs(dev_ref - hvn) <= half_atr for hvn in vp_layer.hvn_prices)
-            c_met = near_val or near_poc or near_hvn  # close < threshold 는 deviation_candle 존재로 보장
+            c_met = below_val_zone or near_poc or near_hvn  # close < threshold 는 deviation_candle 존재로 보장
         c_counter.record(candles_1h[-1].timestamp, c_met)
+        if b55_counter is not None and deviation_candle is not None:
+            # 회의 #20 B.5.5 사례 #3: (a)/(b) below_val_zone 단독 비율, (d) structural_support 전체.
+            # 계측 단위 = deviation_candle 검출된 호출 (조건 1 통과). 진입 성공 여부와 독립.
+            b55_counter.record_call(
+                symbol=candles_1h[-1].symbol,
+                ts=candles_1h[-1].timestamp,
+                below_val_zone=below_val_zone,
+                near_poc=near_poc,
+                near_hvn=near_hvn,
+            )
+            if result.enter:
+                # (c) 평가용 — trade 와 correlate: entry_time == candles_1h[-1].timestamp (engine.py:451/481)
+                b55_counter.record_entry(
+                    symbol=candles_1h[-1].symbol,
+                    ts=candles_1h[-1].timestamp,
+                    below_val_zone=below_val_zone,
+                    structural_support=bool(result.evidence.get("structural_support", c_met)),
+                )
         return result
 
     return w, orig
+
+
+# ─── B.5.5 사례 #3 반증 조건 (P3-2 below_val_zone) ─────────────────
+
+class _B55Case3Counter:
+    """B.5.5 사례 #3 반증 조건 (a)~(d) 계측.
+
+    - (a) below_val_zone=True 비율 (n≥10) > 90% → 퇴화, P3-3 이행 트리거.
+    - (b) below_val_zone=True 비율 (n≥20) < 5% → P3-3 또는 조건 2 폐지.
+    - (c) structural_support=True 진입의 WR (n≥30 누적) < 50% → 조건 2 전면 폐지.
+    - (d) structural_support hit rate (n≥20) > 60% → 퇴화 (B 요구).
+
+    n 정의:
+    - (a)(b)(d): deviation_candle 검출된 호출 건수 (조건 1 통과 시점, 진입 여부 무관).
+    - (c): structural_support=True 로 진입한 trade 건수.
+    """
+
+    def __init__(self) -> None:
+        self.deviation_calls: int = 0
+        self.below_val_zone_hits: int = 0
+        self.near_poc_hits: int = 0
+        self.near_hvn_hits: int = 0
+        self.structural_support_hits: int = 0
+        # (symbol, ts_iso) -> {below_val_zone, structural_support}
+        self.entry_conditions: dict[tuple[str, str], dict] = {}
+
+    def record_call(
+        self,
+        symbol: str,
+        ts: datetime,
+        below_val_zone: bool,
+        near_poc: bool,
+        near_hvn: bool,
+    ) -> None:
+        self.deviation_calls += 1
+        if below_val_zone:
+            self.below_val_zone_hits += 1
+        if near_poc:
+            self.near_poc_hits += 1
+        if near_hvn:
+            self.near_hvn_hits += 1
+        if below_val_zone or near_poc or near_hvn:
+            self.structural_support_hits += 1
+
+    def record_entry(
+        self,
+        symbol: str,
+        ts: datetime,
+        below_val_zone: bool,
+        structural_support: bool,
+    ) -> None:
+        self.entry_conditions[(symbol, ts.isoformat())] = {
+            "below_val_zone": below_val_zone,
+            "structural_support": structural_support,
+        }
+
+    def _bvz_ratio(self) -> float | None:
+        if self.deviation_calls == 0:
+            return None
+        return self.below_val_zone_hits / self.deviation_calls
+
+    def _ss_ratio(self) -> float | None:
+        if self.deviation_calls == 0:
+            return None
+        return self.structural_support_hits / self.deviation_calls
+
+    def evaluate(self, trades: list[dict]) -> dict:
+        """(a)~(d) 판정. trades = serialized trade dicts (entry_time=isoformat)."""
+        bvz = self._bvz_ratio()
+        ss = self._ss_ratio()
+        n_call = self.deviation_calls
+
+        # (a) n≥10 후 below_val_zone 비율 > 90%
+        if n_call < 10 or bvz is None:
+            a_verdict = "n_부족"
+        else:
+            a_verdict = "Y" if bvz > 0.90 else "N"
+
+        # (b) n≥20 후 below_val_zone 비율 < 5%
+        if n_call < 20 or bvz is None:
+            b_verdict = "n_부족"
+        else:
+            b_verdict = "Y" if bvz < 0.05 else "N"
+
+        # (c) structural_support=True 진입의 WR (n≥30 누적) < 50%
+        ss_trades = [
+            t for t in trades
+            if self.entry_conditions.get((t.get("symbol", "?"), t["entry_time"]), {}).get("structural_support")
+        ]
+        n_ss = len(ss_trades)
+        if n_ss == 0:
+            ss_wr = None
+        else:
+            ss_wr = sum(1 for t in ss_trades if t["pnl_pct"] > 0) / n_ss
+        if n_ss < 30 or ss_wr is None:
+            c_verdict = "n_부족"
+        else:
+            c_verdict = "Y" if ss_wr < 0.50 else "N"
+
+        # (d) structural_support hit rate (n≥20) > 60%
+        if n_call < 20 or ss is None:
+            d_verdict = "n_부족"
+        else:
+            d_verdict = "Y" if ss > 0.60 else "N"
+
+        return {
+            "n_deviation_calls": n_call,
+            "below_val_zone_hits": self.below_val_zone_hits,
+            "below_val_zone_ratio": round(bvz, 4) if bvz is not None else None,
+            "near_poc_hits": self.near_poc_hits,
+            "near_hvn_hits": self.near_hvn_hits,
+            "structural_support_hits": self.structural_support_hits,
+            "structural_support_hit_rate": round(ss, 4) if ss is not None else None,
+            "n_structural_support_trades": n_ss,
+            "structural_support_wr": round(ss_wr, 4) if ss_wr is not None else None,
+            "verdicts": {
+                "a_below_val_zone_degen": {
+                    "verdict": a_verdict,
+                    "threshold": "> 0.90 (n≥10)",
+                    "action_if_Y": "P3-3 이행 트리거 (즉시 폐기)",
+                },
+                "b_below_val_zone_absent": {
+                    "verdict": b_verdict,
+                    "threshold": "< 0.05 (n≥20)",
+                    "action_if_Y": "P3-3 또는 조건 2 폐지",
+                },
+                "c_structural_support_wr": {
+                    "verdict": c_verdict,
+                    "threshold": "< 0.50 (n≥30 SS trades 누적)",
+                    "action_if_Y": "조건 2 전면 폐지",
+                },
+                "d_structural_support_degen": {
+                    "verdict": d_verdict,
+                    "threshold": "> 0.60 (n≥20, B 요구)",
+                    "action_if_Y": "퇴화 탐지 — 하한 계수 재조정 또는 P3-3",
+                },
+            },
+            "any_triggered": any(
+                v == "Y" for v in (a_verdict, b_verdict, c_verdict, d_verdict)
+            ),
+        }
+
+
+# ─── M5 월별 신호 빈도 타임라인 (회의 #20 Q3 D 수정안) ──────────────
+
+def _compute_m5_monthly_frequency(
+    trades: list[dict],
+    date_from: str | None,
+    date_to: str | None,
+) -> dict:
+    """M5 타임라인: 월별 진입 수 + 6개월 rolling 경보.
+
+    경보 조건: 임의의 6개월 연속 구간 누적 n < 3 → "검증 지연 경보" 발령.
+    (12개월 추가 후 n<10 폐기 조항은 단일 런 39개월 범위 밖, 본 출력은 참고치로만 포함.)
+    """
+    # 범위 결정 — date_from/to 있으면 그 범위, 없으면 trades 경계.
+    def _parse_ym(iso: str) -> tuple[int, int]:
+        return int(iso[:4]), int(iso[5:7])
+
+    if date_from:
+        y0, m0 = int(date_from[:4]), int(date_from[5:7])
+    elif trades:
+        y0, m0 = _parse_ym(min(t["entry_time"] for t in trades))
+    else:
+        y0, m0 = 2023, 1
+    if date_to:
+        y1, m1 = int(date_to[:4]), int(date_to[5:7])
+    elif trades:
+        y1, m1 = _parse_ym(max(t["entry_time"] for t in trades))
+    else:
+        y1, m1 = 2026, 3
+
+    # 월 키 생성
+    months: list[str] = []
+    y, m = y0, m0
+    while (y, m) <= (y1, m1):
+        months.append(f"{y:04d}-{m:02d}")
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+
+    counts: dict[str, int] = {k: 0 for k in months}
+    for t in trades:
+        key = t["entry_time"][:7]
+        if key in counts:
+            counts[key] += 1
+
+    # 6개월 rolling 누적
+    rolling: list[dict] = []
+    alarm_windows: list[dict] = []
+    for i in range(len(months) - 5):
+        window = months[i : i + 6]
+        cum = sum(counts[k] for k in window)
+        rec = {"start": window[0], "end": window[-1], "cum_n": cum}
+        rolling.append(rec)
+        if cum < 3:
+            alarm_windows.append(rec)
+
+    total = sum(counts.values())
+    n_months = len(months)
+    avg_per_month = total / n_months if n_months else 0.0
+    any_alarm = len(alarm_windows) > 0
+
+    return {
+        "n_months": n_months,
+        "n_trades_total": total,
+        "avg_trades_per_month": round(avg_per_month, 3),
+        "by_month": counts,
+        "rolling_6m": rolling,
+        "alarm_windows_lt_3": alarm_windows,
+        "any_alarm": any_alarm,
+        "note": (
+            "M5 타임라인 (회의 #20 Q3 D 수정안). 6개월 rolling 누적 <3회 발견 시 "
+            "'검증 지연 경보' 플래그. 12개월 후 n<10 폐기 조항은 39개월 범위 밖 추적용."
+        ),
+    }
 
 
 # ─── baseline 로드 + D 지표 + 반증 조건 ──────────────────────────────
@@ -582,12 +829,16 @@ def run_single_diagnostic(
     combo: dict,
     collect_c_metric: bool = False,
     c_metric_use_close: bool = False,
-) -> tuple[dict, list[dict], _ReasonCounter, _SLBindingCounter, "_CMetricCounter | None"]:
+    collect_b55_case3: bool = False,
+) -> tuple[dict, list[dict], _ReasonCounter, _SLBindingCounter,
+           "_CMetricCounter | None", "_B55Case3Counter | None"]:
     """단일 조합 1회 실행. F 옵션 1 — S2 신호 품질 진단 전용.
 
     Grid 탐색 아님. ATR_BUFFER / MIN_SL_PCT / σ 값은 combo 에 고정.
     collect_c_metric=True 시 _CMetricCounter 도 반환 (5번째 원소).
     c_metric_use_close=True: BUG-CORE-003 수정 후 C 지표 — deviation_candle.close 기준.
+    collect_b55_case3=True: BUG-CORE-004 / 회의 #20 B.5.5 사례 #3 (a)~(d) 계측기 반환 (6번째 원소).
+        c_metric 훅 내부에 piggy-back — collect_c_metric=True 필수 전제.
     """
     atr_buf = combo["ATR_BUFFER"]
     min_sl = combo["MIN_SL_PCT"]
@@ -596,10 +847,17 @@ def run_single_diagnostic(
     sl_counter = _SLBindingCounter()
     reason_counter = _ReasonCounter()
     c_counter: "_CMetricCounter | None" = _CMetricCounter() if collect_c_metric else None
+    b55_counter: "_B55Case3Counter | None" = (
+        _B55Case3Counter() if collect_b55_case3 else None
+    )
+    if b55_counter is not None and c_counter is None:
+        # 계측 훅이 c_metric wrapper 에 piggy-back 되므로 c_counter 가 필수.
+        raise ValueError("collect_b55_case3=True 는 collect_c_metric=True 전제")
 
     logger.info(
-        "[S2-diagnostic] 단일 조합: ATR_BUFFER=%.2f MIN_SL_PCT=%.3f σ=±%.1f collect_c=%s",
-        atr_buf, min_sl, sigma_entry, collect_c_metric,
+        "[S2-diagnostic] 단일 조합: ATR_BUFFER=%.2f MIN_SL_PCT=%.3f σ=±%.1f "
+        "collect_c=%s collect_b55=%s",
+        atr_buf, min_sl, sigma_entry, collect_c_metric, collect_b55_case3,
     )
 
     with _patch_module_a_params(atr_buf, min_sl, sigma_entry):
@@ -611,7 +869,9 @@ def run_single_diagnostic(
         _engine_mod.check_module_a_short = w_short
         # C 지표 훅 — reason wrapper 위에 추가 적층 (long 만, Q3 의무)
         if c_counter is not None:
-            w_long_c, orig_long_c = _wrap_check_module_a_c_metric(c_counter, use_close=c_metric_use_close)
+            w_long_c, orig_long_c = _wrap_check_module_a_c_metric(
+                c_counter, use_close=c_metric_use_close, b55_counter=b55_counter,
+            )
             _engine_mod.check_module_a_long = w_long_c
         try:
             engine = BacktestEngine(config={"regime": regime_params})
@@ -648,7 +908,7 @@ def run_single_diagnostic(
         "sl_min_clamp_bound": binding["min_sl_pct_bound"],
     }
     trades_serialized = _serialize_trades(result.trades)
-    return metrics, trades_serialized, reason_counter, sl_counter, c_counter
+    return metrics, trades_serialized, reason_counter, sl_counter, c_counter, b55_counter
 
 
 def save_post_bugcore002_outputs(
@@ -758,6 +1018,66 @@ def save_post_bugcore003_outputs(
         "c_metric": c_path,
         "d_metric": d_path,
         "a_reversal": a_path,
+    }
+
+
+def save_post_bugcore004_outputs(
+    metrics: dict,
+    trades: list[dict],
+    reason_counter: "_ReasonCounter",
+    c_metric: dict,
+    d_metric: dict,
+    b55_case3: dict,
+    m5_frequency: dict,
+    out_dir: Path,
+    run_meta: dict,
+) -> dict:
+    """Post-BUGCORE004 산출물 5종 + trades.jsonl 저장 (회의 #20 F 옵션 4).
+
+    phase2a_post_bugcore004_{ts}.json                        — 메인 (meta + metrics + 분포)
+    phase2a_post_bugcore004_{ts}_trades.jsonl                — trade-level 상세 (Postmortem 의무)
+    phase2a_post_bugcore004_C_metric_{ts}.json               — C 지표 (close + 신 공식)
+    phase2a_post_bugcore004_D_metric_{ts}.json               — D 지표 + 95% CI (집합 다름 라벨)
+    phase2a_post_bugcore004_B55_case3_{ts}.json              — 반증 (a)~(d) 판정
+    phase2a_post_bugcore004_M5_frequency_{ts}.json           — 월 빈도 타임라인 + rolling 경보
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+
+    main_path = out_dir / f"phase2a_post_bugcore004_{ts}.json"
+    trades_path = out_dir / f"phase2a_post_bugcore004_{ts}_trades.jsonl"
+    c_path = out_dir / f"phase2a_post_bugcore004_C_metric_{ts}.json"
+    d_path = out_dir / f"phase2a_post_bugcore004_D_metric_{ts}.json"
+    b55_path = out_dir / f"phase2a_post_bugcore004_B55_case3_{ts}.json"
+    m5_path = out_dir / f"phase2a_post_bugcore004_M5_frequency_{ts}.json"
+
+    distribution = _signal_distribution(trades)
+    breakdown = reason_counter.summary()
+
+    main_path.write_text(json.dumps(
+        {"meta": run_meta, "metrics": metrics,
+         "signal_distribution": distribution,
+         "condition_breakdown_ref": breakdown["top_bottleneck"]},
+        indent=2,
+    ))
+    with trades_path.open("w") as f:
+        for t in trades:
+            f.write(json.dumps(t) + "\n")
+    c_path.write_text(json.dumps({"meta": run_meta, "c_metric": c_metric}, indent=2))
+    d_path.write_text(json.dumps({"meta": run_meta, "d_metric": d_metric}, indent=2))
+    b55_path.write_text(json.dumps({"meta": run_meta, "b55_case3": b55_case3}, indent=2))
+    m5_path.write_text(json.dumps({"meta": run_meta, "m5_frequency": m5_frequency}, indent=2))
+
+    for p in (main_path, trades_path, c_path, d_path, b55_path, m5_path):
+        logger.info("Saved: %s", p)
+
+    return {
+        "main": main_path,
+        "trades": trades_path,
+        "c_metric": c_path,
+        "d_metric": d_path,
+        "b55_case3": b55_path,
+        "m5_frequency": m5_path,
     }
 
 
@@ -918,7 +1238,7 @@ def main() -> None:
              "Grid 탐색 비활성. 신호 품질 측정 전용.")
     # F 옵션 2 — Post-BUGCORE002 재실행 (Q3 C/D 지표 포함, 2026-04-21 회의 #18)
     ap.add_argument("--post-bugcore002", action="store_true",
-        help="BUG-CORE-002 수정 후 재실행 모드. Q3 C/D 지표 + 순EV 델타 95% CI 산출. "
+        help="BUG-CORE-002 수정 후 재실행 모드. Q3 C/D 지표 + 순EV 델타 95%% CI 산출. "
              "단일 조합 고정 (ATR_BUFFER=2.8 / MIN_SL_PCT=0.015 / σ=-2.0). Grid 탐색 금지.")
     ap.add_argument("--baseline-json", default=None,
         help="D 지표 baseline 경로. 미지정 시 data/backtest_results/phase2a_S2_diagnostic_20260421_065357.json 사용.")
@@ -928,6 +1248,14 @@ def main() -> None:
              "단일 조합 고정 (ATR_BUFFER=2.8 / MIN_SL_PCT=0.015 / σ=-2.0). Grid 탐색 금지.")
     ap.add_argument("--baseline-bugcore002", default=None,
         help="Post-BUGCORE003 D 지표 baseline 경로. 미지정 시 data/backtest_results/phase2a_post_bugcore002_20260421_110828.json 사용.")
+    # F 옵션 4 — Post-BUGCORE004 재실행 (회의 #20 P3-2 below_val_zone + B.5.5 사례 #3 + M5)
+    ap.add_argument("--post-bugcore004", action="store_true",
+        help="회의 #20 F 옵션 4 — P3-2 below_val_zone 활성 후 재실행. "
+             "Q3 C/D 지표 + B.5.5 사례 #3 (a)~(d) + M5 월 빈도 타임라인. "
+             "단일 조합 고정 (ATR_BUFFER=2.8 / MIN_SL_PCT=0.015 / σ=-2.0). Grid 탐색 금지.")
+    ap.add_argument("--baseline-bugcore004", default=None,
+        help="Post-BUGCORE004 D 지표 baseline 경로. 미지정 시 phase2a_post_bugcore002_20260421_110828.json 사용 "
+             "(⚠️ near_val vs below_val_zone 집합 다름 — 수치 직접 비교 금지).")
     args = ap.parse_args()
 
     # Regime 파라미터 결정
@@ -979,7 +1307,7 @@ def main() -> None:
         baseline_n = len(baseline_trades)
         logger.info("Baseline loaded: %d trades from %s", baseline_n, baseline_path)
 
-        metrics, trades_ser, reason_counter, _sl_counter, c_counter = run_single_diagnostic(
+        metrics, trades_ser, reason_counter, _sl_counter, c_counter, _b55 = run_single_diagnostic(
             candles_1h, candles_4h, regime_params, S2_DIAGNOSTIC_COMBO,
             collect_c_metric=True,
         )
@@ -1038,7 +1366,7 @@ def main() -> None:
         baseline_n = len(baseline_trades)
         logger.info("Baseline loaded: %d trades from %s", baseline_n, baseline_path)
 
-        metrics, trades_ser, reason_counter, _sl_counter, c_counter = run_single_diagnostic(
+        metrics, trades_ser, reason_counter, _sl_counter, c_counter, _b55 = run_single_diagnostic(
             candles_1h, candles_4h, regime_params, S2_DIAGNOSTIC_COMBO,
             collect_c_metric=True,
             c_metric_use_close=True,  # BUG-CORE-003: close 기준 C 지표
@@ -1087,9 +1415,101 @@ def main() -> None:
         )
         return
 
+    # ── F 옵션 4: Post-BUGCORE004 재실행 (회의 #20 P3-2 + B.5.5 사례 #3 + M5) ───
+    if args.post_bugcore004:
+        default_baseline = (
+            Path(args.out_dir) / "phase2a_post_bugcore002_20260421_110828.json"
+        )
+        baseline_path = Path(args.baseline_bugcore004) if args.baseline_bugcore004 else default_baseline
+        baseline_trades = _load_baseline_trades(baseline_path)
+        baseline_n = len(baseline_trades)
+        logger.info("Baseline loaded: %d trades from %s", baseline_n, baseline_path)
+        logger.warning(
+            "⚠️ D 지표 집합 다름: baseline=near_val (≤2026-04-22 이전), new=below_val_zone (≥2026-04-22). "
+            "수치 직접 비교 금지 — 참고치로만 해석."
+        )
+
+        metrics, trades_ser, reason_counter, _sl_counter, c_counter, b55_counter = run_single_diagnostic(
+            candles_1h, candles_4h, regime_params, S2_DIAGNOSTIC_COMBO,
+            collect_c_metric=True,
+            c_metric_use_close=True,  # BUG-CORE-003 반영 유지
+            collect_b55_case3=True,   # BUG-CORE-004 / 회의 #20 신규
+        )
+        assert c_counter is not None and b55_counter is not None
+
+        c_metric = c_counter.summary()
+        d_metric = _compute_d_metric(trades_ser, baseline_trades)
+        # 집합 다름 라벨 — Dev-Core 경고 반영
+        d_metric["baseline_label"] = "near_val (≤2026-04-22, BUG-CORE-002/003 기준)"
+        d_metric["new_label"] = "below_val_zone (≥2026-04-22, BUG-CORE-004 기준)"
+        d_metric["comparison_warning"] = (
+            "near_val 집합 ≠ below_val_zone 집합. 평균 델타 수치 직접 비교 금지. "
+            "95% CI 는 새 분포의 EV 추정용으로만 사용."
+        )
+        b55_case3 = b55_counter.evaluate(trades_ser)
+        m5_frequency = _compute_m5_monthly_frequency(
+            trades_ser, args.date_from, args.date_to,
+        )
+
+        run_meta = {
+            "mode": "post_bugcore004_single_combo",
+            "bugcore_fix": (
+                "BUG-CORE-004 (P3-2 below_val_zone 활성, BELOW_VAL_ZONE_ATR_MULT=1.0, "
+                "near_val→below_val_zone 전환, DOC-PATCH-007)"
+            ),
+            "combo": S2_DIAGNOSTIC_COMBO,
+            "below_val_zone_atr_mult": _module_a_mod.BELOW_VAL_ZONE_ATR_MULT,
+            "structural_atr_mult": _module_a_mod.STRUCTURAL_ATR_MULT,
+            "symbols": args.symbols.split(","),
+            "date_from": args.date_from,
+            "date_to": args.date_to,
+            "regime_params": regime_params,
+            "baseline_json": str(baseline_path),
+            "baseline_n": baseline_n,
+            "baseline_set": "near_val (≤2026-04-22)",
+            "new_set": "below_val_zone (≥2026-04-22)",
+            "note": (
+                "F 옵션 4 — P3-2 1순위 / P3-3 fallback 비활성. "
+                "B.5.5 사례 #3 (a)~(d) + M5 월 빈도 타임라인 신규. "
+                "통과 기준 (C3 이중 게이트): n≥50 원칙 / n=30 시 WR≥63% (p<0.05) / EV+ 55% 병용."
+            ),
+        }
+        save_post_bugcore004_outputs(
+            metrics, trades_ser, reason_counter,
+            c_metric, d_metric, b55_case3, m5_frequency,
+            Path(args.out_dir), run_meta,
+        )
+
+        # 의장 지정 stdout 1단락
+        pf_s = f"{metrics['pf']:.2f}" if metrics["pf"] is not None else "inf"
+        wr_s = f"{metrics['win_rate'] * 100:.1f}"
+        ev_s = f"{metrics['ev_per_trade']:.4f}"
+        c_pct = c_metric["c_metric_overall_pct"]
+        d_med = d_metric.get("delta_median")
+        ci_lo = d_metric.get("ci_95_lower")
+        ci_hi = d_metric.get("ci_95_upper")
+        n_new = metrics["n_trades"]
+        d_med_s = f"{d_med:.4f}" if d_med is not None else "N/A"
+        ci_s = (f"{ci_lo:.4f}, {ci_hi:.4f}" if ci_lo is not None else "N/A (n<2)")
+        v = b55_case3["verdicts"]
+        a_v = v["a_below_val_zone_degen"]["verdict"]
+        b_v = v["b_below_val_zone_absent"]["verdict"]
+        c_v = v["c_structural_support_wr"]["verdict"]
+        d_v = v["d_structural_support_degen"]["verdict"]
+        m5_alarm = "Y" if m5_frequency["any_alarm"] else "N"
+        print(
+            f"[Post-BUGCORE004] 39개월 / n_trades {n_new} (baseline 3) / "
+            f"PF {pf_s} / WR {wr_s}% / EV {ev_s} / "
+            f"C metric {c_pct}% (baseline 0.0%) / "
+            f"순EV 델타 median {d_med_s} [95% CI: {ci_s}] / "
+            f"B.5.5 사례 #3 반증: (a){a_v}/(b){b_v}/(c){c_v}/(d){d_v} / "
+            f"M5 경보: {m5_alarm}"
+        )
+        return
+
     # ── F 옵션 1: S2 신호 품질 진단 (단일 조합) ────────────────────
     if args.single_combo:
-        metrics, trades_ser, reason_counter, _sl_counter, _c = run_single_diagnostic(
+        metrics, trades_ser, reason_counter, _sl_counter, _c, _b55 = run_single_diagnostic(
             candles_1h, candles_4h, regime_params, S2_DIAGNOSTIC_COMBO,
         )
         run_meta = {
