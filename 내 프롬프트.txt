@@ -25,6 +25,43 @@
 - 지금 해야 할 일 한 줄 (예: "Agent F에게 Q2 답변 프롬프트 작성")
 - 부트스트랩 프롬프트(의장 역할)는 이미 붙인 전제로 간결하게
 
+# VWAP-Trader 세션 인계 프롬프트
+
+> 전제: 의장 부트스트랩(내 프롬프트.txt #7)은 이미 적용된 상태.
+> git pull 후 이 메시지를 첫 입력으로 사용.
+
+---
+
+## 현재 상태 (2026-04-22 기준)
+
+### 직전 완료 작업
+- **회의 #22** 완료: Module A Long regime 교체 설계 확정
+  - ARR 후보 → C-22-3 자동 트리거(BTCUSDT 4H 비회귀 96.7%) → **채택 불가 확정**
+  - VBZ(Volume Balance Zone) 채택 확정 (결정 #28)
+  - 조건: `val_7d ≤ close ≤ vah_7d AND volume < MA20×0.8`, strict boundary (close < VAL = 즉시 이탈)
+- **TICKET-CORE-001** 완료: Dev-Core(이승준) VBZ 구현 적용
+  - `module_a.py`: `"regime": "Accumulation"` → `"VBZ"`, VBZ evidence 5개 필드, `_count_vbz_consecutive()` 헬퍼
+  - `engine.py`: `Regime.ACCUMULATION` 게이트 → `_is_vbz` inline 조건 교체
+  - `pytest 77 passed / 3 skipped / 2 xfailed` ✅
+
+### 근거 문서
+- `vwap_trader_design/meetings/meeting_22_module_a_redesign_2026_04_22.md` (§C, §F 최종 판결)
+- `vwap_trader_design/decisions/decision_log.md` 결정 #25 ~ #28
+- `vwap_trader_design/tickets/TICKET-CORE-001.md` (OPEN → 구현 완료, 상태 미갱신)
+- `vwap_trader_design/tickets/TICKET-BT-008.md` (ARR, CLOSED)
+- `vwap_trader_design/tickets/TICKET-BT-009.md` (VBZ 실증, CLOSED)
+
+---
+
+## 지금 해야 할 일 (우선순위 순)
+
+1. **TICKET-CORE-001 상태 CLOSED로 갱신** (파일 헤더 `status: OPEN` → `CLOSED`)
+2. **DOC-PATCH-011** — Agent E(한지훈)에게 `PLAN.md §3.3` + C-22-6 내용 최신화 위임
+3. **Dev-QA** — VBZ 경계 TC 신규 작성 + 회귀 확인
+4. **Dev-Backtest** — VBZ 구현 후 post-implementation 백테스트 (Phase 2B)
+
+**바로 시작할 작업**: TICKET-CORE-001 CLOSED 처리 후 Agent E DOC-PATCH-011 프롬프트 작성
+
 
 3. 쉽게 다시 설명 요청
 ----------------------
