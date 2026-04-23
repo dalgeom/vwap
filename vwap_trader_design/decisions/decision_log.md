@@ -1389,3 +1389,33 @@ C-22-3 기준(≥50%) 압도적 초과. ARR regime(저변동성 횡보)에서 VW
 - TICKET-BT-009 CLOSED
 - TICKET-CORE-001: Dev-Core VBZ 구현 착수
 - DOC-PATCH-011: E가 PLAN.md §3.3 + C-22-6 반영
+- Phase 2B: TICKET-CORE-001 구현 후 백테스트 → ESC-001 구조적 충돌 발견 → 회의 #23 개최
+
+---
+
+## ESC-001 — VBZ × Module A Long 조건 1 구조적 상호 배제 (2026-04-23)
+
+**발견자**: Dev-Backtest (정민호) / Phase 2B 백테스트
+**심각도**: Critical — 철칙 달성 불가
+
+### 발견 내용
+Phase 2B 결과: BTC n=0 / ETH n=0. VBZ 게이트 정상 발동(43.8%, 21건/일)에도
+Module A Long 진입 0건. 차단 원인 89.7%가 `no_deviation`.
+
+### 충돌 구조
+| 조건 | 요구사항 |
+|---|---|
+| VBZ 게이트 | `VAL ≤ close ≤ VAH` (가격이 가치 구간 **내부**) |
+| Module A Long 조건 1 | `close < VWAP - 2×ATR` (가격이 VWAP 아래로 **대폭 이탈**) |
+
+실제 시장: `VWAP - 2×ATR ≪ VAL` 이 일반적 → 두 조건 동시 충족 불가.
+
+### 의미
+- VBZ는 "횡보·균형 국면" 판별 → 가격이 가치 구간 안에 있는 상태
+- 조건 1은 "강한 하방 이탈" 요구 → 가치 구간 탈출 상태
+- 개념 수준에서 상호 모순. 회의 #22 당시 백테스트 전 포착 누락.
+
+### 회의 #23 개최 결정
+- 안건: VBZ × 조건 1 충돌 해소 방안 설계
+- 필수 참석: A(평균회귀), C(VP), G(전제 의심), F(최종 판결)
+- 결정 필요 항목: 조건 1 재정의 vs VBZ 게이트 재설계 vs 대안 regime 전환

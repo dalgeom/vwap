@@ -1,0 +1,227 @@
+{
+  "meta": {
+    "phase": "2B_vbz_impl",
+    "ticket": "TICKET-CORE-001",
+    "decision": "결정 #28 — VBZ Regime Filter 채택 확정",
+    "mode": "module_a_only",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "date_from": "2023-01-01",
+    "date_to": "2026-03-31",
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "regime_params": {
+      "atr_threshold": 0.015,
+      "ema_slope_threshold": 0.003,
+      "va_slope_threshold": 0.005
+    },
+    "phase2a_baseline": {
+      "n_trades": 3,
+      "file": "phase2a_post_bugcore004_20260422_014226.json",
+      "gate": "Regime.ACCUMULATION"
+    },
+    "vbz_gate": {
+      "description": "VA 내(VAL≤close≤VAH) + 저거래량(volume < MA20×0.8)",
+      "threshold": 0.8
+    }
+  },
+  "metrics": {
+    "combo": {
+      "ATR_BUFFER": 2.8,
+      "MIN_SL_PCT": 0.015,
+      "SIGMA_ENTRY": 2.0
+    },
+    "phase2a_baseline_n": 3,
+    "n_trades_total": 0,
+    "n_delta_vs_phase2a": -3,
+    "win_rate": 0.0,
+    "ev_per_trade": 0.0,
+    "profit_factor": null,
+    "mdd": 0.0,
+    "cum_pnl_pct": 0,
+    "cum_pnl_positive": false,
+    "n_vbz_bars_total": 24946,
+    "daily_vbz_avg": 21.034,
+    "calendar_days": 1186,
+    "condition_pass_rate_pct": 0.0,
+    "iron_rule": {
+      "monthly_avg": 0.0,
+      "monthly_min_threshold": 60,
+      "monthly_pass": false,
+      "cum_pnl_positive": false,
+      "both_pass": false
+    },
+    "vbz_consecutive_hours": {
+      "median": null,
+      "max": null,
+      "count": 0
+    },
+    "vbz_by_symbol_bars": {
+      "BTCUSDT": 12680,
+      "ETHUSDT": 12266
+    },
+    "vbz_long_entries_by_sym": {},
+    "vbz_short_entries_by_sym": {}
+  },
+  "signal_distribution": {
+    "n_trades_total": 0,
+    "by_month": {},
+    "by_quarter": {},
+    "by_regime": {},
+    "by_symbol": {},
+    "by_direction": {}
+  },
+  "by_symbol": {},
+  "monthly_frequency": {
+    "n_months": 39,
+    "total_trades": 0,
+    "avg_per_month": 0.0,
+    "iron_rule_monthly_min": 60,
+    "iron_rule_pass": false,
+    "months_below_threshold": {
+      "2023-01": 0,
+      "2023-02": 0,
+      "2023-03": 0,
+      "2023-04": 0,
+      "2023-05": 0,
+      "2023-06": 0,
+      "2023-07": 0,
+      "2023-08": 0,
+      "2023-09": 0,
+      "2023-10": 0,
+      "2023-11": 0,
+      "2023-12": 0,
+      "2024-01": 0,
+      "2024-02": 0,
+      "2024-03": 0,
+      "2024-04": 0,
+      "2024-05": 0,
+      "2024-06": 0,
+      "2024-07": 0,
+      "2024-08": 0,
+      "2024-09": 0,
+      "2024-10": 0,
+      "2024-11": 0,
+      "2024-12": 0,
+      "2025-01": 0,
+      "2025-02": 0,
+      "2025-03": 0,
+      "2025-04": 0,
+      "2025-05": 0,
+      "2025-06": 0,
+      "2025-07": 0,
+      "2025-08": 0,
+      "2025-09": 0,
+      "2025-10": 0,
+      "2025-11": 0,
+      "2025-12": 0,
+      "2026-01": 0,
+      "2026-02": 0,
+      "2026-03": 0
+    },
+    "n_months_below_threshold": 39,
+    "by_month": {
+      "2023-01": 0,
+      "2023-02": 0,
+      "2023-03": 0,
+      "2023-04": 0,
+      "2023-05": 0,
+      "2023-06": 0,
+      "2023-07": 0,
+      "2023-08": 0,
+      "2023-09": 0,
+      "2023-10": 0,
+      "2023-11": 0,
+      "2023-12": 0,
+      "2024-01": 0,
+      "2024-02": 0,
+      "2024-03": 0,
+      "2024-04": 0,
+      "2024-05": 0,
+      "2024-06": 0,
+      "2024-07": 0,
+      "2024-08": 0,
+      "2024-09": 0,
+      "2024-10": 0,
+      "2024-11": 0,
+      "2024-12": 0,
+      "2025-01": 0,
+      "2025-02": 0,
+      "2025-03": 0,
+      "2025-04": 0,
+      "2025-05": 0,
+      "2025-06": 0,
+      "2025-07": 0,
+      "2025-08": 0,
+      "2025-09": 0,
+      "2025-10": 0,
+      "2025-11": 0,
+      "2025-12": 0,
+      "2026-01": 0,
+      "2026-02": 0,
+      "2026-03": 0
+    }
+  },
+  "vbz_condition_breakdown": {
+    "BTCUSDT": {
+      "long_reasons": {
+        "no_deviation": 12509,
+        "no_reversal_candle": 136,
+        "rsi_not_oversold": 25,
+        "no_support_no_exhaustion": 4,
+        "weak_reversal_volume": 6
+      },
+      "short_reasons": {
+        "no_bearish_reversal_candle": 9073,
+        "weak_reversal_volume": 212,
+        "no_deviation": 465,
+        "no_resistance_no_exhaustion": 1298,
+        "rsi_not_overbought": 1632
+      }
+    },
+    "ETHUSDT": {
+      "long_reasons": {
+        "no_deviation": 9868,
+        "no_reversal_candle": 1776,
+        "rsi_not_oversold": 318,
+        "no_support_no_exhaustion": 226,
+        "weak_reversal_volume": 78
+      },
+      "short_reasons": {
+        "no_deviation": 2879,
+        "no_resistance_no_exhaustion": 1101,
+        "no_bearish_reversal_candle": 6929,
+        "rsi_not_overbought": 1202,
+        "weak_reversal_volume": 155
+      }
+    }
+  },
+  "design_conflict_diagnosis": {
+    "finding": "VBZ gate(price IN VA) vs Module A Long condition-1(close < VWAP-2*ATR) structural incompatibility detected",
+    "total_vbz_long_calls": 24946,
+    "no_deviation_block_count": 22377,
+    "no_deviation_block_rate_pct": 89.7,
+    "long_reason_distribution": {
+      "no_deviation": 22377,
+      "no_reversal_candle": 1912,
+      "rsi_not_oversold": 343,
+      "no_support_no_exhaustion": 230,
+      "weak_reversal_volume": 84
+    },
+    "short_reason_distribution": {
+      "no_bearish_reversal_candle": 16002,
+      "no_deviation": 3344,
+      "rsi_not_overbought": 2834,
+      "no_resistance_no_exhaustion": 2399,
+      "weak_reversal_volume": 367
+    },
+    "escalation_required": true,
+    "note": "VBZ 조건(close IN VA)과 Module A Long 조건 1(close < VWAP-2*ATR = VA 하방)이 상호 배타적. VBZ 활성 봉에서 Long deviation이 발생하려면 VWAP-2*ATR >= VAL 이어야 하나 통상 VWAP-2*ATR << VAL. Dev-PM 에스컬레이션 필요: Module A Long 조건 1 재정의 또는 VBZ 게이트 범위 확장.",
+    "vbz_gate_fires_pct": 43.8
+  }
+}
