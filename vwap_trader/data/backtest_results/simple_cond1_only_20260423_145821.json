@@ -1,0 +1,326 @@
+{
+  "BTCUSDT": {
+    "symbol": "BTCUSDT",
+    "period": "2024-01-01 ~ 2026-03-31",
+    "timeframe": "1H",
+    "condition": "close < VWAP_daily - 2.0 × ATR_14_1h",
+    "total_bars_analyzed": 19690,
+    "total_triggers": 532,
+    "valid_calendar_days": 821,
+    "daily_avg_triggers": 0.648,
+    "verdict": "FAIL: Condition 1 자체 재검토 필요 (에스컬레이션)",
+    "monthly_breakdown": [
+      {
+        "month": "2024-01",
+        "triggers": 15
+      },
+      {
+        "month": "2024-02",
+        "triggers": 1
+      },
+      {
+        "month": "2024-03",
+        "triggers": 10
+      },
+      {
+        "month": "2024-04",
+        "triggers": 27
+      },
+      {
+        "month": "2024-05",
+        "triggers": 9
+      },
+      {
+        "month": "2024-06",
+        "triggers": 27
+      },
+      {
+        "month": "2024-07",
+        "triggers": 11
+      },
+      {
+        "month": "2024-08",
+        "triggers": 25
+      },
+      {
+        "month": "2024-09",
+        "triggers": 15
+      },
+      {
+        "month": "2024-10",
+        "triggers": 16
+      },
+      {
+        "month": "2024-11",
+        "triggers": 5
+      },
+      {
+        "month": "2024-12",
+        "triggers": 24
+      },
+      {
+        "month": "2025-01",
+        "triggers": 24
+      },
+      {
+        "month": "2025-02",
+        "triggers": 29
+      },
+      {
+        "month": "2025-03",
+        "triggers": 32
+      },
+      {
+        "month": "2025-04",
+        "triggers": 20
+      },
+      {
+        "month": "2025-05",
+        "triggers": 14
+      },
+      {
+        "month": "2025-06",
+        "triggers": 31
+      },
+      {
+        "month": "2025-07",
+        "triggers": 9
+      },
+      {
+        "month": "2025-08",
+        "triggers": 30
+      },
+      {
+        "month": "2025-09",
+        "triggers": 17
+      },
+      {
+        "month": "2025-10",
+        "triggers": 11
+      },
+      {
+        "month": "2025-11",
+        "triggers": 36
+      },
+      {
+        "month": "2025-12",
+        "triggers": 28
+      },
+      {
+        "month": "2026-01",
+        "triggers": 25
+      },
+      {
+        "month": "2026-02",
+        "triggers": 17
+      },
+      {
+        "month": "2026-03",
+        "triggers": 24
+      }
+    ],
+    "zero_trigger_months": [],
+    "sample_triggers_first5": [
+      {
+        "dt": "2024-01-12T15:00:00+00:00",
+        "close": 44501.5,
+        "vwap": 45654.2916,
+        "atr": 556.8185,
+        "threshold": 44540.6547,
+        "gap": -39.1547
+      },
+      {
+        "dt": "2024-01-12T16:00:00+00:00",
+        "close": 43662.0,
+        "vwap": 45134.8208,
+        "atr": 625.5743,
+        "threshold": 43883.6722,
+        "gap": -221.6722
+      },
+      {
+        "dt": "2024-01-12T18:00:00+00:00",
+        "close": 43517.0,
+        "vwap": 44896.3283,
+        "atr": 619.6334,
+        "threshold": 43657.0614,
+        "gap": -140.0614
+      },
+      {
+        "dt": "2024-01-12T19:00:00+00:00",
+        "close": 43512.1,
+        "vwap": 44840.9096,
+        "atr": 608.1239,
+        "threshold": 43624.6618,
+        "gap": -112.5618
+      },
+      {
+        "dt": "2024-01-12T21:00:00+00:00",
+        "close": 43479.3,
+        "vwap": 44742.9102,
+        "atr": 609.4548,
+        "threshold": 43524.0006,
+        "gap": -44.7006
+      }
+    ]
+  },
+  "ETHUSDT": {
+    "symbol": "ETHUSDT",
+    "period": "2024-01-01 ~ 2026-03-31",
+    "timeframe": "1H",
+    "condition": "close < VWAP_daily - 2.0 × ATR_14_1h",
+    "total_bars_analyzed": 19690,
+    "total_triggers": 519,
+    "valid_calendar_days": 821,
+    "daily_avg_triggers": 0.632,
+    "verdict": "FAIL: Condition 1 자체 재검토 필요 (에스컬레이션)",
+    "monthly_breakdown": [
+      {
+        "month": "2024-01",
+        "triggers": 16
+      },
+      {
+        "month": "2024-03",
+        "triggers": 10
+      },
+      {
+        "month": "2024-04",
+        "triggers": 33
+      },
+      {
+        "month": "2024-05",
+        "triggers": 10
+      },
+      {
+        "month": "2024-06",
+        "triggers": 14
+      },
+      {
+        "month": "2024-07",
+        "triggers": 14
+      },
+      {
+        "month": "2024-08",
+        "triggers": 24
+      },
+      {
+        "month": "2024-09",
+        "triggers": 20
+      },
+      {
+        "month": "2024-10",
+        "triggers": 27
+      },
+      {
+        "month": "2024-11",
+        "triggers": 1
+      },
+      {
+        "month": "2024-12",
+        "triggers": 12
+      },
+      {
+        "month": "2025-01",
+        "triggers": 24
+      },
+      {
+        "month": "2025-02",
+        "triggers": 25
+      },
+      {
+        "month": "2025-03",
+        "triggers": 26
+      },
+      {
+        "month": "2025-04",
+        "triggers": 26
+      },
+      {
+        "month": "2025-05",
+        "triggers": 11
+      },
+      {
+        "month": "2025-06",
+        "triggers": 19
+      },
+      {
+        "month": "2025-07",
+        "triggers": 11
+      },
+      {
+        "month": "2025-08",
+        "triggers": 18
+      },
+      {
+        "month": "2025-09",
+        "triggers": 14
+      },
+      {
+        "month": "2025-10",
+        "triggers": 23
+      },
+      {
+        "month": "2025-11",
+        "triggers": 32
+      },
+      {
+        "month": "2025-12",
+        "triggers": 29
+      },
+      {
+        "month": "2026-01",
+        "triggers": 29
+      },
+      {
+        "month": "2026-02",
+        "triggers": 25
+      },
+      {
+        "month": "2026-03",
+        "triggers": 26
+      }
+    ],
+    "zero_trigger_months": [],
+    "sample_triggers_first5": [
+      {
+        "dt": "2024-01-12T21:00:00+00:00",
+        "close": 2528.26,
+        "vwap": 2625.835,
+        "atr": 44.7227,
+        "threshold": 2536.3896,
+        "gap": -8.1296
+      },
+      {
+        "dt": "2024-01-12T22:00:00+00:00",
+        "close": 2500.01,
+        "vwap": 2614.4372,
+        "atr": 46.7189,
+        "threshold": 2520.9993,
+        "gap": -20.9893
+      },
+      {
+        "dt": "2024-01-14T19:00:00+00:00",
+        "close": 2502.31,
+        "vwap": 2541.3054,
+        "atr": 17.8395,
+        "threshold": 2505.6265,
+        "gap": -3.3165
+      },
+      {
+        "dt": "2024-01-14T23:00:00+00:00",
+        "close": 2474.33,
+        "vwap": 2527.177,
+        "atr": 22.445,
+        "threshold": 2482.287,
+        "gap": -7.957
+      },
+      {
+        "dt": "2024-01-18T18:00:00+00:00",
+        "close": 2464.73,
+        "vwap": 2509.4525,
+        "atr": 19.4885,
+        "threshold": 2470.4756,
+        "gap": -5.7456
+      }
+    ]
+  }
+}

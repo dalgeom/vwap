@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "task": "TASK-MB-001",
+    "condition": "close > VWAP_daily AND EMA9 > EMA20",
+    "period": "2024-01-01 ~ 2026-03-31",
+    "timeframe": "1H",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ]
+  },
+  "results": {
+    "BTCUSDT": {
+      "symbol": "BTCUSDT",
+      "period": "2024-01-01 ~ 2026-03-31",
+      "timeframe": "1H",
+      "condition": "close > VWAP_daily AND EMA9 > EMA20",
+      "total_bars": 19704,
+      "total_hits": 7131,
+      "hit_rate_pct": 36.19,
+      "valid_calendar_days": 821,
+      "daily_avg_hits": 8.686,
+      "monthly_breakdown": [
+        {
+          "month": "2024-01",
+          "hits": 275
+        },
+        {
+          "month": "2024-02",
+          "hits": 309
+        },
+        {
+          "month": "2024-03",
+          "hits": 344
+        },
+        {
+          "month": "2024-04",
+          "hits": 228
+        },
+        {
+          "month": "2024-05",
+          "hits": 276
+        },
+        {
+          "month": "2024-06",
+          "hits": 225
+        },
+        {
+          "month": "2024-07",
+          "hits": 309
+        },
+        {
+          "month": "2024-08",
+          "hits": 251
+        },
+        {
+          "month": "2024-09",
+          "hits": 264
+        },
+        {
+          "month": "2024-10",
+          "hits": 284
+        },
+        {
+          "month": "2024-11",
+          "hits": 337
+        },
+        {
+          "month": "2024-12",
+          "hits": 221
+        },
+        {
+          "month": "2025-01",
+          "hits": 343
+        },
+        {
+          "month": "2025-02",
+          "hits": 152
+        },
+        {
+          "month": "2025-03",
+          "hits": 249
+        },
+        {
+          "month": "2025-04",
+          "hits": 313
+        },
+        {
+          "month": "2025-05",
+          "hits": 268
+        },
+        {
+          "month": "2025-06",
+          "hits": 249
+        },
+        {
+          "month": "2025-07",
+          "hits": 309
+        },
+        {
+          "month": "2025-08",
+          "hits": 203
+        },
+        {
+          "month": "2025-09",
+          "hits": 275
+        },
+        {
+          "month": "2025-10",
+          "hits": 290
+        },
+        {
+          "month": "2025-11",
+          "hits": 211
+        },
+        {
+          "month": "2025-12",
+          "hits": 258
+        },
+        {
+          "month": "2026-01",
+          "hits": 233
+        },
+        {
+          "month": "2026-02",
+          "hits": 197
+        },
+        {
+          "month": "2026-03",
+          "hits": 258
+        }
+      ],
+      "zero_hit_months": []
+    },
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "period": "2024-01-01 ~ 2026-03-31",
+      "timeframe": "1H",
+      "condition": "close > VWAP_daily AND EMA9 > EMA20",
+      "total_bars": 19704,
+      "total_hits": 6986,
+      "hit_rate_pct": 35.45,
+      "valid_calendar_days": 821,
+      "daily_avg_hits": 8.509,
+      "monthly_breakdown": [
+        {
+          "month": "2024-01",
+          "hits": 227
+        },
+        {
+          "month": "2024-02",
+          "hits": 335
+        },
+        {
+          "month": "2024-03",
+          "hits": 296
+        },
+        {
+          "month": "2024-04",
+          "hits": 244
+        },
+        {
+          "month": "2024-05",
+          "hits": 279
+        },
+        {
+          "month": "2024-06",
+          "hits": 220
+        },
+        {
+          "month": "2024-07",
+          "hits": 287
+        },
+        {
+          "month": "2024-08",
+          "hits": 216
+        },
+        {
+          "month": "2024-09",
+          "hits": 259
+        },
+        {
+          "month": "2024-10",
+          "hits": 281
+        },
+        {
+          "month": "2024-11",
+          "hits": 302
+        },
+        {
+          "month": "2024-12",
+          "hits": 262
+        },
+        {
+          "month": "2025-01",
+          "hits": 280
+        },
+        {
+          "month": "2025-02",
+          "hits": 206
+        },
+        {
+          "month": "2025-03",
+          "hits": 234
+        },
+        {
+          "month": "2025-04",
+          "hits": 249
+        },
+        {
+          "month": "2025-05",
+          "hits": 260
+        },
+        {
+          "month": "2025-06",
+          "hits": 239
+        },
+        {
+          "month": "2025-07",
+          "hits": 356
+        },
+        {
+          "month": "2025-08",
+          "hits": 304
+        },
+        {
+          "month": "2025-09",
+          "hits": 201
+        },
+        {
+          "month": "2025-10",
+          "hits": 283
+        },
+        {
+          "month": "2025-11",
+          "hits": 213
+        },
+        {
+          "month": "2025-12",
+          "hits": 253
+        },
+        {
+          "month": "2026-01",
+          "hits": 261
+        },
+        {
+          "month": "2026-02",
+          "hits": 195
+        },
+        {
+          "month": "2026-03",
+          "hits": 244
+        }
+      ],
+      "zero_hit_months": []
+    }
+  }
+}
