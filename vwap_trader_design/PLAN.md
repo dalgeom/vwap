@@ -602,14 +602,14 @@ VWAP-Trader의 진입 철학은 **"국면이 전략을 결정한다"** 이다.
 
 | 모듈 | 국면 | 철학 | 상세 명세 |
 |---|---|---|---|
-| **Module A 롱** | Accumulation | 평균회귀 | [부록 B](#부록-b--module-a-accumulation-롱-진입-명세) |
-| **Module A 숏** | Accumulation | 평균회귀 | [부록 C](#부록-c--module-a-accumulation-숏-진입-명세) |
+| **Module A 롱** | VBZ | 평균회귀 | [부록 B](#부록-b--module-a-accumulation-롱-진입-명세) |
+| **Module A 숏** | VBZ(미적용) | 평균회귀 | [부록 C](#부록-c--module-a-accumulation-숏-진입-명세) |
 | **Module B 롱** | Markup | 추세 추종 | [부록 D](#부록-d--module-b-markup-롱-진입-명세) |
 | **Module B 숏** | Markdown | 추세 추종 | [부록 E](#부록-e--module-b-markdown-숏-진입-명세) |
 
 Distribution 국면에서는 **어떤 모듈도 활성화되지 않는다** (거래 차단).
 
-## 3.3 Module A 롱 — 평균회귀 (Accumulation)
+## 3.3 Module A 롱 — 평균회귀 (VBZ)
 
 **회의 #3** 에서 박정우 주도로 설계. 6개 조건으로 구성.
 
@@ -624,13 +624,17 @@ Distribution 국면에서는 **어떤 모듈도 활성화되지 않는다** (거
 **Linda Raschke의 Holy Grail / Turtle Soup 패턴**의 크립토 적응. "가격은 평균으로 돌아온다"는 통계적 가정에 기반.
 
 ### 제약
-- Accumulation 국면 (저변동성, 평평한 추세) 에서만 활성화
+- **VBZ(Volume Balance Zone) 조건 충족 시에만 활성화** (결정 #28, 2026-04-22):
+  - `val_7d ≤ close ≤ vah_7d` AND `volume_1h < volume_ma20 × 0.8`
+  - Strict boundary: `close < VAL` → VBZ 즉시 비활성 (buffer 없음)
 - 승률 높지만 RR 낮음 (목표 승률 60%+, RR ~1.5)
 - 강한 추세장 진입 시 블랙스완 위험
 
 **상세 명세**: [부록 B](#부록-b--module-a-accumulation-롱-진입-명세)
 
-## 3.4 Module A 숏 — 평균회귀 (Accumulation)
+## 3.4 Module A 숏 — 평균회귀 (VBZ)
+
+> **VBZ 게이팅 없음 (롱 전용)** — Module A 숏은 VBZ regime filter 미적용. 결정 #28 기준 VBZ는 롱 전용 조건이며 숏은 기존 동작 유지 (DEP-MOD-A-001 범위 내 비활성 상태).
 
 **회의 #4** 에서 박정우 주도로 설계. Module A 롱의 대칭.
 
@@ -1168,14 +1172,17 @@ def detect_regime(inputs):
 - 이 시간 내 판별 조건이 다른 국면을 가리켜도 무시
 - 깜빡거림(flicker) 방지 목적
 
-### ❌ Accumulation 국면 — 무거래 (DEP-MOD-A-001, 결정 #23, 2026-04-22)
+### ⚠️ DEP-MOD-A-001 — 부분 복원 (결정 #28, 2026-04-22)
 
-> **회의 #21 F 판결 반영**: Module A 전면 폐기(Long + Short 모두 비활성화)에 따라 **Accumulation 판정 시 무거래**.
+> **회의 #22 F 최종 판결 반영**: Module A Long이 VBZ(Volume Balance Zone) 게이트로 **재활성화**됨. Module A Short는 DEP-MOD-A-001 범위 내 비활성 상태 유지.
+>
+> **상태**: ~~전면 폐기~~ → **부분 복원 (Long: VBZ 재활성, Short: 기존 유지)**  
+> **복원 근거**: 결정 #28 / [meeting_22 §F](./meetings/meeting_22_module_a_redesign_2026_04_22.md)
 
-- **Regime 판정 로직은 유지** — `detect_regime()`의 Accumulation 분기는 무변경
-- **Module A 분기 금지** — `current_regime == "Accumulation"` 시 어떤 모듈도 진입하지 않음
-- **Module B와 무관** — Module B는 Markup/Markdown에서만 활성, Accumulation 진입 경로 없음 (기존 설계 유지)
-- **복원 조건**: 부록 B.6 재활성화 경로 통과 시 또는 Accumulation 대응 신규 모듈 추가 시 (신규 회의 + F 판결 필수)
+- **Module A Long — VBZ 재활성화** — `vbz_active`(`val_7d ≤ close ≤ vah_7d` AND `volume_1h < volume_ma20 × 0.8`) 충족 시 진입 허용
+- **Module A Short — 기존 비활성 유지** — VBZ와 독립적으로 DEP-MOD-A-001 비활성 상태 유지. 재활성화 경로는 부록 B.6
+- **Regime 판정 로직 유지** — `detect_regime()`의 Accumulation 분기는 무변경 (Accumulation 레이블은 내부 분류 목적으로 존재, C-22-2 준수)
+- **Module B와 무관** — Module B는 Markup/Markdown에서만 활성, 본 변경과 무관
 
 ### Grid Search 백테스트 계획 (회의 #11)
 
@@ -1340,16 +1347,18 @@ assert current_regime in ["Accumulation", "Markup", "Markdown", "Distribution"]
 def module_a_long_entry_check(
     candles_1h: list[Candle],
     candles_4h: list[Candle],
-    current_regime: str,
+    vbz_active: bool,
     vp_layer: VolumeProfile,
 ) -> EntryDecision:
     """
     Module A 롱 진입 조건 검사.
     모든 조건이 True일 때만 진입.
     """
-    # ─── 전제: Regime 검증 ────────────────────────────────
-    if current_regime != "Accumulation":
-        return EntryDecision(enter=False, reason="not_accumulation")
+    # ─── 전제: VBZ 검증 ──────────────────────────────────
+    # vbz_active = (val_7d <= close <= vah_7d) AND (volume_1h < volume_ma20 * 0.8)
+    # Strict boundary: close < VAL → vbz_active=False (결정 #28 / TICKET-CORE-001)
+    if not vbz_active:
+        return EntryDecision(enter=False, reason="vbz_inactive")
     
     # ─── 지표 계산 ────────────────────────────────────────
     daily_vwap, _, _ = compute_daily_vwap_and_bands(candles_1h)  # sigma_1 미사용: 회의 #18 X2 채택 (척도 교체)
@@ -1757,6 +1766,8 @@ Module A 롱 진입의 후속 설계:
 
 > **⚠️ 현재 실행 중단 (DEP-MOD-A-001, 결정 #23, 2026-04-22)**  
 > 아래 pseudocode는 **재활성화 시 출발점**으로 보존된다. 코드 비활성화는 Dev-Core (이승준) 별건 티켓으로 처리. 본 문서 수정(B.6 재활성화 경로)을 거치지 않은 채 `module_a_short_entry_check` 호출 경로를 복원하는 것은 금지.
+>
+> **VBZ 미적용 (결정 #28)** — Module A Short는 VBZ regime filter 대상이 아님. `current_regime != "Accumulation"` 조건은 재활성화 시에도 변경 없이 유지.
 
 ```python
 def module_a_short_entry_check(
@@ -4140,6 +4151,30 @@ Catastrophic (거래소 점검, 해킹 의심, 치명적 버그):
 
 긴급 정지 해제: 수동 명령만 가능 (자동 해제 없음)
 ```
+
+## 12.3 VBZ 실전 경보 조항 (C-22-6, 결정 #28, 2026-04-22)
+
+> **근거**: 결정 #28 강제 조건 C-22-6 / [meeting_22 §F](./meetings/meeting_22_module_a_redesign_2026_04_22.md)  
+> **적용 대상**: Module A Long VBZ 재활성화 이후 실전 운영
+
+### 경보 조건 1 — ETH VBZ 발동 빈도
+
+| 트리거 | 임계값 | 조치 |
+|---|---|---|
+| ETH VBZ 발동 빈도 ≤ 5건/일 | **연속 3일** 이상 지속 | 경보 발생 + 의장 보고 의무 |
+
+- 경보 발생 시 의장은 해당 기간 VBZ 조건 충족 비율 및 진입 억제 원인 분석 보고서 작성
+- 사용자 보고 후 회의 소집 여부 결정
+
+### 경보 조건 2 — VBZ 연속 활성 지속
+
+| 트리거 | 임계값 | 조치 |
+|---|---|---|
+| VBZ 연속 활성 지속 | **72시간 초과** | Agent G(구승현) Q2 재감사 자동 트리거 |
+
+- `vbz_consecutive_hours > 72` 감지 시 G에게 VA 시간 유효성(Q2) 재검증 의뢰
+- G 재감사 완료 전 신규 Module A Long 진입 제한 없음 (정지 조건 아님)
+- G 재감사 결과 VA 유효성 실패 판정 시 → 별도 F 판결 필요
 
 ---
 

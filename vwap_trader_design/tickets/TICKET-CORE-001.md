@@ -1,7 +1,7 @@
 ---
 id: TICKET-CORE-001
 type: implementation
-status: OPEN
+status: CLOSED — VBZ 구현 완료, pytest 77 passed (2026-04-23)
 담당: Dev-Core (이승준)
 발행: 2026-04-22
 근거: 결정 #28 / meeting_22 §F VBZ 채택 최종 판결
