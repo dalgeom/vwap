@@ -1419,3 +1419,66 @@ Module A Long 진입 0건. 차단 원인 89.7%가 `no_deviation`.
 - 안건: VBZ × 조건 1 충돌 해소 방안 설계
 - 필수 참석: A(평균회귀), C(VP), G(전제 의심), F(최종 판결)
 - 결정 필요 항목: 조건 1 재정의 vs VBZ 게이트 재설계 vs 대안 regime 전환
+
+---
+
+## ESC-002 — VBZ 거래량 조건 × Module A Long 조건 5 동시 충족 불가 (2026-04-23)
+
+**발견자**: Agent G (구승현) / 회의 #23 사전 감사 방향 A 분석
+**코드 확인**: module_a.py line 193, 198 — 동일 `last_candle` 사용 확인
+**심각도**: Critical — ESC-001 해소 후 즉시 노출될 2차 차단
+
+### 충돌 구조
+| 조건 | 요구사항 |
+|---|---|
+| VBZ 거래량 (진입 봉 기준) | `volume < volume_ma20 × 0.8` |
+| 조건 5 (동일 진입 봉) | `volume > volume_ma20 × 1.2` |
+
+동일 봉에서 volume이 MA20의 0.8 미만이면서 동시에 1.2 초과 → **수학적 불가**.
+
+### 영향 범위
+- 방향 A (조건 1 재정의): ESC-001 해소 직후 조건 5 통과 봉에서 ESC-002가 즉시 차단 → ❌
+- 방향 B (VBZ 시점 분리): VBZ 거래량을 과거 봉 기준으로 분리 → 진입 봉 조건 5와 시간 분리 → 충돌 없음 ✅
+- 방향 C (VBZ 폐기): VBZ 거래량 조건 자체 소멸 → 충돌 없음 ✅
+
+### 회의 #23 처리
+방향 A는 ESC-001 + ESC-002 이중 차단으로 구조적 채택 불가 확정.
+방향 B/C 논의 시 ESC-002 추가 해소 여부 확인 불요 (이미 해소됨).
+
+---
+
+## 결정 #29 — VPP + VP-PMF 조합 채택 및 파라미터 범위 확정 (2026-04-23)
+
+**근거**: 회의 #23 §F 최종 판결 / ESC-001, ESC-002 해소
+
+### 채택 내용
+
+**신규 regime 조건: VPP(K=12, J=4) + VP-PMF**
+
+```
+VPP 조건 (이탈 봉 t 직전 K=12봉 중 J=4봉 이상):
+  |close_i − VWAP_i| ≤ 1.0 × ATR_i  (i: t-12 ~ t-1)
+
+VP-PMF 조건 (ALL 동시):
+  PMF-1: POC_7d > close_t
+  PMF-2: (POC_7d − close_t) ≤ γ × ATR(14,1H)    [γ: 2.0~2.5]
+  PMF-3: |Δ_POC_3d| < α × ATR(14,1H)             [α: 0.8~1.2]
+         Δ_POC_3d = POC_7d(t) − POC_7d(t-72봉)
+```
+
+### F 파라미터 범위 확정
+| 파라미터 | 범위 | 고정/범위 |
+|---|---|---|
+| K | 12 | 고정 |
+| J | 4 | 고정 |
+| α (PMF-3) | 0.8~1.2 | Dev-Backtest Pre-check 범위 |
+| γ (PMF-2) | 2.0~2.5 | Dev-Backtest Pre-check 범위 |
+
+### 재심 자동 트리거 (F 명시)
+α=0.8~1.2 전 범위에서 Condition 1 발동 57.2% 중 PMF-3 필터링률 < 40% →
+Module A Long 전제 긴급 재심 자동 요구
+
+### 후속
+- TICKET-BT-010: Dev-Backtest VPP+VP-PMF Compatibility Pre-check 착수
+- DOC-PATCH-012: E가 PLAN.md §3.3 재심 트리거 조건 기록
+- Dev-Backtest 결과 후 G 최종 검토 1회 의무
