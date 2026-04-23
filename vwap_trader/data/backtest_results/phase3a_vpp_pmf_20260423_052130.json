@@ -1,0 +1,239 @@
+{
+  "ticket": "BT-011",
+  "run_ts": "2026-04-23T05:21:30.415508+00:00",
+  "params": {
+    "alpha": 1.0,
+    "gamma": 2.5,
+    "K": 12,
+    "J": 4
+  },
+  "period": {
+    "start": "2023-01-01",
+    "end": "2026-03-31"
+  },
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT"
+  ],
+  "mode": "module_a_only",
+  "cost_model": "tier_1",
+  "perf_by_symbol": {
+    "BTCUSDT": {
+      "n_trades": 0,
+      "daily_avg": 0.0,
+      "win_rate": 0.0,
+      "ev": 0.0,
+      "profit_factor": 0.0,
+      "mdd": 0.0,
+      "tp1_rate": 0.0,
+      "timeout_rate": 0.0,
+      "cumulative_pnl": 0.0
+    },
+    "ETHUSDT": {
+      "n_trades": 0,
+      "daily_avg": 0.0,
+      "win_rate": 0.0,
+      "ev": 0.0,
+      "profit_factor": 0.0,
+      "mdd": 0.0,
+      "tp1_rate": 0.0,
+      "timeout_rate": 0.0,
+      "cumulative_pnl": 0.0
+    }
+  },
+  "early_exit_warnings": [],
+  "perf_by_year": {
+    "BTCUSDT": {
+      "2023": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "2024": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "2025~26": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      }
+    },
+    "ETHUSDT": {
+      "2023": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "2024": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "2025~26": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      }
+    }
+  },
+  "perf_by_regime": {
+    "BTCUSDT": {
+      "강세(BTC신고)": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "폭락(BTC-50↑)": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "회복": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "횡보": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      }
+    },
+    "ETHUSDT": {
+      "강세(BTC신고)": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "폭락(BTC-50↑)": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "회복": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      },
+      "횡보": {
+        "n_trades": 0,
+        "daily_avg": 0.0,
+        "win_rate": 0.0,
+        "ev": 0.0,
+        "profit_factor": 0.0,
+        "mdd": 0.0,
+        "tp1_rate": 0.0,
+        "timeout_rate": 0.0,
+        "cumulative_pnl": 0.0
+      }
+    }
+  },
+  "pmf3_filter_rates": {
+    "BTCUSDT": {
+      "cond1_total": 944,
+      "pmf3_blocked": 93,
+      "filter_rate": 0.0985,
+      "status": "❌ 에스컬레이션"
+    },
+    "ETHUSDT": {
+      "cond1_total": 987,
+      "pmf3_blocked": 84,
+      "filter_rate": 0.0851,
+      "status": "❌ 에스컬레이션"
+    }
+  },
+  "vpp_consecutive_stats": {
+    "BTCUSDT": {
+      "n": 0
+    },
+    "ETHUSDT": {
+      "n": 0
+    }
+  },
+  "law_check": {
+    "law1_daily_avg_ok": false,
+    "law1_total_daily_avg": 0.0,
+    "law2_cumulative_pnl_positive": false,
+    "law2_total_cumulative_pnl": 0
+  }
+}
