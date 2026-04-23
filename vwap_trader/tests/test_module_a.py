@@ -24,8 +24,10 @@ import pytest
 
 from vwap_trader.core.module_a import (
     _calc_atr_from_candles,  # BUG-CORE-004 경계 TC 에서 내부 atr 재현에 사용
+    _count_vbz_consecutive,
     check_module_a_long,
     check_module_a_short,
+    VBZ_VOLUME_RATIO_THRESHOLD,
 )
 from vwap_trader.models import Candle, VolumeProfile
 
@@ -293,6 +295,13 @@ def test_long_all_conditions_pass_with_evidence(long_inputs):
         "bullish_engulfing",
         "doji_confirmation",
     )
+    # QA-004 [2] — VBZ evidence 필드 존재 및 타입 검증
+    assert "vbz_active" in ev
+    assert "in_value_area" in ev
+    assert "low_volume" in ev
+    assert "volume_ratio" in ev
+    assert "vbz_consecutive_hours" in ev
+    assert isinstance(ev["vbz_consecutive_hours"], int)
     # TODO(QA-ESCALATE): TICKET-QA-001 §1.1 #9 는 'vwap_sigma', 'hvn_price',
     # 'volume_ratio' 라는 키명을 요구하나 실제 구현(module_a.py L.192~202)은
     # 'daily_vwap' / 'deviation_low' / 'reversal_volume_ratio' 키를 사용한다.
@@ -717,3 +726,94 @@ def test_short_all_conditions_pass_with_evidence(short_inputs):
         "bearish_engulfing",
         "doji_bearish_confirmation",
     )
+
+
+# ---------------------------------------------------------------------------
+# QA-004 [1] — VBZ 경계 TC (_count_vbz_consecutive 를 통한 경계 검증)
+# ---------------------------------------------------------------------------
+
+def test_vbz_boundary_close_at_val_is_active():
+    """(a) close == vp_layer.val 정확히 일치 → VBZ 활성 (val 경계 inclusive <=)."""
+    vp = VolumeProfile(poc=100.0, val=95.0, vah=110.0, hvn_prices=[])
+    c = _mk_candle(0, 95.0, 95.5, 94.5, 95.0, 50.0)  # close=val=95, vol=50 < 0.8*100
+    assert _count_vbz_consecutive([c], vp, 100.0) == 1
+
+
+def test_vbz_boundary_close_below_val_is_inactive():
+    """(b) close < vp_layer.val (1 tick 미만) → VBZ 비활성."""
+    vp = VolumeProfile(poc=100.0, val=95.0, vah=110.0, hvn_prices=[])
+    c = _mk_candle(0, 94.9, 95.4, 94.4, 94.9, 50.0)  # close=94.9 < val=95.0
+    assert _count_vbz_consecutive([c], vp, 100.0) == 0
+
+
+def test_vbz_boundary_close_at_vah_is_active():
+    """(c) close == vp_layer.vah 정확히 일치 → VBZ 활성 (vah 경계 inclusive <=)."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    c = _mk_candle(0, 109.5, 110.5, 109.0, 110.0, 50.0)  # close=vah=110.0
+    assert _count_vbz_consecutive([c], vp, 100.0) == 1
+
+
+def test_vbz_boundary_close_above_vah_is_inactive():
+    """(d) close > vp_layer.vah (1 tick 초과) → VBZ 비활성."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    c = _mk_candle(0, 110.0, 110.6, 109.9, 110.1, 50.0)  # close=110.1 > vah=110.0
+    assert _count_vbz_consecutive([c], vp, 100.0) == 0
+
+
+def test_vbz_boundary_volume_ma20_zero_is_inactive():
+    """(e) volume_ma20 == 0 → ZeroDivision 방어, VBZ 비활성.
+
+    engine, _count_vbz_consecutive, check_module_a_long 모두 volume_ma20=0 시
+    low_vol=False 를 반환해야 한다 (일관성 보장).
+    """
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    c = _mk_candle(0, 100.0, 100.5, 99.5, 100.0, 50.0)  # close in VA
+    assert _count_vbz_consecutive([c], vp, 0.0) == 0
+
+
+def test_vbz_boundary_volume_ratio_at_threshold_is_inactive():
+    """(f) volume_ratio == 0.8 정확히 경계값 → strict '<' 이므로 VBZ 비활성."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    volume_ma20 = 100.0
+    exact_vol = volume_ma20 * VBZ_VOLUME_RATIO_THRESHOLD  # = 80.0 (경계값)
+    c = _mk_candle(0, 100.0, 100.5, 99.5, 100.0, exact_vol)
+    assert _count_vbz_consecutive([c], vp, volume_ma20) == 0
+
+
+# ---------------------------------------------------------------------------
+# QA-004 [3] — _count_vbz_consecutive TC
+# ---------------------------------------------------------------------------
+
+def test_count_vbz_consecutive_all_active():
+    """(a) 마지막 N봉 전부 VBZ 활성 → N 반환."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    # close=100 in [90,110], vol=50 < 0.8*100=80 → 전 봉 VBZ active
+    candles = [_mk_candle(i, 100.0, 100.5, 99.5, 100.0, 50.0) for i in range(5)]
+    assert _count_vbz_consecutive(candles, vp, 100.0) == 5
+
+
+def test_count_vbz_consecutive_break_in_middle():
+    """(b) 중간(역순 3번째 봉)에 비활성 봉 → 연속 카운트 2 반환."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    candles = [
+        _mk_candle(0, 100.0, 100.5, 99.5, 100.0, 50.0),  # active
+        _mk_candle(1, 100.0, 100.5, 99.5, 100.0, 50.0),  # active
+        _mk_candle(2, 80.0, 80.5, 79.5, 80.0, 50.0),     # inactive: close=80 < val=90
+        _mk_candle(3, 100.0, 100.5, 99.5, 100.0, 50.0),  # active
+        _mk_candle(4, 100.0, 100.5, 99.5, 100.0, 50.0),  # active
+    ]
+    # 역순: idx4 active(+1), idx3 active(+1), idx2 inactive → break → count=2
+    assert _count_vbz_consecutive(candles, vp, 100.0) == 2
+
+
+def test_count_vbz_consecutive_empty_list():
+    """(c-1) 빈 리스트 → 0 반환."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    assert _count_vbz_consecutive([], vp, 100.0) == 0
+
+
+def test_count_vbz_consecutive_all_inactive():
+    """(c-2) 전부 비활성 (close outside VA) → 0 반환."""
+    vp = VolumeProfile(poc=100.0, val=90.0, vah=110.0, hvn_prices=[])
+    candles = [_mk_candle(i, 80.0, 80.5, 79.5, 80.0, 50.0) for i in range(3)]
+    assert _count_vbz_consecutive(candles, vp, 100.0) == 0

@@ -195,7 +195,7 @@ def check_module_a_long(
 
     in_value_area: bool = vp_layer.val <= last_candle.close <= vp_layer.vah
     volume_ratio: float = last_candle.volume / volume_ma20 if volume_ma20 > 0 else 0.0
-    low_volume: bool = volume_ratio < VBZ_VOLUME_RATIO_THRESHOLD
+    low_volume: bool = (volume_ratio < VBZ_VOLUME_RATIO_THRESHOLD) if volume_ma20 > 0 else False
     vbz_active: bool = in_value_area and low_volume
     vbz_consecutive_hours: int = _count_vbz_consecutive(candles_1h, vp_layer, volume_ma20)
 
@@ -280,7 +280,7 @@ def check_module_a_short(
 
     in_value_area: bool = vp_layer.val <= last_candle.close <= vp_layer.vah
     volume_ratio: float = last_candle.volume / volume_ma20 if volume_ma20 > 0 else 0.0
-    low_volume: bool = volume_ratio < VBZ_VOLUME_RATIO_THRESHOLD
+    low_volume: bool = (volume_ratio < VBZ_VOLUME_RATIO_THRESHOLD) if volume_ma20 > 0 else False
     vbz_active: bool = in_value_area and low_volume
     vbz_consecutive_hours: int = _count_vbz_consecutive(candles_1h, vp_layer, volume_ma20)
 
