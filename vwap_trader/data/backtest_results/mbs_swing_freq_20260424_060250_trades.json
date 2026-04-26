@@ -1,0 +1,6816 @@
+{
+  "BTCUSDT": [
+    {
+      "entry_dt": "2024-01-03T15:00:00Z",
+      "exit_dt": "2024-01-03T16:00:00Z",
+      "entry_price": 42205.9,
+      "exit_price": 43172.183735,
+      "atr_signal": 644.189157,
+      "pnl_pct": -0.024311,
+      "pnl_atr": -1.592775,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-03T17:00:00Z",
+      "exit_dt": "2024-01-04T15:00:00Z",
+      "entry_price": 43031.9,
+      "exit_price": 44043.574751,
+      "atr_signal": 674.449834,
+      "pnl_pct": -0.024926,
+      "pnl_atr": -1.590374,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-05T20:00:00Z",
+      "exit_dt": "2024-01-05T20:00:00Z",
+      "entry_price": 43612.3,
+      "exit_price": 44365.784501,
+      "atr_signal": 502.323001,
+      "pnl_pct": -0.018689,
+      "pnl_atr": -1.6226,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-06T10:00:00Z",
+      "exit_dt": "2024-01-07T00:00:00Z",
+      "entry_price": 43669.0,
+      "exit_price": 44189.728477,
+      "atr_signal": 347.152318,
+      "pnl_pct": -0.013333,
+      "pnl_atr": -1.677159,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-10T01:00:00Z",
+      "exit_dt": "2024-01-10T22:00:00Z",
+      "entry_price": 45872.5,
+      "exit_price": 46838.779679,
+      "atr_signal": 644.186453,
+      "pnl_pct": -0.022479,
+      "pnl_atr": -1.600744,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-13T03:00:00Z",
+      "exit_dt": "2024-01-15T02:00:00Z",
+      "entry_price": 42557.9,
+      "exit_price": 42406.9,
+      "atr_signal": 626.661816,
+      "pnl_pct": 0.002151,
+      "pnl_atr": 0.146051,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-01-16T02:00:00Z",
+      "exit_dt": "2024-01-16T09:00:00Z",
+      "entry_price": 42585.6,
+      "exit_price": 43049.243764,
+      "atr_signal": 309.095843,
+      "pnl_pct": -0.012295,
+      "pnl_atr": -1.693935,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-17T08:00:00Z",
+      "exit_dt": "2024-01-18T16:00:00Z",
+      "entry_price": 42642.0,
+      "exit_price": 41845.27822,
+      "atr_signal": 265.573927,
+      "pnl_pct": 0.017297,
+      "pnl_atr": 2.777308,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-01-18T20:00:00Z",
+      "exit_dt": "2024-01-19T18:00:00Z",
+      "entry_price": 41028.8,
+      "exit_price": 41579.194098,
+      "atr_signal": 366.929398,
+      "pnl_pct": -0.014824,
+      "pnl_atr": -1.657593,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-22T22:00:00Z",
+      "exit_dt": "2024-01-24T10:00:00Z",
+      "entry_price": 39846.7,
+      "exit_price": 40506.353746,
+      "atr_signal": 439.769164,
+      "pnl_pct": -0.017966,
+      "pnl_atr": -1.627902,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-29T08:00:00Z",
+      "exit_dt": "2024-01-29T15:00:00Z",
+      "entry_price": 42039.7,
+      "exit_price": 42394.090615,
+      "atr_signal": 236.26041,
+      "pnl_pct": -0.009836,
+      "pnl_atr": -1.750163,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-31T02:00:00Z",
+      "exit_dt": "2024-01-31T15:00:00Z",
+      "entry_price": 42766.1,
+      "exit_price": 43222.371264,
+      "atr_signal": 304.180843,
+      "pnl_pct": -0.012076,
+      "pnl_atr": -1.697882,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-01T00:00:00Z",
+      "exit_dt": "2024-02-01T17:00:00Z",
+      "entry_price": 42552.7,
+      "exit_price": 43090.904135,
+      "atr_signal": 358.802757,
+      "pnl_pct": -0.014057,
+      "pnl_atr": -1.667085,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-03T12:00:00Z",
+      "exit_dt": "2024-02-03T17:00:00Z",
+      "entry_price": 42985.9,
+      "exit_price": 43233.954532,
+      "atr_signal": 165.369688,
+      "pnl_pct": -0.007175,
+      "pnl_atr": -1.864963,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-04T05:00:00Z",
+      "exit_dt": "2024-02-04T11:00:00Z",
+      "entry_price": 42906.7,
+      "exit_price": 43095.268535,
+      "atr_signal": 125.712356,
+      "pnl_pct": -0.005798,
+      "pnl_atr": -1.978882,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-04T15:00:00Z",
+      "exit_dt": "2024-02-04T22:00:00Z",
+      "entry_price": 42859.4,
+      "exit_price": 42452.234046,
+      "atr_signal": 135.721985,
+      "pnl_pct": 0.008107,
+      "pnl_atr": 2.559997,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-02-16T02:00:00Z",
+      "exit_dt": "2024-02-16T14:00:00Z",
+      "entry_price": 51972.6,
+      "exit_price": 52622.232799,
+      "atr_signal": 433.088533,
+      "pnl_pct": -0.013908,
+      "pnl_atr": -1.669056,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-17T14:00:00Z",
+      "exit_dt": "2024-02-17T21:00:00Z",
+      "entry_price": 51215.8,
+      "exit_price": 51607.848875,
+      "atr_signal": 261.365917,
+      "pnl_pct": -0.00906,
+      "pnl_atr": -1.775386,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-18T02:00:00Z",
+      "exit_dt": "2024-02-18T09:00:00Z",
+      "entry_price": 51576.3,
+      "exit_price": 52029.356803,
+      "atr_signal": 302.037869,
+      "pnl_pct": -0.01019,
+      "pnl_atr": -1.740115,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-19T19:00:00Z",
+      "exit_dt": "2024-02-20T11:00:00Z",
+      "entry_price": 51958.0,
+      "exit_price": 52417.159888,
+      "atr_signal": 306.106592,
+      "pnl_pct": -0.010243,
+      "pnl_atr": -1.738684,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-20T17:00:00Z",
+      "exit_dt": "2024-02-20T19:00:00Z",
+      "entry_price": 51420.7,
+      "exit_price": 52049.211847,
+      "atr_signal": 419.007898,
+      "pnl_pct": -0.013631,
+      "pnl_atr": -1.672858,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-21T10:00:00Z",
+      "exit_dt": "2024-02-21T23:00:00Z",
+      "entry_price": 51100.1,
+      "exit_price": 51645.20739,
+      "atr_signal": 363.404927,
+      "pnl_pct": -0.012075,
+      "pnl_atr": -1.697911,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-22T01:00:00Z",
+      "exit_dt": "2024-02-24T00:00:00Z",
+      "entry_price": 51551.8,
+      "exit_price": 50914.5,
+      "atr_signal": 438.739981,
+      "pnl_pct": 0.010971,
+      "pnl_atr": 1.289086,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-03-02T12:00:00Z",
+      "exit_dt": "2024-03-03T12:00:00Z",
+      "entry_price": 61905.2,
+      "exit_price": 62590.454725,
+      "atr_signal": 456.836484,
+      "pnl_pct": -0.012477,
+      "pnl_atr": -1.690762,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-05T19:00:00Z",
+      "exit_dt": "2024-03-05T19:00:00Z",
+      "entry_price": 64070.4,
+      "exit_price": 59973.670557,
+      "atr_signal": 1365.576481,
+      "pnl_pct": 0.062586,
+      "pnl_atr": 2.936415,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-06T01:00:00Z",
+      "exit_dt": "2024-03-06T05:00:00Z",
+      "entry_price": 63468.9,
+      "exit_price": 65810.486367,
+      "atr_signal": 1561.057578,
+      "pnl_pct": -0.038319,
+      "pnl_atr": -1.557971,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-12T17:00:00Z",
+      "exit_dt": "2024-03-13T00:00:00Z",
+      "entry_price": 70580.4,
+      "exit_price": 71836.294712,
+      "atr_signal": 837.263141,
+      "pnl_pct": -0.019206,
+      "pnl_atr": -1.619069,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-13T01:00:00Z",
+      "exit_dt": "2024-03-13T06:00:00Z",
+      "entry_price": 71483.8,
+      "exit_price": 72717.026645,
+      "atr_signal": 822.151097,
+      "pnl_pct": -0.018664,
+      "pnl_atr": -1.622776,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-15T03:00:00Z",
+      "exit_dt": "2024-03-15T09:00:00Z",
+      "entry_price": 69104.1,
+      "exit_price": 65664.909696,
+      "atr_signal": 1146.396768,
+      "pnl_pct": 0.048403,
+      "pnl_atr": 2.917709,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-15T11:00:00Z",
+      "exit_dt": "2024-03-15T18:00:00Z",
+      "entry_price": 67281.9,
+      "exit_price": 69285.208677,
+      "atr_signal": 1335.539118,
+      "pnl_pct": -0.031196,
+      "pnl_atr": -1.571579,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-16T13:00:00Z",
+      "exit_dt": "2024-03-16T23:00:00Z",
+      "entry_price": 67922.2,
+      "exit_price": 65499.24788,
+      "atr_signal": 807.650707,
+      "pnl_pct": 0.034297,
+      "pnl_atr": 2.884362,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-18T15:00:00Z",
+      "exit_dt": "2024-03-19T05:00:00Z",
+      "entry_price": 67034.0,
+      "exit_price": 64690.387514,
+      "atr_signal": 781.204162,
+      "pnl_pct": 0.033586,
+      "pnl_atr": 2.881968,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-19T09:00:00Z",
+      "exit_dt": "2024-03-19T16:00:00Z",
+      "entry_price": 63508.0,
+      "exit_price": 64933.098219,
+      "atr_signal": 950.065479,
+      "pnl_pct": -0.023855,
+      "pnl_atr": -1.594634,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-19T20:00:00Z",
+      "exit_dt": "2024-03-20T04:00:00Z",
+      "entry_price": 64424.1,
+      "exit_price": 61378.3726,
+      "atr_signal": 1015.242467,
+      "pnl_pct": 0.045909,
+      "pnl_atr": 2.91326,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-21T19:00:00Z",
+      "exit_dt": "2024-03-22T06:00:00Z",
+      "entry_price": 65178.3,
+      "exit_price": 66506.631618,
+      "atr_signal": 885.554412,
+      "pnl_pct": -0.021794,
+      "pnl_atr": -1.604092,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-22T11:00:00Z",
+      "exit_dt": "2024-03-22T21:00:00Z",
+      "entry_price": 64676.1,
+      "exit_price": 62511.596631,
+      "atr_signal": 721.501123,
+      "pnl_pct": 0.03209,
+      "pnl_atr": 2.876603,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-23T01:00:00Z",
+      "exit_dt": "2024-03-23T07:00:00Z",
+      "entry_price": 63606.0,
+      "exit_price": 64849.506483,
+      "atr_signal": 829.004322,
+      "pnl_pct": -0.020964,
+      "pnl_atr": -1.608466,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-27T00:00:00Z",
+      "exit_dt": "2024-03-27T13:00:00Z",
+      "entry_price": 70046.0,
+      "exit_price": 71036.759519,
+      "atr_signal": 660.506346,
+      "pnl_pct": -0.015554,
+      "pnl_atr": -1.649519,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-27T14:00:00Z",
+      "exit_dt": "2024-03-28T09:00:00Z",
+      "entry_price": 69943.9,
+      "exit_price": 70969.295153,
+      "atr_signal": 683.596769,
+      "pnl_pct": -0.016071,
+      "pnl_atr": -1.644294,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-29T08:00:00Z",
+      "exit_dt": "2024-03-29T13:00:00Z",
+      "entry_price": 69863.7,
+      "exit_price": 70577.316371,
+      "atr_signal": 475.744247,
+      "pnl_pct": -0.011622,
+      "pnl_atr": -1.706642,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-30T04:00:00Z",
+      "exit_dt": "2024-03-31T05:00:00Z",
+      "entry_price": 69848.0,
+      "exit_price": 70447.60576,
+      "atr_signal": 399.737174,
+      "pnl_pct": -0.00999,
+      "pnl_atr": -1.745679,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-02T20:00:00Z",
+      "exit_dt": "2024-04-04T13:00:00Z",
+      "entry_price": 65925.0,
+      "exit_price": 67120.124789,
+      "atr_signal": 796.749859,
+      "pnl_pct": -0.019541,
+      "pnl_atr": -1.616889,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-09T17:00:00Z",
+      "exit_dt": "2024-04-10T17:00:00Z",
+      "entry_price": 68655.9,
+      "exit_price": 69698.130833,
+      "atr_signal": 694.820555,
+      "pnl_pct": -0.016591,
+      "pnl_atr": -1.639385,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-11T19:00:00Z",
+      "exit_dt": "2024-04-12T04:00:00Z",
+      "entry_price": 70135.8,
+      "exit_price": 71076.321795,
+      "atr_signal": 627.01453,
+      "pnl_pct": -0.014819,
+      "pnl_atr": -1.657649,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-13T02:00:00Z",
+      "exit_dt": "2024-04-13T03:00:00Z",
+      "entry_price": 65866.4,
+      "exit_price": 67038.164386,
+      "atr_signal": 781.176257,
+      "pnl_pct": -0.019202,
+      "pnl_atr": -1.619094,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-14T00:00:00Z",
+      "exit_dt": "2024-04-15T06:00:00Z",
+      "entry_price": 63905.1,
+      "exit_price": 65882.395942,
+      "atr_signal": 1318.197294,
+      "pnl_pct": -0.032363,
+      "pnl_atr": -1.568921,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-15T19:00:00Z",
+      "exit_dt": "2024-04-17T05:00:00Z",
+      "entry_price": 63115.2,
+      "exit_price": 64452.612112,
+      "atr_signal": 891.608075,
+      "pnl_pct": -0.022605,
+      "pnl_atr": -1.600153,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-17T12:00:00Z",
+      "exit_dt": "2024-04-17T15:00:00Z",
+      "entry_price": 62558.7,
+      "exit_price": 60575.819478,
+      "atr_signal": 660.960174,
+      "pnl_pct": 0.030319,
+      "pnl_atr": 2.869593,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-04-18T00:00:00Z",
+      "exit_dt": "2024-04-18T11:00:00Z",
+      "entry_price": 61245.0,
+      "exit_price": 62501.038658,
+      "atr_signal": 837.359105,
+      "pnl_pct": -0.021923,
+      "pnl_atr": -1.603447,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-24T16:00:00Z",
+      "exit_dt": "2024-04-25T13:00:00Z",
+      "entry_price": 64596.4,
+      "exit_price": 63170.358346,
+      "atr_signal": 475.347218,
+      "pnl_pct": 0.020692,
+      "pnl_atr": 2.81185,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-04-26T15:00:00Z",
+      "exit_dt": "2024-04-28T14:00:00Z",
+      "entry_price": 63829.3,
+      "exit_price": 63577.7,
+      "atr_signal": 518.160138,
+      "pnl_pct": 0.002545,
+      "pnl_atr": 0.313446,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-04-30T20:00:00Z",
+      "exit_dt": "2024-04-30T21:00:00Z",
+      "entry_price": 59276.4,
+      "exit_price": 60281.011126,
+      "atr_signal": 669.740751,
+      "pnl_pct": -0.01836,
+      "pnl_atr": -1.624959,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-01T08:00:00Z",
+      "exit_dt": "2024-05-01T18:00:00Z",
+      "entry_price": 57474.0,
+      "exit_price": 58588.047366,
+      "atr_signal": 742.698244,
+      "pnl_pct": -0.020797,
+      "pnl_atr": -1.60939,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-01T23:00:00Z",
+      "exit_dt": "2024-05-02T14:00:00Z",
+      "entry_price": 57843.7,
+      "exit_price": 59207.882773,
+      "atr_signal": 909.455182,
+      "pnl_pct": -0.025,
+      "pnl_atr": -1.590094,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-06T15:00:00Z",
+      "exit_dt": "2024-05-07T08:00:00Z",
+      "entry_price": 63213.4,
+      "exit_price": 64062.874354,
+      "atr_signal": 566.316236,
+      "pnl_pct": -0.014848,
+      "pnl_atr": -1.657321,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-07T21:00:00Z",
+      "exit_dt": "2024-05-08T20:00:00Z",
+      "entry_price": 62967.9,
+      "exit_price": 61384.098013,
+      "atr_signal": 527.933996,
+      "pnl_pct": 0.02377,
+      "pnl_atr": 2.835119,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-05-09T05:00:00Z",
+      "exit_dt": "2024-05-09T15:00:00Z",
+      "entry_price": 61469.0,
+      "exit_price": 62123.362928,
+      "atr_signal": 436.241952,
+      "pnl_pct": -0.012053,
+      "pnl_atr": -1.698318,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-10T15:00:00Z",
+      "exit_dt": "2024-05-12T14:00:00Z",
+      "entry_price": 61039.3,
+      "exit_price": 61155.9,
+      "atr_signal": 562.642729,
+      "pnl_pct": -0.003312,
+      "pnl_atr": -0.359263,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-05-22T00:00:00Z",
+      "exit_dt": "2024-05-23T13:00:00Z",
+      "entry_price": 70167.8,
+      "exit_price": 68547.9335,
+      "atr_signal": 539.9555,
+      "pnl_pct": 0.021702,
+      "pnl_atr": 2.820168,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-05-23T14:00:00Z",
+      "exit_dt": "2024-05-23T20:00:00Z",
+      "entry_price": 68056.1,
+      "exit_price": 66358.192663,
+      "atr_signal": 565.969112,
+      "pnl_pct": 0.023566,
+      "pnl_atr": 2.833754,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-05-23T23:00:00Z",
+      "exit_dt": "2024-05-24T17:00:00Z",
+      "entry_price": 67717.7,
+      "exit_price": 68767.875917,
+      "atr_signal": 700.117278,
+      "pnl_pct": -0.016919,
+      "pnl_atr": -1.636463,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-28T04:00:00Z",
+      "exit_dt": "2024-05-28T10:00:00Z",
+      "entry_price": 68042.8,
+      "exit_price": 68803.172605,
+      "atr_signal": 506.91507,
+      "pnl_pct": -0.012583,
+      "pnl_atr": -1.688971,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-28T13:00:00Z",
+      "exit_dt": "2024-05-29T02:00:00Z",
+      "entry_price": 68216.3,
+      "exit_price": 68969.313203,
+      "atr_signal": 502.008802,
+      "pnl_pct": -0.012446,
+      "pnl_atr": -1.691291,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-31T15:00:00Z",
+      "exit_dt": "2024-06-02T11:00:00Z",
+      "entry_price": 67527.1,
+      "exit_price": 68181.572422,
+      "atr_signal": 436.314948,
+      "pnl_pct": -0.011099,
+      "pnl_atr": -1.717724,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-06T10:00:00Z",
+      "exit_dt": "2024-06-06T13:00:00Z",
+      "entry_price": 71018.9,
+      "exit_price": 71528.335722,
+      "atr_signal": 339.623815,
+      "pnl_pct": -0.008578,
+      "pnl_atr": -1.793805,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-07T00:00:00Z",
+      "exit_dt": "2024-06-07T05:00:00Z",
+      "entry_price": 70835.8,
+      "exit_price": 71402.410249,
+      "atr_signal": 377.740166,
+      "pnl_pct": -0.009405,
+      "pnl_atr": -1.763585,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-11T02:00:00Z",
+      "exit_dt": "2024-06-11T04:00:00Z",
+      "entry_price": 68705.5,
+      "exit_price": 67746.546387,
+      "atr_signal": 319.651204,
+      "pnl_pct": 0.012567,
+      "pnl_atr": 2.701185,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-11T08:00:00Z",
+      "exit_dt": "2024-06-11T15:00:00Z",
+      "entry_price": 67539.4,
+      "exit_price": 66293.694081,
+      "atr_signal": 415.235306,
+      "pnl_pct": 0.017057,
+      "pnl_atr": 2.774385,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-11T23:00:00Z",
+      "exit_dt": "2024-06-12T10:00:00Z",
+      "entry_price": 67320.9,
+      "exit_price": 68021.392046,
+      "atr_signal": 466.994698,
+      "pnl_pct": -0.011813,
+      "pnl_atr": -1.702871,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-13T03:00:00Z",
+      "exit_dt": "2024-06-14T16:00:00Z",
+      "entry_price": 67708.0,
+      "exit_price": 66002.857125,
+      "atr_signal": 568.380958,
+      "pnl_pct": 0.023801,
+      "pnl_atr": 2.835326,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-15T07:00:00Z",
+      "exit_dt": "2024-06-16T10:00:00Z",
+      "entry_price": 66144.1,
+      "exit_price": 66698.709274,
+      "atr_signal": 369.739516,
+      "pnl_pct": -0.009791,
+      "pnl_atr": -1.751501,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-17T04:00:00Z",
+      "exit_dt": "2024-06-17T05:00:00Z",
+      "entry_price": 66188.9,
+      "exit_price": 66532.11476,
+      "atr_signal": 228.80984,
+      "pnl_pct": -0.006589,
+      "pnl_atr": -1.906035,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-17T06:00:00Z",
+      "exit_dt": "2024-06-17T09:00:00Z",
+      "entry_price": 66332.4,
+      "exit_price": 65626.379648,
+      "atr_signal": 235.340117,
+      "pnl_pct": 0.009251,
+      "pnl_atr": 2.607499,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-17T12:00:00Z",
+      "exit_dt": "2024-06-17T17:00:00Z",
+      "entry_price": 65778.6,
+      "exit_price": 66212.157346,
+      "atr_signal": 289.03823,
+      "pnl_pct": -0.007996,
+      "pnl_atr": -1.819659,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-18T14:00:00Z",
+      "exit_dt": "2024-06-19T03:00:00Z",
+      "entry_price": 64814.8,
+      "exit_price": 65512.647239,
+      "atr_signal": 465.231492,
+      "pnl_pct": -0.012174,
+      "pnl_atr": -1.696094,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-21T08:00:00Z",
+      "exit_dt": "2024-06-23T07:00:00Z",
+      "entry_price": 64147.7,
+      "exit_price": 64388.3,
+      "atr_signal": 347.06904,
+      "pnl_pct": -0.005153,
+      "pnl_atr": -0.952477,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-06-24T11:00:00Z",
+      "exit_dt": "2024-06-24T18:00:00Z",
+      "entry_price": 61137.4,
+      "exit_price": 59675.7988,
+      "atr_signal": 487.2004,
+      "pnl_pct": 0.022524,
+      "pnl_atr": 2.826418,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-24T23:00:00Z",
+      "exit_dt": "2024-06-25T03:00:00Z",
+      "entry_price": 60010.7,
+      "exit_price": 61020.060087,
+      "atr_signal": 672.906725,
+      "pnl_pct": -0.018231,
+      "pnl_atr": -1.625904,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-25T08:00:00Z",
+      "exit_dt": "2024-06-25T09:00:00Z",
+      "entry_price": 60640.3,
+      "exit_price": 61487.084653,
+      "atr_signal": 564.523102,
+      "pnl_pct": -0.015374,
+      "pnl_atr": -1.651436,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-28T18:00:00Z",
+      "exit_dt": "2024-06-30T07:00:00Z",
+      "entry_price": 60790.0,
+      "exit_price": 61387.804439,
+      "atr_signal": 398.536293,
+      "pnl_pct": -0.011241,
+      "pnl_atr": -1.714596,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-04T12:00:00Z",
+      "exit_dt": "2024-07-04T19:00:00Z",
+      "entry_price": 57744.3,
+      "exit_price": 58662.840517,
+      "atr_signal": 612.360345,
+      "pnl_pct": -0.017318,
+      "pnl_atr": -1.633067,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-05T03:00:00Z",
+      "exit_dt": "2024-07-05T04:00:00Z",
+      "entry_price": 55721.9,
+      "exit_price": 53491.070158,
+      "atr_signal": 743.609947,
+      "pnl_pct": 0.038663,
+      "pnl_atr": 2.897192,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-05T13:00:00Z",
+      "exit_dt": "2024-07-05T15:00:00Z",
+      "entry_price": 55021.1,
+      "exit_price": 56275.652266,
+      "atr_signal": 836.368178,
+      "pnl_pct": -0.024217,
+      "pnl_atr": -1.59315,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-07T14:00:00Z",
+      "exit_dt": "2024-07-08T00:00:00Z",
+      "entry_price": 56854.1,
+      "exit_price": 55635.82122,
+      "atr_signal": 406.092927,
+      "pnl_pct": 0.020043,
+      "pnl_atr": 2.806096,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-11T03:00:00Z",
+      "exit_dt": "2024-07-11T11:00:00Z",
+      "entry_price": 57837.7,
+      "exit_price": 58583.545002,
+      "atr_signal": 497.230002,
+      "pnl_pct": -0.014305,
+      "pnl_atr": -1.663898,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-11T20:00:00Z",
+      "exit_dt": "2024-07-12T15:00:00Z",
+      "entry_price": 57361.2,
+      "exit_price": 58188.328859,
+      "atr_signal": 551.419239,
+      "pnl_pct": -0.01583,
+      "pnl_atr": -1.646685,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-17T21:00:00Z",
+      "exit_dt": "2024-07-19T13:00:00Z",
+      "entry_price": 64479.9,
+      "exit_price": 65278.619848,
+      "atr_signal": 532.479898,
+      "pnl_pct": -0.013796,
+      "pnl_atr": -1.670581,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-22T14:00:00Z",
+      "exit_dt": "2024-07-22T19:00:00Z",
+      "entry_price": 67074.7,
+      "exit_price": 67801.581068,
+      "atr_signal": 484.587378,
+      "pnl_pct": -0.012244,
+      "pnl_atr": -1.694833,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-23T06:00:00Z",
+      "exit_dt": "2024-07-23T09:00:00Z",
+      "entry_price": 66404.3,
+      "exit_price": 67130.71087,
+      "atr_signal": 484.273913,
+      "pnl_pct": -0.012347,
+      "pnl_atr": -1.69302,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-23T14:00:00Z",
+      "exit_dt": "2024-07-23T14:00:00Z",
+      "entry_price": 66058.9,
+      "exit_price": 66763.303074,
+      "atr_signal": 469.602049,
+      "pnl_pct": -0.012071,
+      "pnl_atr": -1.697988,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-23T16:00:00Z",
+      "exit_dt": "2024-07-25T01:00:00Z",
+      "entry_price": 66552.2,
+      "exit_price": 64854.133474,
+      "atr_signal": 566.022175,
+      "pnl_pct": 0.024133,
+      "pnl_atr": 2.83749,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-30T02:00:00Z",
+      "exit_dt": "2024-08-01T00:00:00Z",
+      "entry_price": 66145.5,
+      "exit_price": 64323.774581,
+      "atr_signal": 607.241806,
+      "pnl_pct": 0.02616,
+      "pnl_atr": 2.849601,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-01T02:00:00Z",
+      "exit_dt": "2024-08-01T17:00:00Z",
+      "entry_price": 64186.1,
+      "exit_price": 62493.491752,
+      "atr_signal": 564.202749,
+      "pnl_pct": 0.024989,
+      "pnl_atr": 2.84283,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-02T23:00:00Z",
+      "exit_dt": "2024-08-04T15:00:00Z",
+      "entry_price": 61355.9,
+      "exit_price": 58938.152307,
+      "atr_signal": 805.915898,
+      "pnl_pct": 0.038033,
+      "pnl_atr": 2.895515,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-05T04:00:00Z",
+      "exit_dt": "2024-08-05T06:00:00Z",
+      "entry_price": 53855.1,
+      "exit_price": 50659.574975,
+      "atr_signal": 1065.175008,
+      "pnl_pct": 0.057977,
+      "pnl_atr": 2.931316,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-11T20:00:00Z",
+      "exit_dt": "2024-08-11T20:00:00Z",
+      "entry_price": 59596.0,
+      "exit_price": 58361.613335,
+      "atr_signal": 411.462222,
+      "pnl_pct": 0.019327,
+      "pnl_atr": 2.799325,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-12T00:00:00Z",
+      "exit_dt": "2024-08-12T11:00:00Z",
+      "entry_price": 58703.4,
+      "exit_price": 59469.384055,
+      "atr_signal": 510.656037,
+      "pnl_pct": -0.014458,
+      "pnl_atr": -1.66199,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-14T19:00:00Z",
+      "exit_dt": "2024-08-15T19:00:00Z",
+      "entry_price": 58962.0,
+      "exit_price": 57023.477332,
+      "atr_signal": 646.174223,
+      "pnl_pct": 0.031501,
+      "pnl_atr": 2.874353,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-16T00:00:00Z",
+      "exit_dt": "2024-08-16T02:00:00Z",
+      "entry_price": 57515.9,
+      "exit_price": 58532.883661,
+      "atr_signal": 677.989107,
+      "pnl_pct": -0.019094,
+      "pnl_atr": -1.619816,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-18T23:00:00Z",
+      "exit_dt": "2024-08-19T00:00:00Z",
+      "entry_price": 59317.9,
+      "exit_price": 58332.120222,
+      "atr_signal": 328.593259,
+      "pnl_pct": 0.01523,
+      "pnl_atr": 2.749371,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-28T01:00:00Z",
+      "exit_dt": "2024-08-28T09:00:00Z",
+      "entry_price": 59055.5,
+      "exit_price": 60044.430633,
+      "atr_signal": 659.287089,
+      "pnl_pct": -0.018158,
+      "pnl_atr": -1.626455,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-28T14:00:00Z",
+      "exit_dt": "2024-08-29T11:00:00Z",
+      "entry_price": 59309.2,
+      "exit_price": 60188.291655,
+      "atr_signal": 586.061103,
+      "pnl_pct": -0.016233,
+      "pnl_atr": -1.64273,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-29T22:00:00Z",
+      "exit_dt": "2024-08-30T16:00:00Z",
+      "entry_price": 59449.5,
+      "exit_price": 57785.282687,
+      "atr_signal": 554.739104,
+      "pnl_pct": 0.026613,
+      "pnl_atr": 2.852067,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-01T06:00:00Z",
+      "exit_dt": "2024-09-01T07:00:00Z",
+      "entry_price": 57959.0,
+      "exit_price": 58401.789149,
+      "atr_signal": 295.192766,
+      "pnl_pct": -0.009045,
+      "pnl_atr": -1.77593,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-01T09:00:00Z",
+      "exit_dt": "2024-09-01T14:00:00Z",
+      "entry_price": 58217.7,
+      "exit_price": 57296.518397,
+      "atr_signal": 307.060534,
+      "pnl_pct": 0.014434,
+      "pnl_atr": 2.736664,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-03T15:00:00Z",
+      "exit_dt": "2024-09-04T01:00:00Z",
+      "entry_price": 57653.9,
+      "exit_price": 56361.197958,
+      "atr_signal": 430.900681,
+      "pnl_pct": 0.021037,
+      "pnl_atr": 2.814782,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-04T04:00:00Z",
+      "exit_dt": "2024-09-04T14:00:00Z",
+      "entry_price": 56636.6,
+      "exit_price": 57370.231534,
+      "atr_signal": 489.087689,
+      "pnl_pct": -0.014362,
+      "pnl_atr": -1.663171,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-05T15:00:00Z",
+      "exit_dt": "2024-09-06T14:00:00Z",
+      "entry_price": 56533.8,
+      "exit_price": 55153.191977,
+      "atr_signal": 460.202674,
+      "pnl_pct": 0.023038,
+      "pnl_atr": 2.830116,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-06T16:00:00Z",
+      "exit_dt": "2024-09-08T15:00:00Z",
+      "entry_price": 54020.0,
+      "exit_price": 53670.0,
+      "atr_signal": 669.900919,
+      "pnl_pct": 0.005084,
+      "pnl_atr": 0.409937,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-09-15T20:00:00Z",
+      "exit_dt": "2024-09-15T23:00:00Z",
+      "entry_price": 59853.1,
+      "exit_price": 59074.476429,
+      "atr_signal": 259.54119,
+      "pnl_pct": 0.011618,
+      "pnl_atr": 2.679244,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-20T20:00:00Z",
+      "exit_dt": "2024-09-21T23:00:00Z",
+      "entry_price": 62765.3,
+      "exit_price": 63484.49182,
+      "atr_signal": 479.461213,
+      "pnl_pct": -0.012866,
+      "pnl_atr": -1.684321,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-28T16:00:00Z",
+      "exit_dt": "2024-09-29T20:00:00Z",
+      "entry_price": 65596.3,
+      "exit_price": 65995.36759,
+      "atr_signal": 266.04506,
+      "pnl_pct": -0.007488,
+      "pnl_atr": -1.846235,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-30T10:00:00Z",
+      "exit_dt": "2024-09-30T12:00:00Z",
+      "entry_price": 63504.5,
+      "exit_price": 64033.788077,
+      "atr_signal": 352.858718,
+      "pnl_pct": -0.00974,
+      "pnl_atr": -1.75301,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-30T16:00:00Z",
+      "exit_dt": "2024-10-01T15:00:00Z",
+      "entry_price": 63535.7,
+      "exit_price": 62381.98288,
+      "atr_signal": 384.572373,
+      "pnl_pct": 0.016771,
+      "pnl_atr": 2.770804,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-10-02T10:00:00Z",
+      "exit_dt": "2024-10-02T16:00:00Z",
+      "entry_price": 61250.2,
+      "exit_price": 61999.334938,
+      "atr_signal": 499.423292,
+      "pnl_pct": -0.013639,
+      "pnl_atr": -1.672749,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-02T19:00:00Z",
+      "exit_dt": "2024-10-04T08:00:00Z",
+      "entry_price": 60726.8,
+      "exit_price": 61627.454118,
+      "atr_signal": 600.436079,
+      "pnl_pct": -0.016242,
+      "pnl_atr": -1.642643,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-07T23:00:00Z",
+      "exit_dt": "2024-10-08T14:00:00Z",
+      "entry_price": 62420.1,
+      "exit_price": 63174.099256,
+      "atr_signal": 502.666171,
+      "pnl_pct": -0.013488,
+      "pnl_atr": -1.674899,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-10T00:00:00Z",
+      "exit_dt": "2024-10-10T11:00:00Z",
+      "entry_price": 60607.7,
+      "exit_price": 61210.036551,
+      "atr_signal": 401.5577,
+      "pnl_pct": -0.011345,
+      "pnl_atr": -1.712354,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-10T15:00:00Z",
+      "exit_dt": "2024-10-10T18:00:00Z",
+      "entry_price": 60568.9,
+      "exit_price": 59418.666823,
+      "atr_signal": 383.411059,
+      "pnl_pct": 0.017604,
+      "pnl_atr": 2.780937,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-10-21T14:00:00Z",
+      "exit_dt": "2024-10-21T19:00:00Z",
+      "entry_price": 67317.6,
+      "exit_price": 67866.544517,
+      "atr_signal": 365.963012,
+      "pnl_pct": -0.00956,
+      "pnl_atr": -1.758575,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-22T00:00:00Z",
+      "exit_dt": "2024-10-23T09:00:00Z",
+      "entry_price": 67368.1,
+      "exit_price": 66201.805024,
+      "atr_signal": 388.764992,
+      "pnl_pct": 0.015924,
+      "pnl_atr": 2.759498,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-10-23T11:00:00Z",
+      "exit_dt": "2024-10-23T18:00:00Z",
+      "entry_price": 66381.8,
+      "exit_price": 65278.713291,
+      "atr_signal": 367.69557,
+      "pnl_pct": 0.015229,
+      "pnl_atr": 2.749351,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-10-25T23:00:00Z",
+      "exit_dt": "2024-10-27T12:00:00Z",
+      "entry_price": 66589.6,
+      "exit_price": 67463.364954,
+      "atr_signal": 582.509969,
+      "pnl_pct": -0.014531,
+      "pnl_atr": -1.661091,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-31T15:00:00Z",
+      "exit_dt": "2024-11-01T01:00:00Z",
+      "entry_price": 70780.1,
+      "exit_price": 69348.11392,
+      "atr_signal": 477.328693,
+      "pnl_pct": 0.018846,
+      "pnl_atr": 2.794503,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-01T19:00:00Z",
+      "exit_dt": "2024-11-03T18:00:00Z",
+      "entry_price": 69157.3,
+      "exit_price": 67996.8,
+      "atr_signal": 694.917087,
+      "pnl_pct": 0.015392,
+      "pnl_atr": 1.531826,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-11-14T19:00:00Z",
+      "exit_dt": "2024-11-15T20:00:00Z",
+      "entry_price": 89133.9,
+      "exit_price": 91031.909616,
+      "atr_signal": 1265.339744,
+      "pnl_pct": -0.022709,
+      "pnl_atr": -1.59967,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-17T02:00:00Z",
+      "exit_dt": "2024-11-17T09:00:00Z",
+      "entry_price": 90315.9,
+      "exit_price": 91237.653087,
+      "atr_signal": 614.502058,
+      "pnl_pct": -0.011613,
+      "pnl_atr": -1.706814,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-17T16:00:00Z",
+      "exit_dt": "2024-11-18T06:00:00Z",
+      "entry_price": 90328.2,
+      "exit_price": 91236.213321,
+      "atr_signal": 605.342214,
+      "pnl_pct": -0.011459,
+      "pnl_atr": -1.709956,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-23T17:00:00Z",
+      "exit_dt": "2024-11-24T02:00:00Z",
+      "entry_price": 97790.0,
+      "exit_price": 98503.76632,
+      "atr_signal": 475.844213,
+      "pnl_pct": -0.008704,
+      "pnl_atr": -1.788762,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-24T12:00:00Z",
+      "exit_dt": "2024-11-24T16:00:00Z",
+      "entry_price": 97340.1,
+      "exit_price": 95961.214424,
+      "atr_signal": 459.628525,
+      "pnl_pct": 0.012776,
+      "pnl_atr": 2.705608,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-25T03:00:00Z",
+      "exit_dt": "2024-11-25T06:00:00Z",
+      "entry_price": 97456.5,
+      "exit_price": 98451.962748,
+      "atr_signal": 663.641832,
+      "pnl_pct": -0.011622,
+      "pnl_atr": -1.706641,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-25T15:00:00Z",
+      "exit_dt": "2024-11-25T15:00:00Z",
+      "entry_price": 95470.8,
+      "exit_price": 96551.753857,
+      "atr_signal": 720.635905,
+      "pnl_pct": -0.01273,
+      "pnl_atr": -1.686524,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-25T19:00:00Z",
+      "exit_dt": "2024-11-25T22:00:00Z",
+      "entry_price": 95216.5,
+      "exit_price": 92671.737327,
+      "atr_signal": 848.254224,
+      "pnl_pct": 0.025345,
+      "pnl_atr": 2.84495,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-26T08:00:00Z",
+      "exit_dt": "2024-11-26T20:00:00Z",
+      "entry_price": 93828.0,
+      "exit_price": 91105.919336,
+      "atr_signal": 907.360221,
+      "pnl_pct": 0.027632,
+      "pnl_atr": 2.857329,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-28T20:00:00Z",
+      "exit_dt": "2024-11-29T02:00:00Z",
+      "entry_price": 95205.0,
+      "exit_price": 96188.315979,
+      "atr_signal": 655.543986,
+      "pnl_pct": -0.011736,
+      "pnl_atr": -1.704373,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-30T14:00:00Z",
+      "exit_dt": "2024-12-01T08:00:00Z",
+      "entry_price": 96466.1,
+      "exit_price": 97181.97332,
+      "atr_signal": 477.24888,
+      "pnl_pct": -0.008826,
+      "pnl_atr": -1.784031,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-02T06:00:00Z",
+      "exit_dt": "2024-12-02T15:00:00Z",
+      "entry_price": 96421.5,
+      "exit_price": 97288.801752,
+      "atr_signal": 578.201168,
+      "pnl_pct": -0.010401,
+      "pnl_atr": -1.734516,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-06T03:00:00Z",
+      "exit_dt": "2024-12-06T17:00:00Z",
+      "entry_price": 97641.9,
+      "exit_price": 100199.565592,
+      "atr_signal": 1705.110395,
+      "pnl_pct": -0.027613,
+      "pnl_atr": -1.58122,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-07T13:00:00Z",
+      "exit_dt": "2024-12-07T21:00:00Z",
+      "entry_price": 99458.1,
+      "exit_price": 100536.878658,
+      "atr_signal": 719.185772,
+      "pnl_pct": -0.012254,
+      "pnl_atr": -1.69466,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-09T03:00:00Z",
+      "exit_dt": "2024-12-09T14:00:00Z",
+      "entry_price": 99246.5,
+      "exit_price": 100277.472877,
+      "atr_signal": 687.315251,
+      "pnl_pct": -0.011795,
+      "pnl_atr": -1.703206,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-09T21:00:00Z",
+      "exit_dt": "2024-12-10T00:00:00Z",
+      "entry_price": 96300.0,
+      "exit_price": 97741.053601,
+      "atr_signal": 960.702401,
+      "pnl_pct": -0.016375,
+      "pnl_atr": -1.641385,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-10T03:00:00Z",
+      "exit_dt": "2024-12-11T13:00:00Z",
+      "entry_price": 96689.6,
+      "exit_price": 98501.398139,
+      "atr_signal": 1207.865426,
+      "pnl_pct": -0.020151,
+      "pnl_atr": -1.61312,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-18T21:00:00Z",
+      "exit_dt": "2024-12-19T10:00:00Z",
+      "entry_price": 100776.0,
+      "exit_price": 102385.440337,
+      "atr_signal": 1072.960225,
+      "pnl_pct": -0.017382,
+      "pnl_atr": -1.632543,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-20T00:00:00Z",
+      "exit_dt": "2024-12-20T11:00:00Z",
+      "entry_price": 97399.4,
+      "exit_price": 93224.47861,
+      "atr_signal": 1391.640463,
+      "pnl_pct": 0.041494,
+      "pnl_atr": 2.904116,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-12-22T05:00:00Z",
+      "exit_dt": "2024-12-22T10:00:00Z",
+      "entry_price": 96040.9,
+      "exit_price": 97213.509751,
+      "atr_signal": 781.739834,
+      "pnl_pct": -0.013618,
+      "pnl_atr": -1.673047,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-22T15:00:00Z",
+      "exit_dt": "2024-12-23T04:00:00Z",
+      "entry_price": 95326.5,
+      "exit_price": 96450.389124,
+      "atr_signal": 749.259416,
+      "pnl_pct": -0.013198,
+      "pnl_atr": -1.679169,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-23T14:00:00Z",
+      "exit_dt": "2024-12-24T14:00:00Z",
+      "entry_price": 94882.9,
+      "exit_price": 96200.829369,
+      "atr_signal": 878.61958,
+      "pnl_pct": -0.0153,
+      "pnl_atr": -1.652237,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-27T17:00:00Z",
+      "exit_dt": "2024-12-28T22:00:00Z",
+      "entry_price": 94110.3,
+      "exit_price": 95435.034912,
+      "atr_signal": 883.156608,
+      "pnl_pct": -0.015486,
+      "pnl_atr": -1.650236,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-29T19:00:00Z",
+      "exit_dt": "2024-12-30T01:00:00Z",
+      "entry_price": 93592.2,
+      "exit_price": 94235.958313,
+      "atr_signal": 429.172209,
+      "pnl_pct": -0.008283,
+      "pnl_atr": -1.806357,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-30T04:00:00Z",
+      "exit_dt": "2024-12-30T14:00:00Z",
+      "entry_price": 93667.3,
+      "exit_price": 92054.618595,
+      "atr_signal": 537.560468,
+      "pnl_pct": 0.015829,
+      "pnl_atr": 2.758157,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-09T08:00:00Z",
+      "exit_dt": "2025-01-09T15:00:00Z",
+      "entry_price": 93175.6,
+      "exit_price": 94444.11718,
+      "atr_signal": 845.67812,
+      "pnl_pct": -0.015024,
+      "pnl_atr": -1.6553,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-09T18:00:00Z",
+      "exit_dt": "2025-01-10T05:00:00Z",
+      "entry_price": 92635.6,
+      "exit_price": 94153.215717,
+      "atr_signal": 1011.743811,
+      "pnl_pct": -0.017794,
+      "pnl_atr": -1.629234,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-11T07:00:00Z",
+      "exit_dt": "2025-01-12T15:00:00Z",
+      "entry_price": 94167.6,
+      "exit_price": 95221.474901,
+      "atr_signal": 702.583267,
+      "pnl_pct": -0.012599,
+      "pnl_atr": -1.688693,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-13T06:00:00Z",
+      "exit_dt": "2025-01-13T10:00:00Z",
+      "entry_price": 94135.7,
+      "exit_price": 92448.818913,
+      "atr_signal": 562.293696,
+      "pnl_pct": 0.016532,
+      "pnl_atr": 2.767721,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-13T11:00:00Z",
+      "exit_dt": "2025-01-13T14:00:00Z",
+      "entry_price": 91594.1,
+      "exit_price": 89559.405638,
+      "atr_signal": 678.231454,
+      "pnl_pct": 0.02083,
+      "pnl_atr": 2.813032,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-20T21:00:00Z",
+      "exit_dt": "2025-01-21T18:00:00Z",
+      "entry_price": 103649.6,
+      "exit_price": 106743.154533,
+      "atr_signal": 2062.369689,
+      "pnl_pct": -0.031267,
+      "pnl_atr": -1.571411,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-22T16:00:00Z",
+      "exit_dt": "2025-01-23T14:00:00Z",
+      "entry_price": 104152.5,
+      "exit_price": 105634.359107,
+      "atr_signal": 987.906071,
+      "pnl_pct": -0.015638,
+      "pnl_atr": -1.648649,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-25T03:00:00Z",
+      "exit_dt": "2025-01-27T00:00:00Z",
+      "entry_price": 104514.3,
+      "exit_price": 102029.070154,
+      "atr_signal": 828.409949,
+      "pnl_pct": 0.022395,
+      "pnl_atr": 2.825472,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-27T02:00:00Z",
+      "exit_dt": "2025-01-27T06:00:00Z",
+      "entry_price": 101235.3,
+      "exit_price": 99577.492826,
+      "atr_signal": 552.602391,
+      "pnl_pct": 0.014987,
+      "pnl_atr": 2.745624,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-27T17:00:00Z",
+      "exit_dt": "2025-01-27T20:00:00Z",
+      "entry_price": 99694.7,
+      "exit_price": 101408.206608,
+      "atr_signal": 1142.337739,
+      "pnl_pct": -0.0186,
+      "pnl_atr": -1.623232,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-01T08:00:00Z",
+      "exit_dt": "2025-02-01T23:00:00Z",
+      "entry_price": 102112.1,
+      "exit_price": 100412.921832,
+      "atr_signal": 566.392723,
+      "pnl_pct": 0.015252,
+      "pnl_atr": 2.749701,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-02T03:00:00Z",
+      "exit_dt": "2025-02-02T11:00:00Z",
+      "entry_price": 100390.0,
+      "exit_price": 98711.322031,
+      "atr_signal": 559.559323,
+      "pnl_pct": 0.015333,
+      "pnl_atr": 2.750927,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-02T12:00:00Z",
+      "exit_dt": "2025-02-02T18:00:00Z",
+      "entry_price": 98824.4,
+      "exit_price": 96854.654816,
+      "atr_signal": 656.581728,
+      "pnl_pct": 0.018546,
+      "pnl_atr": 2.791381,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-02T21:00:00Z",
+      "exit_dt": "2025-02-03T01:00:00Z",
+      "entry_price": 97747.9,
+      "exit_price": 95038.56692,
+      "atr_signal": 903.111027,
+      "pnl_pct": 0.026337,
+      "pnl_atr": 2.850571,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-05T02:00:00Z",
+      "exit_dt": "2025-02-07T01:00:00Z",
+      "entry_price": 97805.3,
+      "exit_price": 97341.7,
+      "atr_signal": 1223.582616,
+      "pnl_pct": 0.003343,
+      "pnl_atr": 0.267246,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-02-08T05:00:00Z",
+      "exit_dt": "2025-02-10T04:00:00Z",
+      "entry_price": 96266.0,
+      "exit_price": 96896.0,
+      "atr_signal": 734.012628,
+      "pnl_pct": -0.007949,
+      "pnl_atr": -1.042507,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-02-11T17:00:00Z",
+      "exit_dt": "2025-02-12T13:00:00Z",
+      "entry_price": 96324.4,
+      "exit_price": 94676.717613,
+      "atr_signal": 549.227462,
+      "pnl_pct": 0.015718,
+      "pnl_atr": 2.756566,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-17T03:00:00Z",
+      "exit_dt": "2025-02-17T14:00:00Z",
+      "entry_price": 96169.1,
+      "exit_price": 96735.021358,
+      "atr_signal": 377.280905,
+      "pnl_pct": -0.007289,
+      "pnl_atr": -1.857911,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-17T23:00:00Z",
+      "exit_dt": "2025-02-18T14:00:00Z",
+      "entry_price": 95837.9,
+      "exit_price": 96573.939972,
+      "atr_signal": 490.693315,
+      "pnl_pct": -0.009085,
+      "pnl_atr": -1.774486,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-18T15:00:00Z",
+      "exit_dt": "2025-02-18T18:00:00Z",
+      "entry_price": 95501.8,
+      "exit_price": 93937.82519,
+      "atr_signal": 521.324937,
+      "pnl_pct": 0.014988,
+      "pnl_atr": 2.745633,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-19T01:00:00Z",
+      "exit_dt": "2025-02-19T10:00:00Z",
+      "entry_price": 95303.9,
+      "exit_price": 96284.153381,
+      "atr_signal": 653.502254,
+      "pnl_pct": -0.011693,
+      "pnl_atr": -1.70522,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-22T09:00:00Z",
+      "exit_dt": "2025-02-22T12:00:00Z",
+      "entry_price": 96232.1,
+      "exit_price": 96995.631038,
+      "atr_signal": 509.020692,
+      "pnl_pct": -0.00934,
+      "pnl_atr": -1.765725,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-22T19:00:00Z",
+      "exit_dt": "2025-02-24T04:00:00Z",
+      "entry_price": 96436.1,
+      "exit_price": 95226.611159,
+      "atr_signal": 403.162947,
+      "pnl_pct": 0.011151,
+      "pnl_atr": 2.667222,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-26T19:00:00Z",
+      "exit_dt": "2025-02-27T06:00:00Z",
+      "entry_price": 84112.7,
+      "exit_price": 85963.42201,
+      "atr_signal": 1233.814673,
+      "pnl_pct": -0.023418,
+      "pnl_atr": -1.596492,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-27T15:00:00Z",
+      "exit_dt": "2025-02-28T01:00:00Z",
+      "entry_price": 84960.2,
+      "exit_price": 81890.200996,
+      "atr_signal": 1023.333001,
+      "pnl_pct": 0.03476,
+      "pnl_atr": 2.885868,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-28T02:00:00Z",
+      "exit_dt": "2025-02-28T15:00:00Z",
+      "entry_price": 81613.4,
+      "exit_price": 83346.04805,
+      "atr_signal": 1155.0987,
+      "pnl_pct": -0.022645,
+      "pnl_atr": -1.599967,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-03T20:00:00Z",
+      "exit_dt": "2025-03-04T19:00:00Z",
+      "entry_price": 85532.1,
+      "exit_price": 87848.660354,
+      "atr_signal": 1544.373569,
+      "pnl_pct": -0.028503,
+      "pnl_atr": -1.578586,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-07T03:00:00Z",
+      "exit_dt": "2025-03-07T09:00:00Z",
+      "entry_price": 87203.8,
+      "exit_price": 89657.613119,
+      "atr_signal": 1635.875413,
+      "pnl_pct": -0.029559,
+      "pnl_atr": -1.57568,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-09T17:00:00Z",
+      "exit_dt": "2025-03-09T22:00:00Z",
+      "entry_price": 82436.6,
+      "exit_price": 80372.727896,
+      "atr_signal": 687.957368,
+      "pnl_pct": 0.023653,
+      "pnl_atr": 2.834341,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-03-10T09:00:00Z",
+      "exit_dt": "2025-03-10T09:00:00Z",
+      "entry_price": 81301.6,
+      "exit_price": 82611.501384,
+      "atr_signal": 873.267589,
+      "pnl_pct": -0.017523,
+      "pnl_atr": -1.631391,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-10T14:00:00Z",
+      "exit_dt": "2025-03-10T18:00:00Z",
+      "entry_price": 81488.0,
+      "exit_price": 78087.76385,
+      "atr_signal": 1133.41205,
+      "pnl_pct": 0.040356,
+      "pnl_atr": 2.901445,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-03-12T18:00:00Z",
+      "exit_dt": "2025-03-12T22:00:00Z",
+      "entry_price": 81807.9,
+      "exit_price": 83355.72451,
+      "atr_signal": 1031.883007,
+      "pnl_pct": -0.020333,
+      "pnl_atr": -1.612042,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-13T14:00:00Z",
+      "exit_dt": "2025-03-14T10:00:00Z",
+      "entry_price": 81742.8,
+      "exit_price": 82981.515609,
+      "atr_signal": 825.810406,
+      "pnl_pct": -0.016564,
+      "pnl_atr": -1.639629,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-16T10:00:00Z",
+      "exit_dt": "2025-03-16T11:00:00Z",
+      "entry_price": 83859.6,
+      "exit_price": 82916.267492,
+      "atr_signal": 314.444169,
+      "pnl_pct": 0.009857,
+      "pnl_atr": 2.628732,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-03-17T06:00:00Z",
+      "exit_dt": "2025-03-17T12:00:00Z",
+      "entry_price": 83097.2,
+      "exit_price": 83950.286678,
+      "atr_signal": 568.724452,
+      "pnl_pct": -0.011673,
+      "pnl_atr": -1.705606,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-20T19:00:00Z",
+      "exit_dt": "2025-03-22T18:00:00Z",
+      "entry_price": 84013.0,
+      "exit_price": 84194.5,
+      "atr_signal": 736.376856,
+      "pnl_pct": -0.003562,
+      "pnl_atr": -0.406375,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-03-26T17:00:00Z",
+      "exit_dt": "2025-03-26T20:00:00Z",
+      "entry_price": 86443.3,
+      "exit_price": 87261.57991,
+      "atr_signal": 545.51994,
+      "pnl_pct": -0.010873,
+      "pnl_atr": -1.722895,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-26T23:00:00Z",
+      "exit_dt": "2025-03-27T02:00:00Z",
+      "entry_price": 86787.7,
+      "exit_price": 87652.154198,
+      "atr_signal": 576.302798,
+      "pnl_pct": -0.011368,
+      "pnl_atr": -1.711881,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-27T12:00:00Z",
+      "exit_dt": "2025-03-27T21:00:00Z",
+      "entry_price": 86900.1,
+      "exit_price": 87552.169265,
+      "atr_signal": 434.712843,
+      "pnl_pct": -0.008909,
+      "pnl_atr": -1.780913,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-29T11:00:00Z",
+      "exit_dt": "2025-03-31T00:00:00Z",
+      "entry_price": 82890.1,
+      "exit_price": 81502.568359,
+      "atr_signal": 462.510547,
+      "pnl_pct": 0.015351,
+      "pnl_atr": 2.751195,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-04-03T07:00:00Z",
+      "exit_dt": "2025-04-04T08:00:00Z",
+      "entry_price": 83010.5,
+      "exit_price": 84264.010015,
+      "atr_signal": 835.673343,
+      "pnl_pct": -0.016511,
+      "pnl_atr": -1.640117,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-04T16:00:00Z",
+      "exit_dt": "2025-04-04T17:00:00Z",
+      "entry_price": 82813.1,
+      "exit_price": 84198.367313,
+      "atr_signal": 923.511542,
+      "pnl_pct": -0.018139,
+      "pnl_atr": -1.626591,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-05T20:00:00Z",
+      "exit_dt": "2025-04-05T23:00:00Z",
+      "entry_price": 82827.7,
+      "exit_price": 83531.718317,
+      "atr_signal": 469.345545,
+      "pnl_pct": -0.009906,
+      "pnl_atr": -1.748115,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-06T19:00:00Z",
+      "exit_dt": "2025-04-06T23:00:00Z",
+      "entry_price": 79071.8,
+      "exit_price": 77267.904364,
+      "atr_signal": 601.298545,
+      "pnl_pct": 0.021429,
+      "pnl_atr": 2.817998,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-04-07T03:00:00Z",
+      "exit_dt": "2025-04-07T06:00:00Z",
+      "entry_price": 78395.9,
+      "exit_price": 75835.488832,
+      "atr_signal": 853.470389,
+      "pnl_pct": 0.031283,
+      "pnl_atr": 2.873502,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-04-07T12:00:00Z",
+      "exit_dt": "2025-04-07T13:00:00Z",
+      "entry_price": 76650.0,
+      "exit_price": 78301.756055,
+      "atr_signal": 1101.170703,
+      "pnl_pct": -0.022964,
+      "pnl_atr": -1.598501,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-07T17:00:00Z",
+      "exit_dt": "2025-04-07T21:00:00Z",
+      "entry_price": 77386.0,
+      "exit_price": 79500.399481,
+      "atr_signal": 1409.599654,
+      "pnl_pct": -0.028742,
+      "pnl_atr": -1.577909,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-08T17:00:00Z",
+      "exit_dt": "2025-04-09T17:00:00Z",
+      "entry_price": 77385.3,
+      "exit_price": 78857.77784,
+      "atr_signal": 981.651893,
+      "pnl_pct": -0.020441,
+      "pnl_atr": -1.611414,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-14T02:00:00Z",
+      "exit_dt": "2025-04-14T02:00:00Z",
+      "entry_price": 84191.7,
+      "exit_price": 85338.571989,
+      "atr_signal": 764.581326,
+      "pnl_pct": -0.015032,
+      "pnl_atr": -1.655211,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-15T18:00:00Z",
+      "exit_dt": "2025-04-16T17:00:00Z",
+      "entry_price": 84415.6,
+      "exit_price": 85314.364414,
+      "atr_signal": 599.176276,
+      "pnl_pct": -0.012054,
+      "pnl_atr": -1.698291,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-27T15:00:00Z",
+      "exit_dt": "2025-04-27T21:00:00Z",
+      "entry_price": 93939.1,
+      "exit_price": 94465.761263,
+      "atr_signal": 351.107509,
+      "pnl_pct": -0.00701,
+      "pnl_atr": -1.875621,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-04T10:00:00Z",
+      "exit_dt": "2025-05-04T23:00:00Z",
+      "entry_price": 95441.5,
+      "exit_price": 94467.027577,
+      "atr_signal": 324.824141,
+      "pnl_pct": 0.008817,
+      "pnl_atr": 2.590745,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-05T00:00:00Z",
+      "exit_dt": "2025-05-05T07:00:00Z",
+      "entry_price": 94224.1,
+      "exit_price": 94765.66884,
+      "atr_signal": 361.045893,
+      "pnl_pct": -0.007152,
+      "pnl_atr": -1.866416,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-05T11:00:00Z",
+      "exit_dt": "2025-05-05T18:00:00Z",
+      "entry_price": 94083.4,
+      "exit_price": 94695.822702,
+      "atr_signal": 408.281801,
+      "pnl_pct": -0.007914,
+      "pnl_atr": -1.823662,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-06T02:00:00Z",
+      "exit_dt": "2025-05-06T18:00:00Z",
+      "entry_price": 94260.0,
+      "exit_price": 94993.088371,
+      "atr_signal": 488.725581,
+      "pnl_pct": -0.009183,
+      "pnl_atr": -1.771067,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-12T15:00:00Z",
+      "exit_dt": "2025-05-13T12:00:00Z",
+      "entry_price": 102763.6,
+      "exit_price": 103862.384931,
+      "atr_signal": 732.523287,
+      "pnl_pct": -0.0121,
+      "pnl_atr": -1.697452,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-14T09:00:00Z",
+      "exit_dt": "2025-05-14T11:00:00Z",
+      "entry_price": 103157.6,
+      "exit_price": 103923.031766,
+      "atr_signal": 510.287844,
+      "pnl_pct": -0.008825,
+      "pnl_atr": -1.784068,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-14T20:00:00Z",
+      "exit_dt": "2025-05-15T09:00:00Z",
+      "entry_price": 103279.4,
+      "exit_price": 101550.390256,
+      "atr_signal": 576.336581,
+      "pnl_pct": 0.015353,
+      "pnl_atr": 2.75122,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-23T21:00:00Z",
+      "exit_dt": "2025-05-24T11:00:00Z",
+      "entry_price": 108186.9,
+      "exit_price": 109423.180547,
+      "atr_signal": 824.187031,
+      "pnl_pct": -0.012835,
+      "pnl_atr": -1.684821,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-24T23:00:00Z",
+      "exit_dt": "2025-05-25T22:00:00Z",
+      "entry_price": 108039.3,
+      "exit_price": 108854.202376,
+      "atr_signal": 543.26825,
+      "pnl_pct": -0.008948,
+      "pnl_atr": -1.779467,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-28T02:00:00Z",
+      "exit_dt": "2025-05-29T14:00:00Z",
+      "entry_price": 108581.2,
+      "exit_price": 106650.697388,
+      "atr_signal": 643.500871,
+      "pnl_pct": 0.016392,
+      "pnl_atr": 2.765871,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-30T17:00:00Z",
+      "exit_dt": "2025-06-01T16:00:00Z",
+      "entry_price": 103875.4,
+      "exit_price": 105012.906533,
+      "atr_signal": 758.337688,
+      "pnl_pct": -0.012358,
+      "pnl_atr": -1.692819,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-04T06:00:00Z",
+      "exit_dt": "2025-06-05T14:00:00Z",
+      "entry_price": 105300.1,
+      "exit_price": 103921.436931,
+      "atr_signal": 459.554356,
+      "pnl_pct": 0.011702,
+      "pnl_atr": 2.681311,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-05T17:00:00Z",
+      "exit_dt": "2025-06-05T20:00:00Z",
+      "entry_price": 103233.0,
+      "exit_price": 101407.141235,
+      "atr_signal": 608.619588,
+      "pnl_pct": 0.016299,
+      "pnl_atr": 2.764634,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-12T04:00:00Z",
+      "exit_dt": "2025-06-12T20:00:00Z",
+      "entry_price": 107831.1,
+      "exit_price": 106212.067372,
+      "atr_signal": 539.677543,
+      "pnl_pct": 0.013625,
+      "pnl_atr": 2.722371,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-13T01:00:00Z",
+      "exit_dt": "2025-06-13T08:00:00Z",
+      "entry_price": 103737.1,
+      "exit_price": 104945.031497,
+      "atr_signal": 805.287665,
+      "pnl_pct": -0.013052,
+      "pnl_atr": -1.681398,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-14T07:00:00Z",
+      "exit_dt": "2025-06-15T05:00:00Z",
+      "entry_price": 105044.1,
+      "exit_price": 105807.193204,
+      "atr_signal": 508.728803,
+      "pnl_pct": -0.00867,
+      "pnl_atr": -1.790127,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-17T15:00:00Z",
+      "exit_dt": "2025-06-19T14:00:00Z",
+      "entry_price": 104797.5,
+      "exit_price": 104094.6,
+      "atr_signal": 592.22949,
+      "pnl_pct": 0.005312,
+      "pnl_atr": 0.939966,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-06-20T23:00:00Z",
+      "exit_dt": "2025-06-21T10:00:00Z",
+      "entry_price": 103054.2,
+      "exit_price": 103949.720646,
+      "atr_signal": 597.013764,
+      "pnl_pct": -0.010096,
+      "pnl_atr": -1.742713,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-21T14:00:00Z",
+      "exit_dt": "2025-06-21T19:00:00Z",
+      "entry_price": 103528.0,
+      "exit_price": 102438.093094,
+      "atr_signal": 363.302302,
+      "pnl_pct": 0.009135,
+      "pnl_atr": 2.603151,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-22T10:00:00Z",
+      "exit_dt": "2025-06-22T13:00:00Z",
+      "entry_price": 102154.4,
+      "exit_price": 100327.910971,
+      "atr_signal": 608.829676,
+      "pnl_pct": 0.016492,
+      "pnl_atr": 2.767197,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-22T14:00:00Z",
+      "exit_dt": "2025-06-22T16:00:00Z",
+      "entry_price": 100804.6,
+      "exit_price": 98713.404216,
+      "atr_signal": 697.065261,
+      "pnl_pct": 0.01936,
+      "pnl_atr": 2.799642,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-26T18:00:00Z",
+      "exit_dt": "2025-06-26T20:00:00Z",
+      "entry_price": 107141.6,
+      "exit_price": 107895.828768,
+      "atr_signal": 502.819179,
+      "pnl_pct": -0.008444,
+      "pnl_atr": -1.799364,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-26T22:00:00Z",
+      "exit_dt": "2025-06-28T21:00:00Z",
+      "entry_price": 106966.8,
+      "exit_price": 107264.8,
+      "atr_signal": 532.183391,
+      "pnl_pct": -0.004188,
+      "pnl_atr": -0.841744,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-07-04T14:00:00Z",
+      "exit_dt": "2025-07-06T13:00:00Z",
+      "entry_price": 107916.4,
+      "exit_price": 108549.898867,
+      "atr_signal": 422.332578,
+      "pnl_pct": -0.007274,
+      "pnl_atr": -1.858785,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-07T13:00:00Z",
+      "exit_dt": "2025-07-08T10:00:00Z",
+      "entry_price": 108302.0,
+      "exit_price": 108811.245528,
+      "atr_signal": 339.497018,
+      "pnl_pct": -0.006105,
+      "pnl_atr": -1.94766,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-15T04:00:00Z",
+      "exit_dt": "2025-07-15T13:00:00Z",
+      "entry_price": 117210.2,
+      "exit_price": 118444.089065,
+      "atr_signal": 822.59271,
+      "pnl_pct": -0.011935,
+      "pnl_atr": -1.700534,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-16T02:00:00Z",
+      "exit_dt": "2025-07-16T09:00:00Z",
+      "entry_price": 117746.2,
+      "exit_price": 119097.337052,
+      "atr_signal": 900.758034,
+      "pnl_pct": -0.012883,
+      "pnl_atr": -1.684057,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-18T17:00:00Z",
+      "exit_dt": "2025-07-20T14:00:00Z",
+      "entry_price": 117575.2,
+      "exit_price": 118838.151082,
+      "atr_signal": 841.967388,
+      "pnl_pct": -0.012149,
+      "pnl_atr": -1.696551,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-23T08:00:00Z",
+      "exit_dt": "2025-07-24T15:00:00Z",
+      "entry_price": 118398.9,
+      "exit_price": 119320.102252,
+      "atr_signal": 614.134835,
+      "pnl_pct": -0.009186,
+      "pnl_atr": -1.770956,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-25T01:00:00Z",
+      "exit_dt": "2025-07-25T03:00:00Z",
+      "entry_price": 117648.5,
+      "exit_price": 115824.485308,
+      "atr_signal": 608.004897,
+      "pnl_pct": 0.014115,
+      "pnl_atr": 2.731201,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-07-28T14:00:00Z",
+      "exit_dt": "2025-07-29T07:00:00Z",
+      "entry_price": 118429.5,
+      "exit_price": 119095.385174,
+      "atr_signal": 443.923449,
+      "pnl_pct": -0.007027,
+      "pnl_atr": -1.874541,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-29T15:00:00Z",
+      "exit_dt": "2025-07-30T14:00:00Z",
+      "entry_price": 117813.0,
+      "exit_price": 118610.405309,
+      "atr_signal": 531.603539,
+      "pnl_pct": -0.008173,
+      "pnl_atr": -1.811315,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-30T17:00:00Z",
+      "exit_dt": "2025-07-30T19:00:00Z",
+      "entry_price": 117716.5,
+      "exit_price": 115981.124359,
+      "atr_signal": 578.458547,
+      "pnl_pct": 0.013352,
+      "pnl_atr": 2.7172,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-08-01T14:00:00Z",
+      "exit_dt": "2025-08-01T14:00:00Z",
+      "entry_price": 114284.5,
+      "exit_price": 115445.765754,
+      "atr_signal": 774.177169,
+      "pnl_pct": -0.011568,
+      "pnl_atr": -1.707719,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-01T19:00:00Z",
+      "exit_dt": "2025-08-03T18:00:00Z",
+      "entry_price": 113786.4,
+      "exit_price": 114323.2,
+      "atr_signal": 858.041342,
+      "pnl_pct": -0.006121,
+      "pnl_atr": -0.811705,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-08-05T07:00:00Z",
+      "exit_dt": "2025-08-05T09:00:00Z",
+      "entry_price": 114138.1,
+      "exit_price": 114753.31713,
+      "atr_signal": 410.144753,
+      "pnl_pct": -0.006794,
+      "pnl_atr": -1.890652,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-05T13:00:00Z",
+      "exit_dt": "2025-08-06T14:00:00Z",
+      "entry_price": 113889.9,
+      "exit_price": 114660.764093,
+      "atr_signal": 513.909395,
+      "pnl_pct": -0.008173,
+      "pnl_atr": -1.811311,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-12T04:00:00Z",
+      "exit_dt": "2025-08-12T15:00:00Z",
+      "entry_price": 118844.7,
+      "exit_price": 119822.724608,
+      "atr_signal": 652.016406,
+      "pnl_pct": -0.009635,
+      "pnl_atr": -1.756232,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-14T20:00:00Z",
+      "exit_dt": "2025-08-16T19:00:00Z",
+      "entry_price": 117915.4,
+      "exit_price": 117603.0,
+      "atr_signal": 965.671597,
+      "pnl_pct": 0.001251,
+      "pnl_atr": 0.152782,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-08-18T02:00:00Z",
+      "exit_dt": "2025-08-18T03:00:00Z",
+      "entry_price": 116230.0,
+      "exit_price": 114942.386241,
+      "atr_signal": 429.204586,
+      "pnl_pct": 0.009686,
+      "pnl_atr": 2.622975,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-08-19T15:00:00Z",
+      "exit_dt": "2025-08-21T14:00:00Z",
+      "entry_price": 113820.1,
+      "exit_price": 113243.5,
+      "atr_signal": 645.000578,
+      "pnl_pct": 0.003669,
+      "pnl_atr": 0.647527,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-08-21T16:00:00Z",
+      "exit_dt": "2025-08-22T14:00:00Z",
+      "entry_price": 112745.8,
+      "exit_price": 113647.127735,
+      "atr_signal": 600.885157,
+      "pnl_pct": -0.0094,
+      "pnl_atr": -1.763736,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-23T22:00:00Z",
+      "exit_dt": "2025-08-24T02:00:00Z",
+      "entry_price": 115022.2,
+      "exit_price": 115643.278904,
+      "atr_signal": 414.052603,
+      "pnl_pct": -0.006803,
+      "pnl_atr": -1.889965,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-25T07:00:00Z",
+      "exit_dt": "2025-08-25T20:00:00Z",
+      "entry_price": 111899.5,
+      "exit_price": 109797.438527,
+      "atr_signal": 700.687158,
+      "pnl_pct": 0.017398,
+      "pnl_atr": 2.77852,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-08-29T15:00:00Z",
+      "exit_dt": "2025-08-31T00:00:00Z",
+      "entry_price": 108174.1,
+      "exit_price": 109328.048269,
+      "atr_signal": 769.298846,
+      "pnl_pct": -0.012075,
+      "pnl_atr": -1.697909,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-01T00:00:00Z",
+      "exit_dt": "2025-09-01T07:00:00Z",
+      "entry_price": 108200.0,
+      "exit_price": 108749.351864,
+      "atr_signal": 366.234576,
+      "pnl_pct": -0.006481,
+      "pnl_atr": -1.914665,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-04T05:00:00Z",
+      "exit_dt": "2025-09-04T23:00:00Z",
+      "entry_price": 110872.1,
+      "exit_price": 111700.67919,
+      "atr_signal": 552.386127,
+      "pnl_pct": -0.008879,
+      "pnl_atr": -1.782051,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-19T18:00:00Z",
+      "exit_dt": "2025-09-21T17:00:00Z",
+      "entry_price": 115481.1,
+      "exit_price": 115581.2,
+      "atr_signal": 419.590458,
+      "pnl_pct": -0.002267,
+      "pnl_atr": -0.624046,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-09-22T08:00:00Z",
+      "exit_dt": "2025-09-22T14:00:00Z",
+      "entry_price": 112458.5,
+      "exit_price": 113226.234202,
+      "atr_signal": 511.822802,
+      "pnl_pct": -0.008232,
+      "pnl_atr": -1.80866,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-22T17:00:00Z",
+      "exit_dt": "2025-09-24T04:00:00Z",
+      "entry_price": 112548.2,
+      "exit_price": 111038.869659,
+      "atr_signal": 503.110114,
+      "pnl_pct": 0.01202,
+      "pnl_atr": 2.688913,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-09-25T20:00:00Z",
+      "exit_dt": "2025-09-27T19:00:00Z",
+      "entry_price": 109332.3,
+      "exit_price": 109380.0,
+      "atr_signal": 763.101933,
+      "pnl_pct": -0.001837,
+      "pnl_atr": -0.263135,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-10-07T15:00:00Z",
+      "exit_dt": "2025-10-08T17:00:00Z",
+      "entry_price": 122716.0,
+      "exit_price": 123812.932013,
+      "atr_signal": 731.288009,
+      "pnl_pct": -0.010345,
+      "pnl_atr": -1.735981,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-10T03:00:00Z",
+      "exit_dt": "2025-10-10T13:00:00Z",
+      "entry_price": 121040.4,
+      "exit_price": 122114.093798,
+      "atr_signal": 715.795865,
+      "pnl_pct": -0.010277,
+      "pnl_atr": -1.737789,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-11T02:00:00Z",
+      "exit_dt": "2025-10-12T16:00:00Z",
+      "entry_price": 111031.2,
+      "exit_price": 114173.550513,
+      "atr_signal": 2094.900342,
+      "pnl_pct": -0.029721,
+      "pnl_atr": -1.575251,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-14T06:00:00Z",
+      "exit_dt": "2025-10-14T10:00:00Z",
+      "entry_price": 112425.3,
+      "exit_price": 110054.948232,
+      "atr_signal": 790.117256,
+      "pnl_pct": 0.019699,
+      "pnl_atr": 2.802895,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-15T15:00:00Z",
+      "exit_dt": "2025-10-16T15:00:00Z",
+      "entry_price": 111003.1,
+      "exit_price": 108283.535641,
+      "atr_signal": 906.521453,
+      "pnl_pct": 0.023117,
+      "pnl_atr": 2.830671,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-17T08:00:00Z",
+      "exit_dt": "2025-10-17T16:00:00Z",
+      "entry_price": 105561.6,
+      "exit_price": 107034.274592,
+      "atr_signal": 981.783061,
+      "pnl_pct": -0.015361,
+      "pnl_atr": -1.651578,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-18T03:00:00Z",
+      "exit_dt": "2025-10-19T09:00:00Z",
+      "entry_price": 106531.0,
+      "exit_price": 107889.458218,
+      "atr_signal": 905.638812,
+      "pnl_pct": -0.014161,
+      "pnl_atr": -1.665733,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-22T03:00:00Z",
+      "exit_dt": "2025-10-23T06:00:00Z",
+      "entry_price": 108153.7,
+      "exit_price": 109807.435949,
+      "atr_signal": 1102.490633,
+      "pnl_pct": -0.016701,
+      "pnl_atr": -1.638389,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-29T00:00:00Z",
+      "exit_dt": "2025-10-29T18:00:00Z",
+      "entry_price": 112836.0,
+      "exit_price": 110583.674029,
+      "atr_signal": 750.775324,
+      "pnl_pct": 0.018575,
+      "pnl_atr": 2.79169,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-30T00:00:00Z",
+      "exit_dt": "2025-10-30T07:00:00Z",
+      "entry_price": 109948.8,
+      "exit_price": 111274.967732,
+      "atr_signal": 884.111821,
+      "pnl_pct": -0.01347,
+      "pnl_atr": -1.675155,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-30T12:00:00Z",
+      "exit_dt": "2025-10-30T17:00:00Z",
+      "entry_price": 109658.1,
+      "exit_price": 106896.224878,
+      "atr_signal": 920.625041,
+      "pnl_pct": 0.023804,
+      "pnl_atr": 2.835342,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-31T03:00:00Z",
+      "exit_dt": "2025-10-31T04:00:00Z",
+      "entry_price": 108815.2,
+      "exit_price": 110268.692294,
+      "atr_signal": 968.994863,
+      "pnl_pct": -0.014767,
+      "pnl_atr": -1.658266,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-04T17:00:00Z",
+      "exit_dt": "2025-11-04T21:00:00Z",
+      "entry_price": 102215.3,
+      "exit_price": 99100.543882,
+      "atr_signal": 1038.252039,
+      "pnl_pct": 0.029094,
+      "pnl_atr": 2.864271,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-11-06T20:00:00Z",
+      "exit_dt": "2025-11-07T18:00:00Z",
+      "entry_price": 101326.1,
+      "exit_price": 102823.596476,
+      "atr_signal": 998.330984,
+      "pnl_pct": -0.016189,
+      "pnl_atr": -1.643144,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-08T12:00:00Z",
+      "exit_dt": "2025-11-09T13:00:00Z",
+      "entry_price": 101803.3,
+      "exit_price": 102832.058785,
+      "atr_signal": 685.83919,
+      "pnl_pct": -0.011512,
+      "pnl_atr": -1.708861,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-11T16:00:00Z",
+      "exit_dt": "2025-11-12T09:00:00Z",
+      "entry_price": 103420.1,
+      "exit_price": 104561.864111,
+      "atr_signal": 761.176074,
+      "pnl_pct": -0.012448,
+      "pnl_atr": -1.691266,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-12T16:00:00Z",
+      "exit_dt": "2025-11-13T05:00:00Z",
+      "entry_price": 102110.2,
+      "exit_price": 103307.810356,
+      "atr_signal": 798.406904,
+      "pnl_pct": -0.013137,
+      "pnl_atr": -1.680099,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-14T19:00:00Z",
+      "exit_dt": "2025-11-16T18:00:00Z",
+      "entry_price": 95022.9,
+      "exit_price": 94011.1,
+      "atr_signal": 1226.381458,
+      "pnl_pct": 0.009255,
+      "pnl_atr": 0.717131,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-11-16T19:00:00Z",
+      "exit_dt": "2025-11-17T00:00:00Z",
+      "entry_price": 94011.1,
+      "exit_price": 95097.686704,
+      "atr_signal": 724.391136,
+      "pnl_pct": -0.012966,
+      "pnl_atr": -1.682741,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-17T02:00:00Z",
+      "exit_dt": "2025-11-17T19:00:00Z",
+      "entry_price": 94732.2,
+      "exit_price": 92026.178375,
+      "atr_signal": 902.007208,
+      "pnl_pct": 0.027185,
+      "pnl_atr": 2.855067,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-11-17T20:00:00Z",
+      "exit_dt": "2025-11-18T16:00:00Z",
+      "entry_price": 91650.0,
+      "exit_price": 93139.295816,
+      "atr_signal": 992.863877,
+      "pnl_pct": -0.017661,
+      "pnl_atr": -1.630282,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-19T05:00:00Z",
+      "exit_dt": "2025-11-20T01:00:00Z",
+      "entry_price": 91121.6,
+      "exit_price": 92414.573625,
+      "atr_signal": 861.982417,
+      "pnl_pct": -0.015599,
+      "pnl_atr": -1.649046,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-21T09:00:00Z",
+      "exit_dt": "2025-11-21T14:00:00Z",
+      "entry_price": 83600.2,
+      "exit_price": 85445.25487,
+      "atr_signal": 1230.03658,
+      "pnl_pct": -0.023485,
+      "pnl_atr": -1.596202,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-21T16:00:00Z",
+      "exit_dt": "2025-11-21T17:00:00Z",
+      "entry_price": 82896.8,
+      "exit_price": 85139.645257,
+      "atr_signal": 1495.230171,
+      "pnl_pct": -0.028475,
+      "pnl_atr": -1.578667,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-22T03:00:00Z",
+      "exit_dt": "2025-11-23T04:00:00Z",
+      "entry_price": 84494.3,
+      "exit_price": 86467.467548,
+      "atr_signal": 1315.445032,
+      "pnl_pct": -0.024769,
+      "pnl_atr": -1.590975,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-25T12:00:00Z",
+      "exit_dt": "2025-11-26T17:00:00Z",
+      "entry_price": 87306.8,
+      "exit_price": 88225.118207,
+      "atr_signal": 612.212138,
+      "pnl_pct": -0.011926,
+      "pnl_atr": -1.700702,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-28T22:00:00Z",
+      "exit_dt": "2025-11-30T13:00:00Z",
+      "entry_price": 90813.5,
+      "exit_price": 91772.190294,
+      "atr_signal": 639.126863,
+      "pnl_pct": -0.011964,
+      "pnl_atr": -1.699976,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-01T00:00:00Z",
+      "exit_dt": "2025-12-01T00:00:00Z",
+      "entry_price": 90308.6,
+      "exit_price": 89002.736304,
+      "atr_signal": 435.287899,
+      "pnl_pct": 0.01307,
+      "pnl_atr": 2.711644,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-12-05T17:00:00Z",
+      "exit_dt": "2025-12-06T14:00:00Z",
+      "entry_price": 88760.0,
+      "exit_price": 89981.028725,
+      "atr_signal": 814.01915,
+      "pnl_pct": -0.015166,
+      "pnl_atr": -1.653705,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-06T20:00:00Z",
+      "exit_dt": "2025-12-07T14:00:00Z",
+      "entry_price": 89363.7,
+      "exit_price": 88067.025744,
+      "atr_signal": 432.224752,
+      "pnl_pct": 0.01312,
+      "pnl_atr": 2.712646,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-12-11T01:00:00Z",
+      "exit_dt": "2025-12-11T21:00:00Z",
+      "entry_price": 91348.1,
+      "exit_price": 92570.600335,
+      "atr_signal": 815.000224,
+      "pnl_pct": -0.014792,
+      "pnl_atr": -1.657967,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-12T16:00:00Z",
+      "exit_dt": "2025-12-14T15:00:00Z",
+      "entry_price": 89879.9,
+      "exit_price": 88977.0,
+      "atr_signal": 741.683947,
+      "pnl_pct": 0.008653,
+      "pnl_atr": 1.04856,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-12-14T20:00:00Z",
+      "exit_dt": "2025-12-15T01:00:00Z",
+      "entry_price": 88597.5,
+      "exit_price": 89209.771307,
+      "atr_signal": 408.180871,
+      "pnl_pct": -0.008316,
+      "pnl_atr": -1.804926,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-15T16:00:00Z",
+      "exit_dt": "2025-12-15T18:00:00Z",
+      "entry_price": 86989.4,
+      "exit_price": 85123.585109,
+      "atr_signal": 621.938297,
+      "pnl_pct": 0.020064,
+      "pnl_atr": 2.806284,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-12-16T14:00:00Z",
+      "exit_dt": "2025-12-16T14:00:00Z",
+      "entry_price": 86408.9,
+      "exit_price": 87410.221299,
+      "atr_signal": 667.547533,
+      "pnl_pct": -0.012996,
+      "pnl_atr": -1.682269,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-23T09:00:00Z",
+      "exit_dt": "2025-12-23T17:00:00Z",
+      "entry_price": 87430.4,
+      "exit_price": 88233.866427,
+      "atr_signal": 535.644284,
+      "pnl_pct": -0.010596,
+      "pnl_atr": -1.729565,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-23T18:00:00Z",
+      "exit_dt": "2025-12-23T18:00:00Z",
+      "entry_price": 87129.1,
+      "exit_price": 88058.29,
+      "atr_signal": 619.46,
+      "pnl_pct": -0.012072,
+      "pnl_atr": -1.697965,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-23T23:00:00Z",
+      "exit_dt": "2025-12-25T15:00:00Z",
+      "entry_price": 87357.7,
+      "exit_price": 88291.213892,
+      "atr_signal": 622.342595,
+      "pnl_pct": -0.012094,
+      "pnl_atr": -1.697567,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-27T00:00:00Z",
+      "exit_dt": "2025-12-28T14:00:00Z",
+      "entry_price": 87328.8,
+      "exit_price": 88034.693063,
+      "atr_signal": 470.595375,
+      "pnl_pct": -0.009489,
+      "pnl_atr": -1.760849,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-31T19:00:00Z",
+      "exit_dt": "2026-01-01T17:00:00Z",
+      "entry_price": 87641.4,
+      "exit_price": 88284.454322,
+      "atr_signal": 428.702881,
+      "pnl_pct": -0.008742,
+      "pnl_atr": -1.787257,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-07T17:00:00Z",
+      "exit_dt": "2026-01-08T14:00:00Z",
+      "entry_price": 91218.2,
+      "exit_price": 89420.707774,
+      "atr_signal": 599.164075,
+      "pnl_pct": 0.018319,
+      "pnl_atr": 2.788961,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-01-09T12:00:00Z",
+      "exit_dt": "2026-01-09T15:00:00Z",
+      "entry_price": 90413.9,
+      "exit_price": 91142.576395,
+      "atr_signal": 485.784264,
+      "pnl_pct": -0.009465,
+      "pnl_atr": -1.761617,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-09T20:00:00Z",
+      "exit_dt": "2026-01-11T19:00:00Z",
+      "entry_price": 90280.0,
+      "exit_price": 90642.8,
+      "atr_signal": 670.871624,
+      "pnl_pct": -0.005421,
+      "pnl_atr": -0.729567,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-01-16T04:00:00Z",
+      "exit_dt": "2026-01-18T03:00:00Z",
+      "entry_price": 95296.6,
+      "exit_price": 95154.6,
+      "atr_signal": 556.083329,
+      "pnl_pct": 9.1e-05,
+      "pnl_atr": 0.015617,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-01-18T13:00:00Z",
+      "exit_dt": "2026-01-18T18:00:00Z",
+      "entry_price": 95057.1,
+      "exit_price": 95346.807346,
+      "atr_signal": 193.138231,
+      "pnl_pct": -0.00445,
+      "pnl_atr": -2.19009,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-19T06:00:00Z",
+      "exit_dt": "2026-01-19T08:00:00Z",
+      "entry_price": 92470.4,
+      "exit_price": 93088.51237,
+      "atr_signal": 412.074913,
+      "pnl_pct": -0.008089,
+      "pnl_atr": -1.815213,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-20T19:00:00Z",
+      "exit_dt": "2026-01-21T15:00:00Z",
+      "entry_price": 89450.6,
+      "exit_price": 90317.212755,
+      "atr_signal": 577.741837,
+      "pnl_pct": -0.011095,
+      "pnl_atr": -1.717809,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-22T15:00:00Z",
+      "exit_dt": "2026-01-22T19:00:00Z",
+      "entry_price": 89027.6,
+      "exit_price": 89861.243095,
+      "atr_signal": 555.762063,
+      "pnl_pct": -0.01077,
+      "pnl_atr": -1.725316,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-22T21:00:00Z",
+      "exit_dt": "2026-01-23T16:00:00Z",
+      "entry_price": 89371.2,
+      "exit_price": 90265.08231,
+      "atr_signal": 595.92154,
+      "pnl_pct": -0.011409,
+      "pnl_atr": -1.71101,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-27T13:00:00Z",
+      "exit_dt": "2026-01-27T16:00:00Z",
+      "entry_price": 87938.8,
+      "exit_price": 88580.152493,
+      "atr_signal": 427.568329,
+      "pnl_pct": -0.008698,
+      "pnl_atr": -1.788991,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-29T19:00:00Z",
+      "exit_dt": "2026-01-29T21:00:00Z",
+      "entry_price": 83428.2,
+      "exit_price": 84620.744229,
+      "atr_signal": 795.029486,
+      "pnl_pct": -0.015704,
+      "pnl_atr": -1.647962,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-30T10:00:00Z",
+      "exit_dt": "2026-01-30T14:00:00Z",
+      "entry_price": 82311.5,
+      "exit_price": 83526.130304,
+      "atr_signal": 809.753536,
+      "pnl_pct": -0.016167,
+      "pnl_atr": -1.64336,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-31T23:00:00Z",
+      "exit_dt": "2026-02-02T03:00:00Z",
+      "entry_price": 78113.7,
+      "exit_price": 74936.498621,
+      "atr_signal": 1059.067126,
+      "pnl_pct": 0.039303,
+      "pnl_atr": 2.89884,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-03T18:00:00Z",
+      "exit_dt": "2026-02-03T20:00:00Z",
+      "entry_price": 74874.2,
+      "exit_price": 76209.210556,
+      "atr_signal": 890.007037,
+      "pnl_pct": -0.019243,
+      "pnl_atr": -1.618829,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-05T05:00:00Z",
+      "exit_dt": "2026-02-05T15:00:00Z",
+      "entry_price": 70844.3,
+      "exit_price": 67616.873043,
+      "atr_signal": 1075.808986,
+      "pnl_pct": 0.044189,
+      "pnl_atr": 2.909907,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-05T16:00:00Z",
+      "exit_dt": "2026-02-05T20:00:00Z",
+      "entry_price": 67450.8,
+      "exit_price": 63841.35874,
+      "atr_signal": 1203.147087,
+      "pnl_pct": 0.05215,
+      "pnl_atr": 2.923613,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-07T17:00:00Z",
+      "exit_dt": "2026-02-08T08:00:00Z",
+      "entry_price": 68923.8,
+      "exit_price": 70650.867379,
+      "atr_signal": 1151.378253,
+      "pnl_pct": -0.026475,
+      "pnl_atr": -1.584857,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-09T10:00:00Z",
+      "exit_dt": "2026-02-09T17:00:00Z",
+      "entry_price": 69593.3,
+      "exit_price": 70716.818254,
+      "atr_signal": 749.012169,
+      "pnl_pct": -0.017555,
+      "pnl_atr": -1.631129,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-10T04:00:00Z",
+      "exit_dt": "2026-02-11T06:00:00Z",
+      "entry_price": 69470.5,
+      "exit_price": 67107.642391,
+      "atr_signal": 787.619203,
+      "pnl_pct": 0.032636,
+      "pnl_atr": 2.878616,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-11T07:00:00Z",
+      "exit_dt": "2026-02-11T14:00:00Z",
+      "entry_price": 66784.0,
+      "exit_price": 67830.405906,
+      "atr_signal": 697.603938,
+      "pnl_pct": -0.017079,
+      "pnl_atr": -1.635077,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-11T15:00:00Z",
+      "exit_dt": "2026-02-11T19:00:00Z",
+      "entry_price": 66546.9,
+      "exit_price": 67708.377667,
+      "atr_signal": 774.318445,
+      "pnl_pct": -0.018866,
+      "pnl_atr": -1.62137,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-12T03:00:00Z",
+      "exit_dt": "2026-02-12T18:00:00Z",
+      "entry_price": 67412.9,
+      "exit_price": 65106.393081,
+      "atr_signal": 768.83564,
+      "pnl_pct": 0.032839,
+      "pnl_atr": 2.879345,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-15T14:00:00Z",
+      "exit_dt": "2026-02-16T12:00:00Z",
+      "entry_price": 68908.0,
+      "exit_price": 69695.330979,
+      "atr_signal": 524.887319,
+      "pnl_pct": -0.012834,
+      "pnl_atr": -1.684844,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-16T14:00:00Z",
+      "exit_dt": "2026-02-17T15:00:00Z",
+      "entry_price": 68356.6,
+      "exit_price": 66566.081525,
+      "atr_signal": 596.839492,
+      "pnl_pct": 0.024812,
+      "pnl_atr": 2.841757,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-17T17:00:00Z",
+      "exit_dt": "2026-02-18T08:00:00Z",
+      "entry_price": 67495.9,
+      "exit_price": 68412.57643,
+      "atr_signal": 611.11762,
+      "pnl_pct": -0.014991,
+      "pnl_atr": -1.655675,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-18T19:00:00Z",
+      "exit_dt": "2026-02-19T06:00:00Z",
+      "entry_price": 66321.3,
+      "exit_price": 67218.063308,
+      "atr_signal": 597.842205,
+      "pnl_pct": -0.014931,
+      "pnl_atr": -1.656358,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-19T10:00:00Z",
+      "exit_dt": "2026-02-20T00:00:00Z",
+      "entry_price": 66803.6,
+      "exit_price": 67472.396563,
+      "atr_signal": 445.864375,
+      "pnl_pct": -0.011418,
+      "pnl_atr": -1.710811,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-23T19:00:00Z",
+      "exit_dt": "2026-02-24T04:00:00Z",
+      "entry_price": 64587.7,
+      "exit_price": 62841.209449,
+      "atr_signal": 582.163517,
+      "pnl_pct": 0.02566,
+      "pnl_atr": 2.846778,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-27T11:00:00Z",
+      "exit_dt": "2026-02-28T06:00:00Z",
+      "entry_price": 66573.5,
+      "exit_price": 64858.267478,
+      "atr_signal": 571.744174,
+      "pnl_pct": 0.024383,
+      "pnl_atr": 2.839085,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-06T18:00:00Z",
+      "exit_dt": "2026-03-08T17:00:00Z",
+      "entry_price": 67926.6,
+      "exit_price": 67015.5,
+      "atr_signal": 688.035097,
+      "pnl_pct": 0.012022,
+      "pnl_atr": 1.186917,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-03-17T16:00:00Z",
+      "exit_dt": "2026-03-18T14:00:00Z",
+      "entry_price": 73877.5,
+      "exit_price": 71797.086332,
+      "atr_signal": 693.471223,
+      "pnl_pct": 0.02678,
+      "pnl_atr": 2.852954,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-18T19:00:00Z",
+      "exit_dt": "2026-03-19T12:00:00Z",
+      "entry_price": 71056.7,
+      "exit_price": 69165.515715,
+      "atr_signal": 630.394762,
+      "pnl_pct": 0.025234,
+      "pnl_atr": 2.844295,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-20T14:00:00Z",
+      "exit_dt": "2026-03-20T21:00:00Z",
+      "entry_price": 69826.8,
+      "exit_price": 70665.535746,
+      "atr_signal": 559.157164,
+      "pnl_pct": -0.01342,
+      "pnl_atr": -1.67588,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-21T23:00:00Z",
+      "exit_dt": "2026-03-21T23:00:00Z",
+      "entry_price": 70245.6,
+      "exit_price": 69382.712817,
+      "atr_signal": 287.629061,
+      "pnl_pct": 0.010892,
+      "pnl_atr": 2.660188,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-24T16:00:00Z",
+      "exit_dt": "2026-03-24T23:00:00Z",
+      "entry_price": 69830.1,
+      "exit_price": 70727.623492,
+      "atr_signal": 598.348995,
+      "pnl_pct": -0.014262,
+      "pnl_atr": -1.664436,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-27T11:00:00Z",
+      "exit_dt": "2026-03-29T10:00:00Z",
+      "entry_price": 66464.0,
+      "exit_price": 66468.4,
+      "atr_signal": 565.766688,
+      "pnl_pct": -0.001466,
+      "pnl_atr": -0.172249,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-03-29T17:00:00Z",
+      "exit_dt": "2026-03-29T22:00:00Z",
+      "entry_price": 66468.2,
+      "exit_price": 65554.984842,
+      "atr_signal": 304.405053,
+      "pnl_pct": 0.012349,
+      "pnl_atr": 2.696404,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-30T00:00:00Z",
+      "exit_dt": "2026-03-30T00:00:00Z",
+      "entry_price": 65990.7,
+      "exit_price": 66618.039467,
+      "atr_signal": 418.226311,
+      "pnl_pct": -0.010913,
+      "pnl_atr": -1.721952,
+      "reason": "SL"
+    }
+  ],
+  "ETHUSDT": [
+    {
+      "entry_dt": "2024-01-02T23:00:00Z",
+      "exit_dt": "2024-01-03T11:00:00Z",
+      "entry_price": 2361.2,
+      "exit_price": 2299.280033,
+      "atr_signal": 20.639989,
+      "pnl_pct": 0.024842,
+      "pnl_atr": 2.841941,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-01-03T15:00:00Z",
+      "exit_dt": "2024-01-04T14:00:00Z",
+      "entry_price": 2194.51,
+      "exit_price": 2253.046219,
+      "atr_signal": 39.024146,
+      "pnl_pct": -0.028093,
+      "pnl_atr": -1.579779,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-05T04:00:00Z",
+      "exit_dt": "2024-01-05T23:00:00Z",
+      "entry_price": 2242.97,
+      "exit_price": 2278.195227,
+      "atr_signal": 23.483485,
+      "pnl_pct": -0.017116,
+      "pnl_atr": -1.634768,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-06T10:00:00Z",
+      "exit_dt": "2024-01-08T00:00:00Z",
+      "entry_price": 2234.4,
+      "exit_price": 2186.01517,
+      "atr_signal": 16.128277,
+      "pnl_pct": 0.02027,
+      "pnl_atr": 2.808145,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-01-13T01:00:00Z",
+      "exit_dt": "2024-01-13T23:00:00Z",
+      "entry_price": 2518.85,
+      "exit_price": 2585.042415,
+      "atr_signal": 44.128277,
+      "pnl_pct": -0.027697,
+      "pnl_atr": -1.580962,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-14T05:00:00Z",
+      "exit_dt": "2024-01-14T20:00:00Z",
+      "entry_price": 2545.59,
+      "exit_price": 2484.404644,
+      "atr_signal": 20.395119,
+      "pnl_pct": 0.022653,
+      "pnl_atr": 2.827361,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-01-14T23:00:00Z",
+      "exit_dt": "2024-01-15T10:00:00Z",
+      "entry_price": 2509.72,
+      "exit_price": 2541.131097,
+      "atr_signal": 20.940732,
+      "pnl_pct": -0.013925,
+      "pnl_atr": -1.668838,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-17T22:00:00Z",
+      "exit_dt": "2024-01-18T17:00:00Z",
+      "entry_price": 2527.0,
+      "exit_price": 2473.352036,
+      "atr_signal": 17.882655,
+      "pnl_pct": 0.019845,
+      "pnl_atr": 2.804266,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-01-18T19:00:00Z",
+      "exit_dt": "2024-01-19T10:00:00Z",
+      "entry_price": 2464.73,
+      "exit_price": 2493.962694,
+      "atr_signal": 19.488462,
+      "pnl_pct": -0.013269,
+      "pnl_atr": -1.67811,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-19T16:00:00Z",
+      "exit_dt": "2024-01-19T18:00:00Z",
+      "entry_price": 2463.73,
+      "exit_price": 2489.309852,
+      "atr_signal": 17.053235,
+      "pnl_pct": -0.01179,
+      "pnl_atr": -1.703312,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-20T10:00:00Z",
+      "exit_dt": "2024-01-22T04:00:00Z",
+      "entry_price": 2466.31,
+      "exit_price": 2419.550287,
+      "atr_signal": 15.586571,
+      "pnl_pct": 0.017573,
+      "pnl_atr": 2.780574,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-01-23T10:00:00Z",
+      "exit_dt": "2024-01-24T10:00:00Z",
+      "entry_price": 2216.13,
+      "exit_price": 2255.74672,
+      "atr_signal": 26.411147,
+      "pnl_pct": -0.019289,
+      "pnl_atr": -1.618522,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-25T02:00:00Z",
+      "exit_dt": "2024-01-25T11:00:00Z",
+      "entry_price": 2212.59,
+      "exit_price": 2243.116117,
+      "atr_signal": 20.350745,
+      "pnl_pct": -0.015206,
+      "pnl_atr": -1.653262,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-25T13:00:00Z",
+      "exit_dt": "2024-01-26T02:00:00Z",
+      "entry_price": 2208.42,
+      "exit_price": 2235.416807,
+      "atr_signal": 17.997871,
+      "pnl_pct": -0.013633,
+      "pnl_atr": -1.672836,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-28T19:00:00Z",
+      "exit_dt": "2024-01-29T16:00:00Z",
+      "entry_price": 2259.9,
+      "exit_price": 2279.312342,
+      "atr_signal": 12.941561,
+      "pnl_pct": -0.009996,
+      "pnl_atr": -1.745523,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-31T10:00:00Z",
+      "exit_dt": "2024-01-31T16:00:00Z",
+      "entry_price": 2310.0,
+      "exit_price": 2334.671665,
+      "atr_signal": 16.447777,
+      "pnl_pct": -0.012088,
+      "pnl_atr": -1.697672,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-01-31T21:00:00Z",
+      "exit_dt": "2024-02-02T00:00:00Z",
+      "entry_price": 2286.2,
+      "exit_price": 2318.625283,
+      "atr_signal": 21.616855,
+      "pnl_pct": -0.015593,
+      "pnl_atr": -1.649114,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-03T15:00:00Z",
+      "exit_dt": "2024-02-04T19:00:00Z",
+      "entry_price": 2300.44,
+      "exit_price": 2271.555011,
+      "atr_signal": 9.62833,
+      "pnl_pct": 0.011165,
+      "pnl_atr": 2.667606,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-02-05T01:00:00Z",
+      "exit_dt": "2024-02-05T06:00:00Z",
+      "entry_price": 2278.83,
+      "exit_price": 2298.978278,
+      "atr_signal": 13.432185,
+      "pnl_pct": -0.010248,
+      "pnl_atr": -1.738566,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-22T01:00:00Z",
+      "exit_dt": "2024-02-22T07:00:00Z",
+      "entry_price": 2942.82,
+      "exit_price": 2993.722318,
+      "atr_signal": 33.934879,
+      "pnl_pct": -0.018709,
+      "pnl_atr": -1.622457,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-02-29T21:00:00Z",
+      "exit_dt": "2024-03-02T20:00:00Z",
+      "entry_price": 3397.0,
+      "exit_price": 3408.76,
+      "atr_signal": 55.22889,
+      "pnl_pct": -0.004864,
+      "pnl_atr": -0.299192,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-03-06T02:00:00Z",
+      "exit_dt": "2024-03-06T04:00:00Z",
+      "entry_price": 3521.71,
+      "exit_price": 3659.359257,
+      "atr_signal": 91.766171,
+      "pnl_pct": -0.040513,
+      "pnl_atr": -1.554778,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-09T15:00:00Z",
+      "exit_dt": "2024-03-10T04:00:00Z",
+      "entry_price": 3912.0,
+      "exit_price": 3956.179232,
+      "atr_signal": 29.452821,
+      "pnl_pct": -0.012701,
+      "pnl_atr": -1.687002,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-10T19:00:00Z",
+      "exit_dt": "2024-03-10T22:00:00Z",
+      "entry_price": 3896.91,
+      "exit_price": 3810.833274,
+      "atr_signal": 28.692242,
+      "pnl_pct": 0.020704,
+      "pnl_atr": 2.811955,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-12T15:00:00Z",
+      "exit_dt": "2024-03-12T17:00:00Z",
+      "entry_price": 3983.13,
+      "exit_price": 3860.458262,
+      "atr_signal": 40.890579,
+      "pnl_pct": 0.029419,
+      "pnl_atr": 2.865727,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-13T01:00:00Z",
+      "exit_dt": "2024-03-13T03:00:00Z",
+      "entry_price": 3981.0,
+      "exit_price": 4048.825431,
+      "atr_signal": 45.216954,
+      "pnl_pct": -0.018449,
+      "pnl_atr": -1.624309,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-14T16:00:00Z",
+      "exit_dt": "2024-03-15T00:00:00Z",
+      "entry_price": 3848.91,
+      "exit_price": 3918.811085,
+      "atr_signal": 46.600723,
+      "pnl_pct": -0.019574,
+      "pnl_atr": -1.616681,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-15T05:00:00Z",
+      "exit_dt": "2024-03-15T07:00:00Z",
+      "entry_price": 3675.11,
+      "exit_price": 3780.97909,
+      "atr_signal": 70.579393,
+      "pnl_pct": -0.030227,
+      "pnl_atr": -1.573949,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-15T09:00:00Z",
+      "exit_dt": "2024-03-15T18:00:00Z",
+      "entry_price": 3664.69,
+      "exit_price": 3772.615245,
+      "atr_signal": 71.950163,
+      "pnl_pct": -0.030871,
+      "pnl_atr": -1.572357,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-15T20:00:00Z",
+      "exit_dt": "2024-03-16T23:00:00Z",
+      "entry_price": 3691.21,
+      "exit_price": 3474.44987,
+      "atr_signal": 72.253377,
+      "pnl_pct": 0.057364,
+      "pnl_atr": 2.930578,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-17T01:00:00Z",
+      "exit_dt": "2024-03-17T10:00:00Z",
+      "entry_price": 3510.25,
+      "exit_price": 3591.227953,
+      "atr_signal": 53.985302,
+      "pnl_pct": -0.024485,
+      "pnl_atr": -1.592081,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-19T18:00:00Z",
+      "exit_dt": "2024-03-20T04:00:00Z",
+      "entry_price": 3316.05,
+      "exit_price": 3120.608929,
+      "atr_signal": 65.147024,
+      "pnl_pct": 0.057579,
+      "pnl_atr": 2.930839,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-03-22T14:00:00Z",
+      "exit_dt": "2024-03-23T14:00:00Z",
+      "entry_price": 3342.2,
+      "exit_price": 3415.939845,
+      "atr_signal": 49.159897,
+      "pnl_pct": -0.023479,
+      "pnl_atr": -1.596231,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-26T19:00:00Z",
+      "exit_dt": "2024-03-27T13:00:00Z",
+      "entry_price": 3576.56,
+      "exit_price": 3633.002325,
+      "atr_signal": 37.628216,
+      "pnl_pct": -0.017192,
+      "pnl_atr": -1.63412,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-03-27T14:00:00Z",
+      "exit_dt": "2024-03-29T13:00:00Z",
+      "entry_price": 3568.3,
+      "exit_price": 3552.79,
+      "atr_signal": 38.273785,
+      "pnl_pct": 0.00295,
+      "pnl_atr": 0.274999,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-03-30T00:00:00Z",
+      "exit_dt": "2024-03-30T11:00:00Z",
+      "entry_price": 3512.38,
+      "exit_price": 3552.798782,
+      "atr_signal": 26.945855,
+      "pnl_pct": -0.012916,
+      "pnl_atr": -1.683539,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-02T13:00:00Z",
+      "exit_dt": "2024-04-03T14:00:00Z",
+      "entry_price": 3299.43,
+      "exit_price": 3360.123108,
+      "atr_signal": 40.462072,
+      "pnl_pct": -0.019808,
+      "pnl_atr": -1.615211,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-04T00:00:00Z",
+      "exit_dt": "2024-04-04T13:00:00Z",
+      "entry_price": 3312.88,
+      "exit_price": 3366.256247,
+      "atr_signal": 35.584165,
+      "pnl_pct": -0.017523,
+      "pnl_atr": -1.63139,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-05T09:00:00Z",
+      "exit_dt": "2024-04-05T19:00:00Z",
+      "entry_price": 3285.86,
+      "exit_price": 3341.687352,
+      "atr_signal": 37.218235,
+      "pnl_pct": -0.018402,
+      "pnl_atr": -1.624651,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-09T15:00:00Z",
+      "exit_dt": "2024-04-11T06:00:00Z",
+      "entry_price": 3523.48,
+      "exit_price": 3586.932212,
+      "atr_signal": 42.301475,
+      "pnl_pct": -0.019421,
+      "pnl_atr": -1.617662,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-11T22:00:00Z",
+      "exit_dt": "2024-04-12T04:00:00Z",
+      "entry_price": 3501.87,
+      "exit_price": 3553.736654,
+      "atr_signal": 34.577769,
+      "pnl_pct": -0.016221,
+      "pnl_atr": -1.642835,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-12T20:00:00Z",
+      "exit_dt": "2024-04-13T11:00:00Z",
+      "entry_price": 3205.36,
+      "exit_price": 3289.825082,
+      "atr_signal": 56.310055,
+      "pnl_pct": -0.02777,
+      "pnl_atr": -1.580743,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-14T00:00:00Z",
+      "exit_dt": "2024-04-14T22:00:00Z",
+      "entry_price": 3003.44,
+      "exit_price": 3123.85019,
+      "atr_signal": 80.27346,
+      "pnl_pct": -0.041519,
+      "pnl_atr": -1.553431,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-15T19:00:00Z",
+      "exit_dt": "2024-04-17T18:00:00Z",
+      "entry_price": 3054.14,
+      "exit_price": 3025.07,
+      "atr_signal": 53.856498,
+      "pnl_pct": 0.008125,
+      "pnl_atr": 0.460753,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-04-17T21:00:00Z",
+      "exit_dt": "2024-04-18T11:00:00Z",
+      "entry_price": 2970.58,
+      "exit_price": 3041.010613,
+      "atr_signal": 46.953742,
+      "pnl_pct": -0.025126,
+      "pnl_atr": -1.589623,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-25T02:00:00Z",
+      "exit_dt": "2024-04-25T21:00:00Z",
+      "entry_price": 3141.03,
+      "exit_price": 3186.698438,
+      "atr_signal": 30.445625,
+      "pnl_pct": -0.015949,
+      "pnl_atr": -1.645486,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-26T04:00:00Z",
+      "exit_dt": "2024-04-27T17:00:00Z",
+      "entry_price": 3139.6,
+      "exit_price": 3181.912674,
+      "atr_signal": 28.208449,
+      "pnl_pct": -0.014887,
+      "pnl_atr": -1.65687,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-04-29T04:00:00Z",
+      "exit_dt": "2024-04-29T23:00:00Z",
+      "entry_price": 3176.01,
+      "exit_price": 3223.445542,
+      "atr_signal": 31.623695,
+      "pnl_pct": -0.016346,
+      "pnl_atr": -1.641654,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-01T07:00:00Z",
+      "exit_dt": "2024-05-01T08:00:00Z",
+      "entry_price": 2953.25,
+      "exit_price": 2839.34544,
+      "atr_signal": 37.968187,
+      "pnl_pct": 0.037196,
+      "pnl_atr": 2.893205,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-05-01T14:00:00Z",
+      "exit_dt": "2024-05-01T18:00:00Z",
+      "entry_price": 2888.24,
+      "exit_price": 2950.593133,
+      "atr_signal": 41.568755,
+      "pnl_pct": -0.023004,
+      "pnl_atr": -1.598323,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-06T15:00:00Z",
+      "exit_dt": "2024-05-07T08:00:00Z",
+      "entry_price": 3075.44,
+      "exit_price": 3122.678508,
+      "atr_signal": 31.492339,
+      "pnl_pct": -0.016771,
+      "pnl_atr": -1.637769,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-07T12:00:00Z",
+      "exit_dt": "2024-05-08T20:00:00Z",
+      "entry_price": 3062.04,
+      "exit_price": 2971.444972,
+      "atr_signal": 30.198343,
+      "pnl_pct": 0.028207,
+      "pnl_atr": 2.860143,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-05-09T05:00:00Z",
+      "exit_dt": "2024-05-09T21:00:00Z",
+      "entry_price": 2991.78,
+      "exit_price": 3028.625141,
+      "atr_signal": 24.563427,
+      "pnl_pct": -0.013724,
+      "pnl_atr": -1.671567,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-10T16:00:00Z",
+      "exit_dt": "2024-05-12T15:00:00Z",
+      "entry_price": 2916.61,
+      "exit_price": 2936.7,
+      "atr_signal": 25.748288,
+      "pnl_pct": -0.008293,
+      "pnl_atr": -0.939376,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-05-19T11:00:00Z",
+      "exit_dt": "2024-05-19T16:00:00Z",
+      "entry_price": 3104.7,
+      "exit_price": 3058.491592,
+      "atr_signal": 15.402803,
+      "pnl_pct": 0.013494,
+      "pnl_atr": 2.719906,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-05-24T07:00:00Z",
+      "exit_dt": "2024-05-26T06:00:00Z",
+      "entry_price": 3674.81,
+      "exit_price": 3762.13,
+      "atr_signal": 72.801969,
+      "pnl_pct": -0.025178,
+      "pnl_atr": -1.270925,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-05-28T08:00:00Z",
+      "exit_dt": "2024-05-28T10:00:00Z",
+      "entry_price": 3849.17,
+      "exit_price": 3899.299865,
+      "atr_signal": 33.41991,
+      "pnl_pct": -0.014433,
+      "pnl_atr": -1.662296,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-28T17:00:00Z",
+      "exit_dt": "2024-05-29T04:00:00Z",
+      "entry_price": 3827.35,
+      "exit_price": 3883.716649,
+      "atr_signal": 37.577766,
+      "pnl_pct": -0.016138,
+      "pnl_atr": -1.643642,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-05-30T00:00:00Z",
+      "exit_dt": "2024-05-30T17:00:00Z",
+      "entry_price": 3768.74,
+      "exit_price": 3818.095644,
+      "atr_signal": 32.903762,
+      "pnl_pct": -0.014505,
+      "pnl_atr": -1.661404,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-02T13:00:00Z",
+      "exit_dt": "2024-06-03T02:00:00Z",
+      "entry_price": 3789.94,
+      "exit_price": 3820.219635,
+      "atr_signal": 20.186424,
+      "pnl_pct": -0.009395,
+      "pnl_atr": -1.763896,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-03T17:00:00Z",
+      "exit_dt": "2024-06-04T15:00:00Z",
+      "entry_price": 3771.8,
+      "exit_price": 3812.846813,
+      "atr_signal": 27.364542,
+      "pnl_pct": -0.01229,
+      "pnl_atr": -1.694019,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-06T20:00:00Z",
+      "exit_dt": "2024-06-07T05:00:00Z",
+      "entry_price": 3792.16,
+      "exit_price": 3825.561331,
+      "atr_signal": 22.267554,
+      "pnl_pct": -0.010214,
+      "pnl_atr": -1.73947,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-08T12:00:00Z",
+      "exit_dt": "2024-06-09T21:00:00Z",
+      "entry_price": 3683.82,
+      "exit_price": 3715.341099,
+      "atr_signal": 21.014066,
+      "pnl_pct": -0.009963,
+      "pnl_atr": -1.746474,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-10T06:00:00Z",
+      "exit_dt": "2024-06-10T07:00:00Z",
+      "entry_price": 3684.89,
+      "exit_price": 3646.298558,
+      "atr_signal": 12.863814,
+      "pnl_pct": 0.00908,
+      "pnl_atr": 2.601065,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-11T04:00:00Z",
+      "exit_dt": "2024-06-11T06:00:00Z",
+      "entry_price": 3595.31,
+      "exit_price": 3520.532243,
+      "atr_signal": 24.925919,
+      "pnl_pct": 0.019413,
+      "pnl_atr": 2.800164,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-11T10:00:00Z",
+      "exit_dt": "2024-06-12T10:00:00Z",
+      "entry_price": 3513.66,
+      "exit_price": 3561.789906,
+      "atr_signal": 32.086604,
+      "pnl_pct": -0.015108,
+      "pnl_atr": -1.654358,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-13T03:00:00Z",
+      "exit_dt": "2024-06-14T16:00:00Z",
+      "entry_price": 3510.81,
+      "exit_price": 3411.243535,
+      "atr_signal": 33.188822,
+      "pnl_pct": 0.02698,
+      "pnl_atr": 2.854004,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-15T02:00:00Z",
+      "exit_dt": "2024-06-15T05:00:00Z",
+      "entry_price": 3476.28,
+      "exit_price": 3527.854424,
+      "atr_signal": 34.382949,
+      "pnl_pct": -0.016246,
+      "pnl_atr": -1.642597,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-17T10:00:00Z",
+      "exit_dt": "2024-06-17T17:00:00Z",
+      "entry_price": 3510.3,
+      "exit_price": 3548.240181,
+      "atr_signal": 25.293454,
+      "pnl_pct": -0.012216,
+      "pnl_atr": -1.695346,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-20T16:00:00Z",
+      "exit_dt": "2024-06-22T15:00:00Z",
+      "entry_price": 3504.4,
+      "exit_price": 3504.05,
+      "atr_signal": 31.652291,
+      "pnl_pct": -0.0013,
+      "pnl_atr": -0.143936,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-06-22T18:00:00Z",
+      "exit_dt": "2024-06-23T20:00:00Z",
+      "entry_price": 3496.64,
+      "exit_price": 3445.87997,
+      "atr_signal": 16.92001,
+      "pnl_pct": 0.013127,
+      "pnl_atr": 2.71278,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-06-24T13:00:00Z",
+      "exit_dt": "2024-06-25T03:00:00Z",
+      "entry_price": 3318.06,
+      "exit_price": 3368.896056,
+      "atr_signal": 33.890704,
+      "pnl_pct": -0.016732,
+      "pnl_atr": -1.638117,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-26T13:00:00Z",
+      "exit_dt": "2024-06-26T19:00:00Z",
+      "entry_price": 3370.59,
+      "exit_price": 3403.103127,
+      "atr_signal": 21.675418,
+      "pnl_pct": -0.011053,
+      "pnl_atr": -1.718754,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-27T00:00:00Z",
+      "exit_dt": "2024-06-27T10:00:00Z",
+      "entry_price": 3369.67,
+      "exit_price": 3407.569021,
+      "atr_signal": 25.266014,
+      "pnl_pct": -0.012655,
+      "pnl_atr": -1.687765,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-06-28T18:00:00Z",
+      "exit_dt": "2024-06-30T17:00:00Z",
+      "entry_price": 3383.15,
+      "exit_price": 3411.99,
+      "atr_signal": 25.897661,
+      "pnl_pct": -0.009931,
+      "pnl_atr": -1.297283,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2024-07-04T13:00:00Z",
+      "exit_dt": "2024-07-05T02:00:00Z",
+      "entry_price": 3131.03,
+      "exit_price": 3024.807213,
+      "atr_signal": 35.407596,
+      "pnl_pct": 0.03255,
+      "pnl_atr": 2.878301,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-05T03:00:00Z",
+      "exit_dt": "2024-07-05T15:00:00Z",
+      "entry_price": 2924.2,
+      "exit_price": 3003.169458,
+      "atr_signal": 52.646305,
+      "pnl_pct": -0.028424,
+      "pnl_atr": -1.578812,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-06T01:00:00Z",
+      "exit_dt": "2024-07-06T16:00:00Z",
+      "entry_price": 2985.21,
+      "exit_price": 3051.123503,
+      "atr_signal": 43.942335,
+      "pnl_pct": -0.023495,
+      "pnl_atr": -1.596159,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-07T11:00:00Z",
+      "exit_dt": "2024-07-07T21:00:00Z",
+      "entry_price": 3013.09,
+      "exit_price": 2944.768961,
+      "atr_signal": 22.77368,
+      "pnl_pct": 0.021291,
+      "pnl_atr": 2.816872,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-07T23:00:00Z",
+      "exit_dt": "2024-07-08T01:00:00Z",
+      "entry_price": 2935.8,
+      "exit_price": 2855.40654,
+      "atr_signal": 26.79782,
+      "pnl_pct": 0.026003,
+      "pnl_atr": 2.848725,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-12T01:00:00Z",
+      "exit_dt": "2024-07-12T15:00:00Z",
+      "entry_price": 3092.11,
+      "exit_price": 3136.885516,
+      "atr_signal": 29.850344,
+      "pnl_pct": -0.015891,
+      "pnl_atr": -1.646072,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-17T16:00:00Z",
+      "exit_dt": "2024-07-18T13:00:00Z",
+      "entry_price": 3434.81,
+      "exit_price": 3481.237732,
+      "atr_signal": 30.951822,
+      "pnl_pct": -0.014926,
+      "pnl_atr": -1.656412,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-19T00:00:00Z",
+      "exit_dt": "2024-07-19T14:00:00Z",
+      "entry_price": 3425.4,
+      "exit_price": 3464.962872,
+      "atr_signal": 26.375248,
+      "pnl_pct": -0.012958,
+      "pnl_atr": -1.68287,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-21T11:00:00Z",
+      "exit_dt": "2024-07-21T16:00:00Z",
+      "entry_price": 3492.19,
+      "exit_price": 3517.505457,
+      "atr_signal": 16.876971,
+      "pnl_pct": -0.008654,
+      "pnl_atr": -1.790739,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-21T18:00:00Z",
+      "exit_dt": "2024-07-21T20:00:00Z",
+      "entry_price": 3466.37,
+      "exit_price": 3501.39797,
+      "atr_signal": 23.35198,
+      "pnl_pct": -0.011512,
+      "pnl_atr": -1.708866,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-22T09:00:00Z",
+      "exit_dt": "2024-07-23T08:00:00Z",
+      "entry_price": 3473.85,
+      "exit_price": 3514.553828,
+      "atr_signal": 27.135886,
+      "pnl_pct": -0.013125,
+      "pnl_atr": -1.680274,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-25T02:00:00Z",
+      "exit_dt": "2024-07-25T20:00:00Z",
+      "entry_price": 3213.49,
+      "exit_price": 3093.406949,
+      "atr_signal": 40.027684,
+      "pnl_pct": 0.035995,
+      "pnl_atr": 2.889706,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-07-25T23:00:00Z",
+      "exit_dt": "2024-07-26T02:00:00Z",
+      "entry_price": 3164.27,
+      "exit_price": 3226.578055,
+      "atr_signal": 41.538703,
+      "pnl_pct": -0.021105,
+      "pnl_atr": -1.607697,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-30T02:00:00Z",
+      "exit_dt": "2024-07-30T07:00:00Z",
+      "entry_price": 3299.0,
+      "exit_price": 3344.339341,
+      "atr_signal": 30.226227,
+      "pnl_pct": -0.015153,
+      "pnl_atr": -1.653851,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-07-30T17:00:00Z",
+      "exit_dt": "2024-07-31T13:00:00Z",
+      "entry_price": 3308.21,
+      "exit_price": 3349.921606,
+      "atr_signal": 27.807738,
+      "pnl_pct": -0.014017,
+      "pnl_atr": -1.667604,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-01T04:00:00Z",
+      "exit_dt": "2024-08-01T18:00:00Z",
+      "entry_price": 3176.67,
+      "exit_price": 3077.684486,
+      "atr_signal": 32.995171,
+      "pnl_pct": 0.029782,
+      "pnl_atr": 2.867312,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-02T02:00:00Z",
+      "exit_dt": "2024-08-02T14:00:00Z",
+      "entry_price": 3171.99,
+      "exit_price": 3075.044371,
+      "atr_signal": 32.31521,
+      "pnl_pct": 0.029184,
+      "pnl_atr": 2.864679,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-02T23:00:00Z",
+      "exit_dt": "2024-08-03T21:00:00Z",
+      "entry_price": 2976.4,
+      "exit_price": 2856.821077,
+      "atr_signal": 39.859641,
+      "pnl_pct": 0.038804,
+      "pnl_atr": 2.897559,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-07T14:00:00Z",
+      "exit_dt": "2024-08-07T20:00:00Z",
+      "entry_price": 2446.25,
+      "exit_price": 2319.107865,
+      "atr_signal": 42.380712,
+      "pnl_pct": 0.050611,
+      "pnl_atr": 2.921291,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-09T18:00:00Z",
+      "exit_dt": "2024-08-11T03:00:00Z",
+      "entry_price": 2589.01,
+      "exit_price": 2655.617604,
+      "atr_signal": 44.40507,
+      "pnl_pct": -0.027145,
+      "pnl_atr": -1.582676,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-11T20:00:00Z",
+      "exit_dt": "2024-08-12T00:00:00Z",
+      "entry_price": 2598.01,
+      "exit_price": 2514.858101,
+      "atr_signal": 27.7173,
+      "pnl_pct": 0.030628,
+      "pnl_atr": 2.870875,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-15T02:00:00Z",
+      "exit_dt": "2024-08-15T18:00:00Z",
+      "entry_price": 2642.81,
+      "exit_price": 2554.197635,
+      "atr_signal": 29.537455,
+      "pnl_pct": 0.032153,
+      "pnl_atr": 2.876838,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-15T19:00:00Z",
+      "exit_dt": "2024-08-16T02:00:00Z",
+      "entry_price": 2552.26,
+      "exit_price": 2600.274022,
+      "atr_signal": 32.009348,
+      "pnl_pct": -0.020226,
+      "pnl_atr": -1.612679,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-16T04:00:00Z",
+      "exit_dt": "2024-08-16T06:00:00Z",
+      "entry_price": 2578.55,
+      "exit_price": 2624.738313,
+      "atr_signal": 30.792209,
+      "pnl_pct": -0.019325,
+      "pnl_atr": -1.618286,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-16T13:00:00Z",
+      "exit_dt": "2024-08-16T13:00:00Z",
+      "entry_price": 2573.46,
+      "exit_price": 2614.989306,
+      "atr_signal": 27.686204,
+      "pnl_pct": -0.017549,
+      "pnl_atr": -1.631181,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-16T23:00:00Z",
+      "exit_dt": "2024-08-18T03:00:00Z",
+      "entry_price": 2594.05,
+      "exit_price": 2637.023656,
+      "atr_signal": 28.649104,
+      "pnl_pct": -0.017978,
+      "pnl_atr": -1.627814,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-19T06:00:00Z",
+      "exit_dt": "2024-08-19T09:00:00Z",
+      "entry_price": 2624.1,
+      "exit_price": 2564.545963,
+      "atr_signal": 19.851346,
+      "pnl_pct": 0.021311,
+      "pnl_atr": 2.817037,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-08-20T19:00:00Z",
+      "exit_dt": "2024-08-21T17:00:00Z",
+      "entry_price": 2589.13,
+      "exit_price": 2623.27169,
+      "atr_signal": 22.761127,
+      "pnl_pct": -0.014596,
+      "pnl_atr": -1.660303,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-25T11:00:00Z",
+      "exit_dt": "2024-08-25T21:00:00Z",
+      "entry_price": 2752.2,
+      "exit_price": 2781.116596,
+      "atr_signal": 19.277731,
+      "pnl_pct": -0.011914,
+      "pnl_atr": -1.700922,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-30T15:00:00Z",
+      "exit_dt": "2024-08-30T18:00:00Z",
+      "entry_price": 2460.56,
+      "exit_price": 2499.676123,
+      "atr_signal": 26.077415,
+      "pnl_pct": -0.017308,
+      "pnl_atr": -1.633148,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-08-31T19:00:00Z",
+      "exit_dt": "2024-08-31T21:00:00Z",
+      "entry_price": 2494.59,
+      "exit_price": 2517.091531,
+      "atr_signal": 15.001021,
+      "pnl_pct": -0.010426,
+      "pnl_atr": -1.733863,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-01T02:00:00Z",
+      "exit_dt": "2024-09-01T14:00:00Z",
+      "entry_price": 2492.8,
+      "exit_price": 2450.409775,
+      "atr_signal": 14.130075,
+      "pnl_pct": 0.015617,
+      "pnl_atr": 2.755115,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-01T17:00:00Z",
+      "exit_dt": "2024-09-01T19:00:00Z",
+      "entry_price": 2470.86,
+      "exit_price": 2500.70673,
+      "atr_signal": 19.89782,
+      "pnl_pct": -0.013488,
+      "pnl_atr": -1.674898,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-03T14:00:00Z",
+      "exit_dt": "2024-09-04T00:00:00Z",
+      "entry_price": 2464.0,
+      "exit_price": 2403.120865,
+      "atr_signal": 20.293045,
+      "pnl_pct": 0.023325,
+      "pnl_atr": 2.832111,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-04T01:00:00Z",
+      "exit_dt": "2024-09-04T01:00:00Z",
+      "entry_price": 2394.81,
+      "exit_price": 2320.456241,
+      "atr_signal": 24.784586,
+      "pnl_pct": 0.02967,
+      "pnl_atr": 2.866825,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-04T06:00:00Z",
+      "exit_dt": "2024-09-04T07:00:00Z",
+      "entry_price": 2364.08,
+      "exit_price": 2403.594871,
+      "atr_signal": 26.343247,
+      "pnl_pct": -0.018126,
+      "pnl_atr": -1.626688,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-05T15:00:00Z",
+      "exit_dt": "2024-09-06T15:00:00Z",
+      "entry_price": 2375.39,
+      "exit_price": 2303.325291,
+      "atr_signal": 24.02157,
+      "pnl_pct": 0.028959,
+      "pnl_atr": 2.86366,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-06T19:00:00Z",
+      "exit_dt": "2024-09-07T05:00:00Z",
+      "entry_price": 2208.42,
+      "exit_price": 2259.32876,
+      "atr_signal": 33.939173,
+      "pnl_pct": -0.024468,
+      "pnl_atr": -1.592148,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-08T20:00:00Z",
+      "exit_dt": "2024-09-08T22:00:00Z",
+      "entry_price": 2270.78,
+      "exit_price": 2297.711581,
+      "atr_signal": 17.954387,
+      "pnl_pct": -0.013268,
+      "pnl_atr": -1.678115,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-11T09:00:00Z",
+      "exit_dt": "2024-09-11T13:00:00Z",
+      "entry_price": 2321.66,
+      "exit_price": 2352.422956,
+      "atr_signal": 20.508637,
+      "pnl_pct": -0.01466,
+      "pnl_atr": -1.659536,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-12T14:00:00Z",
+      "exit_dt": "2024-09-12T22:00:00Z",
+      "entry_price": 2339.92,
+      "exit_price": 2367.250539,
+      "atr_signal": 18.220359,
+      "pnl_pct": -0.013088,
+      "pnl_atr": -1.680843,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-16T01:00:00Z",
+      "exit_dt": "2024-09-16T08:00:00Z",
+      "entry_price": 2298.5,
+      "exit_price": 2326.119189,
+      "atr_signal": 18.412793,
+      "pnl_pct": -0.013425,
+      "pnl_atr": -1.675814,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-22T19:00:00Z",
+      "exit_dt": "2024-09-22T22:00:00Z",
+      "entry_price": 2575.31,
+      "exit_price": 2523.238421,
+      "atr_signal": 17.357193,
+      "pnl_pct": 0.018834,
+      "pnl_atr": 2.79438,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-24T13:00:00Z",
+      "exit_dt": "2024-09-24T20:00:00Z",
+      "entry_price": 2631.92,
+      "exit_price": 2660.458469,
+      "atr_signal": 19.025646,
+      "pnl_pct": -0.012251,
+      "pnl_atr": -1.69472,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-25T06:00:00Z",
+      "exit_dt": "2024-09-25T22:00:00Z",
+      "entry_price": 2622.85,
+      "exit_price": 2561.739369,
+      "atr_signal": 20.37021,
+      "pnl_pct": 0.021916,
+      "pnl_atr": 2.821837,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-28T17:00:00Z",
+      "exit_dt": "2024-09-30T01:00:00Z",
+      "entry_price": 2663.6,
+      "exit_price": 2618.500093,
+      "atr_signal": 15.033302,
+      "pnl_pct": 0.015544,
+      "pnl_atr": 2.754048,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-09-30T02:00:00Z",
+      "exit_dt": "2024-09-30T06:00:00Z",
+      "entry_price": 2613.75,
+      "exit_price": 2639.788365,
+      "atr_signal": 17.35891,
+      "pnl_pct": -0.011369,
+      "pnl_atr": -1.71185,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-30T10:00:00Z",
+      "exit_dt": "2024-09-30T12:00:00Z",
+      "entry_price": 2605.38,
+      "exit_price": 2632.729379,
+      "atr_signal": 18.232919,
+      "pnl_pct": -0.011905,
+      "pnl_atr": -1.701102,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-09-30T15:00:00Z",
+      "exit_dt": "2024-10-01T04:00:00Z",
+      "entry_price": 2610.5,
+      "exit_price": 2638.870283,
+      "atr_signal": 18.913522,
+      "pnl_pct": -0.012275,
+      "pnl_atr": -1.694282,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-02T19:00:00Z",
+      "exit_dt": "2024-10-04T16:00:00Z",
+      "entry_price": 2388.0,
+      "exit_price": 2432.116405,
+      "atr_signal": 29.410937,
+      "pnl_pct": -0.019887,
+      "pnl_atr": -1.614722,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-08T13:00:00Z",
+      "exit_dt": "2024-10-08T21:00:00Z",
+      "entry_price": 2427.6,
+      "exit_price": 2457.12373,
+      "atr_signal": 19.682486,
+      "pnl_pct": -0.01357,
+      "pnl_atr": -1.673723,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-10T09:00:00Z",
+      "exit_dt": "2024-10-10T12:00:00Z",
+      "entry_price": 2380.97,
+      "exit_price": 2408.027277,
+      "atr_signal": 18.038184,
+      "pnl_pct": -0.012772,
+      "pnl_atr": -1.685845,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-10T13:00:00Z",
+      "exit_dt": "2024-10-10T16:00:00Z",
+      "entry_price": 2386.32,
+      "exit_price": 2414.289831,
+      "atr_signal": 18.646554,
+      "pnl_pct": -0.013129,
+      "pnl_atr": -1.680217,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-15T18:00:00Z",
+      "exit_dt": "2024-10-16T11:00:00Z",
+      "entry_price": 2581.2,
+      "exit_price": 2632.205032,
+      "atr_signal": 34.003355,
+      "pnl_pct": -0.021174,
+      "pnl_atr": -1.607324,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-17T14:00:00Z",
+      "exit_dt": "2024-10-17T15:00:00Z",
+      "entry_price": 2598.65,
+      "exit_price": 2628.569231,
+      "atr_signal": 19.946154,
+      "pnl_pct": -0.012921,
+      "pnl_atr": -1.683447,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-17T17:00:00Z",
+      "exit_dt": "2024-10-18T01:00:00Z",
+      "entry_price": 2611.97,
+      "exit_price": 2644.427147,
+      "atr_signal": 21.638098,
+      "pnl_pct": -0.013835,
+      "pnl_atr": -1.670046,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-23T17:00:00Z",
+      "exit_dt": "2024-10-23T23:00:00Z",
+      "entry_price": 2491.25,
+      "exit_price": 2524.069863,
+      "atr_signal": 21.879908,
+      "pnl_pct": -0.014583,
+      "pnl_atr": -1.660454,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-24T13:00:00Z",
+      "exit_dt": "2024-10-24T21:00:00Z",
+      "entry_price": 2529.6,
+      "exit_price": 2558.882575,
+      "atr_signal": 19.521717,
+      "pnl_pct": -0.012984,
+      "pnl_atr": -1.68246,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-24T23:00:00Z",
+      "exit_dt": "2024-10-25T07:00:00Z",
+      "entry_price": 2532.5,
+      "exit_price": 2474.927314,
+      "atr_signal": 19.190895,
+      "pnl_pct": 0.021349,
+      "pnl_atr": 2.817351,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-10-25T23:00:00Z",
+      "exit_dt": "2024-10-26T20:00:00Z",
+      "entry_price": 2462.68,
+      "exit_price": 2504.027203,
+      "atr_signal": 27.564802,
+      "pnl_pct": -0.018201,
+      "pnl_atr": -1.626128,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-10-31T15:00:00Z",
+      "exit_dt": "2024-11-01T02:00:00Z",
+      "entry_price": 2555.88,
+      "exit_price": 2480.807641,
+      "atr_signal": 25.02412,
+      "pnl_pct": 0.027993,
+      "pnl_atr": 2.859109,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-01T04:00:00Z",
+      "exit_dt": "2024-11-01T12:00:00Z",
+      "entry_price": 2503.2,
+      "exit_price": 2541.999476,
+      "atr_signal": 25.866317,
+      "pnl_pct": -0.016911,
+      "pnl_atr": -1.636534,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-03T06:00:00Z",
+      "exit_dt": "2024-11-03T20:00:00Z",
+      "entry_price": 2441.79,
+      "exit_price": 2468.351295,
+      "atr_signal": 17.70753,
+      "pnl_pct": -0.012285,
+      "pnl_atr": -1.694104,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-12T16:00:00Z",
+      "exit_dt": "2024-11-14T15:00:00Z",
+      "entry_price": 3263.42,
+      "exit_price": 3071.224402,
+      "atr_signal": 64.065199,
+      "pnl_pct": 0.057535,
+      "pnl_atr": 2.930785,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-14T16:00:00Z",
+      "exit_dt": "2024-11-14T16:00:00Z",
+      "entry_price": 3078.64,
+      "exit_price": 3153.218193,
+      "atr_signal": 49.718795,
+      "pnl_pct": -0.025641,
+      "pnl_atr": -1.587739,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-15T01:00:00Z",
+      "exit_dt": "2024-11-16T03:00:00Z",
+      "entry_price": 3062.02,
+      "exit_price": 3136.82793,
+      "atr_signal": 49.871953,
+      "pnl_pct": -0.025848,
+      "pnl_atr": -1.587007,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-17T02:00:00Z",
+      "exit_dt": "2024-11-17T04:00:00Z",
+      "entry_price": 3086.6,
+      "exit_price": 3138.491437,
+      "atr_signal": 34.594292,
+      "pnl_pct": -0.018224,
+      "pnl_atr": -1.625962,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-17T12:00:00Z",
+      "exit_dt": "2024-11-18T15:00:00Z",
+      "entry_price": 3107.26,
+      "exit_price": 3160.718326,
+      "atr_signal": 35.638884,
+      "pnl_pct": -0.018616,
+      "pnl_atr": -1.623112,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-19T20:00:00Z",
+      "exit_dt": "2024-11-21T12:00:00Z",
+      "entry_price": 3124.63,
+      "exit_price": 3173.824416,
+      "atr_signal": 32.796278,
+      "pnl_pct": -0.017155,
+      "pnl_atr": -1.634433,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-11-26T07:00:00Z",
+      "exit_dt": "2024-11-26T18:00:00Z",
+      "entry_price": 3426.12,
+      "exit_price": 3279.25601,
+      "atr_signal": 48.954663,
+      "pnl_pct": 0.041496,
+      "pnl_atr": 2.90412,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-11-29T00:00:00Z",
+      "exit_dt": "2024-11-29T14:00:00Z",
+      "entry_price": 3581.99,
+      "exit_price": 3634.986969,
+      "atr_signal": 35.331313,
+      "pnl_pct": -0.016206,
+      "pnl_atr": -1.642986,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-02T09:00:00Z",
+      "exit_dt": "2024-12-02T14:00:00Z",
+      "entry_price": 3605.29,
+      "exit_price": 3664.36621,
+      "atr_signal": 39.38414,
+      "pnl_pct": -0.017797,
+      "pnl_atr": -1.629208,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-02T17:00:00Z",
+      "exit_dt": "2024-12-04T00:00:00Z",
+      "entry_price": 3628.4,
+      "exit_price": 3692.461034,
+      "atr_signal": 42.707356,
+      "pnl_pct": -0.019068,
+      "pnl_atr": -1.619993,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-08T05:00:00Z",
+      "exit_dt": "2024-12-08T23:00:00Z",
+      "entry_price": 3982.51,
+      "exit_price": 4016.401963,
+      "atr_signal": 22.594642,
+      "pnl_pct": -0.009916,
+      "pnl_atr": -1.747813,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-09T03:00:00Z",
+      "exit_dt": "2024-12-09T09:00:00Z",
+      "entry_price": 3944.01,
+      "exit_price": 3859.885672,
+      "atr_signal": 28.041443,
+      "pnl_pct": 0.019945,
+      "pnl_atr": 2.805191,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-12-09T16:00:00Z",
+      "exit_dt": "2024-12-09T21:00:00Z",
+      "entry_price": 3826.25,
+      "exit_price": 3693.445518,
+      "atr_signal": 44.268161,
+      "pnl_pct": 0.033333,
+      "pnl_atr": 2.881093,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-12-10T03:00:00Z",
+      "exit_dt": "2024-12-11T15:00:00Z",
+      "entry_price": 3687.86,
+      "exit_price": 3800.268679,
+      "atr_signal": 74.93912,
+      "pnl_pct": -0.031902,
+      "pnl_atr": -1.569946,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-14T13:00:00Z",
+      "exit_dt": "2024-12-15T04:00:00Z",
+      "entry_price": 3869.35,
+      "exit_price": 3909.497359,
+      "atr_signal": 26.764906,
+      "pnl_pct": -0.011783,
+      "pnl_atr": -1.703445,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-15T07:00:00Z",
+      "exit_dt": "2024-12-15T16:00:00Z",
+      "entry_price": 3877.87,
+      "exit_price": 3917.57309,
+      "atr_signal": 26.468727,
+      "pnl_pct": -0.011646,
+      "pnl_atr": -1.706161,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-18T02:00:00Z",
+      "exit_dt": "2024-12-18T20:00:00Z",
+      "entry_price": 3842.33,
+      "exit_price": 3701.597122,
+      "atr_signal": 46.910959,
+      "pnl_pct": 0.035253,
+      "pnl_atr": 2.88743,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-12-19T00:00:00Z",
+      "exit_dt": "2024-12-19T10:00:00Z",
+      "entry_price": 3624.59,
+      "exit_price": 3705.609659,
+      "atr_signal": 54.013106,
+      "pnl_pct": -0.023768,
+      "pnl_atr": -1.594998,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-20T00:00:00Z",
+      "exit_dt": "2024-12-20T10:00:00Z",
+      "entry_price": 3415.06,
+      "exit_price": 3197.232093,
+      "atr_signal": 72.609302,
+      "pnl_pct": 0.062429,
+      "pnl_atr": 2.936253,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-12-21T17:00:00Z",
+      "exit_dt": "2024-12-22T20:00:00Z",
+      "entry_price": 3368.71,
+      "exit_price": 3219.254795,
+      "atr_signal": 49.818402,
+      "pnl_pct": 0.042997,
+      "pnl_atr": 2.907432,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2024-12-22T22:00:00Z",
+      "exit_dt": "2024-12-23T03:00:00Z",
+      "entry_price": 3282.37,
+      "exit_price": 3352.025674,
+      "atr_signal": 46.437116,
+      "pnl_pct": -0.022636,
+      "pnl_atr": -1.600008,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-23T07:00:00Z",
+      "exit_dt": "2024-12-23T10:00:00Z",
+      "entry_price": 3275.36,
+      "exit_price": 3351.739764,
+      "atr_signal": 50.919842,
+      "pnl_pct": -0.024736,
+      "pnl_atr": -1.591103,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2024-12-26T09:00:00Z",
+      "exit_dt": "2024-12-27T09:00:00Z",
+      "entry_price": 3364.13,
+      "exit_price": 3411.875815,
+      "atr_signal": 31.830543,
+      "pnl_pct": -0.015603,
+      "pnl_atr": -1.649014,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-07T22:00:00Z",
+      "exit_dt": "2025-01-08T17:00:00Z",
+      "entry_price": 3361.58,
+      "exit_price": 3226.973631,
+      "atr_signal": 44.86879,
+      "pnl_pct": 0.038671,
+      "pnl_atr": 2.897212,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-08T20:00:00Z",
+      "exit_dt": "2025-01-09T01:00:00Z",
+      "entry_price": 3279.29,
+      "exit_price": 3347.93948,
+      "atr_signal": 45.76632,
+      "pnl_pct": -0.022349,
+      "pnl_atr": -1.601364,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-09T08:00:00Z",
+      "exit_dt": "2025-01-09T20:00:00Z",
+      "entry_price": 3287.37,
+      "exit_price": 3178.7489,
+      "atr_signal": 36.207033,
+      "pnl_pct": 0.031665,
+      "pnl_atr": 2.874989,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-11T00:00:00Z",
+      "exit_dt": "2025-01-12T23:00:00Z",
+      "entry_price": 3265.48,
+      "exit_price": 3266.0,
+      "atr_signal": 36.937416,
+      "pnl_pct": -0.001559,
+      "pnl_atr": -0.137856,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-01-13T11:00:00Z",
+      "exit_dt": "2025-01-13T14:00:00Z",
+      "entry_price": 3116.8,
+      "exit_price": 3016.267909,
+      "atr_signal": 33.510697,
+      "pnl_pct": 0.030877,
+      "pnl_atr": 2.871887,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-14T02:00:00Z",
+      "exit_dt": "2025-01-14T09:00:00Z",
+      "entry_price": 3137.75,
+      "exit_price": 3201.724958,
+      "atr_signal": 42.649972,
+      "pnl_pct": -0.021803,
+      "pnl_atr": -1.604048,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-18T06:00:00Z",
+      "exit_dt": "2025-01-19T01:00:00Z",
+      "entry_price": 3292.5,
+      "exit_price": 3355.908752,
+      "atr_signal": 42.272501,
+      "pnl_pct": -0.020672,
+      "pnl_atr": -1.610093,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-19T05:00:00Z",
+      "exit_dt": "2025-01-19T09:00:00Z",
+      "entry_price": 3282.08,
+      "exit_price": 3158.579169,
+      "atr_signal": 41.166944,
+      "pnl_pct": 0.036255,
+      "pnl_atr": 2.890483,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-20T22:00:00Z",
+      "exit_dt": "2025-01-22T21:00:00Z",
+      "entry_price": 3284.74,
+      "exit_price": 3258.69,
+      "atr_signal": 73.782312,
+      "pnl_pct": 0.006536,
+      "pnl_atr": 0.290986,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-01-25T00:00:00Z",
+      "exit_dt": "2025-01-26T23:00:00Z",
+      "entry_price": 3308.51,
+      "exit_price": 3230.5,
+      "atr_signal": 35.891732,
+      "pnl_pct": 0.022195,
+      "pnl_atr": 2.04595,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-01-27T03:00:00Z",
+      "exit_dt": "2025-01-27T06:00:00Z",
+      "entry_price": 3169.36,
+      "exit_price": 3091.780349,
+      "atr_signal": 25.859884,
+      "pnl_pct": 0.023095,
+      "pnl_atr": 2.830517,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-01-27T14:00:00Z",
+      "exit_dt": "2025-01-27T21:00:00Z",
+      "entry_price": 3097.45,
+      "exit_price": 3155.858293,
+      "atr_signal": 38.938862,
+      "pnl_pct": -0.02027,
+      "pnl_atr": -1.612415,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-01-28T21:00:00Z",
+      "exit_dt": "2025-01-29T06:00:00Z",
+      "entry_price": 3093.68,
+      "exit_price": 3147.467044,
+      "atr_signal": 35.858029,
+      "pnl_pct": -0.018798,
+      "pnl_atr": -1.621836,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-03T02:00:00Z",
+      "exit_dt": "2025-02-03T02:00:00Z",
+      "entry_price": 2487.36,
+      "exit_price": 2207.979577,
+      "atr_signal": 93.126808,
+      "pnl_pct": 0.110999,
+      "pnl_atr": 2.964707,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-03T05:00:00Z",
+      "exit_dt": "2025-02-03T07:00:00Z",
+      "entry_price": 2451.27,
+      "exit_price": 2626.716306,
+      "atr_signal": 116.964204,
+      "pnl_pct": -0.073024,
+      "pnl_atr": -1.53039,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-05T02:00:00Z",
+      "exit_dt": "2025-02-05T13:00:00Z",
+      "entry_price": 2720.29,
+      "exit_price": 2818.785262,
+      "atr_signal": 65.663508,
+      "pnl_pct": -0.037633,
+      "pnl_atr": -1.559049,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-06T15:00:00Z",
+      "exit_dt": "2025-02-07T20:00:00Z",
+      "entry_price": 2746.84,
+      "exit_price": 2623.717838,
+      "atr_signal": 41.040721,
+      "pnl_pct": 0.043455,
+      "pnl_atr": 2.908399,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-08T02:00:00Z",
+      "exit_dt": "2025-02-09T03:00:00Z",
+      "entry_price": 2629.24,
+      "exit_price": 2688.16145,
+      "atr_signal": 39.280966,
+      "pnl_pct": -0.023826,
+      "pnl_atr": -1.594758,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-09T20:00:00Z",
+      "exit_dt": "2025-02-09T21:00:00Z",
+      "entry_price": 2622.79,
+      "exit_price": 2551.640366,
+      "atr_signal": 23.716545,
+      "pnl_pct": 0.025746,
+      "pnl_atr": 2.847275,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-11T17:00:00Z",
+      "exit_dt": "2025-02-12T14:00:00Z",
+      "entry_price": 2643.92,
+      "exit_price": 2555.313064,
+      "atr_signal": 29.535645,
+      "pnl_pct": 0.032137,
+      "pnl_atr": 2.876777,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-13T14:00:00Z",
+      "exit_dt": "2025-02-14T02:00:00Z",
+      "entry_price": 2657.66,
+      "exit_price": 2704.291959,
+      "atr_signal": 31.087973,
+      "pnl_pct": -0.018959,
+      "pnl_atr": -1.620734,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-15T08:00:00Z",
+      "exit_dt": "2025-02-17T07:00:00Z",
+      "entry_price": 2696.0,
+      "exit_price": 2680.49,
+      "atr_signal": 24.368571,
+      "pnl_pct": 0.004357,
+      "pnl_atr": 0.482033,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-02-18T06:00:00Z",
+      "exit_dt": "2025-02-18T14:00:00Z",
+      "entry_price": 2676.1,
+      "exit_price": 2723.298817,
+      "atr_signal": 31.465878,
+      "pnl_pct": -0.01905,
+      "pnl_atr": -1.620117,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-18T15:00:00Z",
+      "exit_dt": "2025-02-19T10:00:00Z",
+      "entry_price": 2687.12,
+      "exit_price": 2733.215437,
+      "atr_signal": 30.730292,
+      "pnl_pct": -0.018566,
+      "pnl_atr": -1.623469,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-25T10:00:00Z",
+      "exit_dt": "2025-02-25T19:00:00Z",
+      "entry_price": 2382.49,
+      "exit_price": 2457.346122,
+      "atr_signal": 49.904081,
+      "pnl_pct": -0.032841,
+      "pnl_atr": -1.567888,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-26T01:00:00Z",
+      "exit_dt": "2025-02-26T18:00:00Z",
+      "entry_price": 2475.0,
+      "exit_price": 2337.683745,
+      "atr_signal": 45.772085,
+      "pnl_pct": 0.05412,
+      "pnl_atr": 2.926399,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-26T19:00:00Z",
+      "exit_dt": "2025-02-26T22:00:00Z",
+      "entry_price": 2290.53,
+      "exit_price": 2358.153657,
+      "atr_signal": 45.082438,
+      "pnl_pct": -0.030944,
+      "pnl_atr": -1.572181,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-02-27T00:00:00Z",
+      "exit_dt": "2025-02-28T01:00:00Z",
+      "entry_price": 2334.78,
+      "exit_price": 2193.307984,
+      "atr_signal": 47.157339,
+      "pnl_pct": 0.059236,
+      "pnl_atr": 2.932785,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-02-28T02:00:00Z",
+      "exit_dt": "2025-03-01T01:00:00Z",
+      "entry_price": 2191.89,
+      "exit_price": 2256.469781,
+      "atr_signal": 43.053187,
+      "pnl_pct": -0.030884,
+      "pnl_atr": -1.572326,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-01T18:00:00Z",
+      "exit_dt": "2025-03-02T09:00:00Z",
+      "entry_price": 2195.62,
+      "exit_price": 2241.324802,
+      "atr_signal": 30.469868,
+      "pnl_pct": -0.022231,
+      "pnl_atr": -1.601932,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-03T20:00:00Z",
+      "exit_dt": "2025-03-04T20:00:00Z",
+      "entry_price": 2107.71,
+      "exit_price": 2187.585893,
+      "atr_signal": 53.250595,
+      "pnl_pct": -0.039324,
+      "pnl_atr": -1.556463,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-06T18:00:00Z",
+      "exit_dt": "2025-03-07T14:00:00Z",
+      "entry_price": 2189.84,
+      "exit_price": 2241.503842,
+      "atr_signal": 34.442561,
+      "pnl_pct": -0.025009,
+      "pnl_atr": -1.590061,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-07T17:00:00Z",
+      "exit_dt": "2025-03-08T17:00:00Z",
+      "entry_price": 2157.31,
+      "exit_price": 2217.098398,
+      "atr_signal": 39.858932,
+      "pnl_pct": -0.029134,
+      "pnl_atr": -1.576823,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-09T17:00:00Z",
+      "exit_dt": "2025-03-10T09:00:00Z",
+      "entry_price": 2047.85,
+      "exit_price": 2088.240459,
+      "atr_signal": 26.926973,
+      "pnl_pct": -0.021137,
+      "pnl_atr": -1.607523,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-10T19:00:00Z",
+      "exit_dt": "2025-03-10T21:00:00Z",
+      "entry_price": 1823.71,
+      "exit_price": 1894.914178,
+      "atr_signal": 47.469452,
+      "pnl_pct": -0.040471,
+      "pnl_atr": -1.554836,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-11T00:00:00Z",
+      "exit_dt": "2025-03-11T13:00:00Z",
+      "entry_price": 1864.17,
+      "exit_price": 1933.202701,
+      "atr_signal": 46.0218,
+      "pnl_pct": -0.038457,
+      "pnl_atr": -1.557759,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-12T03:00:00Z",
+      "exit_dt": "2025-03-12T09:00:00Z",
+      "entry_price": 1894.74,
+      "exit_price": 1948.191551,
+      "atr_signal": 35.634367,
+      "pnl_pct": -0.02963,
+      "pnl_atr": -1.57549,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-12T14:00:00Z",
+      "exit_dt": "2025-03-14T13:00:00Z",
+      "entry_price": 1886.31,
+      "exit_price": 1903.83,
+      "atr_signal": 37.680302,
+      "pnl_pct": -0.010694,
+      "pnl_atr": -0.535375,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-03-16T10:00:00Z",
+      "exit_dt": "2025-03-16T11:00:00Z",
+      "entry_price": 1906.89,
+      "exit_price": 1872.20734,
+      "atr_signal": 11.560887,
+      "pnl_pct": 0.016801,
+      "pnl_atr": 2.771179,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-03-16T19:00:00Z",
+      "exit_dt": "2025-03-17T12:00:00Z",
+      "entry_price": 1894.94,
+      "exit_price": 1918.278013,
+      "atr_signal": 15.558676,
+      "pnl_pct": -0.013725,
+      "pnl_atr": -1.67156,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-20T11:00:00Z",
+      "exit_dt": "2025-03-22T10:00:00Z",
+      "entry_price": 1981.24,
+      "exit_price": 1995.18,
+      "atr_signal": 21.13134,
+      "pnl_pct": -0.008441,
+      "pnl_atr": -0.791407,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-03-25T13:00:00Z",
+      "exit_dt": "2025-03-25T17:00:00Z",
+      "entry_price": 2058.59,
+      "exit_price": 2081.592702,
+      "atr_signal": 15.335135,
+      "pnl_pct": -0.012582,
+      "pnl_atr": -1.688986,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-26T18:00:00Z",
+      "exit_dt": "2025-03-27T02:00:00Z",
+      "entry_price": 2005.15,
+      "exit_price": 2030.073052,
+      "atr_signal": 16.615368,
+      "pnl_pct": -0.013838,
+      "pnl_atr": -1.670003,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-03-28T13:00:00Z",
+      "exit_dt": "2025-03-29T16:00:00Z",
+      "entry_price": 1883.31,
+      "exit_price": 1813.212051,
+      "atr_signal": 23.365983,
+      "pnl_pct": 0.035847,
+      "pnl_atr": 2.889259,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-03-29T17:00:00Z",
+      "exit_dt": "2025-03-31T15:00:00Z",
+      "entry_price": 1821.01,
+      "exit_price": 1849.768379,
+      "atr_signal": 19.172252,
+      "pnl_pct": -0.017204,
+      "pnl_atr": -1.634024,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-02T23:00:00Z",
+      "exit_dt": "2025-04-03T04:00:00Z",
+      "entry_price": 1796.88,
+      "exit_price": 1841.991219,
+      "atr_signal": 30.074146,
+      "pnl_pct": -0.026523,
+      "pnl_atr": -1.584698,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-03T11:00:00Z",
+      "exit_dt": "2025-04-04T08:00:00Z",
+      "entry_price": 1792.35,
+      "exit_price": 1827.456983,
+      "atr_signal": 23.404656,
+      "pnl_pct": -0.021001,
+      "pnl_atr": -1.608263,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-04T16:00:00Z",
+      "exit_dt": "2025-04-06T15:00:00Z",
+      "entry_price": 1794.21,
+      "exit_price": 1758.77,
+      "atr_signal": 25.989825,
+      "pnl_pct": 0.018366,
+      "pnl_atr": 1.267916,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-04-07T06:00:00Z",
+      "exit_dt": "2025-04-07T06:00:00Z",
+      "entry_price": 1539.71,
+      "exit_price": 1440.731788,
+      "atr_signal": 32.992737,
+      "pnl_pct": 0.062929,
+      "pnl_atr": 2.936765,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-04-07T10:00:00Z",
+      "exit_dt": "2025-04-07T13:00:00Z",
+      "entry_price": 1483.89,
+      "exit_price": 1545.90261,
+      "atr_signal": 41.34174,
+      "pnl_pct": -0.04322,
+      "pnl_atr": -1.551301,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-08T15:00:00Z",
+      "exit_dt": "2025-04-09T01:00:00Z",
+      "entry_price": 1530.12,
+      "exit_price": 1439.683055,
+      "atr_signal": 30.145648,
+      "pnl_pct": 0.057746,
+      "pnl_atr": 2.931039,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-04-10T20:00:00Z",
+      "exit_dt": "2025-04-11T06:00:00Z",
+      "entry_price": 1513.56,
+      "exit_price": 1560.972683,
+      "atr_signal": 31.608455,
+      "pnl_pct": -0.032747,
+      "pnl_atr": -1.568089,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-15T21:00:00Z",
+      "exit_dt": "2025-04-17T20:00:00Z",
+      "entry_price": 1593.68,
+      "exit_price": 1583.84,
+      "atr_signal": 19.859669,
+      "pnl_pct": 0.004779,
+      "pnl_atr": 0.383477,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-04-17T23:00:00Z",
+      "exit_dt": "2025-04-19T04:00:00Z",
+      "entry_price": 1578.54,
+      "exit_price": 1604.710554,
+      "atr_signal": 17.447036,
+      "pnl_pct": -0.017991,
+      "pnl_atr": -1.627717,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-24T08:00:00Z",
+      "exit_dt": "2025-04-25T01:00:00Z",
+      "entry_price": 1755.68,
+      "exit_price": 1787.06913,
+      "atr_signal": 20.926087,
+      "pnl_pct": -0.019291,
+      "pnl_atr": -1.618509,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-27T13:00:00Z",
+      "exit_dt": "2025-04-28T01:00:00Z",
+      "entry_price": 1795.26,
+      "exit_price": 1751.514572,
+      "atr_signal": 14.581809,
+      "pnl_pct": 0.022984,
+      "pnl_atr": 2.829737,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-04-28T15:00:00Z",
+      "exit_dt": "2025-04-29T01:00:00Z",
+      "entry_price": 1781.01,
+      "exit_price": 1805.984094,
+      "atr_signal": 16.649396,
+      "pnl_pct": -0.015432,
+      "pnl_atr": -1.65081,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-04-29T23:00:00Z",
+      "exit_dt": "2025-04-30T13:00:00Z",
+      "entry_price": 1791.42,
+      "exit_price": 1742.424872,
+      "atr_signal": 16.331709,
+      "pnl_pct": 0.025969,
+      "pnl_atr": 2.848534,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-03T02:00:00Z",
+      "exit_dt": "2025-05-04T05:00:00Z",
+      "entry_price": 1828.51,
+      "exit_price": 1849.268437,
+      "atr_signal": 13.838958,
+      "pnl_pct": -0.012761,
+      "pnl_atr": -1.686029,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-04T12:00:00Z",
+      "exit_dt": "2025-05-05T01:00:00Z",
+      "entry_price": 1826.91,
+      "exit_price": 1792.996971,
+      "atr_signal": 11.304343,
+      "pnl_pct": 0.017176,
+      "pnl_atr": 2.775844,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-05T11:00:00Z",
+      "exit_dt": "2025-05-05T18:00:00Z",
+      "entry_price": 1803.87,
+      "exit_price": 1824.504332,
+      "atr_signal": 13.756221,
+      "pnl_pct": -0.012847,
+      "pnl_atr": -1.684634,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-06T02:00:00Z",
+      "exit_dt": "2025-05-06T11:00:00Z",
+      "entry_price": 1803.36,
+      "exit_price": 1761.14238,
+      "atr_signal": 14.07254,
+      "pnl_pct": 0.022027,
+      "pnl_atr": 2.822694,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-06T20:00:00Z",
+      "exit_dt": "2025-05-06T22:00:00Z",
+      "entry_price": 1783.89,
+      "exit_price": 1807.572355,
+      "atr_signal": 15.788236,
+      "pnl_pct": -0.014685,
+      "pnl_atr": -1.659234,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-14T21:00:00Z",
+      "exit_dt": "2025-05-15T14:00:00Z",
+      "entry_price": 2598.89,
+      "exit_price": 2492.912296,
+      "atr_signal": 35.325901,
+      "pnl_pct": 0.039407,
+      "pnl_atr": 2.899103,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-05-15T19:00:00Z",
+      "exit_dt": "2025-05-16T04:00:00Z",
+      "entry_price": 2523.59,
+      "exit_price": 2588.325504,
+      "atr_signal": 43.157003,
+      "pnl_pct": -0.02707,
+      "pnl_atr": -1.582914,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-17T00:00:00Z",
+      "exit_dt": "2025-05-18T15:00:00Z",
+      "entry_price": 2535.68,
+      "exit_price": 2582.133177,
+      "atr_signal": 30.968785,
+      "pnl_pct": -0.019733,
+      "pnl_atr": -1.61568,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-18T20:00:00Z",
+      "exit_dt": "2025-05-18T23:00:00Z",
+      "entry_price": 2406.72,
+      "exit_price": 2457.950677,
+      "atr_signal": 34.153785,
+      "pnl_pct": -0.022701,
+      "pnl_atr": -1.599704,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-19T01:00:00Z",
+      "exit_dt": "2025-05-19T17:00:00Z",
+      "entry_price": 2441.91,
+      "exit_price": 2512.38253,
+      "atr_signal": 46.981687,
+      "pnl_pct": -0.03028,
+      "pnl_atr": -1.573816,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-23T22:00:00Z",
+      "exit_dt": "2025-05-25T21:00:00Z",
+      "entry_price": 2533.52,
+      "exit_price": 2514.29,
+      "atr_signal": 35.109293,
+      "pnl_pct": 0.006196,
+      "pnl_atr": 0.447076,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-05-28T19:00:00Z",
+      "exit_dt": "2025-05-28T23:00:00Z",
+      "entry_price": 2635.26,
+      "exit_price": 2672.743597,
+      "atr_signal": 24.989065,
+      "pnl_pct": -0.015634,
+      "pnl_atr": -1.648689,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-05-30T23:00:00Z",
+      "exit_dt": "2025-06-01T22:00:00Z",
+      "entry_price": 2525.75,
+      "exit_price": 2534.31,
+      "atr_signal": 32.081057,
+      "pnl_pct": -0.004791,
+      "pnl_atr": -0.377233,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-06-08T14:00:00Z",
+      "exit_dt": "2025-06-08T16:00:00Z",
+      "entry_price": 2507.49,
+      "exit_price": 2528.708386,
+      "atr_signal": 14.145591,
+      "pnl_pct": -0.009868,
+      "pnl_atr": -1.749218,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-13T01:00:00Z",
+      "exit_dt": "2025-06-15T00:00:00Z",
+      "entry_price": 2528.08,
+      "exit_price": 2536.34,
+      "atr_signal": 42.774421,
+      "pnl_pct": -0.00467,
+      "pnl_atr": -0.275985,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-06-17T16:00:00Z",
+      "exit_dt": "2025-06-17T19:00:00Z",
+      "entry_price": 2497.58,
+      "exit_price": 2541.653503,
+      "atr_signal": 29.382336,
+      "pnl_pct": -0.019059,
+      "pnl_atr": -1.620054,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-17T21:00:00Z",
+      "exit_dt": "2025-06-19T20:00:00Z",
+      "entry_price": 2509.42,
+      "exit_price": 2505.84,
+      "atr_signal": 31.781311,
+      "pnl_pct": 2.8e-05,
+      "pnl_atr": 0.002181,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-06-20T19:00:00Z",
+      "exit_dt": "2025-06-21T21:00:00Z",
+      "entry_price": 2418.61,
+      "exit_price": 2335.915069,
+      "atr_signal": 27.564977,
+      "pnl_pct": 0.032815,
+      "pnl_atr": 2.879261,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-21T23:00:00Z",
+      "exit_dt": "2025-06-22T13:00:00Z",
+      "entry_price": 2285.41,
+      "exit_price": 2189.80117,
+      "atr_signal": 31.86961,
+      "pnl_pct": 0.040464,
+      "pnl_atr": 2.901704,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-06-23T04:00:00Z",
+      "exit_dt": "2025-06-23T13:00:00Z",
+      "entry_price": 2233.95,
+      "exit_price": 2284.51629,
+      "atr_signal": 33.71086,
+      "pnl_pct": -0.024051,
+      "pnl_atr": -1.593825,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-26T18:00:00Z",
+      "exit_dt": "2025-06-26T20:00:00Z",
+      "entry_price": 2419.51,
+      "exit_price": 2456.803092,
+      "atr_signal": 24.862061,
+      "pnl_pct": -0.016824,
+      "pnl_atr": -1.637294,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-26T23:00:00Z",
+      "exit_dt": "2025-06-27T04:00:00Z",
+      "entry_price": 2412.0,
+      "exit_price": 2450.568725,
+      "atr_signal": 25.712483,
+      "pnl_pct": -0.017402,
+      "pnl_atr": -1.632379,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-27T22:00:00Z",
+      "exit_dt": "2025-06-29T09:00:00Z",
+      "entry_price": 2418.34,
+      "exit_price": 2452.32608,
+      "atr_signal": 22.657387,
+      "pnl_pct": -0.015463,
+      "pnl_atr": -1.650479,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-06-30T14:00:00Z",
+      "exit_dt": "2025-06-30T17:00:00Z",
+      "entry_price": 2461.35,
+      "exit_price": 2488.168447,
+      "atr_signal": 17.878964,
+      "pnl_pct": -0.012303,
+      "pnl_atr": -1.693784,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-04T16:00:00Z",
+      "exit_dt": "2025-07-06T13:00:00Z",
+      "entry_price": 2499.58,
+      "exit_price": 2530.805188,
+      "atr_signal": 20.816792,
+      "pnl_pct": -0.013901,
+      "pnl_atr": -1.669155,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-18T23:00:00Z",
+      "exit_dt": "2025-07-20T01:00:00Z",
+      "entry_price": 3538.74,
+      "exit_price": 3618.940502,
+      "atr_signal": 53.467001,
+      "pnl_pct": -0.024079,
+      "pnl_atr": -1.59371,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-22T08:00:00Z",
+      "exit_dt": "2025-07-22T16:00:00Z",
+      "entry_price": 3677.15,
+      "exit_price": 3752.367192,
+      "atr_signal": 50.144794,
+      "pnl_pct": -0.02187,
+      "pnl_atr": -1.603713,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-22T20:00:00Z",
+      "exit_dt": "2025-07-22T23:00:00Z",
+      "entry_price": 3670.11,
+      "exit_price": 3746.088709,
+      "atr_signal": 50.652473,
+      "pnl_pct": -0.022117,
+      "pnl_atr": -1.602489,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-23T14:00:00Z",
+      "exit_dt": "2025-07-24T02:00:00Z",
+      "entry_price": 3586.65,
+      "exit_price": 3650.626515,
+      "atr_signal": 42.65101,
+      "pnl_pct": -0.01925,
+      "pnl_atr": -1.61878,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-24T04:00:00Z",
+      "exit_dt": "2025-07-24T07:00:00Z",
+      "entry_price": 3641.69,
+      "exit_price": 3522.696585,
+      "atr_signal": 39.664472,
+      "pnl_pct": 0.031298,
+      "pnl_atr": 2.873563,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-07-28T18:00:00Z",
+      "exit_dt": "2025-07-29T07:00:00Z",
+      "entry_price": 3784.41,
+      "exit_price": 3838.090479,
+      "atr_signal": 35.786986,
+      "pnl_pct": -0.015595,
+      "pnl_atr": -1.649098,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-29T20:00:00Z",
+      "exit_dt": "2025-07-30T03:00:00Z",
+      "entry_price": 3763.46,
+      "exit_price": 3823.86488,
+      "atr_signal": 40.26992,
+      "pnl_pct": -0.017462,
+      "pnl_atr": -1.631888,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-30T11:00:00Z",
+      "exit_dt": "2025-07-30T14:00:00Z",
+      "entry_price": 3772.44,
+      "exit_price": 3826.580468,
+      "atr_signal": 36.093646,
+      "pnl_pct": -0.015762,
+      "pnl_atr": -1.647375,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-07-30T19:00:00Z",
+      "exit_dt": "2025-07-30T23:00:00Z",
+      "entry_price": 3736.95,
+      "exit_price": 3799.625113,
+      "atr_signal": 41.783408,
+      "pnl_pct": -0.018183,
+      "pnl_atr": -1.626261,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-01T23:00:00Z",
+      "exit_dt": "2025-08-03T22:00:00Z",
+      "entry_price": 3462.0,
+      "exit_price": 3501.85,
+      "atr_signal": 51.227793,
+      "pnl_pct": -0.012919,
+      "pnl_atr": -0.873055,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-08-10T16:00:00Z",
+      "exit_dt": "2025-08-11T00:00:00Z",
+      "entry_price": 4217.01,
+      "exit_price": 4283.5942,
+      "atr_signal": 44.389467,
+      "pnl_pct": -0.0172,
+      "pnl_atr": -1.63405,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-14T13:00:00Z",
+      "exit_dt": "2025-08-14T14:00:00Z",
+      "entry_price": 4570.14,
+      "exit_price": 4669.18747,
+      "atr_signal": 66.031647,
+      "pnl_pct": -0.023088,
+      "pnl_atr": -1.597946,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-14T17:00:00Z",
+      "exit_dt": "2025-08-15T12:00:00Z",
+      "entry_price": 4547.38,
+      "exit_price": 4669.666321,
+      "atr_signal": 81.524214,
+      "pnl_pct": -0.02831,
+      "pnl_atr": -1.579141,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-15T15:00:00Z",
+      "exit_dt": "2025-08-17T14:00:00Z",
+      "entry_price": 4490.98,
+      "exit_price": 4551.3,
+      "atr_signal": 61.080249,
+      "pnl_pct": -0.014841,
+      "pnl_atr": -1.091181,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-08-18T03:00:00Z",
+      "exit_dt": "2025-08-19T15:00:00Z",
+      "entry_price": 4318.4,
+      "exit_price": 4172.911922,
+      "atr_signal": 48.496026,
+      "pnl_pct": 0.032314,
+      "pnl_atr": 2.877435,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-08-25T08:00:00Z",
+      "exit_dt": "2025-08-25T14:00:00Z",
+      "entry_price": 4589.75,
+      "exit_price": 4681.557107,
+      "atr_signal": 61.204738,
+      "pnl_pct": -0.021417,
+      "pnl_atr": -1.606036,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-25T20:00:00Z",
+      "exit_dt": "2025-08-26T12:00:00Z",
+      "entry_price": 4418.18,
+      "exit_price": 4516.657381,
+      "atr_signal": 65.651588,
+      "pnl_pct": -0.023705,
+      "pnl_atr": -1.595266,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-27T22:00:00Z",
+      "exit_dt": "2025-08-28T08:00:00Z",
+      "entry_price": 4524.62,
+      "exit_price": 4613.549826,
+      "atr_signal": 59.286551,
+      "pnl_pct": -0.021068,
+      "pnl_atr": -1.607895,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-29T09:00:00Z",
+      "exit_dt": "2025-08-29T12:00:00Z",
+      "entry_price": 4332.99,
+      "exit_price": 4403.571331,
+      "atr_signal": 47.05422,
+      "pnl_pct": -0.017701,
+      "pnl_atr": -1.629969,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-08-29T14:00:00Z",
+      "exit_dt": "2025-08-30T07:00:00Z",
+      "entry_price": 4328.9,
+      "exit_price": 4406.103315,
+      "atr_signal": 51.468877,
+      "pnl_pct": -0.019247,
+      "pnl_atr": -1.6188,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-01T18:00:00Z",
+      "exit_dt": "2025-09-02T03:00:00Z",
+      "entry_price": 4321.12,
+      "exit_price": 4382.746776,
+      "atr_signal": 41.084517,
+      "pnl_pct": -0.015672,
+      "pnl_atr": -1.648297,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-02T15:00:00Z",
+      "exit_dt": "2025-09-03T13:00:00Z",
+      "entry_price": 4345.83,
+      "exit_price": 4421.036602,
+      "atr_signal": 50.137735,
+      "pnl_pct": -0.018718,
+      "pnl_atr": -1.622399,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-04T09:00:00Z",
+      "exit_dt": "2025-09-04T10:00:00Z",
+      "entry_price": 4367.6,
+      "exit_price": 4417.802021,
+      "atr_signal": 33.468014,
+      "pnl_pct": -0.012902,
+      "pnl_atr": -1.683751,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-04T14:00:00Z",
+      "exit_dt": "2025-09-04T19:00:00Z",
+      "entry_price": 4376.52,
+      "exit_price": 4267.378138,
+      "atr_signal": 36.380621,
+      "pnl_pct": 0.023556,
+      "pnl_atr": 2.833683,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-09-05T22:00:00Z",
+      "exit_dt": "2025-09-07T21:00:00Z",
+      "entry_price": 4295.0,
+      "exit_price": 4286.8,
+      "atr_signal": 43.957226,
+      "pnl_pct": 0.000511,
+      "pnl_atr": 0.049883,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-09-13T20:00:00Z",
+      "exit_dt": "2025-09-14T02:00:00Z",
+      "entry_price": 4636.92,
+      "exit_price": 4690.805423,
+      "atr_signal": 35.923615,
+      "pnl_pct": -0.013029,
+      "pnl_atr": -1.681758,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-14T12:00:00Z",
+      "exit_dt": "2025-09-15T08:00:00Z",
+      "entry_price": 4633.83,
+      "exit_price": 4549.874906,
+      "atr_signal": 27.985031,
+      "pnl_pct": 0.016731,
+      "pnl_atr": 2.770285,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-09-15T09:00:00Z",
+      "exit_dt": "2025-09-17T08:00:00Z",
+      "entry_price": 4508.69,
+      "exit_price": 4508.36,
+      "atr_signal": 37.036168,
+      "pnl_pct": -0.001327,
+      "pnl_atr": -0.161516,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-09-19T18:00:00Z",
+      "exit_dt": "2025-09-20T15:00:00Z",
+      "entry_price": 4457.95,
+      "exit_price": 4502.940019,
+      "atr_signal": 29.993346,
+      "pnl_pct": -0.011499,
+      "pnl_atr": -1.709134,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-21T08:00:00Z",
+      "exit_dt": "2025-09-22T00:00:00Z",
+      "entry_price": 4476.71,
+      "exit_price": 4428.732308,
+      "atr_signal": 15.992564,
+      "pnl_pct": 0.009325,
+      "pnl_atr": 2.610206,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-09-22T10:00:00Z",
+      "exit_dt": "2025-09-22T13:00:00Z",
+      "entry_price": 4149.29,
+      "exit_price": 4215.171245,
+      "atr_signal": 43.92083,
+      "pnl_pct": -0.017289,
+      "pnl_atr": -1.633311,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-22T16:00:00Z",
+      "exit_dt": "2025-09-23T09:00:00Z",
+      "entry_price": 4165.46,
+      "exit_price": 4227.739505,
+      "atr_signal": 41.51967,
+      "pnl_pct": -0.016362,
+      "pnl_atr": -1.641505,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-23T15:00:00Z",
+      "exit_dt": "2025-09-24T04:00:00Z",
+      "entry_price": 4172.64,
+      "exit_price": 4071.562594,
+      "atr_signal": 33.692469,
+      "pnl_pct": 0.022841,
+      "pnl_atr": 2.828717,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-09-24T14:00:00Z",
+      "exit_dt": "2025-09-24T14:00:00Z",
+      "entry_price": 4148.42,
+      "exit_price": 4194.535957,
+      "atr_signal": 30.743971,
+      "pnl_pct": -0.012524,
+      "pnl_atr": -1.689958,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-25T07:00:00Z",
+      "exit_dt": "2025-09-25T17:00:00Z",
+      "entry_price": 3996.05,
+      "exit_price": 3863.859303,
+      "atr_signal": 44.063566,
+      "pnl_pct": 0.031703,
+      "pnl_atr": 2.875136,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-09-25T20:00:00Z",
+      "exit_dt": "2025-09-26T16:00:00Z",
+      "entry_price": 3910.49,
+      "exit_price": 3994.309292,
+      "atr_signal": 55.879528,
+      "pnl_pct": -0.022849,
+      "pnl_atr": -1.599023,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-30T13:00:00Z",
+      "exit_dt": "2025-09-30T21:00:00Z",
+      "entry_price": 4156.2,
+      "exit_price": 4199.535736,
+      "atr_signal": 28.890491,
+      "pnl_pct": -0.011834,
+      "pnl_atr": -1.702455,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-09-30T22:00:00Z",
+      "exit_dt": "2025-10-01T08:00:00Z",
+      "entry_price": 4151.26,
+      "exit_price": 4204.891562,
+      "atr_signal": 35.754375,
+      "pnl_pct": -0.014328,
+      "pnl_atr": -1.663597,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-07T16:00:00Z",
+      "exit_dt": "2025-10-09T08:00:00Z",
+      "entry_price": 4511.01,
+      "exit_price": 4360.328602,
+      "atr_signal": 50.227133,
+      "pnl_pct": 0.032026,
+      "pnl_atr": 2.876363,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-09T09:00:00Z",
+      "exit_dt": "2025-10-09T12:00:00Z",
+      "entry_price": 4326.63,
+      "exit_price": 4390.833826,
+      "atr_signal": 42.80255,
+      "pnl_pct": -0.01625,
+      "pnl_atr": -1.642567,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-09T14:00:00Z",
+      "exit_dt": "2025-10-10T15:00:00Z",
+      "entry_price": 4348.79,
+      "exit_price": 4221.296633,
+      "atr_signal": 42.497789,
+      "pnl_pct": 0.027937,
+      "pnl_atr": 2.858838,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-10T21:00:00Z",
+      "exit_dt": "2025-10-10T21:00:00Z",
+      "entry_price": 3865.21,
+      "exit_price": 3962.866605,
+      "atr_signal": 65.104403,
+      "pnl_pct": -0.026683,
+      "pnl_atr": -1.584167,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-11T00:00:00Z",
+      "exit_dt": "2025-10-12T14:00:00Z",
+      "entry_price": 3823.77,
+      "exit_price": 3991.004253,
+      "atr_signal": 111.489502,
+      "pnl_pct": -0.045166,
+      "pnl_atr": -1.549066,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-14T06:00:00Z",
+      "exit_dt": "2025-10-14T10:00:00Z",
+      "entry_price": 4068.35,
+      "exit_price": 3904.455457,
+      "atr_signal": 54.631514,
+      "pnl_pct": 0.038913,
+      "pnl_atr": 2.897844,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-15T15:00:00Z",
+      "exit_dt": "2025-10-16T20:00:00Z",
+      "entry_price": 4007.5,
+      "exit_price": 3825.159986,
+      "atr_signal": 60.780005,
+      "pnl_pct": 0.044132,
+      "pnl_atr": 2.909792,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-17T07:00:00Z",
+      "exit_dt": "2025-10-18T07:00:00Z",
+      "entry_price": 3817.98,
+      "exit_price": 3894.71658,
+      "atr_signal": 51.15772,
+      "pnl_pct": -0.021513,
+      "pnl_atr": -1.605534,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-20T22:00:00Z",
+      "exit_dt": "2025-10-21T04:00:00Z",
+      "entry_price": 3975.29,
+      "exit_price": 3861.553648,
+      "atr_signal": 37.912117,
+      "pnl_pct": 0.027231,
+      "pnl_atr": 2.855302,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-22T00:00:00Z",
+      "exit_dt": "2025-10-22T21:00:00Z",
+      "entry_price": 3870.7,
+      "exit_price": 3705.917621,
+      "atr_signal": 54.92746,
+      "pnl_pct": 0.041202,
+      "pnl_atr": 2.903443,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-28T01:00:00Z",
+      "exit_dt": "2025-10-28T14:00:00Z",
+      "entry_price": 4113.5,
+      "exit_price": 4168.903747,
+      "atr_signal": 36.935832,
+      "pnl_pct": -0.014878,
+      "pnl_atr": -1.656966,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-10-30T13:00:00Z",
+      "exit_dt": "2025-10-30T19:00:00Z",
+      "entry_price": 3815.7,
+      "exit_price": 3678.593445,
+      "atr_signal": 45.702185,
+      "pnl_pct": 0.034557,
+      "pnl_atr": 2.885213,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-10-31T07:00:00Z",
+      "exit_dt": "2025-10-31T19:00:00Z",
+      "entry_price": 3829.0,
+      "exit_price": 3892.423353,
+      "atr_signal": 42.282235,
+      "pnl_pct": -0.017976,
+      "pnl_atr": -1.627831,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-04T20:00:00Z",
+      "exit_dt": "2025-11-05T03:00:00Z",
+      "entry_price": 3229.47,
+      "exit_price": 3327.803194,
+      "atr_signal": 65.555463,
+      "pnl_pct": -0.03187,
+      "pnl_atr": -1.570018,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-05T11:00:00Z",
+      "exit_dt": "2025-11-05T13:00:00Z",
+      "entry_price": 3274.55,
+      "exit_price": 3363.721582,
+      "atr_signal": 59.447721,
+      "pnl_pct": -0.028651,
+      "pnl_atr": -1.578166,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-06T15:00:00Z",
+      "exit_dt": "2025-11-07T17:00:00Z",
+      "entry_price": 3327.54,
+      "exit_price": 3395.755904,
+      "atr_signal": 45.477269,
+      "pnl_pct": -0.021915,
+      "pnl_atr": -1.603487,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-11T00:00:00Z",
+      "exit_dt": "2025-11-11T01:00:00Z",
+      "entry_price": 3566.26,
+      "exit_price": 3622.628304,
+      "atr_signal": 37.578869,
+      "pnl_pct": -0.017217,
+      "pnl_atr": -1.633911,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-11T08:00:00Z",
+      "exit_dt": "2025-11-11T21:00:00Z",
+      "entry_price": 3542.31,
+      "exit_price": 3423.687989,
+      "atr_signal": 39.54067,
+      "pnl_pct": 0.032111,
+      "pnl_atr": 2.876679,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-11-14T01:00:00Z",
+      "exit_dt": "2025-11-16T00:00:00Z",
+      "entry_price": 3198.65,
+      "exit_price": 3150.98,
+      "atr_signal": 55.241517,
+      "pnl_pct": 0.013514,
+      "pnl_atr": 0.782478,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-11-16T16:00:00Z",
+      "exit_dt": "2025-11-17T02:00:00Z",
+      "entry_price": 3103.48,
+      "exit_price": 3158.467857,
+      "atr_signal": 36.658571,
+      "pnl_pct": -0.019131,
+      "pnl_atr": -1.619573,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-17T18:00:00Z",
+      "exit_dt": "2025-11-18T16:00:00Z",
+      "entry_price": 3056.72,
+      "exit_price": 3134.908639,
+      "atr_signal": 52.125759,
+      "pnl_pct": -0.026997,
+      "pnl_atr": -1.583148,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-19T16:00:00Z",
+      "exit_dt": "2025-11-20T00:00:00Z",
+      "entry_price": 2971.15,
+      "exit_price": 3042.577421,
+      "atr_signal": 47.618281,
+      "pnl_pct": -0.025457,
+      "pnl_atr": -1.588403,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-21T10:00:00Z",
+      "exit_dt": "2025-11-21T13:00:00Z",
+      "entry_price": 2680.66,
+      "exit_price": 2765.053315,
+      "atr_signal": 56.26221,
+      "pnl_pct": -0.032904,
+      "pnl_atr": -1.567754,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-21T16:00:00Z",
+      "exit_dt": "2025-11-21T17:00:00Z",
+      "entry_price": 2703.89,
+      "exit_price": 2798.112471,
+      "atr_signal": 62.81498,
+      "pnl_pct": -0.036271,
+      "pnl_atr": -1.561313,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-21T23:00:00Z",
+      "exit_dt": "2025-11-23T01:00:00Z",
+      "entry_price": 2719.98,
+      "exit_price": 2811.72419,
+      "atr_signal": 61.162794,
+      "pnl_pct": -0.035153,
+      "pnl_atr": -1.56331,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-11-29T04:00:00Z",
+      "exit_dt": "2025-12-01T00:00:00Z",
+      "entry_price": 3021.12,
+      "exit_price": 2944.052799,
+      "atr_signal": 25.689067,
+      "pnl_pct": 0.024127,
+      "pnl_atr": 2.837455,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-12-04T22:00:00Z",
+      "exit_dt": "2025-12-05T02:00:00Z",
+      "entry_price": 3121.59,
+      "exit_price": 3182.025953,
+      "atr_signal": 40.290635,
+      "pnl_pct": -0.020774,
+      "pnl_atr": -1.609518,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-05T17:00:00Z",
+      "exit_dt": "2025-12-07T16:00:00Z",
+      "entry_price": 3031.11,
+      "exit_price": 3038.58,
+      "atr_signal": 41.022409,
+      "pnl_pct": -0.003866,
+      "pnl_atr": -0.285668,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-12-11T03:00:00Z",
+      "exit_dt": "2025-12-12T15:00:00Z",
+      "entry_price": 3209.43,
+      "exit_price": 3075.043203,
+      "atr_signal": 44.795599,
+      "pnl_pct": 0.040502,
+      "pnl_atr": 2.901795,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-12-12T16:00:00Z",
+      "exit_dt": "2025-12-13T08:00:00Z",
+      "entry_price": 3070.01,
+      "exit_price": 3128.224297,
+      "atr_signal": 38.809531,
+      "pnl_pct": -0.020376,
+      "pnl_atr": -1.611796,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-13T19:00:00Z",
+      "exit_dt": "2025-12-14T23:00:00Z",
+      "entry_price": 3100.06,
+      "exit_price": 3041.160649,
+      "atr_signal": 19.633117,
+      "pnl_pct": 0.017613,
+      "pnl_atr": 2.781041,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2025-12-15T18:00:00Z",
+      "exit_dt": "2025-12-17T14:00:00Z",
+      "entry_price": 2935.66,
+      "exit_price": 2992.434851,
+      "atr_signal": 37.849901,
+      "pnl_pct": -0.020753,
+      "pnl_atr": -1.609635,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-17T16:00:00Z",
+      "exit_dt": "2025-12-18T13:00:00Z",
+      "entry_price": 2902.91,
+      "exit_price": 2963.634891,
+      "atr_signal": 40.483261,
+      "pnl_pct": -0.022333,
+      "pnl_atr": -1.601439,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-23T13:00:00Z",
+      "exit_dt": "2025-12-23T20:00:00Z",
+      "entry_price": 2953.57,
+      "exit_price": 2986.261402,
+      "atr_signal": 21.794268,
+      "pnl_pct": -0.012476,
+      "pnl_atr": -1.690779,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2025-12-24T02:00:00Z",
+      "exit_dt": "2025-12-26T01:00:00Z",
+      "entry_price": 2962.08,
+      "exit_price": 2916.71,
+      "atr_signal": 28.071199,
+      "pnl_pct": 0.013928,
+      "pnl_atr": 1.46965,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2025-12-26T17:00:00Z",
+      "exit_dt": "2025-12-27T22:00:00Z",
+      "entry_price": 2908.28,
+      "exit_price": 2943.887148,
+      "atr_signal": 23.738098,
+      "pnl_pct": -0.013652,
+      "pnl_atr": -1.672571,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-07T17:00:00Z",
+      "exit_dt": "2026-01-08T14:00:00Z",
+      "entry_price": 3155.83,
+      "exit_price": 3067.049239,
+      "atr_signal": 29.593587,
+      "pnl_pct": 0.026752,
+      "pnl_atr": 2.852805,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-01-08T20:00:00Z",
+      "exit_dt": "2026-01-10T19:00:00Z",
+      "entry_price": 3109.85,
+      "exit_price": 3090.97,
+      "atr_signal": 29.252147,
+      "pnl_pct": 0.004675,
+      "pnl_atr": 0.497038,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-01-15T18:00:00Z",
+      "exit_dt": "2026-01-17T17:00:00Z",
+      "entry_price": 3299.14,
+      "exit_price": 3318.15,
+      "atr_signal": 34.056967,
+      "pnl_pct": -0.007166,
+      "pnl_atr": -0.694193,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-01-20T17:00:00Z",
+      "exit_dt": "2026-01-20T22:00:00Z",
+      "entry_price": 3007.76,
+      "exit_price": 2921.795635,
+      "atr_signal": 28.654788,
+      "pnl_pct": 0.027201,
+      "pnl_atr": 2.855149,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-01-21T10:00:00Z",
+      "exit_dt": "2026-01-21T14:00:00Z",
+      "entry_price": 2952.44,
+      "exit_price": 2992.636353,
+      "atr_signal": 26.797569,
+      "pnl_pct": -0.015024,
+      "pnl_atr": -1.655296,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-22T15:00:00Z",
+      "exit_dt": "2026-01-23T17:00:00Z",
+      "entry_price": 2939.32,
+      "exit_price": 2989.380308,
+      "atr_signal": 33.373538,
+      "pnl_pct": -0.018443,
+      "pnl_atr": -1.624353,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-01-25T18:00:00Z",
+      "exit_dt": "2026-01-25T18:00:00Z",
+      "entry_price": 2882.72,
+      "exit_price": 2834.454556,
+      "atr_signal": 16.088481,
+      "pnl_pct": 0.015355,
+      "pnl_atr": 2.751249,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-01-26T04:00:00Z",
+      "exit_dt": "2026-01-26T07:00:00Z",
+      "entry_price": 2850.0,
+      "exit_price": 2891.618312,
+      "atr_signal": 27.745541,
+      "pnl_pct": -0.016013,
+      "pnl_atr": -1.644857,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-01T20:00:00Z",
+      "exit_dt": "2026-02-02T03:00:00Z",
+      "entry_price": 2319.59,
+      "exit_price": 2178.336292,
+      "atr_signal": 47.084569,
+      "pnl_pct": 0.059539,
+      "pnl_atr": 2.93313,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-03T15:00:00Z",
+      "exit_dt": "2026-02-03T15:00:00Z",
+      "entry_price": 2255.6,
+      "exit_price": 2310.9669,
+      "atr_signal": 36.911267,
+      "pnl_pct": -0.025964,
+      "pnl_atr": -1.586602,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-03T17:00:00Z",
+      "exit_dt": "2026-02-03T18:00:00Z",
+      "entry_price": 2239.82,
+      "exit_price": 2116.940703,
+      "atr_signal": 40.959766,
+      "pnl_pct": 0.0535,
+      "pnl_atr": 2.925543,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-03T23:00:00Z",
+      "exit_dt": "2026-02-05T11:00:00Z",
+      "entry_price": 2235.29,
+      "exit_price": 2061.16423,
+      "atr_signal": 58.041923,
+      "pnl_pct": 0.076553,
+      "pnl_atr": 2.948184,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-05T16:00:00Z",
+      "exit_dt": "2026-02-06T00:00:00Z",
+      "entry_price": 1959.55,
+      "exit_price": 1796.19905,
+      "atr_signal": 54.450317,
+      "pnl_pct": 0.08202,
+      "pnl_atr": 2.951717,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-06T09:00:00Z",
+      "exit_dt": "2026-02-06T14:00:00Z",
+      "entry_price": 1873.88,
+      "exit_price": 1964.634375,
+      "atr_signal": 60.502917,
+      "pnl_pct": -0.049865,
+      "pnl_atr": -1.54441,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-09T08:00:00Z",
+      "exit_dt": "2026-02-09T16:00:00Z",
+      "entry_price": 2064.64,
+      "exit_price": 2107.843595,
+      "atr_signal": 28.802397,
+      "pnl_pct": -0.02234,
+      "pnl_atr": -1.601406,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-10T07:00:00Z",
+      "exit_dt": "2026-02-11T15:00:00Z",
+      "entry_price": 2008.24,
+      "exit_price": 1912.06804,
+      "atr_signal": 32.05732,
+      "pnl_pct": 0.046522,
+      "pnl_atr": 2.914397,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-11T23:00:00Z",
+      "exit_dt": "2026-02-12T10:00:00Z",
+      "entry_price": 1950.45,
+      "exit_price": 1994.60454,
+      "atr_signal": 29.43636,
+      "pnl_pct": -0.024054,
+      "pnl_atr": -1.593814,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-15T18:00:00Z",
+      "exit_dt": "2026-02-16T12:00:00Z",
+      "entry_price": 1970.0,
+      "exit_price": 2006.156917,
+      "atr_signal": 24.104611,
+      "pnl_pct": -0.019767,
+      "pnl_atr": -1.615468,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-16T14:00:00Z",
+      "exit_dt": "2026-02-16T21:00:00Z",
+      "entry_price": 1966.54,
+      "exit_price": 2002.587875,
+      "atr_signal": 24.031917,
+      "pnl_pct": -0.019743,
+      "pnl_atr": -1.615612,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-17T09:00:00Z",
+      "exit_dt": "2026-02-17T16:00:00Z",
+      "entry_price": 1975.56,
+      "exit_price": 2006.441058,
+      "atr_signal": 20.587372,
+      "pnl_pct": -0.017042,
+      "pnl_atr": -1.635394,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-18T19:00:00Z",
+      "exit_dt": "2026-02-19T06:00:00Z",
+      "entry_price": 1951.17,
+      "exit_price": 1984.40411,
+      "atr_signal": 22.156073,
+      "pnl_pct": -0.018445,
+      "pnl_atr": -1.624341,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-19T12:00:00Z",
+      "exit_dt": "2026-02-20T15:00:00Z",
+      "entry_price": 1948.64,
+      "exit_price": 1973.64286,
+      "atr_signal": 16.668574,
+      "pnl_pct": -0.01424,
+      "pnl_atr": -1.664717,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-02-26T21:00:00Z",
+      "exit_dt": "2026-02-27T13:00:00Z",
+      "entry_price": 2022.69,
+      "exit_price": 1938.171165,
+      "atr_signal": 28.172945,
+      "pnl_pct": 0.040415,
+      "pnl_atr": 2.901586,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-02-27T15:00:00Z",
+      "exit_dt": "2026-02-28T06:00:00Z",
+      "entry_price": 1942.01,
+      "exit_price": 1867.761321,
+      "atr_signal": 24.74956,
+      "pnl_pct": 0.03686,
+      "pnl_atr": 2.892247,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-03T13:00:00Z",
+      "exit_dt": "2026-03-03T16:00:00Z",
+      "entry_price": 1966.41,
+      "exit_price": 2006.758357,
+      "atr_signal": 26.898905,
+      "pnl_pct": -0.021933,
+      "pnl_atr": -1.603395,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-06T15:00:00Z",
+      "exit_dt": "2026-03-08T14:00:00Z",
+      "entry_price": 1980.38,
+      "exit_price": 1944.21,
+      "atr_signal": 25.38834,
+      "pnl_pct": 0.016877,
+      "pnl_atr": 1.316462,
+      "reason": "TIMEOUT"
+    },
+    {
+      "entry_dt": "2026-03-14T01:00:00Z",
+      "exit_dt": "2026-03-15T09:00:00Z",
+      "entry_price": 2084.33,
+      "exit_price": 2121.068671,
+      "atr_signal": 24.492447,
+      "pnl_pct": -0.019038,
+      "pnl_atr": -1.620191,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-18T15:00:00Z",
+      "exit_dt": "2026-03-19T03:00:00Z",
+      "entry_price": 2189.21,
+      "exit_price": 2227.319454,
+      "atr_signal": 25.406303,
+      "pnl_pct": -0.01882,
+      "pnl_atr": -1.621685,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-19T13:00:00Z",
+      "exit_dt": "2026-03-20T08:00:00Z",
+      "entry_price": 2131.41,
+      "exit_price": 2168.229339,
+      "atr_signal": 24.546226,
+      "pnl_pct": -0.018687,
+      "pnl_atr": -1.622615,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-20T10:00:00Z",
+      "exit_dt": "2026-03-21T23:00:00Z",
+      "entry_price": 2140.18,
+      "exit_price": 2072.740486,
+      "atr_signal": 22.479838,
+      "pnl_pct": 0.030133,
+      "pnl_atr": 2.868814,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-22T08:00:00Z",
+      "exit_dt": "2026-03-22T21:00:00Z",
+      "entry_price": 2092.73,
+      "exit_price": 2041.771241,
+      "atr_signal": 16.986253,
+      "pnl_pct": 0.022967,
+      "pnl_atr": 2.829618,
+      "reason": "TP"
+    },
+    {
+      "entry_dt": "2026-03-27T16:00:00Z",
+      "exit_dt": "2026-03-28T13:00:00Z",
+      "entry_price": 1990.13,
+      "exit_price": 2022.229194,
+      "atr_signal": 21.399463,
+      "pnl_pct": -0.01754,
+      "pnl_atr": -1.631249,
+      "reason": "SL"
+    },
+    {
+      "entry_dt": "2026-03-29T14:00:00Z",
+      "exit_dt": "2026-03-29T20:00:00Z",
+      "entry_price": 1986.2,
+      "exit_price": 2003.770704,
+      "atr_signal": 11.713803,
+      "pnl_pct": -0.010253,
+      "pnl_atr": -1.738435,
+      "reason": "SL"
+    }
+  ]
+}

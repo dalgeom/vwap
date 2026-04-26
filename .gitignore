@@ -7,3 +7,6 @@ __pycache__/
 *.pem
 *.egg-info/
 vwap_trader/data/cache/
+vwap_trader/bot_err.log
+vwap_trader/bot_out.log
+vwap_trader/*.log
