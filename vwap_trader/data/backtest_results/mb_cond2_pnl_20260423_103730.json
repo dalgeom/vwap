@@ -1,0 +1,80 @@
+{
+  "task": "TASK-MB-003",
+  "run_at": "2026-04-23T10:37:30Z",
+  "params": {
+    "sl_atr_mult": 1.5,
+    "tp_atr_mult": 3.0,
+    "max_hold_bars": 48,
+    "cost_one_side_pct": 0.06999999999999999
+  },
+  "symbols": {
+    "BTCUSDT": {
+      "total_trades": 574,
+      "daily_avg": 0.699,
+      "win_rate_pct": 37.8,
+      "avg_win_atr": 2.452,
+      "avg_loss_atr": -1.6791,
+      "ev_per_trade_atr": -0.1173,
+      "profit_factor": 0.864,
+      "mdd_pct": 59.6224,
+      "tp_rate_pct": 32.23,
+      "sl_rate_pct": 59.93,
+      "timeout_rate_pct": 7.84,
+      "by_year": {
+        "2024": {
+          "total_trades": 250,
+          "win_rate_pct": 40.0,
+          "ev_per_trade_atr": -0.05,
+          "profit_factor": 0.9416
+        },
+        "2025": {
+          "total_trades": 259,
+          "win_rate_pct": 37.07,
+          "ev_per_trade_atr": -0.1351,
+          "profit_factor": 0.8326
+        },
+        "2026_q1": {
+          "total_trades": 65,
+          "win_rate_pct": 32.31,
+          "ev_per_trade_atr": -0.3052,
+          "profit_factor": 0.7
+        }
+      }
+    },
+    "ETHUSDT": {
+      "total_trades": 581,
+      "daily_avg": 0.708,
+      "win_rate_pct": 35.97,
+      "avg_win_atr": 2.6615,
+      "avg_loss_atr": -1.6234,
+      "ev_per_trade_atr": -0.082,
+      "profit_factor": 0.8469,
+      "mdd_pct": 107.3335,
+      "tp_rate_pct": 32.36,
+      "sl_rate_pct": 62.65,
+      "timeout_rate_pct": 4.99,
+      "by_year": {
+        "2024": {
+          "total_trades": 257,
+          "win_rate_pct": 35.02,
+          "ev_per_trade_atr": -0.1128,
+          "profit_factor": 0.8255
+        },
+        "2025": {
+          "total_trades": 271,
+          "win_rate_pct": 36.9,
+          "ev_per_trade_atr": -0.0452,
+          "profit_factor": 0.8996
+        },
+        "2026_q1": {
+          "total_trades": 53,
+          "win_rate_pct": 35.85,
+          "ev_per_trade_atr": -0.1205,
+          "profit_factor": 0.6874
+        }
+      }
+    }
+  },
+  "verdict": "EV_NEGATIVE",
+  "note": "EV 기준 EV_NEGATIVE. BTC EV=-0.1173 ATR/trade. 파라미터 고정 (최적화 없음). 비용 0.14% round-trip."
+}

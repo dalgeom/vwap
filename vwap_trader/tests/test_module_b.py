@@ -25,6 +25,8 @@ import pytest
 from vwap_trader.core.module_b import (
     check_module_b_long,
     check_module_b_short,
+    _find_swing_retrace,
+    _is_strong_close,
 )
 from vwap_trader.models import Candle, VolumeProfile
 
@@ -90,23 +92,26 @@ def _pad_flat(n: int, price: float, volume: float) -> list[Candle]:
 # ---------------------------------------------------------------------------
 
 def _build_long_pass_candles() -> list[Candle]:
-    candles = _pad_flat(n=15, price=100.0, volume=100.0)
+    # n=16 padding → 총 21봉. _find_swing_retrace(n=10) 최소 요건 2*10+1=21 충족.
+    # retrace 검증: H_swing≈102.1(idx=17), L_swing≈99.9(padding low), close=101.0
+    #   → retrace = (102.1-101.0)/(102.1-99.9) ≈ 0.50 ∈ [0.30, 0.70] ✓
+    candles = _pad_flat(n=16, price=100.0, volume=100.0)
 
-    # idx=15,16: recent_high 가 풀백 대비 충분히 위
-    candles.append(_mk(15, 101.5, 102.0, 101.3, 101.9, 100.0))
-    candles.append(_mk(16, 101.9, 102.1, 101.6, 101.8, 100.0))
+    # idx=16,17: recent_high 가 풀백 대비 충분히 위
+    candles.append(_mk(16, 101.5, 102.0, 101.3, 101.9, 100.0))
+    candles.append(_mk(17, 101.9, 102.1, 101.6, 101.8, 100.0))
 
-    # idx=17: 풀백 캔들 — 최근 3봉(17,18,19) 중 최저 low 보유
-    #  low=100.0 (EMA9=100.0, EMA20=100.0 과 동일 → near_ema9=True)
+    # idx=18: 풀백 캔들 — 최근 3봉(18,19,20) 중 최저 low 보유
+    #  low=100.0 (EMA9=100.0 과 동일 → near_ema9=True)
     #  volume=80 < ma20(100) * 1.0 → 풀백 약한 거래량 만족
-    candles.append(_mk(17, 101.5, 101.6, 100.0, 100.2, 80.0))
+    candles.append(_mk(18, 101.5, 101.6, 100.0, 100.2, 80.0))
 
-    # idx=18: 중립 봉 (풀백 후보 아님 — low=100.5)
-    candles.append(_mk(18, 100.2, 100.8, 100.5, 100.7, 90.0))
+    # idx=19: 중립 봉 (풀백 후보 아님 — low=100.5)
+    candles.append(_mk(19, 100.2, 100.8, 100.5, 100.7, 90.0))
 
-    # idx=19: 반전 캔들 — close(101.0) > open(100.7), close>ema9(100.0),
+    # idx=20: 반전 캔들 — Strong Close: rng=0.5, low+0.67*0.5=100.935, close=101.0 ✓
     #          volume=140 > ma20(100) * 1.2 (=120) 만족
-    candles.append(_mk(19, 100.7, 101.1, 100.6, 101.0, 140.0))
+    candles.append(_mk(20, 100.7, 101.1, 100.6, 101.0, 140.0))
     return candles
 
 
@@ -115,23 +120,24 @@ def _build_long_pass_candles() -> list[Candle]:
 # ---------------------------------------------------------------------------
 
 def _build_short_pass_candles() -> list[Candle]:
-    candles = _pad_flat(n=15, price=100.0, volume=100.0)
+    # n=16 padding → 총 21봉 (short 함수는 retrace 체크 없음, 구조 대칭 유지)
+    candles = _pad_flat(n=16, price=100.0, volume=100.0)
 
     # recent_low 후보 (풀백 대비 충분히 아래)
-    candles.append(_mk(15, 98.5, 98.7, 98.0, 98.1, 100.0))
-    candles.append(_mk(16, 98.1, 98.4, 97.9, 98.2, 100.0))
+    candles.append(_mk(16, 98.5, 98.7, 98.0, 98.1, 100.0))
+    candles.append(_mk(17, 98.1, 98.4, 97.9, 98.2, 100.0))
 
-    # idx=17: 반등 캔들 — 최근 3봉 중 최고 high 보유, high=100.0
+    # idx=18: 반등 캔들 — 최근 3봉 중 최고 high 보유, high=100.0
     #  EMA9=100.0, EMA20=100.0 → near_ema9 True
     #  volume=80 < ma20(100) * 1.0 → 반등 약한 거래량 만족
-    candles.append(_mk(17, 98.5, 100.0, 98.4, 99.8, 80.0))
+    candles.append(_mk(18, 98.5, 100.0, 98.4, 99.8, 80.0))
 
-    # idx=18: 중립 (풀백 높이 아님)
-    candles.append(_mk(18, 99.8, 99.9, 99.2, 99.3, 90.0))
+    # idx=19: 중립 (풀백 높이 아님)
+    candles.append(_mk(19, 99.8, 99.9, 99.2, 99.3, 90.0))
 
-    # idx=19: 하락 재개 캔들 — close(99.0)<open(99.3), close<ema9(100.0),
+    # idx=20: 하락 재개 캔들 — close(99.0)<open(99.3), close<ema9(100.0),
     #  volume=140 > ma20(100) * 1.2 (=120) 만족
-    candles.append(_mk(19, 99.3, 99.4, 98.9, 99.0, 140.0))
+    candles.append(_mk(20, 99.3, 99.4, 98.9, 99.0, 140.0))
     return candles
 
 
@@ -346,10 +352,10 @@ def test_long_rejects_when_pullback_volume_strong(long_inputs):
     Wyckoff 원칙(부록 D.4.2 L.1905~L.1914): 풀백은 '약한 손 털기' 이므로
     거래량이 MA20 *1.0 이하여야 한다.
     """
-    # 풀백 캔들(idx=17) volume 을 ma20(100) * 1.0 = 100 을 초과하게 조정
+    # 풀백 캔들(idx=18) volume 을 ma20(100) * 1.0 = 100 을 초과하게 조정
     candles = list(long_inputs["candles_1h"])
-    pb = candles[17]
-    candles[17] = Candle(
+    pb = candles[18]
+    candles[18] = Candle(
         timestamp=pb.timestamp,
         open=pb.open,
         high=pb.high,
@@ -385,6 +391,105 @@ def test_long_rejects_when_reversal_volume_weak(long_inputs):
         low=last.low,
         close=last.close,
         volume=119.99,  # = 100 * 1.1999 < 120
+        symbol=last.symbol,
+        interval=last.interval,
+    )
+    long_inputs["candles_1h"] = candles
+
+    decision = check_module_b_long(**long_inputs)
+
+    assert decision.enter is False
+    assert decision.reason == "reversal_not_confirmed"
+
+
+# ---------------------------------------------------------------------------
+# TC-08  _find_swing_retrace 단위 테스트 (결정 #34, SWING_N=10)
+# ---------------------------------------------------------------------------
+
+def test_find_swing_retrace_in_range():
+    """21봉 데이터 → retrace ≈ 0.50, [0.30, 0.70] 범위 내."""
+    candles = _build_long_pass_candles()
+    retrace = _find_swing_retrace(candles, n=10)
+    # H_swing=102.1(idx=17), L_swing≈99.9(padding), close=101.0
+    # (102.1 - 101.0) / (102.1 - 99.9) = 1.1/2.2 = 0.50
+    assert retrace is not None
+    assert 0.30 <= retrace <= 0.70
+
+
+def test_find_swing_retrace_too_few_candles():
+    """봉 수 부족(< 21) → None 반환."""
+    candles = _pad_flat(n=5, price=100.0, volume=100.0)
+    assert _find_swing_retrace(candles, n=10) is None
+
+
+# ---------------------------------------------------------------------------
+# TC-09  _is_strong_close 단위 테스트 (결정 #35, STRONG_CLOSE_PCT=0.67)
+# ---------------------------------------------------------------------------
+
+def test_is_strong_close_passes():
+    """close가 캔들 범위 상위 33% 이내 → True."""
+    # rng=2.0, low+0.67*2.0=101.34, close=101.5 >= 101.34
+    candle = _mk(0, 100.0, 102.0, 100.0, 101.5, 100.0)
+    assert _is_strong_close(candle, 0.67) is True
+
+
+def test_is_strong_close_fails():
+    """close가 캔들 범위 하위 67% → False."""
+    # rng=2.0, low+0.67*2.0=101.34, close=100.5 < 101.34
+    candle = _mk(0, 100.0, 102.0, 100.0, 100.5, 100.0)
+    assert _is_strong_close(candle, 0.67) is False
+
+
+def test_is_strong_close_zero_range():
+    """high==low → False (0 나눔 방지)."""
+    candle = _mk(0, 100.0, 100.0, 100.0, 100.0, 100.0)
+    assert _is_strong_close(candle, 0.67) is False
+
+
+# ---------------------------------------------------------------------------
+# TC-10  Long: retrace 범위 이탈 거부 (결정 #34)
+# ---------------------------------------------------------------------------
+
+def test_long_rejects_when_retrace_out_of_range(long_inputs):
+    """close가 H_swing에 근접 → retrace < 0.30 → retrace_out_of_range."""
+    candles = list(long_inputs["candles_1h"])
+    last = candles[-1]
+    # close=102.0 이면 retrace=(102.1-102.0)/(102.1-99.9)=0.1/2.2≈0.045 < 0.30
+    candles[-1] = Candle(
+        timestamp=last.timestamp,
+        open=last.open,
+        high=102.0,
+        low=last.low,
+        close=102.0,
+        volume=last.volume,
+        symbol=last.symbol,
+        interval=last.interval,
+    )
+    long_inputs["candles_1h"] = candles
+
+    decision = check_module_b_long(**long_inputs)
+
+    assert decision.enter is False
+    assert decision.reason == "retrace_out_of_range"
+
+
+# ---------------------------------------------------------------------------
+# TC-11  Long: Strong Close 미달 거부 (결정 #35)
+# ---------------------------------------------------------------------------
+
+def test_long_rejects_when_not_strong_close(long_inputs):
+    """close가 캔들 범위 하위 → Strong Close 불충족 → reversal_not_confirmed."""
+    candles = list(long_inputs["candles_1h"])
+    last = candles[-1]
+    # high=101.1, low=100.6, rng=0.5, low+0.67*0.5=100.935
+    # close=100.70 < 100.935 → Strong Close 실패
+    candles[-1] = Candle(
+        timestamp=last.timestamp,
+        open=100.7,
+        high=101.1,
+        low=100.6,
+        close=100.70,
+        volume=140.0,
         symbol=last.symbol,
         interval=last.interval,
     )

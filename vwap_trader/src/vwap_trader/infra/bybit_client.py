@@ -62,6 +62,7 @@ class BybitClient:
         try:
             resp = _call_with_retry(
                 self._session.switch_position_mode,
+                category="linear",
                 coin="USDT",
                 mode=3,  # 3 = BothSide hedge
             )
@@ -96,9 +97,17 @@ class BybitClient:
             if isinstance(resp, dict) and resp.get("retCode") == 110026:
                 logger.info("Isolated margin already set for %s", symbol)
                 return True
+            # retCode 100028: Unified Trading Account — isolated switch 불필요, 주문 시 tradeMode 처리
+            if isinstance(resp, dict) and resp.get("retCode") == 100028:
+                logger.info("UTA account — isolated margin skipped for %s", symbol)
+                return True
             logger.error("ensure_isolated_margin failed for %s: %s", symbol, resp)
             return False
         except Exception as exc:
+            err_str = str(exc)
+            if "100028" in err_str:
+                logger.info("UTA account — isolated margin skipped for %s (exception path)", symbol)
+                return True
             logger.error("ensure_isolated_margin exception for %s: %s", symbol, exc)
             return False
 

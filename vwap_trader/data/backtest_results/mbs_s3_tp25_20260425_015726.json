@@ -1,0 +1,67 @@
+{
+  "task": "TASK-MBS-004",
+  "run_at": "2026-04-25T01:57:26Z",
+  "params": {
+    "sl_atr": 1.5,
+    "tp_atr": 2.5,
+    "max_hold_bars": 72,
+    "cost_roundtrip_pct": 0.15,
+    "cond_b": "4H EMA9 < 4H EMA20 (확정 봉, MBS-003 동일)"
+  },
+  "symbol": "BTCUSDT",
+  "result": {
+    "daily_avg": 0.286,
+    "win_rate_pct": 40.85,
+    "avg_win_atr": 2.286,
+    "avg_loss_atr": -1.6846,
+    "ev_per_trade_atr": -0.0625,
+    "profit_factor": 0.8828,
+    "mdd_pct": 40.617,
+    "sl_rate_pct": 57.87,
+    "tp_rate_pct": 40.0,
+    "by_year": {
+      "2024": {
+        "total_trades": 91,
+        "win_rate_pct": 42.86,
+        "ev_per_trade_atr": 0.0628,
+        "profit_factor": 0.953
+      },
+      "2025": {
+        "total_trades": 110,
+        "win_rate_pct": 38.18,
+        "ev_per_trade_atr": -0.2272,
+        "profit_factor": 0.7079
+      },
+      "2026_q1": {
+        "total_trades": 34,
+        "win_rate_pct": 44.12,
+        "ev_per_trade_atr": 0.1346,
+        "profit_factor": 1.2782
+      }
+    }
+  },
+  "vs_mbs003": {
+    "daily_avg": {
+      "mbs003": 0.197,
+      "mbs004": 0.286
+    },
+    "win_rate_pct": {
+      "mbs003": 38.27,
+      "mbs004": 40.85
+    },
+    "ev_per_trade_atr": {
+      "mbs003": -0.0012,
+      "mbs004": -0.0625
+    },
+    "profit_factor": {
+      "mbs003": 0.8438,
+      "mbs004": 0.8828
+    },
+    "mdd_pct": {
+      "mbs003": 49.9396,
+      "mbs004": 40.617
+    }
+  },
+  "verdict": "FAIL",
+  "note": "MBS-004: TP 3.0→2.5×ATR 단일 변경 재검증 (BTCUSDT, SL=1.5×ATR). EV=-0.0625 (negative, MBS-003 대비 -0.0613). win_rate=40.85% (breakeven@TP2.5: 37.5%). PF=0.8828 / MDD=40.617%. FAIL — immediate chairman escalation required."
+}

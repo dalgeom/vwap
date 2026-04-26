@@ -1,0 +1,127 @@
+{
+  "task": "TASK-MBS-003",
+  "run_at": "2026-04-24T14:17:33Z",
+  "params": {
+    "swing_n": 10,
+    "bounce_min": 0.3,
+    "bounce_max": 0.7,
+    "strong_bear_close": 0.67,
+    "sl_atr": 1.5,
+    "tp_atr": 3.0,
+    "max_hold_bars": 72,
+    "cost_roundtrip_pct": 0.0014,
+    "cond_b_added": "4H EMA9 < 4H EMA20 (확정 봉, 룩어헤드 금지)"
+  },
+  "report_a_funnel_btc": {
+    "desc": "퍼널 비교 MBS-001 vs MBS-003 (BTCUSDT, 기간 동일)",
+    "stage_label": {
+      "cond_a": "Cond A (close < VWAP AND EMA9 < EMA20)",
+      "cond_ab": "Cond A + B (4H EMA 정렬) — MBS-003 신규",
+      "cond_abc": "Cond A + B + C (스윙 반등)",
+      "cond_abcd": "Cond A + B + C + D' (Strong Bear) = 최종 진입"
+    },
+    "mbs001_no_cond_b": {
+      "cond_a": 6068,
+      "cond_ac": 2240,
+      "cond_acd": 851,
+      "daily_avg": 1.037
+    },
+    "mbs003": {
+      "cond_a": 5045,
+      "cond_ab": 2654,
+      "cond_abc": 559,
+      "cond_abcd": 162,
+      "daily_avg": 0.197
+    }
+  },
+  "report_b_pnl": {
+    "desc": "P&L 비교 MBS-002 고정 vs MBS-003",
+    "mbs002_fixed_btc": {
+      "daily_avg": 0.39,
+      "win_rate_pct": 32.5,
+      "ev_per_trade_atr": -0.221,
+      "profit_factor": 0.747,
+      "mdd_pct": 96.6,
+      "sl_rate_pct": 66.6
+    },
+    "mbs003_btc": {
+      "daily_avg": 0.197,
+      "win_rate_pct": 38.27,
+      "ev_per_trade_atr": -0.0012,
+      "profit_factor": 0.8438,
+      "mdd_pct": 49.9396,
+      "sl_rate_pct": 60.49,
+      "tp_rate_pct": 37.65,
+      "timeout_rate_pct": 1.85,
+      "avg_win_atr": 2.6972,
+      "avg_loss_atr": -1.6743,
+      "by_year": {
+        "2024": {
+          "total_trades": 74,
+          "win_rate_pct": 32.43,
+          "ev_per_trade_atr": -0.2348,
+          "profit_factor": 0.6303
+        },
+        "2025": {
+          "total_trades": 69,
+          "win_rate_pct": 46.38,
+          "ev_per_trade_atr": 0.3371,
+          "profit_factor": 1.0478
+        },
+        "2026_q1": {
+          "total_trades": 19,
+          "win_rate_pct": 31.58,
+          "ev_per_trade_atr": -0.3206,
+          "profit_factor": 0.9167
+        }
+      }
+    },
+    "mbs003_eth": {
+      "daily_avg": 0.214,
+      "win_rate_pct": 35.23,
+      "ev_per_trade_atr": -0.0781,
+      "profit_factor": 0.8721,
+      "mdd_pct": 77.9519,
+      "sl_rate_pct": 64.2,
+      "tp_rate_pct": 34.09,
+      "timeout_rate_pct": 1.7,
+      "avg_win_atr": 2.7846,
+      "avg_loss_atr": -1.635,
+      "by_year": {
+        "2024": {
+          "total_trades": 75,
+          "win_rate_pct": 34.67,
+          "ev_per_trade_atr": -0.1301,
+          "profit_factor": 0.9221
+        },
+        "2025": {
+          "total_trades": 78,
+          "win_rate_pct": 30.77,
+          "ev_per_trade_atr": -0.2692,
+          "profit_factor": 0.7342
+        },
+        "2026_q1": {
+          "total_trades": 23,
+          "win_rate_pct": 52.17,
+          "ev_per_trade_atr": 0.7397,
+          "profit_factor": 1.4927
+        }
+      }
+    }
+  },
+  "report_c_combined_freq": {
+    "desc": "합산 빈도 F 지시 — BTC Long + B Short S3",
+    "b_long_btc_daily": 0.374,
+    "b_short_s3_btc_daily": 0.197,
+    "btc_combined_daily": 0.571,
+    "b_long_eth_daily": 0.347,
+    "btc_eth_combined_daily": 0.918,
+    "pass_min_2_per_day": false
+  },
+  "report_d_ev_verdict": {
+    "btc_ev_per_trade_atr": -0.0012,
+    "verdict": "EV_NEGATIVE",
+    "action": "EV_NEGATIVE — 결과 보고 후 의장 지시 대기"
+  },
+  "note": "B Short S3 (MBS-003): 4H EMA9 < EMA20 Cond B 추가 (MBS-001 대비). 고정 SL/TP (MBS-002 trailing 실패 확인으로 trailing 제외). BTC EV=-0.0012 (NEGATIVE ❌). BTC Long+Short S3 합산: 0.571건/일."
+}

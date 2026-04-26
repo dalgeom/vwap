@@ -8,6 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "pybit>=5.6",
+    "python-dotenv>=1.0",
 ]
 
 [tool.setuptools.packages.find]

@@ -1,0 +1,121 @@
+{
+  "task": "TASK-MBS-002",
+  "run_at": "2026-04-24T08:52:15Z",
+  "params": {
+    "sl_atr": 1.5,
+    "tp_atr": 3.0,
+    "chandelier_atr": 3.0,
+    "max_hold_bars": 72,
+    "cost_roundtrip_pct": 0.13999999999999999
+  },
+  "scenario_a_fixed": {
+    "BTCUSDT": {
+      "total_trades": 320,
+      "daily_avg": 0.39,
+      "win_rate_pct": 32.5,
+      "avg_win_atr": 2.8154,
+      "avg_loss_atr": -1.6822,
+      "ev_per_trade_atr": -0.2205,
+      "profit_factor": 0.7465,
+      "mdd_pct": 96.5963,
+      "sl_rate_pct": 66.56,
+      "tp_rate_pct": 31.56,
+      "timeout_rate_pct": 1.88
+    },
+    "ETHUSDT": {
+      "total_trades": 342,
+      "daily_avg": 0.417,
+      "win_rate_pct": 29.82,
+      "avg_win_atr": 2.776,
+      "avg_loss_atr": -1.6121,
+      "ev_per_trade_atr": -0.3034,
+      "profit_factor": 0.7075,
+      "mdd_pct": 151.7875,
+      "sl_rate_pct": 68.71,
+      "tp_rate_pct": 28.65,
+      "timeout_rate_pct": 2.63
+    }
+  },
+  "scenario_b_trailing": {
+    "BTCUSDT": {
+      "total_trades": 270,
+      "daily_avg": 0.329,
+      "win_rate_pct": 24.07,
+      "avg_win_atr": 2.1839,
+      "avg_loss_atr": -1.3642,
+      "ev_per_trade_atr": -0.51,
+      "profit_factor": 0.4104,
+      "mdd_pct": 140.5936,
+      "trailing_exit_rate_pct": 99.63,
+      "timeout_rate_pct": 0.37,
+      "avg_hold_bars_trailing": 20.56,
+      "by_year": {
+        "2024": {
+          "total_trades": 116,
+          "win_rate_pct": 23.28,
+          "ev_per_trade_atr": -0.7298,
+          "profit_factor": 0.2536
+        },
+        "2025": {
+          "total_trades": 125,
+          "win_rate_pct": 22.4,
+          "ev_per_trade_atr": -0.3656,
+          "profit_factor": 0.4771
+        },
+        "2026_q1": {
+          "total_trades": 29,
+          "win_rate_pct": 34.48,
+          "ev_per_trade_atr": -0.2537,
+          "profit_factor": 0.8718
+        }
+      }
+    },
+    "ETHUSDT": {
+      "total_trades": 291,
+      "daily_avg": 0.354,
+      "win_rate_pct": 21.31,
+      "avg_win_atr": 2.0858,
+      "avg_loss_atr": -1.2862,
+      "ev_per_trade_atr": -0.5678,
+      "profit_factor": 0.3946,
+      "mdd_pct": 214.1554,
+      "trailing_exit_rate_pct": 99.66,
+      "timeout_rate_pct": 0.34,
+      "avg_hold_bars_trailing": 19.93,
+      "by_year": {
+        "2024": {
+          "total_trades": 134,
+          "win_rate_pct": 18.66,
+          "ev_per_trade_atr": -0.5689,
+          "profit_factor": 0.4098
+        },
+        "2025": {
+          "total_trades": 132,
+          "win_rate_pct": 22.73,
+          "ev_per_trade_atr": -0.5859,
+          "profit_factor": 0.3221
+        },
+        "2026_q1": {
+          "total_trades": 25,
+          "win_rate_pct": 28.0,
+          "ev_per_trade_atr": -0.4658,
+          "profit_factor": 0.7361
+        }
+      }
+    }
+  },
+  "vs_mb011_btc": {
+    "b_long_daily_avg": 0.374,
+    "b_long_ev_per_trade_atr": 0.799,
+    "b_long_profit_factor": 1.908,
+    "b_long_mdd_pct": 9.02,
+    "b_long_avg_win_atr": 3.807,
+    "b_short_daily_avg": 0.329,
+    "b_short_ev_per_trade_atr": -0.51,
+    "b_short_profit_factor": 0.4104,
+    "b_short_mdd_pct": 140.5936,
+    "b_short_avg_win_atr": 2.1839
+  },
+  "verdict": "EV_NEGATIVE",
+  "note": "B Short MBS-002: Scenario A (fixed SL/TP) vs B (chandelier trailing). BTC trailing EV=-0.51, PF=0.4104, MDD=140.5936%. Trailing vs fixed EV: -0.2205 -> -0.51 (not improved). vs B Long MB-011: EV 0.799 (long) vs -0.51 (short). EV_NEGATIVE (trailing) - immediate chairman escalation required."
+}

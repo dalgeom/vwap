@@ -1,0 +1,85 @@
+{
+  "task": "TASK-MB-005",
+  "run_at": "2026-04-23T11:14:05Z",
+  "params": {
+    "sl_atr_mult": 1.5,
+    "tp_atr_mult": 3.0,
+    "max_hold_bars": 48,
+    "cost_one_side_pct": 0.06999999999999999
+  },
+  "symbols": {
+    "BTCUSDT": {
+      "total_trades": 445,
+      "daily_avg": 0.542,
+      "win_rate_pct": 36.4,
+      "avg_win_atr": 2.4612,
+      "avg_loss_atr": -1.6764,
+      "ev_per_trade_atr": -0.1701,
+      "profit_factor": 0.8272,
+      "mdd_pct": 59.3775,
+      "tp_rate_pct": 30.79,
+      "sl_rate_pct": 61.12,
+      "timeout_rate_pct": 8.09,
+      "by_year": {
+        "2024": {
+          "total_trades": 196,
+          "win_rate_pct": 38.78,
+          "ev_per_trade_atr": -0.0992,
+          "profit_factor": 0.925
+        },
+        "2025": {
+          "total_trades": 198,
+          "win_rate_pct": 34.85,
+          "ev_per_trade_atr": -0.2183,
+          "profit_factor": 0.7552
+        },
+        "2026_q1": {
+          "total_trades": 51,
+          "win_rate_pct": 33.33,
+          "ev_per_trade_atr": -0.2555,
+          "profit_factor": 0.7169
+        }
+      }
+    },
+    "ETHUSDT": {
+      "total_trades": 478,
+      "daily_avg": 0.582,
+      "win_rate_pct": 35.77,
+      "avg_win_atr": 2.6222,
+      "avg_loss_atr": -1.6356,
+      "ev_per_trade_atr": -0.1124,
+      "profit_factor": 0.8226,
+      "mdd_pct": 112.3222,
+      "tp_rate_pct": 31.8,
+      "sl_rate_pct": 63.39,
+      "timeout_rate_pct": 4.81,
+      "by_year": {
+        "2024": {
+          "total_trades": 215,
+          "win_rate_pct": 35.81,
+          "ev_per_trade_atr": -0.1148,
+          "profit_factor": 0.829
+        },
+        "2025": {
+          "total_trades": 218,
+          "win_rate_pct": 36.7,
+          "ev_per_trade_atr": -0.064,
+          "profit_factor": 0.8743
+        },
+        "2026_q1": {
+          "total_trades": 45,
+          "win_rate_pct": 31.11,
+          "ev_per_trade_atr": -0.3359,
+          "profit_factor": 0.5742
+        }
+      }
+    }
+  },
+  "vs_mb003": {
+    "ev_improved": false,
+    "sl_rate_improved": false,
+    "win_rate_improved": false
+  },
+  "verdict": "EV_NEGATIVE",
+  "note": "Cond3(close>open) 추가 결과. BTC EV=-0.1701. EV improved vs MB-003: False. SL rate improved: False. EV_NEGATIVE -> awaiting chairman instruction."
+}

@@ -10,6 +10,10 @@ import os
 import sys
 from datetime import datetime, timezone
 
+from dotenv import load_dotenv
+
+load_dotenv()  # cwd 또는 상위 디렉토리의 .env 자동 탐색
+
 import numpy as np
 
 from vwap_trader.infra.bybit_client import BybitClient
@@ -23,6 +27,7 @@ from vwap_trader.core.module_a import check_module_a_long, check_module_a_short
 from vwap_trader.core.module_b import check_module_b_long, check_module_b_short
 from vwap_trader.core.sl_tp import (
     compute_sl_distance,
+    compute_initial_sl_module_b,
     compute_tp_module_a,
     compute_trailing_sl_module_b,
     should_exit_module_b,
@@ -31,11 +36,15 @@ from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.core.risk_manager import RiskManager, TradingState
 from vwap_trader.models import (
     Candle,
+    EntryDecision,
     Position,
     PositionStatus,
     Regime,
     TrailingState,
 )
+
+# 테스트용 강제 진입 플래그 (TEST_FORCE_ENTRY=1 시 Regime/조건 무시하고 BTCUSDT Long 진입)
+TEST_FORCE_ENTRY: bool = os.getenv("TEST_FORCE_ENTRY", "0") == "1"
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +52,7 @@ logger = logging.getLogger(__name__)
 DRY_RUN: bool = os.getenv("DRY_RUN", "true").lower() == "true"
 API_KEY: str = os.getenv("BYBIT_API_KEY", "")
 API_SECRET: str = os.getenv("BYBIT_API_SECRET", "")
-TESTNET: bool = os.getenv("BYBIT_TESTNET", "true").lower() == "true"
+TESTNET: bool = os.getenv("TESTNET", os.getenv("BYBIT_TESTNET", "true")).lower() == "true"
 
 # 4H 봉 폴링 주기 (초)
 _POLL_INTERVAL_SEC: int = 60
@@ -111,7 +120,8 @@ def _calc_ema(values: list[float], period: int) -> float:
 
 class MainLoop:
     """
-    4H 봉 close 이벤트 기반 메인 오케스트레이터.
+    1H 봉 close 이벤트 기반 메인 오케스트레이터.
+    PLAN §L.1: 1H OHLCV 주 지표, 4H OHLCV Regime Detection 전용.
     Regime Detection → 신호 판정 → RiskManager → 주문 실행.
     """
 
@@ -129,7 +139,7 @@ class MainLoop:
         self.regime_detector = RegimeDetector()
         self.risk_manager: RiskManager | None = None
         self.open_positions: dict[str, Position] = {}  # symbol → Position
-        self._last_4h_ts: dict[str, datetime] = {}
+        self._last_1h_ts: dict[str, datetime] = {}  # 1H 봉 갱신 추적
 
     async def run(self) -> None:
         """메인 루프 진입점. Ctrl+C로 종료."""
@@ -181,13 +191,14 @@ class MainLoop:
         if candles_4h:
             candles_4h = candles_4h[:-1]
 
-        # 새 4H 봉 감지
-        last_4h = candles_4h[-1] if candles_4h else None
-        prev_4h_ts = self._last_4h_ts.get(symbol)
-        if last_4h and prev_4h_ts == last_4h.timestamp:
-            return  # 4H 봉 미갱신 → 스킵
-        if last_4h:
-            self._last_4h_ts[symbol] = last_4h.timestamp
+        # 새 1H 봉 감지 — PLAN §L.1: 1H가 주 지표 (TEST_FORCE_ENTRY 시 우회)
+        last_1h = candles_1h[-1] if candles_1h else None
+        prev_1h_ts = self._last_1h_ts.get(symbol)
+        if not TEST_FORCE_ENTRY:
+            if last_1h and prev_1h_ts == last_1h.timestamp:
+                return  # 1H 봉 미갱신 → 스킵
+        if last_1h:
+            self._last_1h_ts[symbol] = last_1h.timestamp
 
         # 오픈 포지션 갱신/청산 체크
         if symbol in self.open_positions:
@@ -283,6 +294,9 @@ class MainLoop:
             daily_vwap = compute_daily_vwap(candles_1h)
         except Exception:
             daily_vwap = bar.close
+
+        ema9_1h = _calc_ema(closes, 9)
+        ema20_1h = _calc_ema(closes, 20)
         prices = np.array([c.typical_price for c in candles_1h[-24:]])
         sigma_1 = float(np.std(prices)) if len(prices) > 1 else bar.close * 0.01
         sigma_2 = sigma_1 * 2
@@ -339,19 +353,35 @@ class MainLoop:
                 if regime == Regime.MARKUP:
                     decision = check_module_b_long(
                         candles_1h=candles_1h,
-                        candles_4h=candles_4h,
-                        vp_layer=vp,
+                        _candles_4h=candles_4h,
+                        _vp_layer=vp,
                         daily_vwap=daily_vwap,
-                        ema200_4h=ema200,
+                        avwap_low=daily_vwap,
+                        ema9_1h=ema9_1h,
+                        ema20_1h=ema20_1h,
+                        volume_ma20=vol_ma20,
                     )
                 else:
                     decision = check_module_b_short(
                         candles_1h=candles_1h,
-                        candles_4h=candles_4h,
-                        vp_layer=vp,
+                        _candles_4h=candles_4h,
+                        _vp_layer=vp,
                         daily_vwap=daily_vwap,
-                        ema200_4h=ema200,
+                        avwap_high=daily_vwap,
+                        ema9_1h=ema9_1h,
+                        ema20_1h=ema20_1h,
+                        volume_ma20=vol_ma20,
                     )
+
+        # 테스트용 강제 진입 (TEST_FORCE_ENTRY=1, BTCUSDT Long 한정)
+        if TEST_FORCE_ENTRY and decision is None and symbol == "BTCUSDT":
+            decision = EntryDecision(
+                enter=True,
+                direction="long",
+                module="B",
+                trigger_price=bar.close,
+                evidence={"symbol": symbol, "forced": True},
+            )
 
         if decision is None or not decision.enter:
             return
@@ -367,35 +397,26 @@ class MainLoop:
             logger.debug("Entry blocked for %s: %s", symbol, reason)
             return
 
-        # SL/TP 계산 — 부록 F.4.2.2 구조 기준점
+        # SL/TP 계산
+        from vwap_trader.models import SlTpResult
+
         if decision.module == "A":
             if decision.direction == "long":
                 anchor = decision.evidence.get("deviation_low", bar.low)
             else:
                 anchor = decision.evidence.get("deviation_high", bar.high)
-            min_rr = 1.5
-        else:
-            recent = candles_1h[-10:] if len(candles_1h) >= 10 else candles_1h
-            if decision.direction == "long":
-                anchor = decision.evidence.get("pullback_low", min(c.low for c in recent))
-            else:
-                anchor = decision.evidence.get("bounce_high", max(c.high for c in recent))
-            min_rr = 2.0
+            sl_result = compute_sl_distance(
+                entry_price=bar.close,
+                structural_anchor=anchor,
+                atr_1h=atr,
+                direction=decision.direction,
+                min_rr_ratio=1.5,
+            )
+            if not sl_result.is_valid:
+                return
+            sl_price_final = sl_result.sl_price
 
-        sl_result = compute_sl_distance(
-            entry_price=bar.close,
-            structural_anchor=anchor,
-            atr_1h=atr,
-            direction=decision.direction,
-            min_rr_ratio=min_rr,
-        )
-        if not sl_result.is_valid:
-            return
-
-        sl_distance = abs(sl_result.sl_price - bar.close)
-        from vwap_trader.models import SlTpResult
-
-        if decision.module == "A":
+            sl_distance = abs(sl_price_final - bar.close)
             tp_result = compute_tp_module_a(
                 entry_price=bar.close,
                 direction=decision.direction,
@@ -410,15 +431,21 @@ class MainLoop:
             if not tp_result.valid:
                 return
             sl_tp = SlTpResult(
-                sl=sl_result.sl_price,
+                sl=sl_price_final,
                 tp1=tp_result.tp1,
                 tp2=tp_result.tp2 or tp_result.tp1,
                 rr=tp_result.tp1 / sl_distance if sl_distance else 0,
                 valid=True,
             )
         else:
+            # Module B: ATR 기반 initial_sl (결정 #38, Module A structural_anchor 방식과 독립)
+            sl_price_final = compute_initial_sl_module_b(
+                entry_price=bar.close,
+                atr=atr,
+                direction=decision.direction,
+            )
             sl_tp = SlTpResult(
-                sl=sl_result.sl_price,
+                sl=sl_price_final,
                 tp1=0.0,
                 tp2=0.0,
                 rr=0.0,
@@ -437,10 +464,10 @@ class MainLoop:
             evidence={**decision.evidence, "symbol": symbol},
         )
         size = compute_position_size(
-            balance_usdt=balance * size_pct,
+            balance=balance * size_pct,
             entry_price=bar.close,
             sl_price=sl_tp.sl,
-            direction=decision.direction,
+            lot_size=0.001,  # BTC 최소 단위
         )
         if not size.valid:
             logger.debug("Invalid position size for %s: %s", symbol, size.reason)

@@ -1,0 +1,58 @@
+{
+  "task": "TASK-MB-013",
+  "run_at": "2026-04-24T09:26:51Z",
+  "symbol": "ETHUSDT",
+  "params": {
+    "chandelier_mult": 2.5,
+    "initial_sl_atr": 1.5,
+    "max_hold_bars": 72,
+    "swing_n": 10,
+    "retrace_min": 0.3,
+    "retrace_max": 0.7,
+    "strong_close_pct": 0.67
+  },
+  "result": {
+    "daily_avg": 0.402,
+    "win_rate_pct": 47.27,
+    "avg_win_atr": 3.1343,
+    "avg_loss_atr": -1.3804,
+    "ev_per_trade_atr": 0.7538,
+    "profit_factor": 2.0233,
+    "mdd_pct": 30.471,
+    "trailing_exit_rate_pct": 98.18,
+    "timeout_rate_pct": 1.82,
+    "by_year": {
+      "2024": {
+        "total_trades": 139,
+        "win_rate_pct": 53.24,
+        "ev_per_trade_atr": 0.9307,
+        "profit_factor": 2.4457
+      },
+      "2025": {
+        "total_trades": 159,
+        "win_rate_pct": 41.51,
+        "ev_per_trade_atr": 0.5728,
+        "profit_factor": 1.7293
+      },
+      "2026_q1": {
+        "total_trades": 32,
+        "win_rate_pct": 50.0,
+        "ev_per_trade_atr": 0.8852,
+        "profit_factor": 1.9894
+      }
+    }
+  },
+  "vs_mb012": {
+    "mdd_improved": false,
+    "ev_maintained": true,
+    "mdd_mb012": 23.16,
+    "mdd_mb013": 30.471
+  },
+  "admission": {
+    "ev_positive": true,
+    "mdd_under_15": false,
+    "verdict": "REJECT"
+  },
+  "combined_daily_avg_btc_eth": null,
+  "note": "ETH chandelier_mult 3.0→2.5 재검증. EV=0.7538 (양수), MDD=30.471% (>= 15% NG). MB-012 MDD 23.16% → 30.471% (미개선). 판정: REJECT. 의장 보고 후 대기."
+}

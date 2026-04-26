@@ -22,6 +22,9 @@ MIN_RR_MODULE_B: float = 2.0
 PARTIAL_RATIO: float = 0.5
 CHANDELIER_MULT: float = 3.0
 
+# ─── 확정 파라미터 (결정 #38) ─────────────────────────────────────
+INITIAL_SL_ATR: float = 1.5          # Module B initial_sl = entry ± 1.5×ATR
+
 
 @dataclass
 class SLResult:
@@ -81,6 +84,17 @@ def compute_sl_distance(
                 )
 
     return SLResult(sl_price=sl, is_valid=True)
+
+
+def compute_initial_sl_module_b(
+    entry_price: float,
+    atr: float,
+    direction: Literal["long", "short"] = "long",
+) -> float:
+    """Module B initial_sl = entry ± 1.5×ATR (결정 #38). Module A structural_anchor 방식과 독립."""
+    if direction == "long":
+        return entry_price - INITIAL_SL_ATR * atr
+    return entry_price + INITIAL_SL_ATR * atr
 
 
 def compute_breakeven_sl(

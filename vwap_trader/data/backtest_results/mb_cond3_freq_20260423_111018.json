@@ -1,0 +1,32 @@
+{
+  "task": "TASK-MB-004",
+  "run_at": "2026-04-23T11:10:18Z",
+  "symbols": {
+    "BTCUSDT": {
+      "cond12_daily_avg": 3.994,
+      "cond123_total": 1618,
+      "cond123_daily_avg": 1.971,
+      "cond3_filter_rate_pct": 50.66,
+      "by_year": {
+        "2024": 2.175,
+        "2025": 1.825,
+        "2026_q1": 1.733
+      },
+      "pass_fail": "WARN"
+    },
+    "ETHUSDT": {
+      "cond12_daily_avg": 3.864,
+      "cond123_total": 1578,
+      "cond123_daily_avg": 1.922,
+      "cond3_filter_rate_pct": 50.25,
+      "by_year": {
+        "2024": 1.97,
+        "2025": 1.91,
+        "2026_q1": 1.778
+      },
+      "pass_fail": "WARN"
+    }
+  },
+  "verdict": "WARN",
+  "note": "Cond3(close>open) 추가. verdict BTCUSDT 기준. all symbols PASS/WARN."
+}

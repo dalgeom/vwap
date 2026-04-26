@@ -12,6 +12,43 @@ STRUCTURAL_ATR_MULT: float = 0.5     # 구조적 레벨 근접 판단
 PULLBACK_VOLUME_MULT: float = 1.0    # 풀백 거래량 상한 (약해야 함)
 REVERSAL_VOLUME_MULT: float = 1.2    # 반전/재개 캔들 거래량 하한
 
+# ─── 확정 파라미터 (결정 #34, #35, #38) ────────────────────────
+SWING_N: int = 10                    # 스윙 탐색 윈도우 (±10봉)
+RETRACE_MIN: float = 0.30            # 되돌림 하한
+RETRACE_MAX: float = 0.70            # 되돌림 상한
+STRONG_CLOSE_PCT: float = 0.67       # Strong Close 기준 (캔들 범위 상위 33%)
+MAX_HOLD_BARS: int = 72              # 최대 보유 봉 수
+
+
+def _find_swing_retrace(candles: list[Candle], n: int = SWING_N) -> float | None:
+    """
+    현재 봉 기준 좌측 N봉 내 스윙 고점(H_swing) 탐색,
+    H_swing 이전 스윙 저점(L_swing) 탐색.
+    되돌림 = (H_swing - close) / (H_swing - L_swing)
+    """
+    if len(candles) < n * 2 + 1:
+        return None
+    curr = candles[-1]
+    left = candles[-n - 1:-1]
+
+    H_swing = max(c.high for c in left + [curr])
+    h_idx = next((i for i, c in enumerate(left) if c.high == H_swing), None)
+    if h_idx is None:
+        return None  # H_swing이 현재 봉 자체 → 되돌림 계산 불가
+    L_swing = min(c.low for c in left[:h_idx + 1])
+
+    if H_swing <= L_swing:
+        return None
+    return (H_swing - curr.close) / (H_swing - L_swing)
+
+
+def _is_strong_close(candle: Candle, pct: float = STRONG_CLOSE_PCT) -> bool:
+    """캔들 범위 상위 (1-pct) 구간에 close가 있으면 Strong Close."""
+    rng = candle.high - candle.low
+    if rng == 0:
+        return False
+    return candle.close >= candle.low + pct * rng
+
 
 def _find_pullback_candle(candles: list[Candle]) -> Candle | None:
     """최근 N봉 중 가장 낮은 저가를 가진 캔들 (풀백 저점)."""
@@ -50,6 +87,11 @@ def check_module_b_long(
     if not trend_aligned:
         return EntryDecision(enter=False, reason="trend_not_aligned")
 
+    # 되돌림 비율 검증 (결정 #34: 30~70%)
+    retrace = _find_swing_retrace(candles_1h, n=SWING_N)
+    if retrace is None or not (RETRACE_MIN <= retrace <= RETRACE_MAX):
+        return EntryDecision(enter=False, reason="retrace_out_of_range")
+
     # 복합 조건 2: Pullback Structure
     pullback_candle = _find_pullback_candle(candles_1h[-3:])
     if pullback_candle is None:
@@ -69,11 +111,10 @@ def check_module_b_long(
     if pullback_candle.volume > volume_ma20 * PULLBACK_VOLUME_MULT:
         return EntryDecision(enter=False, reason="strong_pullback_volume")
 
-    # 복합 조건 3: Reversal Confirmation
+    # 복합 조건 3: Reversal Confirmation (결정 #35: Strong Close 0.67)
     last_candle = candles_1h[-1]
     reversal_confirmed = (
-        last_candle.close > last_candle.open
-        and last_candle.close > ema9_1h
+        _is_strong_close(last_candle, STRONG_CLOSE_PCT)
         and last_candle.volume > volume_ma20 * REVERSAL_VOLUME_MULT
     )
     if not reversal_confirmed:
