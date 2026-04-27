@@ -34,6 +34,7 @@ from vwap_trader.core.sl_tp import (
 )
 from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.core.risk_manager import RiskManager, TradingState
+from vwap_trader.notifier import AlertLevel, send_critical_alert
 from vwap_trader.models import (
     Candle,
     EntryDecision,
@@ -175,6 +176,15 @@ class MainLoop:
             except Exception as exc:
                 logger.error("Error processing %s: %s", symbol, exc, exc_info=True)
 
+        # TICKET-CORE-003 §4: FULL_HALT 전환 감지 → emergency_stop() 1회 자동 호출
+        if (
+            self.risk_manager is not None
+            and self.risk_manager.current_state == TradingState.FULL_HALT
+            and not self.risk_manager._emergency_triggered
+        ):
+            self.risk_manager._emergency_triggered = True
+            await self.emergency_stop("circuit_breaker_full_halt")
+
     async def _process_symbol(self, symbol: str, now: datetime) -> None:
         assert self.risk_manager is not None
 
@@ -268,6 +278,49 @@ class MainLoop:
                 del self.open_positions[symbol]
                 logger.info("Chandelier exit: %s pnl=%.4f counter=%s",
                             symbol, pnl, self.risk_manager.counter.snapshot())
+
+    async def close_all_positions_market_order(self) -> None:
+        """§M.5: 오픈 포지션 전량 시장가 청산. DRY_RUN=true 시 로그만 출력."""
+        if not self.open_positions:
+            logger.info("close_all_positions_market_order: no open positions")
+            return
+        for symbol in list(self.open_positions.keys()):
+            pos = self.open_positions.get(symbol)
+            if pos is None:
+                continue
+            if DRY_RUN:
+                logger.critical(
+                    "DRY_RUN emergency close: would close %s %s module=%s",
+                    symbol, pos.direction, pos.module,
+                )
+                continue
+            try:
+                exit_price = await self.executor.close_position(pos, "emergency")
+                pnl = (exit_price - pos.entry_price) / pos.entry_price
+                if pos.direction == "short":
+                    pnl = -pnl
+                if self.risk_manager:
+                    self.risk_manager.on_trade_closed(pos.module, pnl)
+                    if pos in self.risk_manager.open_positions:
+                        self.risk_manager.open_positions.remove(pos)
+                del self.open_positions[symbol]
+                logger.critical("Emergency close executed: %s pnl=%.4f", symbol, pnl)
+            except Exception as exc:
+                logger.error("Emergency close failed for %s: %s", symbol, exc)
+
+    async def emergency_stop(self, reason: str, catastrophic: bool = False) -> None:
+        """§M.5 긴급정지 프로토콜. FULL_HALT 시 자동 호출 (TICKET-CORE-003 항목 1).
+
+        호출 순서: block_new_entries(FULL_HALT 이미 설정됨) →
+                  close_all_positions_market_order() → send_critical_alert() → log.
+        """
+        logger.critical(
+            "EMERGENCY STOP: reason=%s catastrophic=%s DRY_RUN=%s",
+            reason, catastrophic, DRY_RUN,
+        )
+        await self.close_all_positions_market_order()
+        send_critical_alert(reason, level=AlertLevel.CRITICAL)
+        logger.critical("Emergency stop completed. reason=%s", reason)
 
     async def _try_entry(
         self,

@@ -1,0 +1,2153 @@
+{
+  "task": "BT-014",
+  "run_at": "2026-04-27T08:43:49Z",
+  "strategy": "BB 스퀴즈 + OI 확인 돌파 (Long/Short)",
+  "period": {
+    "start": "2023-01-01",
+    "end": "2026-03-31"
+  },
+  "fixed_params": {
+    "bb_period": 20,
+    "bb_std": 2.0,
+    "bb_width_sma_period": 50,
+    "atr_period": 14,
+    "oi_sma_period": 20,
+    "sl_mult": 1.5,
+    "chandelier_mult": 3.0,
+    "max_hold_bars": 72,
+    "round_trip_fee_pct": 0.15
+  },
+  "grid": {
+    "squeeze_thresh": [
+      0.7,
+      0.75,
+      0.8
+    ],
+    "min_squeeze_bars": [
+      3,
+      5
+    ],
+    "oi_mult": [
+      1.1,
+      1.15,
+      1.2
+    ],
+    "vwap_filter": [
+      true,
+      false
+    ]
+  },
+  "case_results": [
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.1,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 8,
+          "daily": 0.0067,
+          "wr": 0.25,
+          "pf": 0.4253,
+          "mdd": 0.096091,
+          "ev": -0.011459,
+          "gross_win": 0.067826,
+          "gross_loss": 0.159494
+        },
+        "LINKUSDT": {
+          "n": 4,
+          "daily": 0.0034,
+          "wr": 0.25,
+          "pf": 0.6357,
+          "mdd": 0.033488,
+          "ev": -0.005383,
+          "gross_win": 0.037569,
+          "gross_loss": 0.059101
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.1,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 8,
+          "daily": 0.0067,
+          "wr": 0.25,
+          "pf": 0.4253,
+          "mdd": 0.096091,
+          "ev": -0.011459,
+          "gross_win": 0.067826,
+          "gross_loss": 0.159494
+        },
+        "LINKUSDT": {
+          "n": 4,
+          "daily": 0.0034,
+          "wr": 0.25,
+          "pf": 0.6357,
+          "mdd": 0.033488,
+          "ev": -0.005383,
+          "gross_win": 0.037569,
+          "gross_loss": 0.059101
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.15,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.5,
+          "pf": 0.4944,
+          "mdd": 0.028597,
+          "ev": -0.007229,
+          "gross_win": 0.014138,
+          "gross_loss": 0.028597
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.15,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.5,
+          "pf": 0.4944,
+          "mdd": 0.028597,
+          "ev": -0.007229,
+          "gross_win": 0.014138,
+          "gross_loss": 0.028597
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.2,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.2,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.1,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 7,
+          "daily": 0.0059,
+          "wr": 0.1429,
+          "pf": 0.3366,
+          "mdd": 0.105807,
+          "ev": -0.015115,
+          "gross_win": 0.053688,
+          "gross_loss": 0.159494
+        },
+        "LINKUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 1.0726,
+          "mdd": 0.025613,
+          "ev": 0.000848,
+          "gross_win": 0.037569,
+          "gross_loss": 0.035026
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.1,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 7,
+          "daily": 0.0059,
+          "wr": 0.1429,
+          "pf": 0.3366,
+          "mdd": 0.105807,
+          "ev": -0.015115,
+          "gross_win": 0.053688,
+          "gross_loss": 0.159494
+        },
+        "LINKUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 1.0726,
+          "mdd": 0.025613,
+          "ev": 0.000848,
+          "gross_win": 0.037569,
+          "gross_loss": 0.035026
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.15,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.028597,
+          "ev": -0.028597,
+          "gross_win": 0,
+          "gross_loss": 0.028597
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.15,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.028597,
+          "ev": -0.028597,
+          "gross_win": 0,
+          "gross_loss": 0.028597
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.2,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.7,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.2,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.1,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 9,
+          "daily": 0.0076,
+          "wr": 0.3333,
+          "pf": 0.4668,
+          "mdd": 0.090559,
+          "ev": -0.009122,
+          "gross_win": 0.071869,
+          "gross_loss": 0.153962
+        },
+        "LINKUSDT": {
+          "n": 4,
+          "daily": 0.0034,
+          "wr": 0.25,
+          "pf": 0.6357,
+          "mdd": 0.033488,
+          "ev": -0.005383,
+          "gross_win": 0.037569,
+          "gross_loss": 0.059101
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.1,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 9,
+          "daily": 0.0076,
+          "wr": 0.3333,
+          "pf": 0.4668,
+          "mdd": 0.090559,
+          "ev": -0.009122,
+          "gross_win": 0.071869,
+          "gross_loss": 0.153962
+        },
+        "LINKUSDT": {
+          "n": 4,
+          "daily": 0.0034,
+          "wr": 0.25,
+          "pf": 0.6357,
+          "mdd": 0.033488,
+          "ev": -0.005383,
+          "gross_win": 0.037569,
+          "gross_loss": 0.059101
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.15,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 0.2525,
+          "mdd": 0.055987,
+          "ev": -0.013949,
+          "gross_win": 0.014138,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.15,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 0.2525,
+          "mdd": 0.055987,
+          "ev": -0.013949,
+          "gross_win": 0.014138,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.2,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.2,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.1,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 7,
+          "daily": 0.0059,
+          "wr": 0.1429,
+          "pf": 0.3487,
+          "mdd": 0.100275,
+          "ev": -0.014325,
+          "gross_win": 0.053688,
+          "gross_loss": 0.153962
+        },
+        "LINKUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 1.0726,
+          "mdd": 0.025613,
+          "ev": 0.000848,
+          "gross_win": 0.037569,
+          "gross_loss": 0.035026
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.1,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 7,
+          "daily": 0.0059,
+          "wr": 0.1429,
+          "pf": 0.3487,
+          "mdd": 0.100275,
+          "ev": -0.014325,
+          "gross_win": 0.053688,
+          "gross_loss": 0.153962
+        },
+        "LINKUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 1.0726,
+          "mdd": 0.025613,
+          "ev": 0.000848,
+          "gross_win": 0.037569,
+          "gross_loss": 0.035026
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.15,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.055987,
+          "ev": -0.027993,
+          "gross_win": 0,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.15,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.055987,
+          "ev": -0.027993,
+          "gross_win": 0,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.009413,
+          "ev": -0.009413,
+          "gross_win": 0,
+          "gross_loss": 0.009413
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.2,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.75,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.2,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.1,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 10,
+          "daily": 0.0084,
+          "wr": 0.4,
+          "pf": 0.4313,
+          "mdd": 0.095287,
+          "ev": -0.009529,
+          "gross_win": 0.072257,
+          "gross_loss": 0.167544
+        },
+        "LINKUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.074765,
+          "ev": -0.037383,
+          "gross_win": 0,
+          "gross_loss": 0.074765
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.1,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 10,
+          "daily": 0.0084,
+          "wr": 0.4,
+          "pf": 0.4313,
+          "mdd": 0.095287,
+          "ev": -0.009529,
+          "gross_win": 0.072257,
+          "gross_loss": 0.167544
+        },
+        "LINKUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.074765,
+          "ev": -0.037383,
+          "gross_win": 0,
+          "gross_loss": 0.074765
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.15,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 0.2525,
+          "mdd": 0.055987,
+          "ev": -0.013949,
+          "gross_win": 0.014138,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.052695,
+          "ev": -0.052695,
+          "gross_win": 0,
+          "gross_loss": 0.052695
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.15,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 3,
+          "daily": 0.0025,
+          "wr": 0.3333,
+          "pf": 0.2525,
+          "mdd": 0.055987,
+          "ev": -0.013949,
+          "gross_win": 0.014138,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.052695,
+          "ev": -0.052695,
+          "gross_win": 0,
+          "gross_loss": 0.052695
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.2,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 3,
+        "oi_mult": 1.2,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.1,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 7,
+          "daily": 0.0059,
+          "wr": 0.1429,
+          "pf": 0.3204,
+          "mdd": 0.113856,
+          "ev": -0.016265,
+          "gross_win": 0.053688,
+          "gross_loss": 0.167544
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.052695,
+          "ev": -0.052695,
+          "gross_win": 0,
+          "gross_loss": 0.052695
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.1,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.093799,
+          "ev": -0.046899,
+          "gross_win": 0,
+          "gross_loss": 0.093799
+        },
+        "AVAXUSDT": {
+          "n": 7,
+          "daily": 0.0059,
+          "wr": 0.1429,
+          "pf": 0.3204,
+          "mdd": 0.113856,
+          "ev": -0.016265,
+          "gross_win": 0.053688,
+          "gross_loss": 0.167544
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.052695,
+          "ev": -0.052695,
+          "gross_win": 0,
+          "gross_loss": 0.052695
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.15,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.055987,
+          "ev": -0.027993,
+          "gross_win": 0,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.052695,
+          "ev": -0.052695,
+          "gross_win": 0,
+          "gross_loss": 0.052695
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.15,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 2,
+          "daily": 0.0017,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.055987,
+          "ev": -0.027993,
+          "gross_win": 0,
+          "gross_loss": 0.055987
+        },
+        "LINKUSDT": {
+          "n": 1,
+          "daily": 0.0008,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.052695,
+          "ev": -0.052695,
+          "gross_win": 0,
+          "gross_loss": 0.052695
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.2,
+        "vwap_filter": true
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    },
+    {
+      "params": {
+        "squeeze_thresh": 0.8,
+        "min_squeeze_bars": 5,
+        "oi_mult": 1.2,
+        "vwap_filter": false
+      },
+      "sym_stats": {
+        "BTCUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "SOLUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "AVAXUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        },
+        "LINKUSDT": {
+          "n": 0,
+          "daily": 0.0,
+          "wr": 0.0,
+          "pf": 0.0,
+          "mdd": 0.0,
+          "ev": 0.0,
+          "gross_win": 0.0,
+          "gross_loss": 0.0
+        }
+      },
+      "eligible": [],
+      "combined_daily": 0.0,
+      "ev": 0.0,
+      "pf": 0.0
+    }
+  ],
+  "summary": {
+    "vwap_on_best_daily": 0.0,
+    "vwap_off_best_daily": 0.0,
+    "target_met_on": false,
+    "target_met_off": false
+  },
+  "best_case_params": {
+    "squeeze_thresh": 0.7,
+    "min_squeeze_bars": 3,
+    "oi_mult": 1.1,
+    "vwap_filter": true
+  },
+  "best_case_verdicts": {
+    "BTCUSDT": "제외",
+    "SOLUSDT": "제외",
+    "AVAXUSDT": "제외",
+    "LINKUSDT": "제외"
+  },
+  "best_case_trades": {
+    "BTCUSDT": [],
+    "SOLUSDT": [
+      {
+        "pnl": -0.03271295,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 3,
+        "entry_dt": "2023-03-17T11:00:00+00:00",
+        "exit_dt": "2023-03-17T14:00:00+00:00",
+        "entry_px": 20.649,
+        "exit_px": 20.004
+      },
+      {
+        "pnl": -0.06108564,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 13,
+        "entry_dt": "2025-03-02T17:00:00+00:00",
+        "exit_dt": "2025-03-03T06:00:00+00:00",
+        "entry_px": 172.06,
+        "exit_px": 161.8
+      }
+    ],
+    "AVAXUSDT": [
+      {
+        "pnl": -0.03721763,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 6,
+        "entry_dt": "2023-01-17T16:00:00+00:00",
+        "exit_dt": "2023-01-17T22:00:00+00:00",
+        "entry_px": 17.765,
+        "exit_px": 17.13
+      },
+      {
+        "pnl": -0.02595147,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 15,
+        "entry_dt": "2023-01-24T02:00:00+00:00",
+        "exit_dt": "2023-01-24T17:00:00+00:00",
+        "entry_px": 18.39,
+        "exit_px": 17.94
+      },
+      {
+        "pnl": -0.0329215,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 4,
+        "entry_dt": "2024-02-15T11:00:00+00:00",
+        "exit_dt": "2024-02-15T15:00:00+00:00",
+        "entry_px": 43.25,
+        "exit_px": 41.89
+      },
+      {
+        "pnl": 0.05368772,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 68,
+        "entry_dt": "2024-04-06T06:00:00+00:00",
+        "exit_dt": "2024-04-09T02:00:00+00:00",
+        "entry_px": 46.805,
+        "exit_px": 49.39
+      },
+      {
+        "pnl": -0.02859723,
+        "side": "SHORT",
+        "reason": "TRAIL",
+        "hold": 3,
+        "entry_dt": "2024-06-23T15:00:00+00:00",
+        "exit_dt": "2024-06-23T18:00:00+00:00",
+        "entry_px": 24.375,
+        "exit_px": 25.035
+      },
+      {
+        "pnl": 0.01413847,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 22,
+        "entry_dt": "2024-07-21T16:00:00+00:00",
+        "exit_dt": "2024-07-22T14:00:00+00:00",
+        "entry_px": 30.99,
+        "exit_px": 31.475
+      },
+      {
+        "pnl": -0.00740654,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 11,
+        "entry_dt": "2025-03-15T22:00:00+00:00",
+        "exit_dt": "2025-03-16T09:00:00+00:00",
+        "entry_px": 19.117,
+        "exit_px": 19.004
+      },
+      {
+        "pnl": -0.02739996,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 1,
+        "entry_dt": "2025-07-19T20:00:00+00:00",
+        "exit_dt": "2025-07-19T21:00:00+00:00",
+        "entry_px": 24.962,
+        "exit_px": 24.315
+      }
+    ],
+    "LINKUSDT": [
+      {
+        "pnl": -0.02561332,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 13,
+        "entry_dt": "2023-01-17T21:00:00+00:00",
+        "exit_dt": "2023-01-18T10:00:00+00:00",
+        "entry_px": 6.879,
+        "exit_px": 6.713
+      },
+      {
+        "pnl": 0.03756885,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 42,
+        "entry_dt": "2023-03-28T20:00:00+00:00",
+        "exit_dt": "2023-03-30T14:00:00+00:00",
+        "entry_px": 7.008,
+        "exit_px": 7.282
+      },
+      {
+        "pnl": -0.00941251,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 20,
+        "entry_dt": "2023-10-25T01:00:00+00:00",
+        "exit_dt": "2023-10-25T21:00:00+00:00",
+        "entry_px": 10.987,
+        "exit_px": 10.9
+      },
+      {
+        "pnl": -0.02407506,
+        "side": "LONG",
+        "reason": "TRAIL",
+        "hold": 17,
+        "entry_dt": "2024-01-15T03:00:00+00:00",
+        "exit_dt": "2024-01-15T20:00:00+00:00",
+        "entry_px": 15.625,
+        "exit_px": 15.272
+      }
+    ]
+  }
+}

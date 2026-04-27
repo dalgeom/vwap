@@ -1,0 +1,716 @@
+{
+  "task": "WF-MODULE-B-LONG-ALTS",
+  "run_at": "2026-04-27T02:52:38Z",
+  "symbols": [
+    "ETHUSDT",
+    "SOLUSDT",
+    "BNBUSDT"
+  ],
+  "params": {
+    "initial_sl_mult": 1.5,
+    "chandelier_mult": 3.0,
+    "max_hold_bars": 72,
+    "round_trip_fee_pct": 0.13999999999999999
+  },
+  "wf_config": {
+    "is_block_months": 6,
+    "oos_block_months": 3,
+    "slide_months": 3,
+    "total_folds": 8
+  },
+  "results": {
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2023-01-01",
+          "is_end": "2023-06-30",
+          "oos_start": "2023-07-01",
+          "oos_end": "2023-09-30",
+          "is": {
+            "total_trades": 70,
+            "daily_avg": 0.387,
+            "win_rate": 0.3857,
+            "profit_factor": 2.0433,
+            "mdd": 0.097495,
+            "ev_atr": 0.7035,
+            "score": 8.0838
+          },
+          "oos": {
+            "total_trades": 34,
+            "daily_avg": 0.37,
+            "win_rate": 0.2647,
+            "profit_factor": 0.7195,
+            "mdd": 0.089264,
+            "ev_atr": -0.7312,
+            "score": 2.1336
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2023-04-01",
+          "is_end": "2023-09-30",
+          "oos_start": "2023-10-01",
+          "oos_end": "2023-12-31",
+          "is": {
+            "total_trades": 68,
+            "daily_avg": 0.372,
+            "win_rate": 0.3235,
+            "profit_factor": 1.1003,
+            "mdd": 0.112825,
+            "ev_atr": -0.2386,
+            "score": 3.1552
+          },
+          "oos": {
+            "total_trades": 31,
+            "daily_avg": 0.337,
+            "win_rate": 0.5484,
+            "profit_factor": 4.095,
+            "mdd": 0.041883,
+            "ev_atr": 2.1077,
+            "score": 53.6176
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2023-07-01",
+          "is_end": "2023-12-31",
+          "oos_start": "2024-01-01",
+          "oos_end": "2024-03-31",
+          "is": {
+            "total_trades": 65,
+            "daily_avg": 0.353,
+            "win_rate": 0.4,
+            "profit_factor": 2.2567,
+            "mdd": 0.089264,
+            "ev_atr": 0.6227,
+            "score": 10.1122
+          },
+          "oos": {
+            "total_trades": 33,
+            "daily_avg": 0.363,
+            "win_rate": 0.5455,
+            "profit_factor": 2.9456,
+            "mdd": 0.045446,
+            "ev_atr": 1.3428,
+            "score": 35.3543
+          }
+        },
+        {
+          "fold": 4,
+          "is_start": "2023-10-01",
+          "is_end": "2024-03-31",
+          "oos_start": "2024-04-01",
+          "oos_end": "2024-06-30",
+          "is": {
+            "total_trades": 64,
+            "daily_avg": 0.35,
+            "win_rate": 0.5469,
+            "profit_factor": 3.4022,
+            "mdd": 0.045446,
+            "ev_atr": 1.7133,
+            "score": 40.9406
+          },
+          "oos": {
+            "total_trades": 27,
+            "daily_avg": 0.297,
+            "win_rate": 0.5926,
+            "profit_factor": 2.7376,
+            "mdd": 0.062258,
+            "ev_atr": 0.9961,
+            "score": 26.0569
+          }
+        },
+        {
+          "fold": 5,
+          "is_start": "2024-01-01",
+          "is_end": "2024-06-30",
+          "oos_start": "2024-07-01",
+          "oos_end": "2024-09-30",
+          "is": {
+            "total_trades": 60,
+            "daily_avg": 0.33,
+            "win_rate": 0.55,
+            "profit_factor": 2.691,
+            "mdd": 0.062258,
+            "ev_atr": 1.0739,
+            "score": 23.7731
+          },
+          "oos": {
+            "total_trades": 31,
+            "daily_avg": 0.337,
+            "win_rate": 0.4839,
+            "profit_factor": 1.5601,
+            "mdd": 0.109599,
+            "ev_atr": 0.4449,
+            "score": 6.8877
+          }
+        },
+        {
+          "fold": 6,
+          "is_start": "2024-04-01",
+          "is_end": "2024-09-30",
+          "oos_start": "2024-10-01",
+          "oos_end": "2024-12-31",
+          "is": {
+            "total_trades": 57,
+            "daily_avg": 0.311,
+            "win_rate": 0.5263,
+            "profit_factor": 1.9866,
+            "mdd": 0.109599,
+            "ev_atr": 0.7289,
+            "score": 9.54
+          },
+          "oos": {
+            "total_trades": 37,
+            "daily_avg": 0.402,
+            "win_rate": 0.4324,
+            "profit_factor": 1.7428,
+            "mdd": 0.082734,
+            "ev_atr": 0.4774,
+            "score": 9.109
+          }
+        },
+        {
+          "fold": 7,
+          "is_start": "2024-07-01",
+          "is_end": "2024-12-31",
+          "oos_start": "2025-01-01",
+          "oos_end": "2025-03-31",
+          "is": {
+            "total_trades": 68,
+            "daily_avg": 0.37,
+            "win_rate": 0.4559,
+            "profit_factor": 1.6588,
+            "mdd": 0.109599,
+            "ev_atr": 0.4625,
+            "score": 6.8999
+          },
+          "oos": {
+            "total_trades": 35,
+            "daily_avg": 0.389,
+            "win_rate": 0.4571,
+            "profit_factor": 0.9011,
+            "mdd": 0.212342,
+            "ev_atr": 0.0844,
+            "score": 1.9399
+          }
+        },
+        {
+          "fold": 8,
+          "is_start": "2024-10-01",
+          "is_end": "2025-03-31",
+          "oos_start": "2025-04-01",
+          "oos_end": "2025-06-30",
+          "is": {
+            "total_trades": 72,
+            "daily_avg": 0.396,
+            "win_rate": 0.4444,
+            "profit_factor": 1.2966,
+            "mdd": 0.23159,
+            "ev_atr": 0.2863,
+            "score": 2.4883
+          },
+          "oos": {
+            "total_trades": 38,
+            "daily_avg": 0.418,
+            "win_rate": 0.3947,
+            "profit_factor": 1.909,
+            "mdd": 0.092898,
+            "ev_atr": 0.7144,
+            "score": 8.1114
+          }
+        }
+      ],
+      "is_scores": [
+        8.0838,
+        3.1552,
+        10.1122,
+        40.9406,
+        23.7731,
+        9.54,
+        6.8999,
+        2.4883
+      ],
+      "oos_scores": [
+        2.1336,
+        53.6176,
+        35.3543,
+        26.0569,
+        6.8877,
+        9.109,
+        1.9399,
+        8.1114
+      ],
+      "mean_is": 13.1241,
+      "mean_oos": 17.9013,
+      "wf_efficiency": 1.364,
+      "oos_ev_mean": 0.6796,
+      "verdict": "PASS",
+      "fail_reason": ""
+    },
+    "SOLUSDT": {
+      "symbol": "SOLUSDT",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2023-01-01",
+          "is_end": "2023-06-30",
+          "oos_start": "2023-07-01",
+          "oos_end": "2023-09-30",
+          "is": {
+            "total_trades": 69,
+            "daily_avg": 0.381,
+            "win_rate": 0.4348,
+            "profit_factor": 2.1815,
+            "mdd": 0.16177,
+            "ev_atr": 1.0765,
+            "score": 5.863
+          },
+          "oos": {
+            "total_trades": 31,
+            "daily_avg": 0.337,
+            "win_rate": 0.4516,
+            "profit_factor": 2.32,
+            "mdd": 0.08212,
+            "ev_atr": 0.9485,
+            "score": 12.7585
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2023-04-01",
+          "is_end": "2023-09-30",
+          "oos_start": "2023-10-01",
+          "oos_end": "2023-12-31",
+          "is": {
+            "total_trades": 62,
+            "daily_avg": 0.339,
+            "win_rate": 0.4516,
+            "profit_factor": 2.1474,
+            "mdd": 0.107518,
+            "ev_atr": 1.0084,
+            "score": 9.0198
+          },
+          "oos": {
+            "total_trades": 45,
+            "daily_avg": 0.489,
+            "win_rate": 0.6,
+            "profit_factor": 3.8524,
+            "mdd": 0.122262,
+            "ev_atr": 1.7029,
+            "score": 18.9056
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2023-07-01",
+          "is_end": "2023-12-31",
+          "oos_start": "2024-01-01",
+          "oos_end": "2024-03-31",
+          "is": {
+            "total_trades": 76,
+            "daily_avg": 0.413,
+            "win_rate": 0.5395,
+            "profit_factor": 3.4853,
+            "mdd": 0.122262,
+            "ev_atr": 1.5772,
+            "score": 15.3787
+          },
+          "oos": {
+            "total_trades": 34,
+            "daily_avg": 0.374,
+            "win_rate": 0.5294,
+            "profit_factor": 2.1065,
+            "mdd": 0.172598,
+            "ev_atr": 1.1727,
+            "score": 6.4613
+          }
+        },
+        {
+          "fold": 4,
+          "is_start": "2023-10-01",
+          "is_end": "2024-03-31",
+          "oos_start": "2024-04-01",
+          "oos_end": "2024-06-30",
+          "is": {
+            "total_trades": 79,
+            "daily_avg": 0.432,
+            "win_rate": 0.5696,
+            "profit_factor": 3.0303,
+            "mdd": 0.201695,
+            "ev_atr": 1.4747,
+            "score": 8.5582
+          },
+          "oos": {
+            "total_trades": 27,
+            "daily_avg": 0.297,
+            "win_rate": 0.3704,
+            "profit_factor": 1.4372,
+            "mdd": 0.166412,
+            "ev_atr": 0.4134,
+            "score": 3.1988
+          }
+        },
+        {
+          "fold": 5,
+          "is_start": "2024-01-01",
+          "is_end": "2024-06-30",
+          "oos_start": "2024-07-01",
+          "oos_end": "2024-09-30",
+          "is": {
+            "total_trades": 61,
+            "daily_avg": 0.335,
+            "win_rate": 0.459,
+            "profit_factor": 1.7619,
+            "mdd": 0.172598,
+            "ev_atr": 0.7842,
+            "score": 4.6856
+          },
+          "oos": {
+            "total_trades": 31,
+            "daily_avg": 0.337,
+            "win_rate": 0.3871,
+            "profit_factor": 2.6299,
+            "mdd": 0.075763,
+            "ev_atr": 0.9989,
+            "score": 13.437
+          }
+        },
+        {
+          "fold": 6,
+          "is_start": "2024-04-01",
+          "is_end": "2024-09-30",
+          "oos_start": "2024-10-01",
+          "oos_end": "2024-12-31",
+          "is": {
+            "total_trades": 57,
+            "daily_avg": 0.311,
+            "win_rate": 0.386,
+            "profit_factor": 2.0021,
+            "mdd": 0.166412,
+            "ev_atr": 0.7623,
+            "score": 4.6436
+          },
+          "oos": {
+            "total_trades": 32,
+            "daily_avg": 0.348,
+            "win_rate": 0.5,
+            "profit_factor": 2.5303,
+            "mdd": 0.061548,
+            "ev_atr": 1.2191,
+            "score": 20.5559
+          }
+        },
+        {
+          "fold": 7,
+          "is_start": "2024-07-01",
+          "is_end": "2024-12-31",
+          "oos_start": "2025-01-01",
+          "oos_end": "2025-03-31",
+          "is": {
+            "total_trades": 63,
+            "daily_avg": 0.342,
+            "win_rate": 0.4444,
+            "profit_factor": 2.5794,
+            "mdd": 0.075763,
+            "ev_atr": 1.1107,
+            "score": 15.1312
+          },
+          "oos": {
+            "total_trades": 32,
+            "daily_avg": 0.356,
+            "win_rate": 0.5312,
+            "profit_factor": 1.576,
+            "mdd": 0.133922,
+            "ev_atr": 0.4481,
+            "score": 6.2517
+          }
+        },
+        {
+          "fold": 8,
+          "is_start": "2024-10-01",
+          "is_end": "2025-03-31",
+          "oos_start": "2025-04-01",
+          "oos_end": "2025-06-30",
+          "is": {
+            "total_trades": 64,
+            "daily_avg": 0.352,
+            "win_rate": 0.5156,
+            "profit_factor": 2.0268,
+            "mdd": 0.133922,
+            "ev_atr": 0.8336,
+            "score": 7.8034
+          },
+          "oos": {
+            "total_trades": 36,
+            "daily_avg": 0.396,
+            "win_rate": 0.4167,
+            "profit_factor": 2.5337,
+            "mdd": 0.106175,
+            "ev_atr": 0.7732,
+            "score": 9.9432
+          }
+        }
+      ],
+      "is_scores": [
+        5.863,
+        9.0198,
+        15.3787,
+        8.5582,
+        4.6856,
+        4.6436,
+        15.1312,
+        7.8034
+      ],
+      "oos_scores": [
+        12.7585,
+        18.9056,
+        6.4613,
+        3.1988,
+        13.437,
+        20.5559,
+        6.2517,
+        9.9432
+      ],
+      "mean_is": 8.8854,
+      "mean_oos": 11.439,
+      "wf_efficiency": 1.2874,
+      "oos_ev_mean": 0.9596,
+      "verdict": "PASS",
+      "fail_reason": ""
+    },
+    "BNBUSDT": {
+      "symbol": "BNBUSDT",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2023-01-01",
+          "is_end": "2023-06-30",
+          "oos_start": "2023-07-01",
+          "oos_end": "2023-09-30",
+          "is": {
+            "total_trades": 74,
+            "daily_avg": 0.409,
+            "win_rate": 0.3514,
+            "profit_factor": 0.7711,
+            "mdd": 0.210125,
+            "ev_atr": -0.0534,
+            "score": 1.2894
+          },
+          "oos": {
+            "total_trades": 36,
+            "daily_avg": 0.391,
+            "win_rate": 0.3611,
+            "profit_factor": 0.4877,
+            "mdd": 0.105364,
+            "ev_atr": -0.5602,
+            "score": 1.6714
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2023-04-01",
+          "is_end": "2023-09-30",
+          "oos_start": "2023-10-01",
+          "oos_end": "2023-12-31",
+          "is": {
+            "total_trades": 70,
+            "daily_avg": 0.383,
+            "win_rate": 0.3286,
+            "profit_factor": 0.6213,
+            "mdd": 0.19523,
+            "ev_atr": -0.3474,
+            "score": 1.0456
+          },
+          "oos": {
+            "total_trades": 43,
+            "daily_avg": 0.467,
+            "win_rate": 0.2791,
+            "profit_factor": 1.2308,
+            "mdd": 0.176003,
+            "ev_atr": 0.3739,
+            "score": 1.9516
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2023-07-01",
+          "is_end": "2023-12-31",
+          "oos_start": "2024-01-01",
+          "oos_end": "2024-03-31",
+          "is": {
+            "total_trades": 79,
+            "daily_avg": 0.429,
+            "win_rate": 0.3165,
+            "profit_factor": 1.0318,
+            "mdd": 0.281367,
+            "ev_atr": -0.0517,
+            "score": 1.1605
+          },
+          "oos": {
+            "total_trades": 35,
+            "daily_avg": 0.385,
+            "win_rate": 0.4857,
+            "profit_factor": 3.5063,
+            "mdd": 0.053107,
+            "ev_atr": 1.5006,
+            "score": 32.0686
+          }
+        },
+        {
+          "fold": 4,
+          "is_start": "2023-10-01",
+          "is_end": "2024-03-31",
+          "oos_start": "2024-04-01",
+          "oos_end": "2024-06-30",
+          "is": {
+            "total_trades": 78,
+            "daily_avg": 0.426,
+            "win_rate": 0.3718,
+            "profit_factor": 1.9674,
+            "mdd": 0.176003,
+            "ev_atr": 0.8795,
+            "score": 4.156
+          },
+          "oos": {
+            "total_trades": 36,
+            "daily_avg": 0.396,
+            "win_rate": 0.3056,
+            "profit_factor": 1.165,
+            "mdd": 0.05602,
+            "ev_atr": -0.0159,
+            "score": 6.3544
+          }
+        },
+        {
+          "fold": 5,
+          "is_start": "2024-01-01",
+          "is_end": "2024-06-30",
+          "oos_start": "2024-07-01",
+          "oos_end": "2024-09-30",
+          "is": {
+            "total_trades": 71,
+            "daily_avg": 0.39,
+            "win_rate": 0.3944,
+            "profit_factor": 2.2958,
+            "mdd": 0.05602,
+            "ev_atr": 0.7317,
+            "score": 16.1616
+          },
+          "oos": {
+            "total_trades": 31,
+            "daily_avg": 0.337,
+            "win_rate": 0.5484,
+            "profit_factor": 2.9744,
+            "mdd": 0.032281,
+            "ev_atr": 1.0916,
+            "score": 50.5285
+          }
+        },
+        {
+          "fold": 6,
+          "is_start": "2024-04-01",
+          "is_end": "2024-09-30",
+          "oos_start": "2024-10-01",
+          "oos_end": "2024-12-31",
+          "is": {
+            "total_trades": 67,
+            "daily_avg": 0.366,
+            "win_rate": 0.4179,
+            "profit_factor": 1.9202,
+            "mdd": 0.05602,
+            "ev_atr": 0.4793,
+            "score": 14.325
+          },
+          "oos": {
+            "total_trades": 40,
+            "daily_avg": 0.435,
+            "win_rate": 0.375,
+            "profit_factor": 1.1861,
+            "mdd": 0.163915,
+            "ev_atr": 0.1686,
+            "score": 2.7135
+          }
+        },
+        {
+          "fold": 7,
+          "is_start": "2024-07-01",
+          "is_end": "2024-12-31",
+          "oos_start": "2025-01-01",
+          "oos_end": "2025-03-31",
+          "is": {
+            "total_trades": 71,
+            "daily_avg": 0.386,
+            "win_rate": 0.4507,
+            "profit_factor": 1.7591,
+            "mdd": 0.163915,
+            "ev_atr": 0.5716,
+            "score": 4.8369
+          },
+          "oos": {
+            "total_trades": 31,
+            "daily_avg": 0.344,
+            "win_rate": 0.4839,
+            "profit_factor": 1.8519,
+            "mdd": 0.071865,
+            "ev_atr": 0.5022,
+            "score": 12.4691
+          }
+        },
+        {
+          "fold": 8,
+          "is_start": "2024-10-01",
+          "is_end": "2025-03-31",
+          "oos_start": "2025-04-01",
+          "oos_end": "2025-06-30",
+          "is": {
+            "total_trades": 71,
+            "daily_avg": 0.39,
+            "win_rate": 0.4225,
+            "profit_factor": 1.4111,
+            "mdd": 0.163915,
+            "ev_atr": 0.3138,
+            "score": 3.6374
+          },
+          "oos": {
+            "total_trades": 39,
+            "daily_avg": 0.429,
+            "win_rate": 0.3846,
+            "profit_factor": 1.4655,
+            "mdd": 0.054549,
+            "ev_atr": 0.3044,
+            "score": 10.3329
+          }
+        }
+      ],
+      "is_scores": [
+        1.2894,
+        1.0456,
+        1.1605,
+        4.156,
+        16.1616,
+        14.325,
+        4.8369,
+        3.6374
+      ],
+      "oos_scores": [
+        1.6714,
+        1.9516,
+        32.0686,
+        6.3544,
+        50.5285,
+        2.7135,
+        12.4691,
+        10.3329
+      ],
+      "mean_is": 5.8266,
+      "mean_oos": 14.7613,
+      "wf_efficiency": 2.5334,
+      "oos_ev_mean": 0.4206,
+      "verdict": "PASS",
+      "fail_reason": ""
+    }
+  }
+}

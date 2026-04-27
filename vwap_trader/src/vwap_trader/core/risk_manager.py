@@ -91,6 +91,8 @@ class RiskManager:
     current_state: TradingState = TradingState.ACTIVE
     open_positions: list[Position] = field(default_factory=list)
     counter: RoundtripCounter = field(default_factory=RoundtripCounter)
+    # TICKET-CORE-003: FULL_HALT → emergency_stop() 중복 호출 방지 플래그
+    _emergency_triggered: bool = field(default=False, init=False, repr=False)
 
     def on_trade_closed(self, module: str, pnl: float) -> None:
         """거래 종료 시 호출. 모듈별 독립 카운터 + 시스템 합산 카운터."""
