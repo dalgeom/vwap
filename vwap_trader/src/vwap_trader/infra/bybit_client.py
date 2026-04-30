@@ -39,15 +39,19 @@ def _call_with_retry(fn, *args, **kwargs):
 class BybitClient:
     def __init__(self, api_key: str, api_secret: str, testnet: bool = True):
         self._dry_run = os.environ.get("DRY_RUN", "").lower() == "true"
+        demo = os.environ.get("BYBIT_DEMO", "").lower() == "true"
         self._session = HTTP(
             testnet=testnet,
+            demo=demo,
             api_key=api_key,
             api_secret=api_secret,
         )
+        mode = "DEMO" if demo else ("TESTNET" if testnet else "LIVE")
         if self._dry_run:
-            logger.info("BybitClient initialized in DRY_RUN mode (testnet=%s)", testnet)
+            logger.info("BybitClient initialized in DRY_RUN mode (%s)", mode)
         else:
-            logger.info("BybitClient initialized (testnet=%s)", testnet)
+            logger.info("BybitClient initialized (%s)", mode)
+        self._lot_size_cache: dict[str, float] = {}
 
     # ── 내부 헬퍼 ──────────────────────────────────────────────
 
@@ -107,6 +111,9 @@ class BybitClient:
             err_str = str(exc)
             if "100028" in err_str:
                 logger.info("UTA account — isolated margin skipped for %s (exception path)", symbol)
+                return True
+            if "10032" in err_str:
+                logger.warning("Demo trading not supported for %s — skipping isolated margin", symbol)
                 return True
             logger.error("ensure_isolated_margin exception for %s: %s", symbol, exc)
             return False
@@ -263,6 +270,27 @@ class BybitClient:
             logger.error("get_position exception for %s: %s", symbol, exc)
             return None
 
+    def get_lot_size(self, symbol: str) -> float:
+        """심볼의 qtyStep 반환. 실패 시 1.0 fallback. 결과 캐시."""
+        if symbol in self._lot_size_cache:
+            return self._lot_size_cache[symbol]
+        try:
+            resp = _call_with_retry(
+                self._session.get_instruments_info,
+                category="linear",
+                symbol=symbol,
+            )
+            if self._ok(resp):
+                items = resp["result"]["list"]
+                if items:
+                    qty_step = float(items[0]["lotSizeFilter"]["qtyStep"])
+                    self._lot_size_cache[symbol] = qty_step
+                    return qty_step
+        except Exception as exc:
+            logger.warning("get_lot_size failed for %s: %s", symbol, exc)
+        self._lot_size_cache[symbol] = 1.0
+        return 1.0
+
     def get_balance(self) -> float | None:
         """통합 계좌 USDT 사용 가능 잔고 반환. 실패 시 None."""
         try:
@@ -277,7 +305,8 @@ class BybitClient:
             coins = resp["result"]["list"][0]["coin"]
             for coin in coins:
                 if coin["coin"] == "USDT":
-                    return float(coin["availableToWithdraw"])
+                    val = coin.get("availableToWithdraw") or coin.get("walletBalance", "0")
+                    return float(val)
             return 0.0
         except Exception as exc:
             logger.error("get_balance exception: %s", exc)

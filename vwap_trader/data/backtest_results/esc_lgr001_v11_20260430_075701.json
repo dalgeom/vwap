@@ -1,0 +1,302 @@
+{
+  "run_at": "2026-04-30T07:57:01Z",
+  "version": "v1.1",
+  "esc_lgr02_scenarios": {
+    "①  pin=0.5 grab=1.0 [주력]": {
+      "params": {
+        "lookback": 20,
+        "n_fresh": 8,
+        "grab_atr": 1.0,
+        "pin_ratio": 0.5
+      },
+      "cal_days": 182,
+      "total_same": 105,
+      "total_plus1": 62,
+      "total_n": 167,
+      "daily_same": 0.5769,
+      "daily_plus1": 0.3407,
+      "daily_total": 0.9176,
+      "pass": false
+    },
+    "②  pin=0.6 grab=1.0 [비교]": {
+      "params": {
+        "lookback": 20,
+        "n_fresh": 8,
+        "grab_atr": 1.0,
+        "pin_ratio": 0.6
+      },
+      "cal_days": 182,
+      "total_same": 74,
+      "total_plus1": 29,
+      "total_n": 103,
+      "daily_same": 0.4066,
+      "daily_plus1": 0.1593,
+      "daily_total": 0.5659,
+      "pass": false
+    },
+    "③  pin=0.5 grab=1.5 [대안]": {
+      "params": {
+        "lookback": 20,
+        "n_fresh": 8,
+        "grab_atr": 1.5,
+        "pin_ratio": 0.5
+      },
+      "cal_days": 182,
+      "total_same": 106,
+      "total_plus1": 67,
+      "total_n": 173,
+      "daily_same": 0.5824,
+      "daily_plus1": 0.3681,
+      "daily_total": 0.9505,
+      "pass": false
+    }
+  },
+  "esc_lgr02_symbols_detail": {
+    "①  pin=0.5 grab=1.0 [주력]": {
+      "ARBUSDT": {
+        "same_n": 10,
+        "plus1_n": 4,
+        "total_n": 14,
+        "daily_same": 0.0549,
+        "daily_plus1": 0.022,
+        "daily_total": 0.0769
+      },
+      "AVAXUSDT": {
+        "same_n": 16,
+        "plus1_n": 8,
+        "total_n": 24,
+        "daily_same": 0.0879,
+        "daily_plus1": 0.044,
+        "daily_total": 0.1319
+      },
+      "BNBUSDT": {
+        "same_n": 9,
+        "plus1_n": 6,
+        "total_n": 15,
+        "daily_same": 0.0495,
+        "daily_plus1": 0.033,
+        "daily_total": 0.0824
+      },
+      "BTCUSDT": {
+        "same_n": 12,
+        "plus1_n": 8,
+        "total_n": 20,
+        "daily_same": 0.0659,
+        "daily_plus1": 0.044,
+        "daily_total": 0.1099
+      },
+      "DOTUSDT": {
+        "same_n": 13,
+        "plus1_n": 7,
+        "total_n": 20,
+        "daily_same": 0.0714,
+        "daily_plus1": 0.0385,
+        "daily_total": 0.1099
+      },
+      "ETHUSDT": {
+        "same_n": 6,
+        "plus1_n": 1,
+        "total_n": 7,
+        "daily_same": 0.033,
+        "daily_plus1": 0.0055,
+        "daily_total": 0.0385
+      },
+      "LINKUSDT": {
+        "same_n": 9,
+        "plus1_n": 10,
+        "total_n": 19,
+        "daily_same": 0.0495,
+        "daily_plus1": 0.0549,
+        "daily_total": 0.1044
+      },
+      "NEARUSDT": {
+        "same_n": 10,
+        "plus1_n": 5,
+        "total_n": 15,
+        "daily_same": 0.0549,
+        "daily_plus1": 0.0275,
+        "daily_total": 0.0824
+      },
+      "OPUSDT": {
+        "same_n": 15,
+        "plus1_n": 4,
+        "total_n": 19,
+        "daily_same": 0.0824,
+        "daily_plus1": 0.022,
+        "daily_total": 0.1044
+      },
+      "SOLUSDT": {
+        "same_n": 5,
+        "plus1_n": 9,
+        "total_n": 14,
+        "daily_same": 0.0275,
+        "daily_plus1": 0.0495,
+        "daily_total": 0.0769
+      }
+    },
+    "②  pin=0.6 grab=1.0 [비교]": {
+      "ARBUSDT": {
+        "same_n": 7,
+        "plus1_n": 3,
+        "total_n": 10,
+        "daily_same": 0.0385,
+        "daily_plus1": 0.0165,
+        "daily_total": 0.0549
+      },
+      "AVAXUSDT": {
+        "same_n": 12,
+        "plus1_n": 5,
+        "total_n": 17,
+        "daily_same": 0.0659,
+        "daily_plus1": 0.0275,
+        "daily_total": 0.0934
+      },
+      "BNBUSDT": {
+        "same_n": 5,
+        "plus1_n": 2,
+        "total_n": 7,
+        "daily_same": 0.0275,
+        "daily_plus1": 0.011,
+        "daily_total": 0.0385
+      },
+      "BTCUSDT": {
+        "same_n": 8,
+        "plus1_n": 4,
+        "total_n": 12,
+        "daily_same": 0.044,
+        "daily_plus1": 0.022,
+        "daily_total": 0.0659
+      },
+      "DOTUSDT": {
+        "same_n": 9,
+        "plus1_n": 3,
+        "total_n": 12,
+        "daily_same": 0.0495,
+        "daily_plus1": 0.0165,
+        "daily_total": 0.0659
+      },
+      "ETHUSDT": {
+        "same_n": 5,
+        "plus1_n": 0,
+        "total_n": 5,
+        "daily_same": 0.0275,
+        "daily_plus1": 0.0,
+        "daily_total": 0.0275
+      },
+      "LINKUSDT": {
+        "same_n": 8,
+        "plus1_n": 5,
+        "total_n": 13,
+        "daily_same": 0.044,
+        "daily_plus1": 0.0275,
+        "daily_total": 0.0714
+      },
+      "NEARUSDT": {
+        "same_n": 5,
+        "plus1_n": 3,
+        "total_n": 8,
+        "daily_same": 0.0275,
+        "daily_plus1": 0.0165,
+        "daily_total": 0.044
+      },
+      "OPUSDT": {
+        "same_n": 13,
+        "plus1_n": 2,
+        "total_n": 15,
+        "daily_same": 0.0714,
+        "daily_plus1": 0.011,
+        "daily_total": 0.0824
+      },
+      "SOLUSDT": {
+        "same_n": 2,
+        "plus1_n": 2,
+        "total_n": 4,
+        "daily_same": 0.011,
+        "daily_plus1": 0.011,
+        "daily_total": 0.022
+      }
+    },
+    "③  pin=0.5 grab=1.5 [대안]": {
+      "ARBUSDT": {
+        "same_n": 10,
+        "plus1_n": 4,
+        "total_n": 14,
+        "daily_same": 0.0549,
+        "daily_plus1": 0.022,
+        "daily_total": 0.0769
+      },
+      "AVAXUSDT": {
+        "same_n": 16,
+        "plus1_n": 8,
+        "total_n": 24,
+        "daily_same": 0.0879,
+        "daily_plus1": 0.044,
+        "daily_total": 0.1319
+      },
+      "BNBUSDT": {
+        "same_n": 9,
+        "plus1_n": 7,
+        "total_n": 16,
+        "daily_same": 0.0495,
+        "daily_plus1": 0.0385,
+        "daily_total": 0.0879
+      },
+      "BTCUSDT": {
+        "same_n": 13,
+        "plus1_n": 9,
+        "total_n": 22,
+        "daily_same": 0.0714,
+        "daily_plus1": 0.0495,
+        "daily_total": 0.1209
+      },
+      "DOTUSDT": {
+        "same_n": 13,
+        "plus1_n": 8,
+        "total_n": 21,
+        "daily_same": 0.0714,
+        "daily_plus1": 0.044,
+        "daily_total": 0.1154
+      },
+      "ETHUSDT": {
+        "same_n": 6,
+        "plus1_n": 1,
+        "total_n": 7,
+        "daily_same": 0.033,
+        "daily_plus1": 0.0055,
+        "daily_total": 0.0385
+      },
+      "LINKUSDT": {
+        "same_n": 9,
+        "plus1_n": 11,
+        "total_n": 20,
+        "daily_same": 0.0495,
+        "daily_plus1": 0.0604,
+        "daily_total": 0.1099
+      },
+      "NEARUSDT": {
+        "same_n": 10,
+        "plus1_n": 5,
+        "total_n": 15,
+        "daily_same": 0.0549,
+        "daily_plus1": 0.0275,
+        "daily_total": 0.0824
+      },
+      "OPUSDT": {
+        "same_n": 15,
+        "plus1_n": 5,
+        "total_n": 20,
+        "daily_same": 0.0824,
+        "daily_plus1": 0.0275,
+        "daily_total": 0.1099
+      },
+      "SOLUSDT": {
+        "same_n": 5,
+        "plus1_n": 9,
+        "total_n": 14,
+        "daily_same": 0.0275,
+        "daily_plus1": 0.0495,
+        "daily_total": 0.0769
+      }
+    }
+  }
+}

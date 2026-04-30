@@ -410,6 +410,7 @@ class BacktestEngine:
             avwap_high = _avwap_from(window_168[idx_high:])
             ema9 = _calc_ema(closes[-9:] if len(closes) >= 9 else closes, 9)
             ema20 = _calc_ema(closes[-20:] if len(closes) >= 20 else closes, 20)
+            ema15 = _calc_ema(closes[-15:] if len(closes) >= 15 else closes, 15)  # Module B Long 전용 — 결정 #63
 
             if regime == Regime.MARKUP:
                 decision = check_module_b_long(
@@ -419,7 +420,7 @@ class BacktestEngine:
                     daily_vwap=daily_vwap,
                     avwap_low=avwap_low,
                     ema9_1h=ema9,
-                    ema20_1h=ema20,
+                    ema20_1h=ema15,
                     volume_ma20=vol_ma20,
                 )
             else:

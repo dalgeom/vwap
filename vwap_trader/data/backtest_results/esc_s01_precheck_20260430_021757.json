@@ -1,0 +1,35 @@
+{
+  "task_id": "ESC-S01-PRECHECK",
+  "strategy": "S-01: 4H Swing + 15m Pullback Long",
+  "date": "2026-04-30",
+  "params": {
+    "lookback": 20,
+    "vol_confirm": 1.5,
+    "breakout_atr": 0.3,
+    "fresh_bars": 12
+  },
+  "period": "2024-01-01 ~ 2024-12-31",
+  "note": "조건 C(15m pullback) 미포함 상한선 — 실제 신호 수 ≤ 이 값",
+  "symbols": [
+    {"symbol": "AVAXUSDT", "AB_count": 47, "per_day": 0.128, "N_per_OOS_91d": 12, "pass": false},
+    {"symbol": "BNBUSDT",  "AB_count": 50, "per_day": 0.137, "N_per_OOS_91d": 12, "pass": false},
+    {"symbol": "BTCUSDT",  "AB_count": 60, "per_day": 0.164, "N_per_OOS_91d": 15, "pass": false},
+    {"symbol": "ETHUSDT",  "AB_count": 45, "per_day": 0.123, "N_per_OOS_91d": 11, "pass": false},
+    {"symbol": "LINKUSDT", "AB_count": 45, "per_day": 0.123, "N_per_OOS_91d": 11, "pass": false},
+    {"symbol": "SOLUSDT",  "AB_count": 31, "per_day": 0.085, "N_per_OOS_91d":  8, "pass": false}
+  ],
+  "aggregate_6symbols": {
+    "AB_count": 278,
+    "per_day": 0.760,
+    "N_per_OOS_91d": 69,
+    "pass": true
+  },
+  "verdict": "조건부 PASS",
+  "analysis": {
+    "15m_filter_50pct_removal": {"N_estimate": 35, "pass": true},
+    "15m_filter_70pct_removal": {"N_estimate": 21, "pass": false},
+    "10symbol_expansion_upper": {"N_estimate": 115, "after_70pct_filter": 34, "pass": true}
+  },
+  "blocker": "15m 캐시 전무",
+  "next_step": "Dev-Infra 15m 데이터 페치 후 ESC-S01 정밀 재실행"
+}

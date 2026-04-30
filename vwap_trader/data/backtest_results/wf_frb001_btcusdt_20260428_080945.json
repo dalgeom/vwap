@@ -1,0 +1,251 @@
+{
+  "task": "TASK-WF-FRB-001",
+  "run_at": "2026-04-28T08:09:45.818500+00:00",
+  "params": {
+    "symbol": "BTCUSDT",
+    "zscore_window_days": 30,
+    "zscore_window_pts": 90,
+    "zscore_threshold": 2.5,
+    "atr_sl_mult": 2.5,
+    "max_hold_h": 8,
+    "overlap_filter": true,
+    "entry_timing": "settlement_next_1h_close",
+    "funding_source": "Bybit_8H",
+    "taker_fee_pct": 0.04
+  },
+  "wf_config": {
+    "is_block_months": 6,
+    "oos_days": 45,
+    "slide_months": 3,
+    "total_folds": 8,
+    "efficiency_min": 0.7,
+    "efficiency_metric": "mean_OOS_Sharpe / mean_IS_Sharpe"
+  },
+  "symbol": "BTCUSDT",
+  "fold_results": [
+    {
+      "fold": 1,
+      "is_start": "2023-01-01",
+      "is_end": "2023-06-30",
+      "oos_start": "2023-07-01",
+      "oos_end": "2023-08-14",
+      "is": {
+        "n": 12,
+        "daily": 0.0663,
+        "wr": 0.75,
+        "pf": 14.422,
+        "mdd": 0.005621,
+        "ev": 0.007786,
+        "sharpe": 3.8942
+      },
+      "oos": {
+        "n": 1,
+        "daily": 0.0222,
+        "wr": 0.0,
+        "pf": 0.0,
+        "mdd": 0.004374,
+        "ev": -0.004374,
+        "sharpe": 0.0
+      }
+    },
+    {
+      "fold": 2,
+      "is_start": "2023-04-01",
+      "is_end": "2023-09-30",
+      "oos_start": "2023-10-01",
+      "oos_end": "2023-11-14",
+      "is": {
+        "n": 4,
+        "daily": 0.0219,
+        "wr": 0.5,
+        "pf": 1.7503,
+        "mdd": 0.005621,
+        "ev": 0.001875,
+        "sharpe": 0.6336
+      },
+      "oos": {
+        "n": 3,
+        "daily": 0.0667,
+        "wr": 0.0,
+        "pf": 0.0,
+        "mdd": 0.017186,
+        "ev": -0.005729,
+        "sharpe": -7.7521
+      }
+    },
+    {
+      "fold": 3,
+      "is_start": "2023-07-01",
+      "is_end": "2023-12-31",
+      "oos_start": "2024-01-01",
+      "oos_end": "2024-02-14",
+      "is": {
+        "n": 8,
+        "daily": 0.0435,
+        "wr": 0.25,
+        "pf": 0.0875,
+        "mdd": 0.030109,
+        "ev": -0.003456,
+        "sharpe": -3.7434
+      },
+      "oos": {
+        "n": 1,
+        "daily": 0.0222,
+        "wr": 1.0,
+        "pf": 99.0,
+        "mdd": 0.0,
+        "ev": 0.0198,
+        "sharpe": 0.0
+      }
+    },
+    {
+      "fold": 4,
+      "is_start": "2023-10-01",
+      "is_end": "2024-03-31",
+      "oos_start": "2024-04-01",
+      "oos_end": "2024-05-15",
+      "is": {
+        "n": 14,
+        "daily": 0.0765,
+        "wr": 0.5,
+        "pf": 1.917,
+        "mdd": 0.027404,
+        "ev": 0.003266,
+        "sharpe": 1.2356
+      },
+      "oos": {
+        "n": 0,
+        "daily": 0.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "mdd": 0.0,
+        "ev": 0.0,
+        "sharpe": 0.0
+      }
+    },
+    {
+      "fold": 5,
+      "is_start": "2024-01-01",
+      "is_end": "2024-06-30",
+      "oos_start": "2024-07-01",
+      "oos_end": "2024-08-14",
+      "is": {
+        "n": 13,
+        "daily": 0.0714,
+        "wr": 0.6923,
+        "pf": 3.1122,
+        "mdd": 0.023933,
+        "ev": 0.006561,
+        "sharpe": 2.3321
+      },
+      "oos": {
+        "n": 0,
+        "daily": 0.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "mdd": 0.0,
+        "ev": 0.0,
+        "sharpe": 0.0
+      }
+    },
+    {
+      "fold": 6,
+      "is_start": "2024-04-01",
+      "is_end": "2024-09-30",
+      "oos_start": "2024-10-01",
+      "oos_end": "2024-11-14",
+      "is": {
+        "n": 6,
+        "daily": 0.0328,
+        "wr": 0.6667,
+        "pf": 1.9913,
+        "mdd": 0.014164,
+        "ev": 0.002717,
+        "sharpe": 1.0271
+      },
+      "oos": {
+        "n": 1,
+        "daily": 0.0222,
+        "wr": 1.0,
+        "pf": 99.0,
+        "mdd": 0.0,
+        "ev": 0.019955,
+        "sharpe": 0.0
+      }
+    },
+    {
+      "fold": 7,
+      "is_start": "2024-07-01",
+      "is_end": "2024-12-31",
+      "oos_start": "2025-01-01",
+      "oos_end": "2025-02-14",
+      "is": {
+        "n": 2,
+        "daily": 0.0109,
+        "wr": 1.0,
+        "pf": 99.0,
+        "mdd": 0.0,
+        "ev": 0.030294,
+        "sharpe": 5.8365
+      },
+      "oos": {
+        "n": 2,
+        "daily": 0.0444,
+        "wr": 0.5,
+        "pf": 2.4654,
+        "mdd": 0.003896,
+        "ev": 0.002854,
+        "sharpe": 1.7031
+      }
+    },
+    {
+      "fold": 8,
+      "is_start": "2024-10-01",
+      "is_end": "2025-03-31",
+      "oos_start": "2025-04-01",
+      "oos_end": "2025-05-15",
+      "is": {
+        "n": 7,
+        "daily": 0.0385,
+        "wr": 0.7143,
+        "pf": 11.527,
+        "mdd": 0.008657,
+        "ev": 0.013019,
+        "sharpe": 3.396
+      },
+      "oos": {
+        "n": 0,
+        "daily": 0.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "mdd": 0.0,
+        "ev": 0.0,
+        "sharpe": 0.0
+      }
+    }
+  ],
+  "is_sharpes": [
+    3.8942,
+    0.6336,
+    -3.7434,
+    1.2356,
+    2.3321,
+    1.0271,
+    5.8365,
+    3.396
+  ],
+  "oos_sharpes": [
+    0.0,
+    -7.7521,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.7031,
+    0.0
+  ],
+  "mean_is_sharpe": 1.8265,
+  "mean_oos_sharpe": -0.7561,
+  "wf_efficiency": -0.414,
+  "verdict": "FAIL"
+}

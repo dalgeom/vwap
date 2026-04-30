@@ -11,8 +11,11 @@ import sys
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()  # cwd 또는 상위 디렉토리의 .env 자동 탐색
+# config/.env 우선, 없으면 자동 탐색
+_env_path = Path(__file__).parents[2] / "config" / ".env"
+load_dotenv(dotenv_path=_env_path if _env_path.exists() else None)
 
 import numpy as np
 
@@ -34,7 +37,17 @@ from vwap_trader.core.sl_tp import (
 )
 from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.core.risk_manager import RiskManager, TradingState
-from vwap_trader.notifier import AlertLevel, send_critical_alert
+from vwap_trader.notifier import (
+    AlertLevel,
+    send_critical_alert,
+    notify_bot_started,
+    notify_bot_stopped,
+    notify_error,
+    notify_trade_opened,
+    notify_trade_closed,
+    notify_circuit_breaker,
+    notify_daily_balance,
+)
 from vwap_trader.models import (
     Candle,
     EntryDecision,
@@ -141,6 +154,8 @@ class MainLoop:
         self.risk_manager: RiskManager | None = None
         self.open_positions: dict[str, Position] = {}  # symbol → Position
         self._last_1h_ts: dict[str, datetime] = {}  # 1H 봉 갱신 추적
+        self._started_at: datetime = datetime.now(timezone.utc)
+        self._last_status_write: datetime | None = None
 
     async def run(self) -> None:
         """메인 루프 진입점. Ctrl+C로 종료."""
@@ -156,6 +171,7 @@ class MainLoop:
                 break
             except Exception as exc:
                 logger.error("MainLoop tick error: %s", exc, exc_info=True)
+                notify_error(str(exc))
             await asyncio.sleep(_POLL_INTERVAL_SEC)
 
     async def _tick(self) -> None:
@@ -167,6 +183,17 @@ class MainLoop:
             if self.risk_manager:
                 self.risk_manager.reset_daily()
             logger.info("Daily reset at %s", now.isoformat())
+            balance = self.client.get_balance() or 0.0
+            notify_daily_balance(balance)
+
+        # 30분마다 status.txt 갱신
+        if (
+            self._last_status_write is None
+            or (now - self._last_status_write).total_seconds() >= 1800
+        ):
+            balance_now = self.client.get_balance() or 0.0
+            _write_status(self.open_positions, balance_now, self._started_at)
+            self._last_status_write = now
 
         symbols = await self.universe.get_active_symbols()
 
@@ -241,6 +268,7 @@ class MainLoop:
             del self.open_positions[symbol]
             logger.info("max_hold exit: %s pnl=%.4f counter=%s",
                         symbol, pnl, self.risk_manager.counter.snapshot())
+            notify_trade_closed(symbol, pos.direction, pos.entry_price, exit_price, pnl, "timeout")
             return
 
         # Module A: TP1 체크
@@ -278,6 +306,7 @@ class MainLoop:
                 del self.open_positions[symbol]
                 logger.info("Chandelier exit: %s pnl=%.4f counter=%s",
                             symbol, pnl, self.risk_manager.counter.snapshot())
+                notify_trade_closed(symbol, pos.direction, pos.entry_price, exit_price, pnl, "trailing")
 
     async def close_all_positions_market_order(self) -> None:
         """§M.5: 오픈 포지션 전량 시장가 청산. DRY_RUN=true 시 로그만 출력."""
@@ -350,6 +379,7 @@ class MainLoop:
 
         ema9_1h = _calc_ema(closes, 9)
         ema20_1h = _calc_ema(closes, 20)
+        ema15_1h = _calc_ema(closes, 15)  # Module B Long 전용 — 결정 #63
         prices = np.array([c.typical_price for c in candles_1h[-24:]])
         sigma_1 = float(np.std(prices)) if len(prices) > 1 else bar.close * 0.01
         sigma_2 = sigma_1 * 2
@@ -411,7 +441,7 @@ class MainLoop:
                         daily_vwap=daily_vwap,
                         avwap_low=daily_vwap,
                         ema9_1h=ema9_1h,
-                        ema20_1h=ema20_1h,
+                        ema20_1h=ema15_1h,
                         volume_ma20=vol_ma20,
                     )
                 else:
@@ -520,7 +550,7 @@ class MainLoop:
             balance=balance * size_pct,
             entry_price=bar.close,
             sl_price=sl_tp.sl,
-            lot_size=0.001,  # BTC 최소 단위
+            lot_size=self.client.get_lot_size(symbol),
         )
         if not size.valid:
             logger.debug("Invalid position size for %s: %s", symbol, size.reason)
@@ -545,13 +575,58 @@ class MainLoop:
             "Opened %s %s Module%s @ %.4f sl=%.4f",
             decision.direction, symbol, decision.module, bar.close, sl_tp.sl,
         )
+        notify_trade_opened(symbol, decision.direction, size.qty, bar.close, sl_tp.sl)
+
+
+def _setup_logging() -> None:
+    """재시작마다 bot.log 초기화 (mode='w') + 콘솔 동시 출력."""
+    log_dir = Path(__file__).parents[2] / "logs"
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "bot.log"
+
+    fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+    file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
+    file_handler.setFormatter(fmt)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(fmt)
+
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.handlers.clear()
+    root.addHandler(file_handler)
+    root.addHandler(console_handler)
+
+
+def _write_status(open_positions: dict, balance: float, started_at: datetime) -> None:
+    """logs/status.txt — 사람이 읽기 쉬운 봇 현황."""
+    log_dir = Path(__file__).parents[2] / "logs"
+    now = datetime.now(timezone.utc)
+    runtime = now - started_at
+    hours, rem = divmod(int(runtime.total_seconds()), 3600)
+    minutes = rem // 60
+
+    lines = [
+        f"봇 상태 업데이트: {now.strftime('%Y-%m-%d %H:%M')} UTC",
+        f"가동 시간: {hours}시간 {minutes}분",
+        f"현재 잔고: {balance:,.2f} USDT",
+        f"열린 포지션: {len(open_positions)}개",
+    ]
+    if open_positions:
+        lines.append("")
+        lines.append("── 현재 포지션 ──")
+        for sym, pos in open_positions.items():
+            direction_kor = "매수(Long)" if pos.direction == "long" else "매도(Short)"
+            lines.append(f"  {sym}: {direction_kor} | 진입가 {pos.entry_price:,.4f} | SL {pos.sl:,.4f}")
+    else:
+        lines.append("(대기 중 — 신호 탐색 중)")
+
+    (log_dir / "status.txt").write_text("\n".join(lines), encoding="utf-8")
 
 
 async def main() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
+    _setup_logging()
 
     if not API_KEY or not API_SECRET:
         logger.critical("BYBIT_API_KEY / BYBIT_API_SECRET not set. Exiting.")
@@ -566,8 +641,25 @@ async def main() -> None:
     loop = MainLoop(client, pipeline, executor, universe)
 
     logger.info("VWAP-Trader starting. DRY_RUN=%s TESTNET=%s", DRY_RUN, TESTNET)
-    await loop.run()
+    balance = client.get_balance() or 0.0
+    notify_bot_started(balance)
+    try:
+        await loop.run()
+    except Exception as exc:
+        notify_bot_stopped(f"에러로 종료: {exc}")
+        raise
+    finally:
+        notify_bot_stopped()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except BaseException as exc:
+        import traceback
+        crash_path = Path(__file__).parents[2] / "logs" / "crash_reason.log"
+        crash_path.parent.mkdir(exist_ok=True)
+        with open(crash_path, "w", encoding="utf-8") as f:
+            f.write(f"CRASH: {type(exc).__name__}: {exc}\n")
+            traceback.print_exc(file=f)
+        raise

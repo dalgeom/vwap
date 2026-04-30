@@ -12,8 +12,8 @@ STRUCTURAL_ATR_MULT: float = 0.5     # 구조적 레벨 근접 판단
 PULLBACK_VOLUME_MULT: float = 1.0    # 풀백 거래량 상한 (약해야 함)
 REVERSAL_VOLUME_MULT: float = 1.2    # 반전/재개 캔들 거래량 하한
 
-# ─── 확정 파라미터 (결정 #34, #35, #38) ────────────────────────
-SWING_N: int = 10                    # 스윙 탐색 윈도우 (±10봉)
+# ─── 확정 파라미터 (결정 #34, #35, #38, #63) ───────────────────
+SWING_N: int = 15                    # 스윙 탐색 윈도우 (±15봉) — 결정 #63 WF PASS
 RETRACE_MIN: float = 0.30            # 되돌림 하한
 RETRACE_MAX: float = 0.70            # 되돌림 상한
 STRONG_CLOSE_PCT: float = 0.67       # Strong Close 기준 (캔들 범위 상위 33%)

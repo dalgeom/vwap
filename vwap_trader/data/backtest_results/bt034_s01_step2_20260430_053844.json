@@ -1,0 +1,36 @@
+{
+  "task_id": "BT034",
+  "strategy": "S-01: 4H Swing + 15m Pullback Long — Step 2 1차 그리드",
+  "date": "2026-04-30",
+  "verdict": "FAIL",
+  "summary": {
+    "total_combinations": 216,
+    "ev_positive_count": 0,
+    "best_oos_sharpe": -0.098,
+    "best_oos_ev_atr": -0.224
+  },
+  "top10_by_ev": [
+    {"rank":1,"id":"lb15_vc15_tp1008_ba05_rgNone_mh60","N":441,"EV":-0.2235,"Sharpe":-0.098,"WR":0.336,"MDD":120.1},
+    {"rank":2,"id":"lb15_vc13_tp1008_ba05_rgNone_mh60","N":522,"EV":-0.2245,"Sharpe":-0.099,"WR":0.331,"MDD":136.8},
+    {"rank":3,"id":"lb15_vc13_tp1008_ba05_rgNone_mh48","N":529,"EV":-0.2249,"Sharpe":-0.102,"WR":0.350,"MDD":124.2},
+    {"rank":4,"id":"lb15_vc15_tp1008_ba05_rgNone_mh48","N":446,"EV":-0.2296,"Sharpe":-0.104,"WR":0.352,"MDD":108.7},
+    {"rank":5,"id":"lb20_vc13_tp1008_ba05_rgNone_mh48","N":483,"EV":-0.2346,"Sharpe":-0.106,"WR":0.350,"MDD":124.7}
+  ],
+  "structural_issues": {
+    "rsi_gate_30": "2024 강세장 RSI<30 극히 드물어 사실상 비작동 (평균 N=4건 vs None=520건)",
+    "win_rate": "전 조합 33~36% — 4H 돌파 후 15m EMA21 터치가 추세 재개 아닌 돌파 실패 초기 신호로 작동",
+    "sl_too_tight": "초기 SL 1.5×ATR_15m이 일반 노이즈 범위 내 → SL 히트 과다",
+    "fee_burden": "gross EV ≈ -0.03 ATR (수수료 전에도 음수)"
+  },
+  "param_sensitivity": {
+    "breakout_atr": {"0.5": -0.281, "0.3": -0.373, "0.2": -0.360},
+    "touch_pct": {"1.008": -0.303, "1.005": -0.368, "1.003": -0.343}
+  },
+  "redesign_recommendations": [
+    "진입 타이밍: EMA21 터치 → 강세 캔들 패턴 + 거래량 증가 확인",
+    "SL 완화: 1.5×ATR_15m → 2.0~2.5×ATR_15m",
+    "rsi_gate=30 폐기 또는 기준 상향 (45~50)",
+    "FRESH_BARS: 12H → 6~8H (돌파 직후 고품질 눌림만)"
+  ],
+  "next_step": "G 검토 → F 판결 → B 재설계 요청 여부 결정"
+}

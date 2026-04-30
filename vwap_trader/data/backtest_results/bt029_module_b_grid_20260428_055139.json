@@ -1,0 +1,1565 @@
+{
+  "task": "BT-029",
+  "run_at": "2026-04-28T05:51:39Z",
+  "strategy": "Module B Long Parameter Grid",
+  "period": {
+    "start": "2023-01-01",
+    "end": "2026-01-01"
+  },
+  "fixed_params": {
+    "ema_short": 9,
+    "atr_period": 14,
+    "retrace_lo": 0.3,
+    "retrace_hi": 0.7,
+    "strong_close_k": 0.67,
+    "sl_mult": 1.5,
+    "chandelier_mult": 3.0,
+    "max_hold_bars": 72,
+    "round_trip_fee_pct": 0.13999999999999999
+  },
+  "grid": {
+    "ema_period": [
+      15,
+      20,
+      25
+    ],
+    "vwap_band_mult": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "swing_lookback": [
+      5,
+      10,
+      15
+    ],
+    "total_combos": 27
+  },
+  "all_results": [
+    {
+      "idx": 1,
+      "ema_period": 15,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 503,
+          "daily": 0.4585,
+          "wr": 0.4235,
+          "pf": 1.6881,
+          "mdd": 0.186927,
+          "ev": 0.003759,
+          "sharpe": 2.0894
+        },
+        "ETHUSDT": {
+          "n": 457,
+          "daily": 0.4166,
+          "wr": 0.4179,
+          "pf": 1.7388,
+          "mdd": 0.340278,
+          "ev": 0.005723,
+          "sharpe": 1.9604
+        },
+        "SOLUSDT": {
+          "n": 459,
+          "daily": 0.4184,
+          "wr": 0.427,
+          "pf": 1.8858,
+          "mdd": 0.199567,
+          "ev": 0.009705,
+          "sharpe": 2.3871
+        },
+        "BNBUSDT": {
+          "n": 493,
+          "daily": 0.4494,
+          "wr": 0.3955,
+          "pf": 1.5752,
+          "mdd": 0.327418,
+          "ev": 0.003841,
+          "sharpe": 1.7926
+        }
+      },
+      "agg": {
+        "total_trades": 1912,
+        "total_daily": 1.7429,
+        "ev": 0.005677,
+        "pf": 1.743,
+        "sharpe": 2.0535
+      }
+    },
+    {
+      "idx": 2,
+      "ema_period": 15,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 496,
+          "daily": 0.4521,
+          "wr": 0.4133,
+          "pf": 1.6916,
+          "mdd": 0.255587,
+          "ev": 0.003782,
+          "sharpe": 2.0836
+        },
+        "ETHUSDT": {
+          "n": 456,
+          "daily": 0.4157,
+          "wr": 0.4211,
+          "pf": 1.705,
+          "mdd": 0.262521,
+          "ev": 0.00548,
+          "sharpe": 1.902
+        },
+        "SOLUSDT": {
+          "n": 470,
+          "daily": 0.4284,
+          "wr": 0.4255,
+          "pf": 1.8651,
+          "mdd": 0.30367,
+          "ev": 0.009511,
+          "sharpe": 2.4009
+        },
+        "BNBUSDT": {
+          "n": 485,
+          "daily": 0.4421,
+          "wr": 0.4,
+          "pf": 1.5555,
+          "mdd": 0.422534,
+          "ev": 0.003621,
+          "sharpe": 1.7307
+        }
+      },
+      "agg": {
+        "total_trades": 1907,
+        "total_daily": 1.7383,
+        "ev": 0.005559,
+        "pf": 1.7268,
+        "sharpe": 2.0286
+      }
+    },
+    {
+      "idx": 3,
+      "ema_period": 15,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 494,
+          "daily": 0.4503,
+          "wr": 0.4291,
+          "pf": 1.7462,
+          "mdd": 0.193956,
+          "ev": 0.003971,
+          "sharpe": 2.1655
+        },
+        "ETHUSDT": {
+          "n": 450,
+          "daily": 0.4102,
+          "wr": 0.4333,
+          "pf": 1.738,
+          "mdd": 0.188006,
+          "ev": 0.005639,
+          "sharpe": 2.0436
+        },
+        "SOLUSDT": {
+          "n": 467,
+          "daily": 0.4257,
+          "wr": 0.4368,
+          "pf": 1.9412,
+          "mdd": 0.305263,
+          "ev": 0.010045,
+          "sharpe": 2.5484
+        },
+        "BNBUSDT": {
+          "n": 477,
+          "daily": 0.4348,
+          "wr": 0.4046,
+          "pf": 1.6678,
+          "mdd": 0.351562,
+          "ev": 0.004291,
+          "sharpe": 1.9774
+        }
+      },
+      "agg": {
+        "total_trades": 1888,
+        "total_daily": 1.721,
+        "ev": 0.005952,
+        "pf": 1.796,
+        "sharpe": 2.1836
+      }
+    },
+    {
+      "idx": 4,
+      "ema_period": 15,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 504,
+          "daily": 0.4594,
+          "wr": 0.4226,
+          "pf": 1.6807,
+          "mdd": 0.186927,
+          "ev": 0.003728,
+          "sharpe": 2.0748
+        },
+        "ETHUSDT": {
+          "n": 458,
+          "daily": 0.4175,
+          "wr": 0.417,
+          "pf": 1.7343,
+          "mdd": 0.340278,
+          "ev": 0.005697,
+          "sharpe": 1.955
+        },
+        "SOLUSDT": {
+          "n": 461,
+          "daily": 0.4202,
+          "wr": 0.4273,
+          "pf": 1.8694,
+          "mdd": 0.231954,
+          "ev": 0.009614,
+          "sharpe": 2.3403
+        },
+        "BNBUSDT": {
+          "n": 497,
+          "daily": 0.4531,
+          "wr": 0.3924,
+          "pf": 1.531,
+          "mdd": 0.325994,
+          "ev": 0.003627,
+          "sharpe": 1.6954
+        }
+      },
+      "agg": {
+        "total_trades": 1920,
+        "total_daily": 1.7502,
+        "ev": 0.005585,
+        "pf": 1.7242,
+        "sharpe": 2.0118
+      }
+    },
+    {
+      "idx": 5,
+      "ema_period": 15,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 498,
+          "daily": 0.454,
+          "wr": 0.4137,
+          "pf": 1.681,
+          "mdd": 0.254591,
+          "ev": 0.003744,
+          "sharpe": 2.0683
+        },
+        "ETHUSDT": {
+          "n": 457,
+          "daily": 0.4166,
+          "wr": 0.4201,
+          "pf": 1.6997,
+          "mdd": 0.262521,
+          "ev": 0.00545,
+          "sharpe": 1.895
+        },
+        "SOLUSDT": {
+          "n": 471,
+          "daily": 0.4294,
+          "wr": 0.4268,
+          "pf": 1.8617,
+          "mdd": 0.30367,
+          "ev": 0.009519,
+          "sharpe": 2.3737
+        },
+        "BNBUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.3951,
+          "pf": 1.4998,
+          "mdd": 0.454126,
+          "ev": 0.003342,
+          "sharpe": 1.6057
+        }
+      },
+      "agg": {
+        "total_trades": 1917,
+        "total_daily": 1.7476,
+        "ev": 0.005467,
+        "pf": 1.7089,
+        "sharpe": 1.9835
+      }
+    },
+    {
+      "idx": 6,
+      "ema_period": 15,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 496,
+          "daily": 0.4521,
+          "wr": 0.4274,
+          "pf": 1.7351,
+          "mdd": 0.19296,
+          "ev": 0.003921,
+          "sharpe": 2.1455
+        },
+        "ETHUSDT": {
+          "n": 452,
+          "daily": 0.412,
+          "wr": 0.4336,
+          "pf": 1.7336,
+          "mdd": 0.188006,
+          "ev": 0.00561,
+          "sharpe": 2.0408
+        },
+        "SOLUSDT": {
+          "n": 468,
+          "daily": 0.4266,
+          "wr": 0.438,
+          "pf": 1.937,
+          "mdd": 0.305263,
+          "ev": 0.010049,
+          "sharpe": 2.5186
+        },
+        "BNBUSDT": {
+          "n": 484,
+          "daily": 0.4412,
+          "wr": 0.3988,
+          "pf": 1.5973,
+          "mdd": 0.383154,
+          "ev": 0.003952,
+          "sharpe": 1.8342
+        }
+      },
+      "agg": {
+        "total_trades": 1900,
+        "total_daily": 1.7319,
+        "ev": 0.00584,
+        "pf": 1.7746,
+        "sharpe": 2.1332
+      }
+    },
+    {
+      "idx": 7,
+      "ema_period": 15,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 504,
+          "daily": 0.4594,
+          "wr": 0.4226,
+          "pf": 1.682,
+          "mdd": 0.186927,
+          "ev": 0.003735,
+          "sharpe": 2.0787
+        },
+        "ETHUSDT": {
+          "n": 458,
+          "daily": 0.4175,
+          "wr": 0.417,
+          "pf": 1.7343,
+          "mdd": 0.340278,
+          "ev": 0.005697,
+          "sharpe": 1.955
+        },
+        "SOLUSDT": {
+          "n": 461,
+          "daily": 0.4202,
+          "wr": 0.4273,
+          "pf": 1.8694,
+          "mdd": 0.231954,
+          "ev": 0.009614,
+          "sharpe": 2.3403
+        },
+        "BNBUSDT": {
+          "n": 497,
+          "daily": 0.4531,
+          "wr": 0.3924,
+          "pf": 1.531,
+          "mdd": 0.325994,
+          "ev": 0.003627,
+          "sharpe": 1.6954
+        }
+      },
+      "agg": {
+        "total_trades": 1920,
+        "total_daily": 1.7502,
+        "ev": 0.005587,
+        "pf": 1.7244,
+        "sharpe": 2.0128
+      }
+    },
+    {
+      "idx": 8,
+      "ema_period": 15,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 498,
+          "daily": 0.454,
+          "wr": 0.4137,
+          "pf": 1.6823,
+          "mdd": 0.254591,
+          "ev": 0.003751,
+          "sharpe": 2.0722
+        },
+        "ETHUSDT": {
+          "n": 457,
+          "daily": 0.4166,
+          "wr": 0.4201,
+          "pf": 1.6997,
+          "mdd": 0.262521,
+          "ev": 0.00545,
+          "sharpe": 1.895
+        },
+        "SOLUSDT": {
+          "n": 471,
+          "daily": 0.4294,
+          "wr": 0.4268,
+          "pf": 1.8617,
+          "mdd": 0.30367,
+          "ev": 0.009519,
+          "sharpe": 2.3737
+        },
+        "BNBUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.3951,
+          "pf": 1.4998,
+          "mdd": 0.454126,
+          "ev": 0.003342,
+          "sharpe": 1.6057
+        }
+      },
+      "agg": {
+        "total_trades": 1917,
+        "total_daily": 1.7476,
+        "ev": 0.005468,
+        "pf": 1.7091,
+        "sharpe": 1.9845
+      }
+    },
+    {
+      "idx": 9,
+      "ema_period": 15,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 496,
+          "daily": 0.4521,
+          "wr": 0.4274,
+          "pf": 1.7365,
+          "mdd": 0.19296,
+          "ev": 0.003928,
+          "sharpe": 2.1494
+        },
+        "ETHUSDT": {
+          "n": 452,
+          "daily": 0.412,
+          "wr": 0.4336,
+          "pf": 1.7336,
+          "mdd": 0.188006,
+          "ev": 0.00561,
+          "sharpe": 2.0408
+        },
+        "SOLUSDT": {
+          "n": 468,
+          "daily": 0.4266,
+          "wr": 0.438,
+          "pf": 1.937,
+          "mdd": 0.305263,
+          "ev": 0.010049,
+          "sharpe": 2.5186
+        },
+        "BNBUSDT": {
+          "n": 484,
+          "daily": 0.4412,
+          "wr": 0.3988,
+          "pf": 1.5973,
+          "mdd": 0.383154,
+          "ev": 0.003952,
+          "sharpe": 1.8342
+        }
+      },
+      "agg": {
+        "total_trades": 1900,
+        "total_daily": 1.7319,
+        "ev": 0.005842,
+        "pf": 1.7749,
+        "sharpe": 2.1342
+      }
+    },
+    {
+      "idx": 10,
+      "ema_period": 20,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 490,
+          "daily": 0.4467,
+          "wr": 0.4041,
+          "pf": 1.6677,
+          "mdd": 0.161863,
+          "ev": 0.003729,
+          "sharpe": 2.0095
+        },
+        "ETHUSDT": {
+          "n": 446,
+          "daily": 0.4066,
+          "wr": 0.4126,
+          "pf": 1.7697,
+          "mdd": 0.250433,
+          "ev": 0.005899,
+          "sharpe": 2.0055
+        },
+        "SOLUSDT": {
+          "n": 453,
+          "daily": 0.4129,
+          "wr": 0.4172,
+          "pf": 1.801,
+          "mdd": 0.206572,
+          "ev": 0.008919,
+          "sharpe": 2.1983
+        },
+        "BNBUSDT": {
+          "n": 487,
+          "daily": 0.4439,
+          "wr": 0.3963,
+          "pf": 1.5364,
+          "mdd": 0.337706,
+          "ev": 0.00368,
+          "sharpe": 1.7105
+        }
+      },
+      "agg": {
+        "total_trades": 1876,
+        "total_daily": 1.7101,
+        "ev": 0.005485,
+        "pf": 1.7078,
+        "sharpe": 1.9765
+      }
+    },
+    {
+      "idx": 11,
+      "ema_period": 20,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 484,
+          "daily": 0.4412,
+          "wr": 0.407,
+          "pf": 1.6927,
+          "mdd": 0.21399,
+          "ev": 0.003831,
+          "sharpe": 2.0543
+        },
+        "ETHUSDT": {
+          "n": 443,
+          "daily": 0.4038,
+          "wr": 0.4086,
+          "pf": 1.6985,
+          "mdd": 0.264176,
+          "ev": 0.005413,
+          "sharpe": 1.8627
+        },
+        "SOLUSDT": {
+          "n": 459,
+          "daily": 0.4184,
+          "wr": 0.4227,
+          "pf": 1.7893,
+          "mdd": 0.363054,
+          "ev": 0.008907,
+          "sharpe": 2.2209
+        },
+        "BNBUSDT": {
+          "n": 477,
+          "daily": 0.4348,
+          "wr": 0.3941,
+          "pf": 1.5137,
+          "mdd": 0.478193,
+          "ev": 0.003401,
+          "sharpe": 1.6246
+        }
+      },
+      "agg": {
+        "total_trades": 1863,
+        "total_daily": 1.6982,
+        "ev": 0.005348,
+        "pf": 1.6896,
+        "sharpe": 1.9398
+      }
+    },
+    {
+      "idx": 12,
+      "ema_period": 20,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 484,
+          "daily": 0.4412,
+          "wr": 0.4277,
+          "pf": 1.7407,
+          "mdd": 0.181621,
+          "ev": 0.003992,
+          "sharpe": 2.1256
+        },
+        "ETHUSDT": {
+          "n": 439,
+          "daily": 0.4002,
+          "wr": 0.4169,
+          "pf": 1.7278,
+          "mdd": 0.186528,
+          "ev": 0.005619,
+          "sharpe": 1.9734
+        },
+        "SOLUSDT": {
+          "n": 447,
+          "daily": 0.4075,
+          "wr": 0.4407,
+          "pf": 1.9962,
+          "mdd": 0.342216,
+          "ev": 0.010498,
+          "sharpe": 2.596
+        },
+        "BNBUSDT": {
+          "n": 469,
+          "daily": 0.4275,
+          "wr": 0.403,
+          "pf": 1.5932,
+          "mdd": 0.438388,
+          "ev": 0.003888,
+          "sharpe": 1.8078
+        }
+      },
+      "agg": {
+        "total_trades": 1839,
+        "total_daily": 1.6764,
+        "ev": 0.005935,
+        "pf": 1.792,
+        "sharpe": 2.1226
+      }
+    },
+    {
+      "idx": 13,
+      "ema_period": 20,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.4033,
+          "pf": 1.6604,
+          "mdd": 0.161863,
+          "ev": 0.003697,
+          "sharpe": 1.995
+        },
+        "ETHUSDT": {
+          "n": 449,
+          "daily": 0.4093,
+          "wr": 0.4098,
+          "pf": 1.729,
+          "mdd": 0.282759,
+          "ev": 0.005691,
+          "sharpe": 1.94
+        },
+        "SOLUSDT": {
+          "n": 455,
+          "daily": 0.4148,
+          "wr": 0.4198,
+          "pf": 1.7962,
+          "mdd": 0.244997,
+          "ev": 0.008936,
+          "sharpe": 2.173
+        },
+        "BNBUSDT": {
+          "n": 495,
+          "daily": 0.4512,
+          "wr": 0.3899,
+          "pf": 1.4779,
+          "mdd": 0.370114,
+          "ev": 0.003374,
+          "sharpe": 1.5755
+        }
+      },
+      "agg": {
+        "total_trades": 1890,
+        "total_daily": 1.7229,
+        "ev": 0.005347,
+        "pf": 1.6803,
+        "sharpe": 1.9149
+      }
+    },
+    {
+      "idx": 14,
+      "ema_period": 20,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 488,
+          "daily": 0.4448,
+          "wr": 0.4057,
+          "pf": 1.6727,
+          "mdd": 0.212995,
+          "ev": 0.003749,
+          "sharpe": 2.0228
+        },
+        "ETHUSDT": {
+          "n": 445,
+          "daily": 0.4057,
+          "wr": 0.409,
+          "pf": 1.683,
+          "mdd": 0.264176,
+          "ev": 0.00533,
+          "sharpe": 1.8381
+        },
+        "SOLUSDT": {
+          "n": 461,
+          "daily": 0.4202,
+          "wr": 0.4252,
+          "pf": 1.807,
+          "mdd": 0.355296,
+          "ev": 0.00906,
+          "sharpe": 2.2362
+        },
+        "BNBUSDT": {
+          "n": 490,
+          "daily": 0.4467,
+          "wr": 0.3837,
+          "pf": 1.4142,
+          "mdd": 0.56002,
+          "ev": 0.002875,
+          "sharpe": 1.3853
+        }
+      },
+      "agg": {
+        "total_trades": 1884,
+        "total_daily": 1.7174,
+        "ev": 0.005195,
+        "pf": 1.6626,
+        "sharpe": 1.8656
+      }
+    },
+    {
+      "idx": 15,
+      "ema_period": 20,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.4216,
+          "pf": 1.6783,
+          "mdd": 0.180626,
+          "ev": 0.003738,
+          "sharpe": 2.0097
+        },
+        "ETHUSDT": {
+          "n": 443,
+          "daily": 0.4038,
+          "wr": 0.4176,
+          "pf": 1.6984,
+          "mdd": 0.186528,
+          "ev": 0.005458,
+          "sharpe": 1.9275
+        },
+        "SOLUSDT": {
+          "n": 449,
+          "daily": 0.4093,
+          "wr": 0.4432,
+          "pf": 2.0156,
+          "mdd": 0.334458,
+          "ev": 0.010646,
+          "sharpe": 2.6058
+        },
+        "BNBUSDT": {
+          "n": 485,
+          "daily": 0.4421,
+          "wr": 0.3897,
+          "pf": 1.4608,
+          "mdd": 0.527257,
+          "ev": 0.003192,
+          "sharpe": 1.5107
+        }
+      },
+      "agg": {
+        "total_trades": 1868,
+        "total_daily": 1.7028,
+        "ev": 0.005665,
+        "pf": 1.7434,
+        "sharpe": 2.0039
+      }
+    },
+    {
+      "idx": 16,
+      "ema_period": 20,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 494,
+          "daily": 0.4503,
+          "wr": 0.4008,
+          "pf": 1.6406,
+          "mdd": 0.161863,
+          "ev": 0.00361,
+          "sharpe": 1.9573
+        },
+        "ETHUSDT": {
+          "n": 449,
+          "daily": 0.4093,
+          "wr": 0.412,
+          "pf": 1.7362,
+          "mdd": 0.282759,
+          "ev": 0.005724,
+          "sharpe": 1.9519
+        },
+        "SOLUSDT": {
+          "n": 455,
+          "daily": 0.4148,
+          "wr": 0.4198,
+          "pf": 1.7962,
+          "mdd": 0.244997,
+          "ev": 0.008936,
+          "sharpe": 2.173
+        },
+        "BNBUSDT": {
+          "n": 496,
+          "daily": 0.4521,
+          "wr": 0.3891,
+          "pf": 1.4722,
+          "mdd": 0.383515,
+          "ev": 0.00334,
+          "sharpe": 1.5623
+        }
+      },
+      "agg": {
+        "total_trades": 1894,
+        "total_daily": 1.7265,
+        "ev": 0.00532,
+        "pf": 1.6767,
+        "sharpe": 1.9044
+      }
+    },
+    {
+      "idx": 17,
+      "ema_period": 20,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.4033,
+          "pf": 1.6524,
+          "mdd": 0.224824,
+          "ev": 0.003661,
+          "sharpe": 1.9845
+        },
+        "ETHUSDT": {
+          "n": 445,
+          "daily": 0.4057,
+          "wr": 0.4112,
+          "pf": 1.6901,
+          "mdd": 0.264176,
+          "ev": 0.005364,
+          "sharpe": 1.8502
+        },
+        "SOLUSDT": {
+          "n": 461,
+          "daily": 0.4202,
+          "wr": 0.4252,
+          "pf": 1.807,
+          "mdd": 0.355296,
+          "ev": 0.00906,
+          "sharpe": 2.2362
+        },
+        "BNBUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.3829,
+          "pf": 1.4115,
+          "mdd": 0.573421,
+          "ev": 0.002856,
+          "sharpe": 1.3798
+        }
+      },
+      "agg": {
+        "total_trades": 1888,
+        "total_daily": 1.7211,
+        "ev": 0.005171,
+        "pf": 1.6598,
+        "sharpe": 1.857
+      }
+    },
+    {
+      "idx": 18,
+      "ema_period": 20,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 494,
+          "daily": 0.4503,
+          "wr": 0.419,
+          "pf": 1.6578,
+          "mdd": 0.192455,
+          "ev": 0.00365,
+          "sharpe": 1.9718
+        },
+        "ETHUSDT": {
+          "n": 443,
+          "daily": 0.4038,
+          "wr": 0.4199,
+          "pf": 1.7056,
+          "mdd": 0.186528,
+          "ev": 0.005492,
+          "sharpe": 1.94
+        },
+        "SOLUSDT": {
+          "n": 449,
+          "daily": 0.4093,
+          "wr": 0.4432,
+          "pf": 2.0156,
+          "mdd": 0.334458,
+          "ev": 0.010646,
+          "sharpe": 2.6058
+        },
+        "BNBUSDT": {
+          "n": 486,
+          "daily": 0.443,
+          "wr": 0.3889,
+          "pf": 1.458,
+          "mdd": 0.540658,
+          "ev": 0.003172,
+          "sharpe": 1.5053
+        }
+      },
+      "agg": {
+        "total_trades": 1872,
+        "total_daily": 1.7064,
+        "ev": 0.00564,
+        "pf": 1.7403,
+        "sharpe": 1.9952
+      }
+    },
+    {
+      "idx": 19,
+      "ema_period": 25,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 486,
+          "daily": 0.443,
+          "wr": 0.4074,
+          "pf": 1.6141,
+          "mdd": 0.155493,
+          "ev": 0.003521,
+          "sharpe": 1.878
+        },
+        "ETHUSDT": {
+          "n": 442,
+          "daily": 0.4029,
+          "wr": 0.4005,
+          "pf": 1.7777,
+          "mdd": 0.292318,
+          "ev": 0.005977,
+          "sharpe": 2.0108
+        },
+        "SOLUSDT": {
+          "n": 439,
+          "daily": 0.4002,
+          "wr": 0.4191,
+          "pf": 1.8609,
+          "mdd": 0.235179,
+          "ev": 0.009448,
+          "sharpe": 2.2713
+        },
+        "BNBUSDT": {
+          "n": 485,
+          "daily": 0.4421,
+          "wr": 0.3979,
+          "pf": 1.5324,
+          "mdd": 0.304545,
+          "ev": 0.003636,
+          "sharpe": 1.6953
+        }
+      },
+      "agg": {
+        "total_trades": 1852,
+        "total_daily": 1.6882,
+        "ev": 0.005542,
+        "pf": 1.7171,
+        "sharpe": 1.9551
+      }
+    },
+    {
+      "idx": 20,
+      "ema_period": 25,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 486,
+          "daily": 0.443,
+          "wr": 0.3971,
+          "pf": 1.5469,
+          "mdd": 0.226766,
+          "ev": 0.003194,
+          "sharpe": 1.7132
+        },
+        "ETHUSDT": {
+          "n": 433,
+          "daily": 0.3947,
+          "wr": 0.4042,
+          "pf": 1.7226,
+          "mdd": 0.214388,
+          "ev": 0.00561,
+          "sharpe": 1.8973
+        },
+        "SOLUSDT": {
+          "n": 448,
+          "daily": 0.4084,
+          "wr": 0.4152,
+          "pf": 1.834,
+          "mdd": 0.284921,
+          "ev": 0.009243,
+          "sharpe": 2.2765
+        },
+        "BNBUSDT": {
+          "n": 481,
+          "daily": 0.4385,
+          "wr": 0.3929,
+          "pf": 1.4576,
+          "mdd": 0.37192,
+          "ev": 0.003109,
+          "sharpe": 1.496
+        }
+      },
+      "agg": {
+        "total_trades": 1848,
+        "total_daily": 1.6846,
+        "ev": 0.005204,
+        "pf": 1.6664,
+        "sharpe": 1.8364
+      }
+    },
+    {
+      "idx": 21,
+      "ema_period": 25,
+      "vwap_band_mult": 1.0,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 494,
+          "daily": 0.4503,
+          "wr": 0.4089,
+          "pf": 1.5047,
+          "mdd": 0.198195,
+          "ev": 0.002993,
+          "sharpe": 1.5993
+        },
+        "ETHUSDT": {
+          "n": 435,
+          "daily": 0.3965,
+          "wr": 0.4115,
+          "pf": 1.7261,
+          "mdd": 0.167621,
+          "ev": 0.005563,
+          "sharpe": 1.978
+        },
+        "SOLUSDT": {
+          "n": 436,
+          "daily": 0.3974,
+          "wr": 0.4289,
+          "pf": 2.0171,
+          "mdd": 0.285891,
+          "ev": 0.010678,
+          "sharpe": 2.5845
+        },
+        "BNBUSDT": {
+          "n": 472,
+          "daily": 0.4303,
+          "wr": 0.3983,
+          "pf": 1.5162,
+          "mdd": 0.369637,
+          "ev": 0.003479,
+          "sharpe": 1.6355
+        }
+      },
+      "agg": {
+        "total_trades": 1837,
+        "total_daily": 1.6745,
+        "ev": 0.00555,
+        "pf": 1.7272,
+        "sharpe": 1.9321
+      }
+    },
+    {
+      "idx": 22,
+      "ema_period": 25,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 488,
+          "daily": 0.4448,
+          "wr": 0.4057,
+          "pf": 1.5938,
+          "mdd": 0.155493,
+          "ev": 0.003434,
+          "sharpe": 1.8356
+        },
+        "ETHUSDT": {
+          "n": 445,
+          "daily": 0.4057,
+          "wr": 0.3978,
+          "pf": 1.7394,
+          "mdd": 0.324644,
+          "ev": 0.005779,
+          "sharpe": 1.95
+        },
+        "SOLUSDT": {
+          "n": 443,
+          "daily": 0.4038,
+          "wr": 0.4199,
+          "pf": 1.8459,
+          "mdd": 0.267565,
+          "ev": 0.009366,
+          "sharpe": 2.2303
+        },
+        "BNBUSDT": {
+          "n": 493,
+          "daily": 0.4494,
+          "wr": 0.3915,
+          "pf": 1.4696,
+          "mdd": 0.320885,
+          "ev": 0.003318,
+          "sharpe": 1.5497
+        }
+      },
+      "agg": {
+        "total_trades": 1869,
+        "total_daily": 1.7037,
+        "ev": 0.005368,
+        "pf": 1.683,
+        "sharpe": 1.881
+      }
+    },
+    {
+      "idx": 23,
+      "ema_period": 25,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 493,
+          "daily": 0.4494,
+          "wr": 0.3935,
+          "pf": 1.4979,
+          "mdd": 0.225771,
+          "ev": 0.002972,
+          "sharpe": 1.6089
+        },
+        "ETHUSDT": {
+          "n": 436,
+          "daily": 0.3974,
+          "wr": 0.4037,
+          "pf": 1.6996,
+          "mdd": 0.214388,
+          "ev": 0.00548,
+          "sharpe": 1.8609
+        },
+        "SOLUSDT": {
+          "n": 451,
+          "daily": 0.4111,
+          "wr": 0.4169,
+          "pf": 1.8467,
+          "mdd": 0.317308,
+          "ev": 0.009344,
+          "sharpe": 2.2817
+        },
+        "BNBUSDT": {
+          "n": 498,
+          "daily": 0.454,
+          "wr": 0.3795,
+          "pf": 1.3437,
+          "mdd": 0.465019,
+          "ev": 0.002466,
+          "sharpe": 1.2029
+        }
+      },
+      "agg": {
+        "total_trades": 1878,
+        "total_daily": 1.7119,
+        "ev": 0.00495,
+        "pf": 1.6236,
+        "sharpe": 1.7213
+      }
+    },
+    {
+      "idx": 24,
+      "ema_period": 25,
+      "vwap_band_mult": 1.5,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 504,
+          "daily": 0.4594,
+          "wr": 0.4008,
+          "pf": 1.4277,
+          "mdd": 0.220043,
+          "ev": 0.00262,
+          "sharpe": 1.4184
+        },
+        "ETHUSDT": {
+          "n": 441,
+          "daily": 0.402,
+          "wr": 0.4104,
+          "pf": 1.6766,
+          "mdd": 0.167621,
+          "ev": 0.005288,
+          "sharpe": 1.8962
+        },
+        "SOLUSDT": {
+          "n": 438,
+          "daily": 0.3993,
+          "wr": 0.4315,
+          "pf": 2.0412,
+          "mdd": 0.282617,
+          "ev": 0.010853,
+          "sharpe": 2.6008
+        },
+        "BNBUSDT": {
+          "n": 493,
+          "daily": 0.4494,
+          "wr": 0.3813,
+          "pf": 1.3634,
+          "mdd": 0.491736,
+          "ev": 0.002617,
+          "sharpe": 1.26
+        }
+      },
+      "agg": {
+        "total_trades": 1876,
+        "total_daily": 1.7101,
+        "ev": 0.005169,
+        "pf": 1.6618,
+        "sharpe": 1.7652
+      }
+    },
+    {
+      "idx": 25,
+      "ema_period": 25,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 5,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 491,
+          "daily": 0.4476,
+          "wr": 0.4033,
+          "pf": 1.5653,
+          "mdd": 0.155493,
+          "ev": 0.003305,
+          "sharpe": 1.7785
+        },
+        "ETHUSDT": {
+          "n": 445,
+          "daily": 0.4057,
+          "wr": 0.4022,
+          "pf": 1.7493,
+          "mdd": 0.324644,
+          "ev": 0.005826,
+          "sharpe": 1.9667
+        },
+        "SOLUSDT": {
+          "n": 443,
+          "daily": 0.4038,
+          "wr": 0.4221,
+          "pf": 1.8593,
+          "mdd": 0.267565,
+          "ev": 0.009494,
+          "sharpe": 2.2599
+        },
+        "BNBUSDT": {
+          "n": 494,
+          "daily": 0.4503,
+          "wr": 0.3927,
+          "pf": 1.4688,
+          "mdd": 0.334286,
+          "ev": 0.003316,
+          "sharpe": 1.551
+        }
+      },
+      "agg": {
+        "total_trades": 1873,
+        "total_daily": 1.7074,
+        "ev": 0.005371,
+        "pf": 1.6834,
+        "sharpe": 1.8771
+      }
+    },
+    {
+      "idx": 26,
+      "ema_period": 25,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 10,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 496,
+          "daily": 0.4521,
+          "wr": 0.3911,
+          "pf": 1.4744,
+          "mdd": 0.2376,
+          "ev": 0.002862,
+          "sharpe": 1.5547
+        },
+        "ETHUSDT": {
+          "n": 437,
+          "daily": 0.3984,
+          "wr": 0.405,
+          "pf": 1.693,
+          "mdd": 0.214388,
+          "ev": 0.005438,
+          "sharpe": 1.8497
+        },
+        "SOLUSDT": {
+          "n": 451,
+          "daily": 0.4111,
+          "wr": 0.4169,
+          "pf": 1.8507,
+          "mdd": 0.317308,
+          "ev": 0.009388,
+          "sharpe": 2.2874
+        },
+        "BNBUSDT": {
+          "n": 499,
+          "daily": 0.4549,
+          "wr": 0.3788,
+          "pf": 1.3466,
+          "mdd": 0.47842,
+          "ev": 0.002486,
+          "sharpe": 1.215
+        }
+      },
+      "agg": {
+        "total_trades": 1883,
+        "total_daily": 1.7165,
+        "ev": 0.004923,
+        "pf": 1.6189,
+        "sharpe": 1.7086
+      }
+    },
+    {
+      "idx": 27,
+      "ema_period": 25,
+      "vwap_band_mult": 2.0,
+      "swing_lookback": 15,
+      "by_symbol": {
+        "BTCUSDT": {
+          "n": 508,
+          "daily": 0.4631,
+          "wr": 0.3996,
+          "pf": 1.406,
+          "mdd": 0.231872,
+          "ev": 0.002507,
+          "sharpe": 1.3671
+        },
+        "ETHUSDT": {
+          "n": 442,
+          "daily": 0.4029,
+          "wr": 0.414,
+          "pf": 1.6732,
+          "mdd": 0.167621,
+          "ev": 0.005262,
+          "sharpe": 1.8906
+        },
+        "SOLUSDT": {
+          "n": 438,
+          "daily": 0.3993,
+          "wr": 0.4338,
+          "pf": 2.0605,
+          "mdd": 0.282617,
+          "ev": 0.011028,
+          "sharpe": 2.636
+        },
+        "BNBUSDT": {
+          "n": 494,
+          "daily": 0.4503,
+          "wr": 0.3806,
+          "pf": 1.3651,
+          "mdd": 0.505137,
+          "ev": 0.002629,
+          "sharpe": 1.2685
+        }
+      },
+      "agg": {
+        "total_trades": 1882,
+        "total_daily": 1.7156,
+        "ev": 0.005169,
+        "pf": 1.6616,
+        "sharpe": 1.7595
+      }
+    }
+  ],
+  "valid_count": 27,
+  "best_sharpe": {
+    "ema_period": 15,
+    "vwap_band_mult": 1.0,
+    "swing_lookback": 15,
+    "by_symbol": {
+      "BTCUSDT": {
+        "n": 494,
+        "daily": 0.4503,
+        "wr": 0.4291,
+        "pf": 1.7462,
+        "mdd": 0.193956,
+        "ev": 0.003971,
+        "sharpe": 2.1655
+      },
+      "ETHUSDT": {
+        "n": 450,
+        "daily": 0.4102,
+        "wr": 0.4333,
+        "pf": 1.738,
+        "mdd": 0.188006,
+        "ev": 0.005639,
+        "sharpe": 2.0436
+      },
+      "SOLUSDT": {
+        "n": 467,
+        "daily": 0.4257,
+        "wr": 0.4368,
+        "pf": 1.9412,
+        "mdd": 0.305263,
+        "ev": 0.010045,
+        "sharpe": 2.5484
+      },
+      "BNBUSDT": {
+        "n": 477,
+        "daily": 0.4348,
+        "wr": 0.4046,
+        "pf": 1.6678,
+        "mdd": 0.351562,
+        "ev": 0.004291,
+        "sharpe": 1.9774
+      }
+    },
+    "agg": {
+      "total_trades": 1888,
+      "total_daily": 1.721,
+      "ev": 0.005952,
+      "pf": 1.796,
+      "sharpe": 2.1836
+    }
+  },
+  "best_daily": {
+    "ema_period": 15,
+    "vwap_band_mult": 1.5,
+    "swing_lookback": 5,
+    "by_symbol": {
+      "BTCUSDT": {
+        "n": 504,
+        "daily": 0.4594,
+        "wr": 0.4226,
+        "pf": 1.6807,
+        "mdd": 0.186927,
+        "ev": 0.003728,
+        "sharpe": 2.0748
+      },
+      "ETHUSDT": {
+        "n": 458,
+        "daily": 0.4175,
+        "wr": 0.417,
+        "pf": 1.7343,
+        "mdd": 0.340278,
+        "ev": 0.005697,
+        "sharpe": 1.955
+      },
+      "SOLUSDT": {
+        "n": 461,
+        "daily": 0.4202,
+        "wr": 0.4273,
+        "pf": 1.8694,
+        "mdd": 0.231954,
+        "ev": 0.009614,
+        "sharpe": 2.3403
+      },
+      "BNBUSDT": {
+        "n": 497,
+        "daily": 0.4531,
+        "wr": 0.3924,
+        "pf": 1.531,
+        "mdd": 0.325994,
+        "ev": 0.003627,
+        "sharpe": 1.6954
+      }
+    },
+    "agg": {
+      "total_trades": 1920,
+      "total_daily": 1.7502,
+      "ev": 0.005585,
+      "pf": 1.7242,
+      "sharpe": 2.0118
+    }
+  },
+  "baseline_ema20_swing10_vwap10": {
+    "by_symbol": {
+      "BTCUSDT": {
+        "n": 484,
+        "daily": 0.4412,
+        "wr": 0.407,
+        "pf": 1.6927,
+        "mdd": 0.21399,
+        "ev": 0.003831,
+        "sharpe": 2.0543
+      },
+      "ETHUSDT": {
+        "n": 443,
+        "daily": 0.4038,
+        "wr": 0.4086,
+        "pf": 1.6985,
+        "mdd": 0.264176,
+        "ev": 0.005413,
+        "sharpe": 1.8627
+      },
+      "SOLUSDT": {
+        "n": 459,
+        "daily": 0.4184,
+        "wr": 0.4227,
+        "pf": 1.7893,
+        "mdd": 0.363054,
+        "ev": 0.008907,
+        "sharpe": 2.2209
+      },
+      "BNBUSDT": {
+        "n": 477,
+        "daily": 0.4348,
+        "wr": 0.3941,
+        "pf": 1.5137,
+        "mdd": 0.478193,
+        "ev": 0.003401,
+        "sharpe": 1.6246
+      }
+    },
+    "agg": {
+      "total_trades": 1863,
+      "total_daily": 1.6982,
+      "ev": 0.005348,
+      "pf": 1.6896,
+      "sharpe": 1.9398
+    }
+  }
+}

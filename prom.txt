@@ -126,83 +126,29 @@ Dev-Infra 박소연 / Dev-QA 최서윤 / Dev-Liaison → 의장 직접 중개
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ============================================
 내가필요한메모장
 ============================================
-▌ ROLE Agent F — 윤세영 (최종 판결)
-
-▌ CONTEXT
-
-TASK-BT-014 ESC: OI/SMA(20)×1.15 조건이 BTC 3년 28,464봉 중 교집합 0건 — 구조적 발동 불가
-BB 스퀴즈 신호 자체: 4심볼 합산 2.84건/일 — 빈도 충분
-OI는 1H 스케일에서 변화가 극히 완만 → SMA(20) 대비 절대 괴리 기준 자체가 부적합
-Dev-Backtest 추천: 옵션 B (12H 대비 변화율 기준으로 교체)
-▌ TASK
-아래 4개 옵션 중 하나를 판결하라.
-
-옵션 A — OI 조건 제거 → vol > SMA(vol,20)×1.3 대체
-옵션 B — OI 기준 변경: OI > OI[i-12]×1.03 (12H 대비 3% 증가)
-옵션 C — OI 완전 제거, BB 스퀴즈 + 방향 조건만으로 재그리드
-옵션 D — 전략 포기 → G 후보 1(펀딩비) 또는 3(세션 돌파) 재검토
-
-▌ 판결 기준
-
-경제적 의미 유지 여부 (진짜 포지션 유입 확인)
-발동 가능성 (데이터 상 실질 발동 가능한 조건인가)
-노이즈 위험 (너무 완화하면 BB 스퀴즈 신호 자체가 훼손)
-▌ OUTPUT FORMAT (강제)
-
-
-판결: 옵션 A/B/C/D
-근거: ≤3줄
-(옵션 B 채택 시) OI 변화율 임계값 N: X.XX 고정 or 그리드[...]
-결정 번호: #48
-5-Axis: 가역=_ 시간=_ 선례=_ 비대칭=_ 최악=_
-(YYYY-MM-DD, F)
 
 ============================================
-VWAP-Trader 세션 인계 프롬프트
-전제: 의장 부트스트랩(prom.txt #7)은 이미 적용된 상태.
-git pull 후 이 메시지를 첫 입력으로 사용.
 
-현재 상태
-회의: 없음 — 의장 + 개별 에이전트 빠른 검증 모드 진행 중.
-최신 결정: #47 (BB 스퀴즈 + OI 백테스트 채택)
-지금 해야 할 일: Agent F에게 결정 #48 판결 프롬프트 작성 — BB 스퀴즈 OI 조건 교체 옵션 A/B/C/D 중 선택
-
-직전까지 무슨 일이 있었나
-확정 운용 구조 (경보 유지)
-전략	심볼	건/일
-Module B Long	BTC/ETH/SOL/BNB	1.445
-4H 스윙 돌파 + 1H 풀백	BTC/SOL	0.202
-합산		1.647건/일 ⚠️ 철칙(2건) 미달
-Testnet 상태
-봇 코드: TICKET-CORE-003 완료 (긴급정지/알림 구현)
-Walk-Forward: 전 4심볼 PASS (결정 #43)
-TEST_FORCE_ENTRY=1 유지 중 — Bybit 인증 Under Review 대기
-인증 완료 시: TEST_FORCE_ENTRY=0 → DRY_RUN=false, TESTNET=true 실행
-세 번째 전략 개발 현황 (결정 #46 경보)
-BB 스퀴즈 + OI 확인 돌파 전략 설계 완료 (Agent B)
-TASK-BT-014 결과: 전 36케이스 타겟 미달 — OI/SMA(20)×1.15 조건이 BTC 3년간 교집합 0건 (구조적 발동 불가)
-BB 스퀴즈 신호 자체는 4심볼 합산 2.84건/일로 빈도 충분 — OI 필터만 교체하면 됨
-F 판결 대기 중 (결정 #48): 아래 4개 옵션
-옵션	내용
-A	OI 제거 → vol > SMA(vol,20)×1.3 대체
-B	OI 기준 변경: OI > OI[i-12]×1.03 (12H 대비 3% 증가) ← Dev-Backtest 추천
-C	OI 완전 제거, BB 스퀴즈 + 방향만
-D	전략 포기 → G 후보 1(펀딩비) 또는 3(세션 돌파) 재검토
-근거 문서
-결정 로그: vwap_trader_design/decisions/decision_log.md (#42~#47, TASK-BT-012~014)
-BB 스퀴즈 설계: decision_log.md "Agent B 설계안 — BB 스퀴즈" 섹션
-BT-014 결과: vwap_trader/data/backtest_results/bt014_bb_squeeze_20260427_084349.json
-4H 스윙 결과: vwap_trader/data/backtest_results/bt012_swing_pullback_20260427_072631.json
-Testnet 체크리스트: decision_log.md "TASK-QA-CHECKLIST" / "TASK-QA-RECHECK-003"
-봇 코드: vwap_trader/src/vwap_trader/main.py
-보류 중인 판결/태스크
-항목	상태
-결정 #48	F 판결 대기 — BB 스퀴즈 OI 조건 교체
-Bybit 인증 완료	Under Review 대기
-TEST_FORCE_ENTRY 제거	인증 완료 후
-Walk-Forward (신규 전략용)	BT-014 결과 확정 후 착수
-첫 응답 후 즉시: Agent F 결정 #48 판결 프롬프트 작성 — 옵션 A/B/C/D 선택. F 판결 오면 결정 #48 기록 후 Dev-Backtest 재착수.
-============================================
