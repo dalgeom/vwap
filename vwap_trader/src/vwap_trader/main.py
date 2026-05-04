@@ -66,7 +66,6 @@ logger = logging.getLogger(__name__)
 DRY_RUN: bool = os.getenv("DRY_RUN", "true").lower() == "true"
 API_KEY: str = os.getenv("BYBIT_API_KEY", "")
 API_SECRET: str = os.getenv("BYBIT_API_SECRET", "")
-TESTNET: bool = os.getenv("TESTNET", os.getenv("BYBIT_TESTNET", "true")).lower() == "true"
 
 # 4H 봉 폴링 주기 (초)
 _POLL_INTERVAL_SEC: int = 60
@@ -215,8 +214,8 @@ class MainLoop:
     async def _process_symbol(self, symbol: str, now: datetime) -> None:
         assert self.risk_manager is not None
 
-        # 1H 캔들 수집 (최근 200봉)
-        candles_1h: list[Candle] = self.client.get_candles(symbol, "60", 200)
+        # 1H 캔들 수집 (va_slope 계산에 336봉 필요 → 400봉 요청)
+        candles_1h: list[Candle] = self.client.get_candles(symbol, "60", 400)
         if len(candles_1h) < 50:
             return
 
@@ -632,7 +631,7 @@ async def main() -> None:
         logger.critical("BYBIT_API_KEY / BYBIT_API_SECRET not set. Exiting.")
         sys.exit(1)
 
-    client = BybitClient(api_key=API_KEY, api_secret=API_SECRET, testnet=TESTNET)
+    client = BybitClient(api_key=API_KEY, api_secret=API_SECRET)
     universe = SymbolUniverse(client)
     await startup_checks(client, universe)
 
@@ -640,7 +639,7 @@ async def main() -> None:
     executor = OrderExecutor(client)
     loop = MainLoop(client, pipeline, executor, universe)
 
-    logger.info("VWAP-Trader starting. DRY_RUN=%s TESTNET=%s", DRY_RUN, TESTNET)
+    logger.info("VWAP-Trader starting. DRY_RUN=%s", DRY_RUN)
     balance = client.get_balance() or 0.0
     notify_bot_started(balance)
     try:

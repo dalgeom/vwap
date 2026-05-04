@@ -37,20 +37,18 @@ def _call_with_retry(fn, *args, **kwargs):
 
 
 class BybitClient:
-    def __init__(self, api_key: str, api_secret: str, testnet: bool = True):
+    def __init__(self, api_key: str, api_secret: str):
         self._dry_run = os.environ.get("DRY_RUN", "").lower() == "true"
-        demo = os.environ.get("BYBIT_DEMO", "").lower() == "true"
         self._session = HTTP(
-            testnet=testnet,
-            demo=demo,
+            testnet=False,
+            demo=True,  # 실전 전환 시 False로 변경
             api_key=api_key,
             api_secret=api_secret,
         )
-        mode = "DEMO" if demo else ("TESTNET" if testnet else "LIVE")
         if self._dry_run:
-            logger.info("BybitClient initialized in DRY_RUN mode (%s)", mode)
+            logger.info("BybitClient initialized in DRY_RUN mode")
         else:
-            logger.info("BybitClient initialized (%s)", mode)
+            logger.info("BybitClient initialized")
         self._lot_size_cache: dict[str, float] = {}
 
     # ── 내부 헬퍼 ──────────────────────────────────────────────
@@ -122,39 +120,70 @@ class BybitClient:
         """
         OHLCV 캔들 리스트 반환.
         interval: "60"(1h), "240"(4h) — Bybit kline interval 형식
+        Bybit API 최대 200봉 제한 → limit > 200 시 여러 번 호출하여 병합.
         """
-        try:
-            resp = _call_with_retry(
-                self._session.get_kline,
-                category="linear",
-                symbol=symbol,
-                interval=interval,
-                limit=limit,
-            )
-            if not self._ok(resp):
-                logger.error("get_candles failed for %s: %s", symbol, resp)
-                return []
+        _MAX_PER_CALL = 200
+        all_candles: list[Candle] = []
+        end_time_ms: int | None = None
 
-            raw_list = resp["result"]["list"]
-            candles: list[Candle] = []
-            for row in raw_list:
-                # Bybit kline row: [startTime, open, high, low, close, volume, turnover]
-                ts_ms, o, h, l, c, v = row[0], row[1], row[2], row[3], row[4], row[5]
-                candles.append(
-                    Candle(
-                        timestamp=datetime.fromtimestamp(int(ts_ms) / 1000, tz=timezone.utc),
-                        open=float(o),
-                        high=float(h),
-                        low=float(l),
-                        close=float(c),
-                        volume=float(v),
-                        symbol=symbol,
-                        interval=interval,
-                    )
+        try:
+            remaining = limit
+            while remaining > 0:
+                batch = min(remaining, _MAX_PER_CALL)
+                kwargs: dict = dict(
+                    category="linear",
+                    symbol=symbol,
+                    interval=interval,
+                    limit=batch,
                 )
-            # Bybit는 최신순 반환 → 시간순 정렬
-            candles.sort(key=lambda c: c.timestamp)
-            return candles
+                if end_time_ms is not None:
+                    kwargs["end"] = end_time_ms
+
+                resp = _call_with_retry(self._session.get_kline, **kwargs)
+                if not self._ok(resp):
+                    logger.error("get_candles failed for %s: %s", symbol, resp)
+                    break
+
+                raw_list = resp["result"]["list"]
+                if not raw_list:
+                    break
+
+                batch_candles: list[Candle] = []
+                for row in raw_list:
+                    ts_ms, o, h, l, c, v = row[0], row[1], row[2], row[3], row[4], row[5]
+                    batch_candles.append(
+                        Candle(
+                            timestamp=datetime.fromtimestamp(int(ts_ms) / 1000, tz=timezone.utc),
+                            open=float(o),
+                            high=float(h),
+                            low=float(l),
+                            close=float(c),
+                            volume=float(v),
+                            symbol=symbol,
+                            interval=interval,
+                        )
+                    )
+
+                all_candles.extend(batch_candles)
+                remaining -= len(batch_candles)
+
+                if len(batch_candles) < batch:
+                    break  # 더 이상 데이터 없음
+
+                # 다음 호출 시 가장 오래된 봉 시작 직전까지
+                oldest_ts = min(int(row[0]) for row in raw_list)
+                end_time_ms = oldest_ts - 1
+
+            # 중복 제거 후 시간순 정렬
+            seen: set[datetime] = set()
+            unique: list[Candle] = []
+            for c in all_candles:
+                if c.timestamp not in seen:
+                    seen.add(c.timestamp)
+                    unique.append(c)
+            unique.sort(key=lambda c: c.timestamp)
+            return unique[-limit:]  # 요청한 개수만큼만 반환
+
         except Exception as exc:
             logger.error("get_candles exception for %s: %s", symbol, exc)
             return []
@@ -214,11 +243,12 @@ class BybitClient:
                 orderType="Market",
                 qty=str(qty),
                 stopLoss=str(sl),
-                takeProfit=str(tp),
                 reduceOnly=reduce_only,
                 timeInForce="IOC",
                 positionIdx=1 if side == "Buy" else 2,  # hedge mode
             )
+            if tp and tp > 0:
+                params["takeProfit"] = str(tp)
             resp = _call_with_retry(self._session.place_order, **params)
             if self._ok(resp):
                 logger.info("place_order success: %s %s qty=%s", side, symbol, qty)

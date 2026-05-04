@@ -1,0 +1,127 @@
+{
+  "run_at": "2026-05-03T03:29:47Z",
+  "ticket": "TICKET-BT-009",
+  "period": {
+    "start": "2023-01-01",
+    "end": "2026-03-31"
+  },
+  "combined_daily": 14.896,
+  "verdict": "PASS (≥6건/일)",
+  "c224_alarm": false,
+  "BTCUSDT": {
+    "sym": "BTCUSDT",
+    "total_bars": 28445,
+    "vbz_bars": 8911,
+    "cal_days": 1186,
+    "daily_vbz": 7.513,
+    "bottleneck": {
+      "va_only_pct": 33.6,
+      "vol_only_pct": 35.1,
+      "both_pct": 31.3,
+      "block_total": 19534
+    },
+    "by_year": {
+      "2023": {
+        "vbz": 2984,
+        "days": 365,
+        "daily": 8.175
+      },
+      "2024": {
+        "vbz": 2501,
+        "days": 366,
+        "daily": 6.833
+      },
+      "2025~2026": {
+        "vbz": 3426,
+        "days": 455,
+        "daily": 7.53
+      }
+    },
+    "by_regime": {
+      "강세": {
+        "total_bars": 15318,
+        "vbz_bars": 4415,
+        "vbz_rate": 28.8,
+        "daily_vbz": 3.723
+      },
+      "폭락": {
+        "total_bars": 0,
+        "vbz_bars": 0,
+        "vbz_rate": 0.0,
+        "daily_vbz": 0.0
+      },
+      "회복": {
+        "total_bars": 13127,
+        "vbz_bars": 4496,
+        "vbz_rate": 34.3,
+        "daily_vbz": 3.791
+      }
+    },
+    "c224": {
+      "transitions": 326,
+      "exit_persist": 53,
+      "revert": 273,
+      "exit_persist_pct": 16.3,
+      "revert_pct": 83.7,
+      "alarm": false
+    }
+  },
+  "ETHUSDT": {
+    "sym": "ETHUSDT",
+    "total_bars": 28445,
+    "vbz_bars": 8756,
+    "cal_days": 1186,
+    "daily_vbz": 7.383,
+    "bottleneck": {
+      "va_only_pct": 33.1,
+      "vol_only_pct": 37.0,
+      "both_pct": 29.9,
+      "block_total": 19689
+    },
+    "by_year": {
+      "2023": {
+        "vbz": 2693,
+        "days": 365,
+        "daily": 7.378
+      },
+      "2024": {
+        "vbz": 2558,
+        "days": 366,
+        "daily": 6.989
+      },
+      "2025~2026": {
+        "vbz": 3505,
+        "days": 455,
+        "daily": 7.703
+      }
+    },
+    "by_regime": {
+      "강세": {
+        "total_bars": 14168,
+        "vbz_bars": 3834,
+        "vbz_rate": 27.1,
+        "daily_vbz": 3.233
+      },
+      "폭락": {
+        "total_bars": 3,
+        "vbz_bars": 0,
+        "vbz_rate": 0.0,
+        "daily_vbz": 0.0
+      },
+      "회복": {
+        "total_bars": 14274,
+        "vbz_bars": 4922,
+        "vbz_rate": 34.5,
+        "daily_vbz": 4.15
+      }
+    },
+    "c224": {
+      "transitions": 348,
+      "exit_persist": 51,
+      "revert": 297,
+      "exit_persist_pct": 14.7,
+      "revert_pct": 85.3,
+      "alarm": false
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "run_at": "2026-05-03T07:54:23Z",
+  "script": "esc_oim001",
+  "period": {
+    "start": "2024-01-01",
+    "end": "2024-06-30",
+    "days": 182
+  },
+  "oi_threshold_pct": 5.0,
+  "symbols": [
+    {
+      "symbol": "BTCUSDT",
+      "long": 0,
+      "short": 0,
+      "total": 0,
+      "per_day": 0.0,
+      "funding_blocked": 0,
+      "regime_blocked": 3,
+      "diag": {
+        "oi_fired": 9,
+        "dir_ok": 4,
+        "vwap_ok": 3,
+        "regime_ok": 0,
+        "final": 0
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "long": 1,
+      "short": 1,
+      "total": 2,
+      "per_day": 0.011,
+      "funding_blocked": 0,
+      "regime_blocked": 3,
+      "diag": {
+        "oi_fired": 9,
+        "dir_ok": 6,
+        "vwap_ok": 5,
+        "regime_ok": 2,
+        "final": 2
+      }
+    },
+    {
+      "symbol": "BNBUSDT",
+      "long": 9,
+      "short": 3,
+      "total": 12,
+      "per_day": 0.0659,
+      "funding_blocked": 3,
+      "regime_blocked": 17,
+      "diag": {
+        "oi_fired": 63,
+        "dir_ok": 43,
+        "vwap_ok": 32,
+        "regime_ok": 15,
+        "final": 12
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "long": 3,
+      "short": 1,
+      "total": 4,
+      "per_day": 0.022,
+      "funding_blocked": 0,
+      "regime_blocked": 3,
+      "diag": {
+        "oi_fired": 17,
+        "dir_ok": 10,
+        "vwap_ok": 7,
+        "regime_ok": 4,
+        "final": 4
+      }
+    }
+  ],
+  "aggregate": {
+    "total": 18,
+    "per_day": 0.0989,
+    "funding_blocked": 3,
+    "regime_blocked": 26
+  },
+  "pass_threshold": 1.0,
+  "verdict": "FAIL"
+}

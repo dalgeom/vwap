@@ -149,44 +149,53 @@ Dev-Infra 박소연 / Dev-QA 최서윤 / Dev-Liaison → 의장 직접 중개
 ============================================
 내가필요한메모장
 ============================================
+
 VWAP-Trader 세션 인계 프롬프트
 전제: 의장 부트스트랩(내 프롬프트.txt #7)은 이미 적용된 상태.
 git pull 후 이 메시지를 첫 입력으로 사용.
 
 현재 상태 요약
-최종 결정 번호: #81
+최종 결정 번호: #86
+현재 차례: B(김도현) 대기 중 — Cat.15 MTF 레벨 돌파 명세 v1.1 수정 재제출 대기
+날짜: 2026-05-03
 
-현재 차례: Dev-Backtest(정민호) 대기 중 — ESC-LGR-03 실행 중
-
-날짜: 2026-04-30
-
-직전 흐름 (결정 #79~81)
+직전 흐름 (결정 #82~#86)
 결정	내용
-#79	S-01 전면 드롭. 216조합 전부 gross EV < 0, SL 히트율 85.7% — 구조적 결함
-#80	Cat.9 (LGR-001, 유동성 사냥+반전) 단독 착수. Cat.7/8은 Cat.9 WF 결과 후 게이트
-#81	ESC-LGR-02 합격선 1.5→1.0 하향 승인 (N≥30 통계 근거 재확인). EV 임계값 EV>0.05로 상향
-ESC 진행 상황:
+#82	LGR-001 즉시 드롭 (EV -0.286, SL 84.7% — 구조적 결함)
+#83	ARR + VBZ Regime 공식 채택 (각각 17.8/14.9건/일 PASS)
+#84	Cat.11 OI 모멘텀 착수 승인 (OI ±5% 고정값, ARR 차단, ESC EV>0.05)
+#85	OIM-001 즉시 드롭 (ESC-OIM-01 빈도 0.099건/일 — 합격선 10배 미달)
+#86	Cat.15 B 명세 수정 지시 (G 실측 반박 3개 수렴 후 F 판결)
+Cat.15 현황
+B v1.0 명세 제출 → G 검토 → F 판결 #86: 수정 후 재제출
 
-ESC-LGR-01: PASS ✅ (스윙 저점 39.91건/일)
-ESC-LGR-02: 조건부 PASS ✅ (v1.1 best 0.918건/일, 결정 #81로 통과 처리)
-ESC-LGR-03: 실행 중 ← 지금 여기
+G가 BT-024 실측 데이터로 확인한 결함 3개:
+
+느린 SL 71%: 돌파 → 리테스트 → SL 패턴이 주원인. B의 "TP 공간 부족" 진단 오류.
+연속 재진입: "레벨 하나만 활성화"는 빈도 제어 불가. BNBUSDT 당일 5건 연속 SL 실측.
+RR≥2.0 구현 불가: "다음 구조적 저항" 식별 알고리즘 없음 → 개발팀 코드화 불가.
+F 수정 지시 3개 (비협상):
+
+느린 SL 71% 직접 겨냥한 필터/조건 재작성 + 감소 추정치 포함
+레벨 교체 또는 SL 후 N봉 재진입 금지 쿨다운 공식 명시
+RR≥2.0 → 구현 가능한 TP 공식으로 대체 (ATR 배수 또는 스윙 기반, B가 데이터로 정당화)
 근거 문서
-결정 로그: vwap_trader_design/decisions/decision_log.md (#79~81)
-티켓: vwap_trader_design/tickets/open/TASK-BT-LGR001.md (v1.1, ESC-LGR-03 EV>0.05 명시)
-ESC 결과 파일:
-vwap_trader/data/backtest_results/esc_lgr001_20260430_074654.json (v1.0 FAIL)
-vwap_trader/data/backtest_results/esc_lgr001_v11_20260430_075701.json (v1.1 0.918건/일)
-지금 해야 할 일
-Dev-Backtest(정민호)의 ESC-LGR-03 결과를 수령하고 처리.
-
-ESC-LGR-03 대표 파라미터: lookback=15, n_fresh=8, grab_atr=1.0, pin_ratio=0.5, sl_buf=0.2, trend_filter=OFF
-
-IS 기간: 2022-07-01 ~ 2023-12-31
-
-EV > 0.05 → 결정 #82로 그리드 착수 승인, Dev-Backtest에게 Step2(486조합) 지시
-EV ≤ 0.05 → B(김도현)에게 에스컬레이션, 구조 재검토
+결정 로그: vwap_trader_design/decisions/decision_log.md (#82~#86)
+BT-024 결과: vwap_trader/data/backtest_results/bt024_mtf_level_break_20260428_051433.json
+ESC-OIM-01 결과: vwap_trader/data/backtest_results/esc_oim001_20260503_075423.json
+open 티켓: 없음 (모두 closed)
+strategies_map: strategies_map.md (Cat.9 DEP, Cat.11 DEP)
 봇 상태
-Demo 계정 실전 운용 중 (BYBIT_DEMO=True 아님, 실제 Demo Trading 계정)
+꺼져있음 (사용자 PC 재부팅). 재시작:
+
+
+cd vwap_trader/src && python -m vwap_trader.main
+지금 해야 할 일
+B(김도현)의 Cat.15 명세 v1.1 수정 재제출을 수령하고 처리.
+
+수령 후: G 재검토 없이 F 조건 충족 여부만 의장이 확인 → 충족 시 티켓 발행 + Dev-Backtest ESC-MTF-01 착수 프롬프트 제공.
+
+============================================
 실행 명령: cd vwap_trader/src && python -m vwap_trader.main
 로그: vwap_trader/logs/bot.log, vwap_trader/logs/status.txt
 ============================================
