@@ -1,202 +1,98 @@
-=============================================
-  자주 쓰는 프롬프트 모음 (Claude Code 세션용)
-=============================================
-
-
-1. 현재 진행상황 궁금할 때
----------------------------
-
-지금까지 진행 상황 쉬운 말로 브리핑해줘.
-- 최근 2~3개 회의에서 뭐가 결정됐고, 개발팀이 뭘 수정했고, 백테스트 결과가 어땠는지 순서대로
-- 전문 트레이딩 용어는 풀어서 (일반인 이해 수준, 비유 활용)
-- 왜 이게 지금 벌어지는지 맥락 포함
-- 현재 어느 단계(어느 agent 대기 중)인지 마지막에 명시
-
-
-2. 다른 세션으로 인계할 때
---------------------------
-
-다른 PC / 다른 Claude Code 세션에서 git pull 받고 이어서 작업할 수 있도록
-"인계 프롬프트"를 만들어줘. 그 세션의 첫 메시지로 복붙 가능한 완결된 형태.
-
-포함 조건:
-- 현재 회의 번호 / agent 차례 / 직전에 받은 답변 요약
-- 근거 문서 경로 (meeting_N, decision_log #N, 관련 티켓)
-- 지금 해야 할 일 한 줄 (예: "Agent F에게 Q2 답변 프롬프트 작성")
-- 부트스트랩 프롬프트(의장 역할)는 이미 붙인 전제로 간결하게
-
-# VWAP-Trader 세션 인계 프롬프트
-
-> 전제: 의장 부트스트랩(내 프롬프트.txt #7)은 이미 적용된 상태.
-> git pull 후 이 메시지를 첫 입력으로 사용.
-
-
-3. 쉽게 다시 설명 요청
-----------------------
-
-방금 나온 [결정/판결/수식/agent 답변] 초등학생도 이해할 수준으로 풀어서 설명해줘.
-비유 적극 활용. 3~5줄.
-
-
-4. 지금 방향 의심 한 번
------------------------
-
-지금 이 방향이 진짜 맞는지 솔직하게 의심 한 번 해줘.
-- 놓치고 있는 가능성
-- 더 쉬운 해결책 있는지
-- 헛수고 위험 있는지
-짧게. 너의 솔직한 의견.
-
-
-5. 작업 비용 예측
------------------
-
-방금 시킨 작업 (agent 프롬프트 / 백테스트 / 코드 수정)
-시간 얼마나 걸릴지, 뭐가 걸림돌 될 수 있을지 예측해줘. 짧게.
-
-
-6. 지금 뭐 해야 하는지 잊었을 때
----------------------------------
-
-잠깐 헷갈려. 지금 내가 뭐 해야 해? 다음 단계 한 줄로.
-
-
-7. 새 세션 부트스트랩 (의장 역할 복원)
----------------------------------------
-
-아래를 새 세션 첫 메시지로 붙여넣으면 의장 역할로 즉시 복원됩니다.
-
-──────────────────────────────────────────
-# VWAP-Trader 의장 부트스트랩
-
-## 역할
-너는 이 프로젝트의 의장. 사용자와 1:1 대화하며 각 agent 세션에 투입할
-프롬프트를 작성. agent 답변은 사용자가 이 세션에 붙여넣음.
-
-## 절대 경계
-- 직접 판결 금지 (F 전속)
-- 한 턴 = 한 agent 프롬프트 하나 (병렬 지시 금지)
-- 전략 파라미터·코드 임의 변경 금지
-- 회의록·decision_log 없이 PLAN 패치 지시 금지
-
-## 첫 응답 — 맥락 파악 후 요약
-아래 순서로 파일 확인:
-1. `vwap_trader_design/PLAN.md` 목차 (rg "^# |^## ")
-2. `vwap_trader_design/decisions/decision_log.md` 마지막 100줄
-3. `vwap_trader_design/meetings/` 파일 목록 → 최신 회의 번호
-4. `vwap_trader_design/agents/` 파일 목록
-5. `vwap_trader_design/tickets/` + `tickets/closed/`
-6. `vwap_trader/data/backtest_results/` 최신 파일명
-
-확인 후: 최근 회의 #, 결정 #, 진행 중 티켓, 백테스트 단계를 3~5줄 요약.
-→ 사용자에게 "어디서부터 재개할지" 질문 후 대기.
-
-## Agent 페르소나
-A 박정우(평균회귀·Module A) / B 김도현(추세·Module B) / C 이지원(VP) /
-D 최서연(방법론) / E 한지훈(PLAN 수호) / F 윤세영(최종 판결) /
-G 구승현(Devil's Advocate·전제 의심) /
-Dev-PM 한재원 / Dev-Core 이승준 / Dev-Backtest 정민호 /
-Dev-Infra 박소연 / Dev-QA 최서윤 / Dev-Liaison → 의장 직접 중개
-
-## F 판결 형식 (강제)
-판결: 옵션 N [+ 안전장치]
-5-Axis: 가역=_ 시간=_ 선례=_ 비대칭=_ 최악=_
-근거: ≤3줄 / (YYYY-MM-DD, F)
-
-## 프롬프트 작성 원칙
-- 섹션 기호 ▌ / ≤800 토큰 / 경계 섹션 필수
-- 자료 파일은 경로만 명시 (agent가 선택 read)
-- 출력 템플릿 강제
-
-## 문서 기록 (의장 직접 수행)
-회의 수렴 시: meetings/meeting_N_*.md 생성 → decision_log.md append
-→ PLAN 패치는 E에게 DOC-PATCH-NNN 티켓으로 위임
-
-## agent 답변 수신 후 3단계
-1. 판결/결과 2~3줄 해석
-2. 문서 갱신 (Edit 직접 실행) — skip 금지
-3. 다음 agent 프롬프트 하나 제공
-──────────────────────────────────────────
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ============================================
-내가필요한메모장
+  VWAP Trader — Simple Is Best 세션 인계 프롬프트
+  (2026-05-06 이후 리셋된 새 구조 기준)
 ============================================
 
-VWAP-Trader 세션 인계 프롬프트
-전제: 의장 부트스트랩(내 프롬프트.txt #7)은 이미 적용된 상태.
-git pull 후 이 메시지를 첫 입력으로 사용.
+아래를 git pull 후 새 세션 첫 메시지로 붙여넣으세요.
 
-현재 상태 요약
-최종 결정 번호: #86
-현재 차례: B(김도현) 대기 중 — Cat.15 MTF 레벨 돌파 명세 v1.1 수정 재제출 대기
-날짜: 2026-05-03
+──────────────────────────────────────────────────────────────
 
-직전 흐름 (결정 #82~#86)
-결정	내용
-#82	LGR-001 즉시 드롭 (EV -0.286, SL 84.7% — 구조적 결함)
-#83	ARR + VBZ Regime 공식 채택 (각각 17.8/14.9건/일 PASS)
-#84	Cat.11 OI 모멘텀 착수 승인 (OI ±5% 고정값, ARR 차단, ESC EV>0.05)
-#85	OIM-001 즉시 드롭 (ESC-OIM-01 빈도 0.099건/일 — 합격선 10배 미달)
-#86	Cat.15 B 명세 수정 지시 (G 실측 반박 3개 수렴 후 F 판결)
-Cat.15 현황
-B v1.0 명세 제출 → G 검토 → F 판결 #86: 수정 후 재제출
+# VWAP Trader 세션 인계 — Simple Is Best
 
-G가 BT-024 실측 데이터로 확인한 결함 3개:
+## 프로젝트 위치
+`c:\Users\DEV_BASIC\Downloads\code\vwap_trader`
 
-느린 SL 71%: 돌파 → 리테스트 → SL 패턴이 주원인. B의 "TP 공간 부족" 진단 오류.
-연속 재진입: "레벨 하나만 활성화"는 빈도 제어 불가. BNBUSDT 당일 5건 연속 SL 실측.
-RR≥2.0 구현 불가: "다음 구조적 저항" 식별 알고리즘 없음 → 개발팀 코드화 불가.
-F 수정 지시 3개 (비협상):
+## 현재 상태 요약
+- **전략**: EMA9/EMA21 크로스오버 + VWAP 필터 (1H 캔들)
+- **대상 심볼**: BTCUSDT, ETHUSDT, SOLUSDT
+- **운영**: 24시간, 데모 계좌 (Bybit Demo), DRY_RUN=false
+- **동시 포지션**: 최대 1개
+- **리스크**: 거래당 잔고 2%, 레버리지 5x, 손익비 1:2
+- **알림**: Discord 웹훅 (DISCORD_WEBHOOK_URL은 .env에 설정 예정)
 
-느린 SL 71% 직접 겨냥한 필터/조건 재작성 + 감소 추정치 포함
-레벨 교체 또는 SL 후 N봉 재진입 금지 쿨다운 공식 명시
-RR≥2.0 → 구현 가능한 TP 공식으로 대체 (ATR 배수 또는 스윙 기반, B가 데이터로 정당화)
-근거 문서
-결정 로그: vwap_trader_design/decisions/decision_log.md (#82~#86)
-BT-024 결과: vwap_trader/data/backtest_results/bt024_mtf_level_break_20260428_051433.json
-ESC-OIM-01 결과: vwap_trader/data/backtest_results/esc_oim001_20260503_075423.json
-open 티켓: 없음 (모두 closed)
-strategies_map: strategies_map.md (Cat.9 DEP, Cat.11 DEP)
-봇 상태
-꺼져있음 (사용자 PC 재부팅). 재시작:
+## 리셋 배경
+2026년 초~5월까지 27개 전략 카테고리(100+ 변형)를 탐색했으나 전부 실패.
+Agent 9개 + 설계 문서 80개+ 구조가 오히려 발목을 잡았다는 결론.
+5월 6일 전면 리셋 결정 — 복잡도 제거, Simple Is Best 채택.
 
+## 현재 살아있는 핵심 파일
 
-cd vwap_trader/src && python -m vwap_trader.main
-지금 해야 할 일
-B(김도현)의 Cat.15 명세 v1.1 수정 재제출을 수령하고 처리.
+```
+src/vwap_trader/
+├── main.py                  # 메인 루프 — 1H 캔들 폴링, 진입/청산
+├── models.py                # Candle, Position 공통 모델
+├── notifier.py              # Discord 웹훅 알림
+├── strategy/ema_vwap.py     # check_entry(), check_exit() 구현
+├── core/position_sizer.py   # 2% 리스크 기반 수량 계산
+├── core/risk_manager.py     # 일간 손실 한도 (현재 미연결, 향후 활용)
+└── infra/bybit_client.py    # Bybit V5 API (demo=True)
+```
 
-수령 후: G 재검토 없이 F 조건 충족 여부만 의장이 확인 → 충족 시 티켓 발행 + Dev-Backtest ESC-MTF-01 착수 프롬프트 제공.
+삭제된 것: agents/, meetings/, decisions/, backtest scripts, module_a/b, regime, avwap, volume_profile, sl_tp 등 전부.
 
-============================================
-실행 명령: cd vwap_trader/src && python -m vwap_trader.main
-로그: vwap_trader/logs/bot.log, vwap_trader/logs/status.txt
-============================================
+## 전략 로직 요약
+
+**진입 조건**
+- 롱: EMA9이 EMA21을 위로 크로스 + 현재 종가 > Rolling VWAP(24봉)
+- 숏: EMA9이 EMA21을 아래로 크로스 + 현재 종가 < Rolling VWAP(24봉)
+
+**청산 우선순위**
+1. SL 히트 (Bybit 자동 발동)
+2. TP 히트 (Bybit 자동 발동)
+3. EMA 역크로스 → 즉시 시장가 청산
+4. 48h 타임아웃 → 강제 청산
+
+**포지션 크기**
+- `compute_position_size(balance, entry, sl, lot_size, risk_pct=0.02)`
+- SL 거리 기반 수량 계산. Bybit qtyStep으로 반올림.
+
+## 봇 실행 방법
+
+```bash
+cd c:\Users\DEV_BASIC\Downloads\code\vwap_trader
+.\venv\Scripts\activate
+python -m vwap_trader.main
+```
+
+## config/.env 구조
+
+```env
+BYBIT_API_KEY=...
+BYBIT_API_SECRET=...
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...   # 나중에 추가 예정
+DRY_RUN=false
+```
+
+## 실전 전환 시
+
+`src/vwap_trader/infra/bybit_client.py` 45번째 줄 `demo=True` → `demo=False`
+
+## 현재 남은 작업
+
+1. **Discord 웹훅 URL 설정** — 사용자가 URL을 줄 때 .env에 추가
+2. **봇 운영 시작** — 설정 완료 후 실행
+3. **데모 검증 기준** — 30+ 트레이드, 승률 > 50%, EV > 0 달성 시 실전 검토
+4. **선택 사항**: 백테스트 스크립트 (BTC 1년치 1H, EMA 신호 빈도/승률 확인) — 아직 미작성
+
+## 세션 시작 후 해야 할 일
+
+먼저 아래 파일 읽어서 현재 상태 파악:
+1. `vwap_trader/PLAN.md` — 전략 전체 스펙
+2. `vwap_trader/data/state.json` — 현재 오픈 포지션 여부
+3. `vwap_trader/logs/bot.log` 마지막 30줄 — 직전 운영 상태
+
+그 다음 사용자 요청 대기.
+
+──────────────────────────────────────────────────────────────
 

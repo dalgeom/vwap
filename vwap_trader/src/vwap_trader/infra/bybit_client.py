@@ -5,6 +5,7 @@ Dev-Infra(박소연) 구현
 from __future__ import annotations
 
 import logging
+import math
 import os
 import time
 from datetime import datetime, timezone
@@ -44,7 +45,9 @@ class BybitClient:
             demo=True,  # 실전 전환 시 False로 변경
             api_key=api_key,
             api_secret=api_secret,
+            recv_window=20000,
         )
+        self._sync_time_offset()
         if self._dry_run:
             logger.info("BybitClient initialized in DRY_RUN mode")
         else:
@@ -52,6 +55,18 @@ class BybitClient:
         self._lot_size_cache: dict[str, float] = {}
 
     # ── 내부 헬퍼 ──────────────────────────────────────────────
+
+    def _sync_time_offset(self) -> None:
+        """Bybit 서버 시간 조회 후 time_offset 설정. ErrCode 10002 방지."""
+        try:
+            resp = self._session.get_server_time()
+            server_ms = int(resp["result"]["timeNano"]) // 1_000_000
+            local_ms = int(time.time() * 1000)
+            offset = server_ms - local_ms
+            self._session.time_offset = offset
+            logger.info("Server time offset applied: %dms", offset)
+        except Exception as exc:
+            logger.warning("Could not sync server time: %s", exc)
 
     def _ok(self, resp: dict) -> bool:
         """retCode 0 이면 성공."""
@@ -241,7 +256,7 @@ class BybitClient:
                 symbol=symbol,
                 side=side,
                 orderType="Market",
-                qty=str(qty),
+                qty=self._fmt_qty(symbol, qty),
                 stopLoss=str(sl),
                 reduceOnly=reduce_only,
                 timeInForce="IOC",
@@ -320,6 +335,39 @@ class BybitClient:
             logger.warning("get_lot_size failed for %s: %s", symbol, exc)
         self._lot_size_cache[symbol] = 1.0
         return 1.0
+
+    def _fmt_qty(self, symbol: str, qty: float) -> str:
+        """qtyStep 기준 올바른 소수점 자릿수로 qty 문자열 반환.
+
+        str(float)은 'N.0' 또는 부동소수점 오차를 포함할 수 있어
+        Bybit ErrCode 10001(Qty invalid)을 유발함.
+        """
+        step = self._lot_size_cache.get(symbol, 1.0)
+        if step >= 1.0:
+            return str(int(round(qty)))
+        decimals = max(0, -int(math.floor(math.log10(step))))
+        return f"{qty:.{decimals}f}"
+
+    def set_leverage(self, symbol: str, leverage: int) -> bool:
+        """심볼 레버리지 설정. 이미 동일값이면 성공으로 처리."""
+        try:
+            resp = _call_with_retry(
+                self._session.set_leverage,
+                category="linear",
+                symbol=symbol,
+                buyLeverage=str(leverage),
+                sellLeverage=str(leverage),
+            )
+            if self._ok(resp):
+                return True
+            # 110043: 동일 레버리지 → 성공으로 처리
+            if isinstance(resp, dict) and resp.get("retCode") == 110043:
+                return True
+            logger.warning("set_leverage failed for %s: %s", symbol, resp)
+            return False
+        except Exception as exc:
+            logger.error("set_leverage exception for %s: %s", symbol, exc)
+            return False
 
     def get_balance(self) -> float | None:
         """통합 계좌 USDT 사용 가능 잔고 반환. 실패 시 None."""
