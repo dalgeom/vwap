@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/PC/Desktop/현진/code/**)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest tests/test_regime.py -v)",
+      "Bash(python -m pytest tests/test_regime.py -q)",
+      "Bash(python -c ' *)",
+      "Bash(sed -n '34,100p' \"C:/Users/PC/Desktop/현진/code/vwap_trader/src/vwap_trader/core/regime.py\")",
+      "Bash(sed -n '90,130p' \"C:/Users/PC/Desktop/현진/code/vwap_trader/src/vwap_trader/core/regime.py\")",
+      "Bash(python -c \"from vwap_trader.infra.order_executor import OrderExecutor; print\\('order_executor: OK'\\)\")",
+      "Bash(python -c \"from vwap_trader.universe.symbol_universe import SymbolUniverse, is_symbol_in_universe; print\\('symbol_universe: OK'\\)\")",
+      "Bash(python -c \"from vwap_trader.backtest.engine import BacktestEngine; print\\('backtest.engine: OK'\\)\")",
+      "Bash(python -c \"from vwap_trader.backtest.metrics import backtest_score, evaluate_success_criteria; print\\('backtest.metrics: OK'\\)\")",
+      "Bash(python -m pytest tests/ -x -q)",
+      "Bash(rg -rn \"ensure_hedge_mode\\\\|ensure_isolated_margin\" \"C:/Users/PC/Desktop/현진/code/vwap_trader/src/\")",
+      "Bash(python -c \"from vwap_trader.backtest.engine import BacktestEngine; from vwap_trader.main import MainLoop; print\\('import OK'\\)\")",
+      "Bash(python -m pytest tests/ -q)",
+      "Bash(bat -r 97:105 \"C:/Users/PC/Desktop/현진/code/vwap_trader/src/vwap_trader/core/avwap.py\")",
+      "Bash(sed -n '97,105p' \"C:/Users/PC/Desktop/현진/code/vwap_trader/src/vwap_trader/core/avwap.py\")",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(grep -n 'NotImplementedError\\\\|TODO\\\\|FIXME\\\\|telegram\\\\|알림\\\\|monitor\\\\|dashboard\\\\|Phase 2\\\\|pass$' C:/Users/PC/Desktop/현진/code/vwap_trader/src/vwap_trader/main.py)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\PC\\Desktop\\현진\\code\\vwap_trader\\src\\vwap_trader",
+      "C:\\Users\\PC\\Desktop\\현진\\code\\vwap_trader\\tests",
+      "C:\\Users\\PC\\Desktop\\현진\\code\\vwap_trader"
+    ]
+  }
+}

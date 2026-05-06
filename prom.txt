@@ -1,68 +1,80 @@
 
 ============================================
-  VWAP Trader — Simple Is Best 세션 인계 프롬프트
-  (2026-05-06 이후 리셋된 새 구조 기준)
+  VWAP Trader — 세션 인계 프롬프트
+  (2026-05-07 기준)
 ============================================
 
-아래를 git pull 후 새 세션 첫 메시지로 붙여넣으세요.
+git pull 후 새 세션 첫 메시지로 붙여넣으세요.
 
 ──────────────────────────────────────────────────────────────
 
-# VWAP Trader 세션 인계 — Simple Is Best
+# VWAP Trader 세션 인계
 
 ## 프로젝트 위치
-`c:\Users\DEV_BASIC\Downloads\code\vwap_trader`
+`c:\Users\PC\Desktop\현진\code`
+(다른 PC면 경로 다를 수 있음 — git pull 후 실제 경로 확인)
 
-## 현재 상태 요약
-- **전략**: EMA9/EMA21 크로스오버 + VWAP 필터 (1H 캔들)
-- **대상 심볼**: BTCUSDT, ETHUSDT, SOLUSDT
-- **운영**: 24시간, 데모 계좌 (Bybit Demo), DRY_RUN=false
-- **동시 포지션**: 최대 1개
-- **리스크**: 거래당 잔고 2%, 레버리지 5x, 손익비 1:2
-- **알림**: Discord 웹훅 (DISCORD_WEBHOOK_URL은 .env에 설정 예정)
+## 핵심 원칙 (절대 변경 금지)
+- **Simple Is Best** — 복잡한 구조 금지. 조건 최소화.
+- **데이트레이딩** — 포지션은 당일 안에 청산. 최대 보유 8시간.
+- **손익비 1:2** — SL:TP = 1:2 고정. 손익분기 승률 33.3%.
+- **변동성 코인** — BTC/ETH 아님. 15m 기준 ATR% 높은 알트코인.
+- **고정 심볼 금지** — 매일 스크리너가 그날 가장 좋은 코인을 자동 선별.
 
-## 리셋 배경
-2026년 초~5월까지 27개 전략 카테고리(100+ 변형)를 탐색했으나 전부 실패.
-Agent 9개 + 설계 문서 80개+ 구조가 오히려 발목을 잡았다는 결론.
-5월 6일 전면 리셋 결정 — 복잡도 제거, Simple Is Best 채택.
+## 현재 전략 구조
 
-## 현재 살아있는 핵심 파일
+### 봇 (main.py)
+- 타임프레임: **15분봉**
+- 진입: EMA9이 EMA21 크로스 + **ADX > 20** (추세 강도 필터)
+- SL: 진입가 ± **0.5 × ATR(14)** (변동성 적응형)
+- TP: 진입가 ± **1.0 × ATR(14)** → 자동으로 1:2 RR
+- 최대 보유: **8시간**
+- 청산: SL/TP 히트 | EMA 역크로스 | 8h 타임아웃
+- 동시 포지션: 최대 1개
+- 리스크: 잔고 2%, 레버리지 5x
+
+### 스크리너 (screener.py)
+- 매일 **UTC 06:00** 자동 실행
+- Bybit 변동성 상위 30개 코인 스캔
+- 3가지 점수로 채점 (100점 만점):
+  1. 최근 7일 EMA 크로스 적중률 (50점)
+  2. ADX 상승 추세 (30점)
+  3. 가격 직선성 R² (20점)
+- **적중률 33% 미만 자동 탈락** (손익분기 미달)
+- 상위 5개 선정 → `data/selected_coins.json` 저장
+- 봇이 이 파일 읽어서 오늘 거래할 심볼 자동 갱신
+
+## 핵심 파일 구조
 
 ```
-src/vwap_trader/
-├── main.py                  # 메인 루프 — 1H 캔들 폴링, 진입/청산
-├── models.py                # Candle, Position 공통 모델
-├── notifier.py              # Discord 웹훅 알림
-├── strategy/ema_vwap.py     # check_entry(), check_exit() 구현
-├── core/position_sizer.py   # 2% 리스크 기반 수량 계산
-├── core/risk_manager.py     # 일간 손실 한도 (현재 미연결, 향후 활용)
-└── infra/bybit_client.py    # Bybit V5 API (demo=True)
+vwap_trader/
+├── src/vwap_trader/
+│   ├── main.py                   # 봇 메인 루프
+│   ├── strategy/ema_vwap.py      # EMA 크로스 + VWAP 신호
+│   ├── infra/bybit_client.py     # Bybit API (demo=True)
+│   ├── core/position_sizer.py    # 2% 리스크 수량 계산
+│   ├── notifier.py               # Discord 웹훅 알림
+│   └── scripts/
+│       ├── screener.py           # 매일 코인 선별
+│       ├── backtest_ema_vwap.py  # 전략 백테스트 (필터 비교용)
+│       └── backtest_volatile.py  # 변동성 코인 백테스트
+├── data/
+│   ├── selected_coins.json       # 오늘 거래할 코인 목록
+│   └── backtest_results/         # 백테스트 결과 JSON
+└── config/.env                   # API 키, DRY_RUN 설정
 ```
-
-삭제된 것: agents/, meetings/, decisions/, backtest scripts, module_a/b, regime, avwap, volume_profile, sl_tp 등 전부.
-
-## 전략 로직 요약
-
-**진입 조건**
-- 롱: EMA9이 EMA21을 위로 크로스 + 현재 종가 > Rolling VWAP(24봉)
-- 숏: EMA9이 EMA21을 아래로 크로스 + 현재 종가 < Rolling VWAP(24봉)
-
-**청산 우선순위**
-1. SL 히트 (Bybit 자동 발동)
-2. TP 히트 (Bybit 자동 발동)
-3. EMA 역크로스 → 즉시 시장가 청산
-4. 48h 타임아웃 → 강제 청산
-
-**포지션 크기**
-- `compute_position_size(balance, entry, sl, lot_size, risk_pct=0.02)`
-- SL 거리 기반 수량 계산. Bybit qtyStep으로 반올림.
 
 ## 봇 실행 방법
 
 ```bash
-cd c:\Users\DEV_BASIC\Downloads\code\vwap_trader
-.\venv\Scripts\activate
+cd vwap_trader/src
 python -m vwap_trader.main
+```
+
+스크리너 단독 실행 (수동):
+```bash
+cd vwap_trader/src
+python -m vwap_trader.scripts.screener
 ```
 
 ## config/.env 구조
@@ -70,84 +82,34 @@ python -m vwap_trader.main
 ```env
 BYBIT_API_KEY=...
 BYBIT_API_SECRET=...
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...   # 나중에 추가 예정
 DRY_RUN=false
 ```
 
 ## 실전 전환 시
+`src/vwap_trader/infra/bybit_client.py` 45번째 줄
+`demo=True` → `demo=False`
 
-`src/vwap_trader/infra/bybit_client.py` 45번째 줄 `demo=True` → `demo=False`
-
-## 현재 남은 작업
-
-1. **Discord 웹훅 URL 설정** — 사용자가 URL을 줄 때 .env에 추가
-2. **봇 운영 시작** — 설정 완료 후 실행
-3. **데모 검증 기준** — 30+ 트레이드, 승률 > 50%, EV > 0 달성 시 실전 검토
-4. **선택 사항**: 백테스트 스크립트 (BTC 1년치 1H, EMA 신호 빈도/승률 확인) — 아직 미작성
+## 현재 상태 (2026-05-07)
+- 봇 데모 운영 중 (Bybit Demo 계좌)
+- 현재 오픈 포지션: 없음
+- 오늘 선정 코인: VIRTUAL, ONDO, WIF, LAB, BNB
+- 밤새 신호 없음 (5개 코인 모두 횡보)
 
 ## 세션 시작 후 해야 할 일
 
-먼저 아래 파일 읽어서 현재 상태 파악:
-1. `vwap_trader/PLAN.md` — 전략 전체 스펙
-2. `vwap_trader/data/state.json` — 현재 오픈 포지션 여부
-3. `vwap_trader/logs/bot.log` 마지막 30줄 — 직전 운영 상태
+1. 아래 파일로 현재 상태 파악:
+   - `vwap_trader/data/state.json` — 오픈 포지션 여부
+   - `vwap_trader/logs/bot.log` 마지막 30줄 — 직전 운영 상태
+   - `vwap_trader/data/selected_coins.json` — 오늘 선정 코인
 
-그 다음 사용자 요청 대기.
+2. 봇이 꺼져 있으면 재시작
+3. 사용자 요청 대기
 
-──────────────────────────────────────────────────────────────
-
-
-============================================
-  백테스트 스크립트 작성 요청 프롬프트
-============================================
-
-아래를 새 세션 첫 메시지로 붙여넣으세요 (인계 프롬프트 이후에).
-
-──────────────────────────────────────────────────────────────
-
-# EMA9/21 + VWAP 전략 백테스트 스크립트 작성 요청
-
-## 목적
-데모 봇 운영 전에 전략 기대값(EV)과 신호 빈도를 사전 확인한다.
-백테스트 없이 데모 결과가 나와도 해석 기준이 없으므로, 간단한 스크립트를 먼저 작성한다.
-
-## 전략 스펙 (확정)
-- **타임프레임**: 1H 캔들
-- **대상**: BTCUSDT (1심볼로 먼저 확인, 이후 ETH/SOL 추가 가능)
-- **기간**: 최근 1년 (Bybit 히스토리 API)
-- **진입 조건**:
-  - 롱: EMA9이 EMA21을 위로 크로스 + 종가 > Rolling VWAP(24봉)
-  - 숏: EMA9이 EMA21을 아래로 크로스 + 종가 < Rolling VWAP(24봉)
-- **SL**: 진입 캔들 Low(롱) / High(숏)
-- **TP**: 진입가 ± SL거리 × 2 (1:2 RR)
-- **청산**: SL 히트 / TP 히트 / EMA 역크로스 / 48h 타임아웃 중 먼저 발생한 것
-
-## 신호 계산 코드 위치
-`vwap_trader/src/vwap_trader/strategy/ema_vwap.py`
-- `check_entry(candles)` — 진입 신호 ("long" / "short" / None)
-- `check_exit(candles, direction)` — EMA 역크로스 청산 여부
-
-캔들 조회:
-`vwap_trader/src/vwap_trader/infra/bybit_client.py`
-- `get_candles(symbol, "60", limit)` — 최대 200봉/호출, limit>200 자동 분할
-
-## 요청 작업
-`vwap_trader/scripts/backtest_ema_vwap.py` 파일 작성.
-
-출력해야 할 지표:
-1. 총 신호 수 (롱/숏 각각)
-2. 신호 빈도 (건/일)
-3. 승률 (SL 전에 TP 히트한 비율)
-4. 평균 수익률 (마진 기준, 레버리지 5x 적용)
-5. EV per trade (기대값)
-6. 청산 사유별 비율 (SL / TP / EMA역크로스 / 타임아웃)
-7. 최대 연속 손실 횟수
-
-## 주의사항
-- 수수료 반영: Taker 0.055% × 2 (진입 + 청산)
-- 포지션 크기: 고정 비율 불필요, 단순 1R 기준으로 계산
-- 백테스트 엔진 새로 만들지 말 것 — 캔들 루프 + if/else로 충분
-- 결과는 JSON으로 `vwap_trader/data/backtest_results/backtest_ema_vwap_YYYYMMDD.json` 저장
+## 백테스트에서 얻은 교훈
+- BTC/ETH 1H: 승률 28%, EV 음수 → 변동성 부족
+- ADX>20 필터: 가장 효과적인 단일 필터 (SL 히트율 감소)
+- TP 고정(1:2) vs TP 제거: TP 고정이 연속 손실 관리에 유리
+- 코인 고정 vs 매일 선별: 매일 선별이 맞음 (시장은 매주 바뀜)
+- 적중률 33% 미만 코인: ADX가 높아도 탈락시켜야 함
 
 ──────────────────────────────────────────────────────────────
-

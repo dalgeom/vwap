@@ -21,7 +21,13 @@
       "Bash(python -m vwap_trader.scripts.run_backtest_phase2a --symbols BTCUSDT,ETHUSDT --regime-atr 0.012 --regime-ema 0.002 --regime-va 0.007)",
       "Bash(python -m vwap_trader.scripts.run_backtest_phase2b --symbols BTCUSDT,ETHUSDT --regime-atr 0.012 --regime-ema 0.002 --regime-va 0.007)",
       "Bash(taskkill /F /FI \"WINDOWTITLE eq *phase2b*\")",
-      "Bash(pkill -f \"run_backtest_phase2b\")"
+      "Bash(pkill -f \"run_backtest_phase2b\")",
+      "Bash(venv/Scripts/python src/vwap_trader/scripts/backtest_ema_vwap.py)",
+      "Bash(python -m vwap_trader.scripts.backtest_ema_vwap)",
+      "Bash(python -m vwap_trader.scripts.backtest_volatile)",
+      "Bash(python -m vwap_trader.scripts.screener)",
+      "Bash(python -c \"from vwap_trader.main import TradingBot; print\\('import OK'\\)\")",
+      "Bash(git add *)"
     ]
   }
 }
