@@ -1,0 +1,70 @@
+2026-05-06 11:58:30,964 INFO vwap_trader.infra.bybit_client: Server time offset applied: 57ms
+2026-05-06 11:58:30,965 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-06 11:58:31,048 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-06 11:58:31,048 INFO vwap_trader.universe.symbol_universe: SymbolUniverse refreshing...
+2026-05-06 11:59:05,438 INFO vwap_trader.universe.symbol_universe: SymbolUniverse refreshed: 48 symbols
+2026-05-06 11:59:05,517 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for 1000BONKUSDT — skipping isolated margin
+2026-05-06 11:59:05,591 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for 1000LUNCUSDT — skipping isolated margin
+2026-05-06 11:59:05,667 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for 1000NEIROCTOUSDT — skipping isolated margin
+2026-05-06 11:59:05,747 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for 1000PEPEUSDT — skipping isolated margin
+2026-05-06 11:59:05,822 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for AAVEUSDT — skipping isolated margin
+2026-05-06 11:59:05,900 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ADAUSDT — skipping isolated margin
+2026-05-06 11:59:05,977 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ALGOUSDT — skipping isolated margin
+2026-05-06 11:59:06,052 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for APEUSDT — skipping isolated margin
+2026-05-06 11:59:06,131 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for APTUSDT — skipping isolated margin
+2026-05-06 11:59:06,207 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ARBUSDT — skipping isolated margin
+2026-05-06 11:59:06,285 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ASTERUSDT — skipping isolated margin
+2026-05-06 11:59:06,364 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for AVAXUSDT — skipping isolated margin
+2026-05-06 11:59:06,442 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for BCHUSDT — skipping isolated margin
+2026-05-06 11:59:06,521 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for BIOUSDT — skipping isolated margin
+2026-05-06 11:59:06,601 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for BNBUSDT — skipping isolated margin
+2026-05-06 11:59:06,677 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for BTCUSDT — skipping isolated margin
+2026-05-06 11:59:06,753 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for BUSDT — skipping isolated margin
+2026-05-06 11:59:06,832 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for DASHUSDT — skipping isolated margin
+2026-05-06 11:59:06,909 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for DOGEUSDT — skipping isolated margin
+2026-05-06 11:59:06,984 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for DOTUSDT — skipping isolated margin
+2026-05-06 11:59:07,060 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for EIGENUSDT — skipping isolated margin
+2026-05-06 11:59:07,139 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ENAUSDT — skipping isolated margin
+2026-05-06 11:59:07,214 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ETHUSDT — skipping isolated margin
+2026-05-06 11:59:07,289 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for FARTCOINUSDT — skipping isolated margin
+2026-05-06 11:59:07,368 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for FHEUSDT — skipping isolated margin
+2026-05-06 11:59:07,447 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for FILUSDT — skipping isolated margin
+2026-05-06 11:59:07,524 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for GALAUSDT — skipping isolated margin
+2026-05-06 11:59:07,599 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for HBARUSDT — skipping isolated margin
+2026-05-06 11:59:07,674 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for HIVEUSDT — skipping isolated margin
+2026-05-06 11:59:07,749 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for HYPEUSDT — skipping isolated margin
+2026-05-06 11:59:07,824 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ICPUSDT — skipping isolated margin
+2026-05-06 11:59:07,901 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for LABUSDT — skipping isolated margin
+2026-05-06 11:59:07,979 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for LINKUSDT — skipping isolated margin
+2026-05-06 11:59:08,057 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for LTCUSDT — skipping isolated margin
+2026-05-06 11:59:08,138 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for MEGAUSDT — skipping isolated margin
+2026-05-06 11:59:08,214 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for MONUSDT — skipping isolated margin
+2026-05-06 11:59:08,289 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for MUSDT — skipping isolated margin
+2026-05-06 11:59:08,364 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for NEARUSDT — skipping isolated margin
+2026-05-06 11:59:08,440 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for NOTUSDT — skipping isolated margin
+2026-05-06 11:59:08,519 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ONDOUSDT — skipping isolated margin
+2026-05-06 11:59:08,597 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for OPUSDT — skipping isolated margin
+2026-05-06 11:59:08,673 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ORCAUSDT — skipping isolated margin
+2026-05-06 11:59:08,749 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for ORDIUSDT — skipping isolated margin
+2026-05-06 11:59:08,827 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for PENDLEUSDT — skipping isolated margin
+2026-05-06 11:59:08,904 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for PENGUUSDT — skipping isolated margin
+2026-05-06 11:59:08,981 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for RAVEUSDT — skipping isolated margin
+2026-05-06 11:59:09,059 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for RENDERUSDT — skipping isolated margin
+2026-05-06 11:59:09,137 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for SHIB1000USDT — skipping isolated margin
+2026-05-06 11:59:09,138 INFO __main__: Startup checks passed (hedge_mode=OK, isolated_margin=OK x 48, DRY_RUN=False)
+2026-05-06 11:59:09,138 INFO __main__: VWAP-Trader starting. DRY_RUN=False
+2026-05-06 11:59:09,218 INFO vwap_trader.notifier: ALERT: 🟢 **봇 시작됨**
+잔고: 49,999.91 USDT
+DEMO 모드 실행 중
+2026-05-06 11:59:09,299 INFO __main__: MainLoop started. balance=49999.91 DRY_RUN=False
+2026-05-06 14:00:41,875 INFO vwap_trader.infra.order_executor: [LIVE] open_position: short RAVEUSDT qty=23779.0000 sl=0.6890 tp1=0.0000 est_cost_usdt=23.0768
+2026-05-06 14:00:41,958 INFO vwap_trader.infra.bybit_client: place_order success: Sell RAVEUSDT qty=23779.0
+2026-05-06 14:00:41,959 INFO vwap_trader.infra.order_executor: Position opened: 78ba22a0-c140-4d8a-aa68-a339e605aea0
+2026-05-06 14:00:41,959 INFO __main__: Opened short RAVEUSDT ModuleB @ 0.6470 sl=0.6890
+2026-05-06 14:00:41,960 INFO vwap_trader.notifier: ALERT: 📉 **매도 (Short) 진입**
+심볼: RAVEUSDT
+수량: 23779.0
+진입가: 0.6470
+손절가: 0.6890
+2026-05-06 16:10:17,130 INFO vwap_trader.notifier: ALERT: 🔴 **봇 종료됨**
+사유: 정상 종료

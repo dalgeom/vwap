@@ -1,14 +1,10 @@
-.claude/
-__pycache__/
-*.pyc
-*.pyo
+# 보안
 .env
 *.key
 *.pem
+
+# Python 자동 생성 (양쪽 PC에서 재생성됨)
+__pycache__/
+*.pyc
+*.pyo
 *.egg-info/
-vwap_trader/data/cache/
-vwap_trader/bot_err.log
-vwap_trader/bot_out.log
-vwap_trader/*.log
-vwap_trader/logs/
-.context/

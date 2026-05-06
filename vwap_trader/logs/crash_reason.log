@@ -1,0 +1,88 @@
+CRASH: KeyboardInterrupt: 
+Traceback (most recent call last):
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\main.py", line 663, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\base_events.py", line 677, in run_forever
+    self._run_once()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\base_events.py", line 2046, in _run_once
+    handle._run()
+    ~~~~~~~~~~~^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\main.py", line 653, in main
+    await loop.run()
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\main.py", line 167, in run
+    await self._tick()
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\main.py", line 201, in _tick
+    await self._process_symbol(symbol, now)
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\main.py", line 218, in _process_symbol
+    candles_1h: list[Candle] = self.client.get_candles(symbol, "60", 400)
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\infra\bybit_client.py", line 157, in get_candles
+    resp = _call_with_retry(self._session.get_kline, **kwargs)
+  File "C:\Users\DEV_BASIC\Downloads\code\vwap_trader\src\vwap_trader\infra\bybit_client.py", line 27, in _call_with_retry
+    return fn(*args, **kwargs)
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\pybit\_v5_market.py", line 33, in get_kline
+    return self._submit_request(
+           ~~~~~~~~~~~~~~~~~~~~^
+        method="GET",
+        ^^^^^^^^^^^^^
+        path=f"{self.endpoint}{Market.GET_KLINE}",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        query=kwargs,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\pybit\_http_manager.py", line 241, in _submit_request
+    response = self.client.send(request, timeout=self.timeout)
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\sessions.py", line 706, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\adapters.py", line 645, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\urllib3\connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\site-packages\urllib3\connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\http\client.py", line 1450, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\http\client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\http\client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\ssl.py", line 1304, in recv_into
+    return self.read(nbytes, buffer)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\ssl.py", line 1138, in read
+    return self._sslobj.read(len, buffer)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DEV_BASIC\AppData\Local\Programs\Python\Python314\Lib\asyncio\runners.py", line 166, in _on_sigint
+    raise KeyboardInterrupt()
+KeyboardInterrupt

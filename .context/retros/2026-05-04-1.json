@@ -1,0 +1,43 @@
+{
+  "date": "2026-05-04",
+  "window": "7d",
+  "metrics": {
+    "commits": 7,
+    "contributors": 2,
+    "prs_merged": 0,
+    "insertions": 749407,
+    "deletions": 273,
+    "net_loc": 749134,
+    "logical_sloc_added": 33888,
+    "test_loc": 128,
+    "test_ratio": 0.004,
+    "active_days": 3,
+    "sessions": 4,
+    "deep_sessions": 0,
+    "micro_sessions": 4,
+    "avg_session_minutes": 12,
+    "loc_per_session_hour": 16950,
+    "feat_pct": 0.0,
+    "fix_pct": 0.14,
+    "peak_hour": 2,
+    "ai_assisted_commits": 7,
+    "strategies_dropped": 2,
+    "strategies_in_live": 0,
+    "decisions_made": 13,
+    "backtest_scripts_added": 34,
+    "backtest_scripts_reused": 0
+  },
+  "authors": {
+    "dalgeom (hyunjin)": { "commits": 4, "insertions": 105964, "deletions": 141, "test_ratio": 0.001, "top_area": "vwap_trader/scripts/" },
+    "hyunjin": { "commits": 3, "insertions": 640305, "deletions": 132, "test_ratio": 0.0, "top_area": "vwap_trader/data/backtest_results/" }
+  },
+  "version_range": [],
+  "streak_days": 1,
+  "tweetable": "Week of Apr 27: 7 commits (solo), 749k raw LOC / 34k logical SLOC | 0 strategies live | 2 dropped | 13 decisions | Streak: 1d",
+  "funnel": {
+    "strategies_explored": 15,
+    "strategies_backtested": 15,
+    "strategies_passed_esc": 0,
+    "strategies_live": 0
+  }
+}

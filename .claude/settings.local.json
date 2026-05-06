@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/python -m pytest tests/test_module_a.py tests/test_module_b.py -v)",
+      "Bash(venv/Scripts/python.exe -m pytest tests/test_module_a.py tests/test_module_b.py -v)",
+      "Bash(python -m pytest tests/test_module_a.py tests/test_module_b.py -v)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase1 --symbols BTCUSDT --combos 1)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase1 --symbols BTCUSDT --fast)",
+      "Bash(timeout 60 python -m vwap_trader.scripts.run_backtest_phase1 --symbols BTCUSDT --date-from 2024-01-01 --date-to 2024-02-01)",
+      "Bash(python -c ' *)",
+      "Bash(python -m py_compile src/vwap_trader/main.py)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, 'src'\\); import vwap_trader.main; print\\('IMPORT_OK'\\)\")",
+      "Bash(rg -rn \"F\\\\.4\\\\.2\\\\|structural_anchor\\\\|deviation_candle\" c:/Users/PC/Desktop/현진/code/vwap_trader_design/)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase2a --symbols BTCUSDT --date-from 2024-01-01 --date-to 2024-03-31)",
+      "Bash(python -c \"from dateutil.relativedelta import relativedelta; print\\('OK'\\)\")",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase3 --symbols BTCUSDT --date-from 2024-01-01 --date-to 2024-06-30)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase3 --symbols BTCUSDT)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase1 --symbols BTCUSDT,ETHUSDT)",
+      "Bash(break)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase2a --symbols BTCUSDT,ETHUSDT --regime-atr 0.012 --regime-ema 0.002 --regime-va 0.007)",
+      "Bash(python -m vwap_trader.scripts.run_backtest_phase2b --symbols BTCUSDT,ETHUSDT --regime-atr 0.012 --regime-ema 0.002 --regime-va 0.007)",
+      "Bash(taskkill /F /FI \"WINDOWTITLE eq *phase2b*\")",
+      "Bash(pkill -f \"run_backtest_phase2b\")"
+    ]
+  }
+}
