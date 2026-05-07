@@ -257,11 +257,12 @@ class BybitClient:
                 side=side,
                 orderType="Market",
                 qty=self._fmt_qty(symbol, qty),
-                stopLoss=str(sl),
                 reduceOnly=reduce_only,
                 timeInForce="IOC",
                 positionIdx=1 if side == "Buy" else 2,  # hedge mode
             )
+            if sl and sl > 0:
+                params["stopLoss"] = str(sl)
             if tp and tp > 0:
                 params["takeProfit"] = str(tp)
             resp = _call_with_retry(self._session.place_order, **params)

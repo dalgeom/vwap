@@ -156,22 +156,42 @@ def score_coin(sym: str, candles) -> dict:
     min_i  = 50
 
     # ── 점수 1: 최근 EMA 크로스 적중률 (0~50점) ──────────────
-    ema9  = _ema(closes, 9)
-    ema21 = _ema(closes, 21)
-    atr   = _calc_atr(candles)
+    # EMA / ATR 전체 배열을 한 번만 계산 (O(n) 최적화)
+    ema9_full  = _ema(closes, 9)   # ema9_full[k] = candle k+9 시점 EMA9
+    ema21_full = _ema(closes, 21)  # ema21_full[k] = candle k+21 시점 EMA21
 
-    if len(ema9) < 2 or len(ema21) < 2 or atr is None or atr <= 0:
+    trs = [
+        max(candles[i].high - candles[i].low,
+            abs(candles[i].high - candles[i-1].close),
+            abs(candles[i].low  - candles[i-1].close))
+        for i in range(1, len(candles))
+    ]
+    atr_series = _wilder(trs, ATR_PERIOD)  # atr_series[k] = candle k+ATR_PERIOD 시점 ATR
+
+    if len(ema9_full) < 2 or len(ema21_full) < 2 or not atr_series:
         return {"symbol": sym, "score": 0, "reason": "indicator_fail"}
 
     signals = []
     for i in range(min_i, len(candles) - 1):
-        e9  = _ema(closes[:i+1], 9)
-        e21 = _ema(closes[:i+1], 21)
-        if len(e9) < 2 or len(e21) < 2:
+        ix9   = i - 8           # ema9_full 인덱스 (candle i → k+8=i → k=i-8)
+        ix21  = i - 20          # ema21_full 인덱스
+        ix_atr = i - ATR_PERIOD # atr_series 인덱스
+
+        if ix9 < 1 or ix21 < 1 or ix_atr < 0:
             continue
-        if e9[-2] <= e21[-2] and e9[-1] > e21[-1]:
+        if ix9 >= len(ema9_full) or ix21 >= len(ema21_full) or ix_atr >= len(atr_series):
+            continue
+
+        e9_cur,  e9_prev  = ema9_full[ix9],  ema9_full[ix9  - 1]
+        e21_cur, e21_prev = ema21_full[ix21], ema21_full[ix21 - 1]
+        atr = atr_series[ix_atr]
+
+        if atr <= 0:
+            continue
+
+        if e9_prev <= e21_prev and e9_cur > e21_cur:
             direction = "long"
-        elif e9[-2] >= e21[-2] and e9[-1] < e21[-1]:
+        elif e9_prev >= e21_prev and e9_cur < e21_cur:
             direction = "short"
         else:
             continue

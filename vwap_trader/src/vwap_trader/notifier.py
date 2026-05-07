@@ -102,15 +102,24 @@ def notify_trade_closed(
     pnl_pct: float,
     reason: str,
 ) -> None:
-    if pnl_pct >= 0:
+    reason_map = {
+        "sl_or_tp":  "SL/TP 자동 청산",
+        "ema_cross": "EMA 역크로스 청산",
+        "timeout":   "시간 초과 청산",
+        "trailing":  "트레일링 SL 청산",
+        "emergency": "긴급 청산",
+    }
+    reason_kor = reason_map.get(reason, reason)
+
+    if exit_price <= 0:
+        emoji = "🔔"
+        result = "Bybit 자동 청산 — 앱에서 PnL 확인"
+    elif pnl_pct >= 0:
         emoji = "✅"
         result = f"+{pnl_pct * 100:.2f}% 이익"
     else:
         emoji = "❌"
         result = f"{pnl_pct * 100:.2f}% 손실"
-
-    reason_map = {"timeout": "시간 초과 청산", "trailing": "트레일링 SL 청산", "emergency": "긴급 청산"}
-    reason_kor = reason_map.get(reason, reason)
 
     _send(
         f"{emoji} **포지션 청산** ({reason_kor})\n"
