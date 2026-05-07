@@ -1,0 +1,74 @@
+{
+  "0.020%_top10": {
+    "pnl_pct": 96.4,
+    "trades": 201,
+    "winrate": 50.7,
+    "dd": 4.8,
+    "sharpe": 3.2,
+    "ev_per_trade": 47.95
+  },
+  "0.020%_top15": {
+    "pnl_pct": 145.1,
+    "trades": 666,
+    "winrate": 43.2,
+    "dd": 10.2,
+    "sharpe": 3.25,
+    "ev_per_trade": 21.78
+  },
+  "0.020%_top20": {
+    "pnl_pct": 103.6,
+    "trades": 1218,
+    "winrate": 42.4,
+    "dd": 13.9,
+    "sharpe": 2.12,
+    "ev_per_trade": 8.51
+  },
+  "0.025%_top10": {
+    "pnl_pct": 67.7,
+    "trades": 117,
+    "winrate": 52.1,
+    "dd": 3.6,
+    "sharpe": 2.84,
+    "ev_per_trade": 57.89
+  },
+  "0.025%_top15": {
+    "pnl_pct": 141.8,
+    "trades": 548,
+    "winrate": 42.5,
+    "dd": 7.9,
+    "sharpe": 3.31,
+    "ev_per_trade": 25.88
+  },
+  "0.025%_top20": {
+    "pnl_pct": 64.5,
+    "trades": 1060,
+    "winrate": 41.8,
+    "dd": 16.9,
+    "sharpe": 1.59,
+    "ev_per_trade": 6.08
+  },
+  "0.030%_top10": {
+    "pnl_pct": 32.7,
+    "trades": 74,
+    "winrate": 52.7,
+    "dd": 3.8,
+    "sharpe": 3.2,
+    "ev_per_trade": 44.15
+  },
+  "0.030%_top15": {
+    "pnl_pct": 92.7,
+    "trades": 464,
+    "winrate": 42.0,
+    "dd": 6.1,
+    "sharpe": 3.1,
+    "ev_per_trade": 19.98
+  },
+  "0.030%_top20": {
+    "pnl_pct": 51.1,
+    "trades": 928,
+    "winrate": 42.0,
+    "dd": 16.1,
+    "sharpe": 1.43,
+    "ev_per_trade": 5.5
+  }
+}

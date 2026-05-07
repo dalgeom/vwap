@@ -8,3 +8,11 @@ __pycache__/
 *.pyc
 *.pyo
 *.egg-info/
+
+# 백테스트 캐시 (대용량, API로 재생성 가능)
+vwap_trader/data/backtest_cache/
+
+# 런타임 파일 (봇이 자동 생성)
+vwap_trader/data/heartbeat
+vwap_trader/data/slippage.jsonl
+vwap_trader/logs/

@@ -53,6 +53,7 @@ class BybitClient:
         else:
             logger.info("BybitClient initialized")
         self._lot_size_cache: dict[str, float] = {}
+        self._max_qty_cache: dict[str, float] = {}
 
     # ── 내부 헬퍼 ──────────────────────────────────────────────
 
@@ -275,6 +276,69 @@ class BybitClient:
             logger.error("place_order exception for %s: %s", symbol, exc)
             return None
 
+    def place_limit_order(
+        self,
+        symbol: str,
+        side: str,
+        qty: float,
+        price: float,
+        sl: float,
+        reduce_only: bool = False,
+    ) -> dict | None:
+        """지정가 주문. 반환: {"orderId": ...} 또는 None."""
+        if self._dry_run:
+            mock = {
+                "dry_run": True, "symbol": symbol, "side": side,
+                "qty": qty, "price": price, "sl": sl,
+                "orderId": "DRY_RUN_LIMIT_ORDER",
+            }
+            logger.info("DRY_RUN place_limit_order: %s", mock)
+            return mock
+
+        try:
+            params: dict = dict(
+                category="linear",
+                symbol=symbol,
+                side=side,
+                orderType="Limit",
+                qty=self._fmt_qty(symbol, qty),
+                price=str(price),
+                reduceOnly=reduce_only,
+                timeInForce="GTC",
+                positionIdx=1 if side == "Buy" else 2,
+            )
+            if sl and sl > 0:
+                params["stopLoss"] = str(sl)
+            resp = _call_with_retry(self._session.place_order, **params)
+            if self._ok(resp):
+                logger.info("place_limit_order success: %s %s qty=%s price=%s",
+                            side, symbol, qty, price)
+                return resp["result"]
+            logger.error("place_limit_order failed for %s: %s", symbol, resp)
+            return None
+        except Exception as exc:
+            logger.error("place_limit_order exception for %s: %s", symbol, exc)
+            return None
+
+    def get_order_status(self, symbol: str, order_id: str) -> str | None:
+        """주문 상태 조회. 'Filled', 'New', 'Cancelled' 등 반환."""
+        try:
+            resp = _call_with_retry(
+                self._session.get_open_orders,
+                category="linear",
+                symbol=symbol,
+                orderId=order_id,
+            )
+            if self._ok(resp):
+                items = resp["result"]["list"]
+                if items:
+                    return items[0].get("orderStatus", "Unknown")
+                return "Filled"  # open orders에 없으면 체결됨
+            return None
+        except Exception as exc:
+            logger.error("get_order_status exception: %s", exc)
+            return None
+
     def cancel_order(self, symbol: str, order_id: str) -> bool:
         """주문 취소. 성공 시 True."""
         try:
@@ -316,6 +380,17 @@ class BybitClient:
             logger.error("get_position exception for %s: %s", symbol, exc)
             return None
 
+    def get_all_positions(self, symbols: list[str] | None = None) -> list[dict]:
+        """열린 포지션 반환. size > 0인 것만. symbols 지정 시 해당 심볼만 조회."""
+        result = []
+        if symbols is None:
+            symbols = []
+        for sym in symbols:
+            pos = self.get_position(sym)
+            if pos and float(pos.get("size", 0)) > 0:
+                result.append(pos)
+        return result
+
     def get_lot_size(self, symbol: str) -> float:
         """심볼의 qtyStep 반환. 실패 시 1.0 fallback. 결과 캐시."""
         if symbol in self._lot_size_cache:
@@ -329,13 +404,23 @@ class BybitClient:
             if self._ok(resp):
                 items = resp["result"]["list"]
                 if items:
-                    qty_step = float(items[0]["lotSizeFilter"]["qtyStep"])
+                    lot_filter = items[0]["lotSizeFilter"]
+                    qty_step = float(lot_filter["qtyStep"])
+                    max_qty  = float(lot_filter.get("maxOrderQty", 0))
                     self._lot_size_cache[symbol] = qty_step
+                    if max_qty > 0:
+                        self._max_qty_cache[symbol] = max_qty
                     return qty_step
         except Exception as exc:
             logger.warning("get_lot_size failed for %s: %s", symbol, exc)
         self._lot_size_cache[symbol] = 1.0
         return 1.0
+
+    def get_max_qty(self, symbol: str) -> float:
+        """심볼의 maxOrderQty 반환. 캐시 없으면 get_lot_size 호출."""
+        if symbol not in self._max_qty_cache:
+            self.get_lot_size(symbol)
+        return self._max_qty_cache.get(symbol, float("inf"))
 
     def _fmt_qty(self, symbol: str, qty: float) -> str:
         """qtyStep 기준 올바른 소수점 자릿수로 qty 문자열 반환.
