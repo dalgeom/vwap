@@ -1,7 +1,7 @@
 """
 C 전략 — 펀딩 역추세 (Funding Contrarian)
 - 8시간마다 펀딩 정산 시점에 실행
-- |펀딩| > 0.025% 코인 역방향 진입
+- |펀딩| 0.012~0.025% bandpass 범위 코인 역방향 진입
 - 동시 최대 5포지션 분산
 - SL: 1.0 ATR, 청산: 다음 펀딩(8h) 시장가
 - 거래당 리스크: 0.5%
@@ -35,13 +35,14 @@ from vwap_trader.notifier import (
     notify_trade_closed,
 )
 
-# ── 설정 ��────────────────────────────────────────────────────────
+# ── 설정 ─────────────────────────────────────────────────────────
 LEVERAGE         = 5
 RISK_PCT         = 0.005      # 0.5% per trade
 MAX_LEV_REAL     = 3.0
 ATR_PERIOD       = 14
 SL_ATR_MULT      = 1.0       # SL = 1.0 ATR
-FUNDING_THRESH   = 0.00025   # |펀딩| > 0.025%
+FUNDING_THRESH_LOW  = 0.00012  # 하한 0.012% (이 미만은 신호 너무 약함)
+FUNDING_THRESH_HIGH = 0.00025  # 상한 0.025% (이 초과는 봇 경쟁으로 잠식)
 MAX_POSITIONS    = 5
 MAX_SAME_DIR     = 3          # 같은 방향 3개 초과 시 사이즈 50%
 DAILY_LOSS_PCT   = -0.02      # 일일 -2% 도달 시 24h 정지
@@ -88,7 +89,7 @@ DEFAULT_UNIVERSE = [
 FUNDING_HOURS = [0, 8, 16]
 
 
-# ── 로깅 ────────��────────────────────────────────────────────────
+# ── 로깅 ─────────────────────────────────────────────────────────
 
 def _setup_logging() -> None:
     _LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -110,7 +111,7 @@ def _setup_logging() -> None:
 logger = logging.getLogger(__name__)
 
 
-# ���─ 지표 ────────────────────────────────────���────────────────────
+# ── 지표 ─────────────────────────────────────────────────────────
 
 def _wilder(vals: list[float], p: int) -> list[float]:
     if len(vals) < p:
@@ -243,7 +244,7 @@ class FundingBot:
         _STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
         self._load_state()
 
-    # ── 상태 영속성 ──────���───────────────────────────────────────
+    # ── 상태 영속성 ─────────────────────────────────────────────
 
     def _load_state(self) -> None:
         if _STATE_FILE.exists():
@@ -462,8 +463,9 @@ class FundingBot:
         self._last_universe_refresh = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
         logger.info("유니버스: %s", self.universe)
-        logger.info("설정: 임계값=%.3f%% | 최대포지션=%d | 리스크=%.1f%% | SL=%.1fATR",
-                    FUNDING_THRESH * 100, MAX_POSITIONS, RISK_PCT * 100, SL_ATR_MULT)
+        logger.info("설정: 임계값=%.3f%%~%.3f%% | 최대포지션=%d | 리스크=%.1f%% | SL=%.1fATR",
+                    FUNDING_THRESH_LOW * 100, FUNDING_THRESH_HIGH * 100,
+                    MAX_POSITIONS, RISK_PCT * 100, SL_ATR_MULT)
 
         # 시작 시 거래소-state 동기화 + 고아 포지션 청산
         await self._reconcile_positions()
@@ -510,7 +512,7 @@ class FundingBot:
         await asyncio.sleep(max(wait_sec, 1))
 
     async def _funding_tick(self) -> None:
-        """���딩 정산 시점 실행: 기존 포지션 청산 → 신규 진입."""
+        """펀딩 정산 시점 실행: 기존 포지션 청산 -> 신규 진입."""
         # 비상 정지 체크
         if _EMERGENCY_STOP.exists():
             logger.critical("비상 정지 파일 감지! 모든 포지션 청산 후 종료")
@@ -678,13 +680,13 @@ class FundingBot:
         self.positions.clear()
         self._save_state()
 
-    # ── SL 체크 (중간 체크용, 선택적) ──��──────────────────────────
+    # ── SL 체크 (중간 체크용, 선택적) ──────────────────────────────
 
     async def _check_sl_between_fundings(self) -> None:
         """펀딩 사이 SL 히트 확인 (optional, 현재 미사용 — Bybit SL이 자동 처리)."""
         pass
 
-    # ── 진입 ───────────��──────────────────────────��──────────────
+    # ── 진입 ─────────────────────────────────────────────────────
 
     async def _scan_and_enter(self, balance: float,
                               deadline: datetime | None = None) -> None:
@@ -700,14 +702,27 @@ class FundingBot:
             logger.warning("펀딩비 조회 실패 — 진입 스킵")
             return
 
-        # |펀딩| > 임계값 필터 + 절댓값 큰 순 정렬
-        candidates = [(sym, rate) for sym, rate in funding_rates.items()
-                      if abs(rate) >= FUNDING_THRESH]
+        # bandpass 필터: 하한 <= |펀딩| <= 상한
+        candidates = []
+        skipped_above = []  # 상한 초과 (paper 추적용)
+        for sym, rate in funding_rates.items():
+            abs_rate = abs(rate)
+            if FUNDING_THRESH_LOW <= abs_rate <= FUNDING_THRESH_HIGH:
+                candidates.append((sym, rate))
+            elif abs_rate > FUNDING_THRESH_HIGH:
+                skipped_above.append((sym, rate))
         candidates.sort(key=lambda x: abs(x[1]), reverse=True)
 
+        # 상한 초과 신호 paper 추적 로그 (6개월 후 상한 재평가용)
+        if skipped_above:
+            logger.info("상한 초과 스킵 %d개 (paper 추적):", len(skipped_above))
+            for sym, rate in skipped_above:
+                logger.info("  SKIP %s: %.4f%% > 상한 %.3f%%",
+                            sym, rate * 100, FUNDING_THRESH_HIGH * 100)
+
         if not candidates:
-            logger.info("펀딩 임계값(%.3f%%) 초과 코인 없음", FUNDING_THRESH * 100)
-            # 전체 펀딩비 로그
+            logger.info("bandpass(%.3f%%~%.3f%%) 범위 코인 없음",
+                        FUNDING_THRESH_LOW * 100, FUNDING_THRESH_HIGH * 100)
             top5 = sorted(funding_rates.items(), key=lambda x: abs(x[1]), reverse=True)[:5]
             for sym, rate in top5:
                 logger.info("  %s: %.4f%%", sym, rate * 100)
@@ -869,7 +884,7 @@ class FundingBot:
         logger.info("진입 완료: %d/%d 포지션", entries_made, MAX_POSITIONS)
 
 
-# ── 엔트리포인트 ───���──────────────────────────────────────────────
+# ── 엔트리포인트 ─────────────────────────────────────────────────
 
 async def main() -> None:
     _setup_logging()

@@ -103,11 +103,13 @@ def notify_trade_closed(
     reason: str,
 ) -> None:
     reason_map = {
-        "sl_or_tp":  "SL/TP 자동 청산",
-        "ema_cross": "EMA 역크로스 청산",
-        "timeout":   "시간 초과 청산",
-        "trailing":  "트레일링 SL 청산",
-        "emergency": "긴급 청산",
+        "sl_or_tp":        "SL/TP 자동 청산",
+        "funding_exit":    "8h 펀딩 정산 청산",
+        "orphan_cleanup":  "고아 포지션 청산",
+        "ema_cross":       "EMA 역크로스 청산",
+        "timeout":         "시간 초과 청산",
+        "trailing":        "트레일링 SL 청산",
+        "emergency":       "긴급 청산",
     }
     reason_kor = reason_map.get(reason, reason)
 
