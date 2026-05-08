@@ -38,7 +38,7 @@ from vwap_trader.notifier import (
 # ── 설정 ─────────────────────────────────────────────────────────
 LEVERAGE         = 5
 RISK_PCT         = 0.005      # 0.5% per trade
-MAX_LEV_REAL     = 3.0
+MAX_LEV_REAL     = 5.0
 ATR_PERIOD       = 14
 SL_ATR_MULT      = 1.0       # SL = 1.0 ATR
 FUNDING_THRESH_LOW  = 0.00012  # 하한 0.012% (이 미만은 신호 너무 약함)
