@@ -65,6 +65,7 @@ _BASE_DIR       = Path(__file__).parents[2]
 _STATE_FILE     = _BASE_DIR / "data" / "state.json"
 _HEARTBEAT      = _BASE_DIR / "data" / "heartbeat"
 _SLIPPAGE_LOG   = _BASE_DIR / "data" / "slippage.jsonl"
+_TRADES_LOG     = _BASE_DIR / "data" / "trades.jsonl"
 _EMERGENCY_STOP = _BASE_DIR / "data" / "STOP"
 _LOG_DIR        = _BASE_DIR / "logs"
 
@@ -320,6 +321,7 @@ class FundingBot:
             bybit_pos = self.client.get_position(pos.symbol)
             if bybit_pos is not None and float(bybit_pos.get("size", 0)) == 0:
                 logger.info("  %s - 이미 청산됨 (SL)", pos.symbol)
+                self._log_trade(pos, 0.0, 0.0, 0.0, "sl_or_tp")
                 notify_trade_closed(pos.symbol, pos.direction, pos.entry_price,
                                     0.0, 0.0, "sl_or_tp")
                 continue
@@ -335,6 +337,8 @@ class FundingBot:
                 pnl_pct = ((exit_price - pos.entry_price) / pos.entry_price
                            if pos.direction == "long"
                            else (pos.entry_price - exit_price) / pos.entry_price)
+                realized_usdt = pnl_pct * pos.qty * pos.entry_price
+                self._log_trade(pos, exit_price, pnl_pct, realized_usdt, "orphan_cleanup")
                 notify_trade_closed(pos.symbol, pos.direction, pos.entry_price,
                                     exit_price, pnl_pct, "orphan_cleanup")
                 logger.info("  고아 청산: %s %s PnL=%.2f%%",
@@ -442,6 +446,33 @@ class FundingBot:
             logger.warning("슬리피지 경고: %s %s %.4f%% (의도=%.6f 실제=%.6f)",
                            symbol, side, slippage_pct * 100,
                            intended_price, actual_price)
+
+    @staticmethod
+    def _log_trade(pos: OpenPosition, exit_price: float, pnl_pct: float,
+                   pnl_usdt: float, reason: str, funding_rate: float = 0.0) -> None:
+        """매매 기록을 trades.jsonl에 저장."""
+        entry_dt = datetime.fromisoformat(pos.entry_time)
+        held_hours = (datetime.now(timezone.utc) - entry_dt).total_seconds() / 3600
+        record = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "symbol": pos.symbol,
+            "direction": pos.direction,
+            "entry_price": round(pos.entry_price, 8),
+            "exit_price": round(exit_price, 8),
+            "qty": pos.qty,
+            "sl": round(pos.sl, 8),
+            "funding_rate": round(funding_rate, 6),
+            "pnl_usdt": round(pnl_usdt, 4),
+            "pnl_pct": round(pnl_pct * 100, 4),
+            "reason": reason,
+            "held_hours": round(held_hours, 2),
+        }
+        try:
+            _TRADES_LOG.parent.mkdir(parents=True, exist_ok=True)
+            with open(_TRADES_LOG, "a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
 
     # ── 메인 루프 ────────────────────────────────────────────────
 
@@ -636,6 +667,7 @@ class FundingBot:
             if bybit_pos is not None and float(bybit_pos.get("size", 0)) == 0:
                 # 이미 SL로 청산됨
                 logger.info("  %s %s - 이미 청산됨 (SL)", pos.direction, pos.symbol)
+                self._log_trade(pos, 0.0, 0.0, 0.0, "sl_or_tp")
                 notify_trade_closed(pos.symbol, pos.direction, pos.entry_price,
                                     0.0, 0.0, "sl_or_tp")
                 closed.append(i)
@@ -664,6 +696,7 @@ class FundingBot:
                 close_side = "Buy" if pos.direction == "short" else "Sell"
                 self._log_slippage(pos.symbol, close_side, pos.entry_price,
                                    exit_price, pos.qty, "market_exit")
+                self._log_trade(pos, exit_price, pnl_pct, realized_usdt, "funding_exit")
                 notify_trade_closed(pos.symbol, pos.direction, pos.entry_price,
                                     exit_price, pnl_pct, "funding_exit")
                 logger.info("  %s %s | 진입=%.6f 청산=%.6f PnL=%.2f%%",
@@ -671,7 +704,6 @@ class FundingBot:
                             pnl_pct * 100)
             else:
                 logger.error("  %s %s 청산 실패", pos.direction, pos.symbol)
-                # 실패해도 포지션 제거 (다음 틱에 재시도하면 꼬임)
                 notify_error(f"{pos.symbol} 청산 실패", pos.symbol)
 
             closed.append(i)
