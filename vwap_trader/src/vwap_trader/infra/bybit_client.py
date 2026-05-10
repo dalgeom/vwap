@@ -47,6 +47,8 @@ class BybitClient:
             api_secret=api_secret,
             recv_window=20000,
         )
+        # 펀딩비 등 공개 시장 데이터는 데모 세션이 아닌 실시장 세션으로 조회
+        self._public_session = HTTP(testnet=False)
         self._sync_time_offset()
         if self._dry_run:
             logger.info("BybitClient initialized in DRY_RUN mode")
@@ -205,10 +207,10 @@ class BybitClient:
             return []
 
     def get_funding_rate(self, symbol: str) -> float | None:
-        """현재 펀딩비 반환. 실패 시 None."""
+        """현재 펀딩비 반환 (실시장 공개 세션 사용 — 데모 고정값 우회). 실패 시 None."""
         try:
             resp = _call_with_retry(
-                self._session.get_tickers,
+                self._public_session.get_tickers,
                 category="linear",
                 symbol=symbol,
             )
