@@ -1,0 +1,897 @@
+{
+  "full_period": {
+    "BTCUSDT_vw=4h, hold=3h": {
+      "n": 1986,
+      "mean_net": -0.6272,
+      "std": 1.5303,
+      "t_stat": -18.26,
+      "win_rate": 31.1,
+      "total_ret": -1245.65,
+      "max_dd": 1244.67,
+      "sharpe_ann": -469.94
+    },
+    "ETHUSDT_vw=4h, hold=3h": {
+      "n": 1929,
+      "mean_net": -0.7529,
+      "std": 2.0991,
+      "t_stat": -15.75,
+      "win_rate": 32.6,
+      "total_ret": -1452.34,
+      "max_dd": 1449.53,
+      "sharpe_ann": -399.45
+    },
+    "SOLUSDT_vw=4h, hold=3h": {
+      "n": 2016,
+      "mean_net": -1.0114,
+      "std": 3.0264,
+      "t_stat": -15.01,
+      "win_rate": 34.9,
+      "total_ret": -2039.07,
+      "max_dd": 2035.16,
+      "sharpe_ann": -389.0
+    },
+    "XRPUSDT_vw=4h, hold=3h": {
+      "n": 2024,
+      "mean_net": -0.9444,
+      "std": 3.6657,
+      "t_stat": -11.59,
+      "win_rate": 34.4,
+      "total_ret": -1911.5,
+      "max_dd": 1909.81,
+      "sharpe_ann": -301.06
+    },
+    "DOGEUSDT_vw=4h, hold=3h": {
+      "n": 1961,
+      "mean_net": -1.1499,
+      "std": 3.354,
+      "t_stat": -15.18,
+      "win_rate": 33.0,
+      "total_ret": -2254.92,
+      "max_dd": 2260.83,
+      "sharpe_ann": -388.15
+    },
+    "SUIUSDT_vw=4h, hold=3h": {
+      "n": 1769,
+      "mean_net": -1.3545,
+      "std": 3.4337,
+      "t_stat": -16.59,
+      "win_rate": 33.1,
+      "total_ret": -2396.11,
+      "max_dd": 2399.8,
+      "sharpe_ann": -402.88
+    },
+    "BTCUSDT_vw=2h, hold=2h": {
+      "n": 2309,
+      "mean_net": -0.6126,
+      "std": 1.2718,
+      "t_stat": -23.15,
+      "win_rate": 27.7,
+      "total_ret": -1414.54,
+      "max_dd": 1411.88,
+      "sharpe_ann": -642.13
+    },
+    "ETHUSDT_vw=2h, hold=2h": {
+      "n": 2263,
+      "mean_net": -0.8046,
+      "std": 1.7337,
+      "t_stat": -22.08,
+      "win_rate": 26.9,
+      "total_ret": -1820.84,
+      "max_dd": 1819.51,
+      "sharpe_ann": -606.36
+    },
+    "SOLUSDT_vw=2h, hold=2h": {
+      "n": 2283,
+      "mean_net": -1.0458,
+      "std": 2.5063,
+      "t_stat": -19.94,
+      "win_rate": 31.3,
+      "total_ret": -2387.45,
+      "max_dd": 2378.62,
+      "sharpe_ann": -549.96
+    },
+    "XRPUSDT_vw=2h, hold=2h": {
+      "n": 2289,
+      "mean_net": -1.0137,
+      "std": 2.8686,
+      "t_stat": -16.91,
+      "win_rate": 30.5,
+      "total_ret": -2320.26,
+      "max_dd": 2317.3,
+      "sharpe_ann": -466.98
+    },
+    "DOGEUSDT_vw=2h, hold=2h": {
+      "n": 2267,
+      "mean_net": -1.1649,
+      "std": 2.7921,
+      "t_stat": -19.87,
+      "win_rate": 30.3,
+      "total_ret": -2640.91,
+      "max_dd": 2640.91,
+      "sharpe_ann": -546.09
+    },
+    "SUIUSDT_vw=2h, hold=2h": {
+      "n": 2054,
+      "mean_net": -1.3116,
+      "std": 2.8436,
+      "t_stat": -20.9,
+      "win_rate": 28.5,
+      "total_ret": -2694.02,
+      "max_dd": 2698.16,
+      "sharpe_ann": -546.99
+    },
+    "BTCUSDT_vw=4h, hold=2h": {
+      "n": 1986,
+      "mean_net": -0.6103,
+      "std": 1.2877,
+      "t_stat": -21.12,
+      "win_rate": 28.9,
+      "total_ret": -1212.08,
+      "max_dd": 1209.28,
+      "sharpe_ann": -543.46
+    },
+    "ETHUSDT_vw=4h, hold=2h": {
+      "n": 1929,
+      "mean_net": -0.7607,
+      "std": 1.7741,
+      "t_stat": -18.83,
+      "win_rate": 28.4,
+      "total_ret": -1467.35,
+      "max_dd": 1464.58,
+      "sharpe_ann": -477.52
+    },
+    "SOLUSDT_vw=4h, hold=2h": {
+      "n": 2016,
+      "mean_net": -0.9862,
+      "std": 2.5686,
+      "t_stat": -17.24,
+      "win_rate": 33.6,
+      "total_ret": -1988.23,
+      "max_dd": 1985.23,
+      "sharpe_ann": -446.9
+    },
+    "XRPUSDT_vw=4h, hold=2h": {
+      "n": 2024,
+      "mean_net": -1.0034,
+      "std": 3.0493,
+      "t_stat": -14.8,
+      "win_rate": 31.5,
+      "total_ret": -2030.85,
+      "max_dd": 2027.89,
+      "sharpe_ann": -384.52
+    },
+    "DOGEUSDT_vw=4h, hold=2h": {
+      "n": 1961,
+      "mean_net": -1.1886,
+      "std": 2.879,
+      "t_stat": -18.28,
+      "win_rate": 30.4,
+      "total_ret": -2330.92,
+      "max_dd": 2333.38,
+      "sharpe_ann": -467.44
+    },
+    "SUIUSDT_vw=4h, hold=2h": {
+      "n": 1769,
+      "mean_net": -1.2702,
+      "std": 2.906,
+      "t_stat": -18.38,
+      "win_rate": 30.4,
+      "total_ret": -2247.02,
+      "max_dd": 2248.44,
+      "sharpe_ann": -446.42
+    }
+  },
+  "yearly": {
+    "BTCUSDT": {
+      "2023": {
+        "n": 640,
+        "mean_net": -0.727,
+        "std": 1.4113,
+        "t_stat": -13.03,
+        "win_rate": 24.5,
+        "total_ret": -465.25,
+        "max_dd": 461.69,
+        "sharpe_ann": -190.34
+      },
+      "2024": {
+        "n": 643,
+        "mean_net": -0.5842,
+        "std": 1.6187,
+        "t_stat": -9.15,
+        "win_rate": 32.7,
+        "total_ret": -375.62,
+        "max_dd": 376.15,
+        "sharpe_ann": -133.97
+      },
+      "2025": {
+        "n": 682,
+        "mean_net": -0.6721,
+        "std": 1.5247,
+        "t_stat": -11.51,
+        "win_rate": 30.9,
+        "total_ret": -458.4,
+        "max_dd": 458.28,
+        "sharpe_ann": -173.58
+      }
+    },
+    "ETHUSDT": {
+      "2023": {
+        "n": 620,
+        "mean_net": -0.7007,
+        "std": 1.3569,
+        "t_stat": -12.86,
+        "win_rate": 25.3,
+        "total_ret": -434.44,
+        "max_dd": 433.22,
+        "sharpe_ann": -184.85
+      },
+      "2024": {
+        "n": 651,
+        "mean_net": -0.7079,
+        "std": 2.1189,
+        "t_stat": -8.52,
+        "win_rate": 33.5,
+        "total_ret": -460.84,
+        "max_dd": 457.63,
+        "sharpe_ann": -125.57
+      },
+      "2025": {
+        "n": 635,
+        "mean_net": -1.0173,
+        "std": 2.4523,
+        "t_stat": -10.45,
+        "win_rate": 30.4,
+        "total_ret": -646.01,
+        "max_dd": 645.48,
+        "sharpe_ann": -152.09
+      }
+    },
+    "SOLUSDT": {
+      "2023": {
+        "n": 666,
+        "mean_net": -1.079,
+        "std": 3.1805,
+        "t_stat": -8.76,
+        "win_rate": 34.2,
+        "total_ret": -718.62,
+        "max_dd": 720.07,
+        "sharpe_ann": -130.45
+      },
+      "2024": {
+        "n": 682,
+        "mean_net": -1.0713,
+        "std": 2.9342,
+        "t_stat": -9.53,
+        "win_rate": 35.6,
+        "total_ret": -730.62,
+        "max_dd": 733.96,
+        "sharpe_ann": -143.76
+      },
+      "2025": {
+        "n": 651,
+        "mean_net": -1.0626,
+        "std": 2.9918,
+        "t_stat": -9.06,
+        "win_rate": 31.8,
+        "total_ret": -691.76,
+        "max_dd": 701.12,
+        "sharpe_ann": -133.49
+      }
+    },
+    "XRPUSDT": {
+      "2023": {
+        "n": 621,
+        "mean_net": -0.9498,
+        "std": 3.9536,
+        "t_stat": -5.99,
+        "win_rate": 28.2,
+        "total_ret": -589.84,
+        "max_dd": 588.5,
+        "sharpe_ann": -86.14
+      },
+      "2024": {
+        "n": 687,
+        "mean_net": -1.1717,
+        "std": 3.6792,
+        "t_stat": -8.35,
+        "win_rate": 33.5,
+        "total_ret": -804.97,
+        "max_dd": 803.6,
+        "sharpe_ann": -126.32
+      },
+      "2025": {
+        "n": 683,
+        "mean_net": -1.0476,
+        "std": 3.1717,
+        "t_stat": -8.63,
+        "win_rate": 33.1,
+        "total_ret": -715.51,
+        "max_dd": 720.65,
+        "sharpe_ann": -130.25
+      }
+    },
+    "DOGEUSDT": {
+      "2023": {
+        "n": 632,
+        "mean_net": -0.9272,
+        "std": 2.2968,
+        "t_stat": -10.15,
+        "win_rate": 30.2,
+        "total_ret": -586.0,
+        "max_dd": 596.34,
+        "sharpe_ann": -147.31
+      },
+      "2024": {
+        "n": 684,
+        "mean_net": -1.2563,
+        "std": 4.0343,
+        "t_stat": -8.14,
+        "win_rate": 33.8,
+        "total_ret": -859.32,
+        "max_dd": 852.83,
+        "sharpe_ann": -122.98
+      },
+      "2025": {
+        "n": 640,
+        "mean_net": -1.1923,
+        "std": 2.923,
+        "t_stat": -10.32,
+        "win_rate": 30.8,
+        "total_ret": -763.04,
+        "max_dd": 761.69,
+        "sharpe_ann": -150.72
+      }
+    },
+    "SUIUSDT": {
+      "2023": {
+        "n": 430,
+        "mean_net": -1.073,
+        "std": 2.9723,
+        "t_stat": -7.49,
+        "win_rate": 33.7,
+        "total_ret": -461.37,
+        "max_dd": 470.35,
+        "sharpe_ann": -89.62
+      },
+      "2024": {
+        "n": 675,
+        "mean_net": -1.4587,
+        "std": 3.7106,
+        "t_stat": -10.21,
+        "win_rate": 33.6,
+        "total_ret": -984.59,
+        "max_dd": 981.73,
+        "sharpe_ann": -153.2
+      },
+      "2025": {
+        "n": 654,
+        "mean_net": -1.2733,
+        "std": 3.305,
+        "t_stat": -9.85,
+        "win_rate": 30.7,
+        "total_ret": -832.73,
+        "max_dd": 831.93,
+        "sharpe_ann": -145.47
+      }
+    }
+  },
+  "walk_forward": {
+    "BTCUSDT": {
+      "2023->2024": {
+        "train": {
+          "n": 640,
+          "mean_net": -0.727,
+          "std": 1.4113,
+          "t_stat": -13.03,
+          "win_rate": 24.5,
+          "total_ret": -465.25,
+          "max_dd": 461.69,
+          "sharpe_ann": -190.34
+        },
+        "test": {
+          "n": 643,
+          "mean_net": -0.5842,
+          "std": 1.6187,
+          "t_stat": -9.15,
+          "win_rate": 32.7,
+          "total_ret": -375.62,
+          "max_dd": 376.15,
+          "sharpe_ann": -133.97
+        }
+      },
+      "2024->2025": {
+        "train": {
+          "n": 643,
+          "mean_net": -0.5842,
+          "std": 1.6187,
+          "t_stat": -9.15,
+          "win_rate": 32.7,
+          "total_ret": -375.62,
+          "max_dd": 376.15,
+          "sharpe_ann": -133.97
+        },
+        "test": {
+          "n": 682,
+          "mean_net": -0.6721,
+          "std": 1.5247,
+          "t_stat": -11.51,
+          "win_rate": 30.9,
+          "total_ret": -458.4,
+          "max_dd": 458.28,
+          "sharpe_ann": -173.58
+        }
+      }
+    },
+    "ETHUSDT": {
+      "2023->2024": {
+        "train": {
+          "n": 620,
+          "mean_net": -0.7007,
+          "std": 1.3569,
+          "t_stat": -12.86,
+          "win_rate": 25.3,
+          "total_ret": -434.44,
+          "max_dd": 433.22,
+          "sharpe_ann": -184.85
+        },
+        "test": {
+          "n": 651,
+          "mean_net": -0.7079,
+          "std": 2.1189,
+          "t_stat": -8.52,
+          "win_rate": 33.5,
+          "total_ret": -460.84,
+          "max_dd": 457.63,
+          "sharpe_ann": -125.57
+        }
+      },
+      "2024->2025": {
+        "train": {
+          "n": 651,
+          "mean_net": -0.7079,
+          "std": 2.1189,
+          "t_stat": -8.52,
+          "win_rate": 33.5,
+          "total_ret": -460.84,
+          "max_dd": 457.63,
+          "sharpe_ann": -125.57
+        },
+        "test": {
+          "n": 635,
+          "mean_net": -1.0173,
+          "std": 2.4523,
+          "t_stat": -10.45,
+          "win_rate": 30.4,
+          "total_ret": -646.01,
+          "max_dd": 645.48,
+          "sharpe_ann": -152.09
+        }
+      }
+    },
+    "SOLUSDT": {
+      "2023->2024": {
+        "train": {
+          "n": 666,
+          "mean_net": -1.079,
+          "std": 3.1805,
+          "t_stat": -8.76,
+          "win_rate": 34.2,
+          "total_ret": -718.62,
+          "max_dd": 720.07,
+          "sharpe_ann": -130.45
+        },
+        "test": {
+          "n": 682,
+          "mean_net": -1.0713,
+          "std": 2.9342,
+          "t_stat": -9.53,
+          "win_rate": 35.6,
+          "total_ret": -730.62,
+          "max_dd": 733.96,
+          "sharpe_ann": -143.76
+        }
+      },
+      "2024->2025": {
+        "train": {
+          "n": 682,
+          "mean_net": -1.0713,
+          "std": 2.9342,
+          "t_stat": -9.53,
+          "win_rate": 35.6,
+          "total_ret": -730.62,
+          "max_dd": 733.96,
+          "sharpe_ann": -143.76
+        },
+        "test": {
+          "n": 651,
+          "mean_net": -1.0626,
+          "std": 2.9918,
+          "t_stat": -9.06,
+          "win_rate": 31.8,
+          "total_ret": -691.76,
+          "max_dd": 701.12,
+          "sharpe_ann": -133.49
+        }
+      }
+    },
+    "XRPUSDT": {
+      "2023->2024": {
+        "train": {
+          "n": 621,
+          "mean_net": -0.9498,
+          "std": 3.9536,
+          "t_stat": -5.99,
+          "win_rate": 28.2,
+          "total_ret": -589.84,
+          "max_dd": 588.5,
+          "sharpe_ann": -86.14
+        },
+        "test": {
+          "n": 687,
+          "mean_net": -1.1717,
+          "std": 3.6792,
+          "t_stat": -8.35,
+          "win_rate": 33.5,
+          "total_ret": -804.97,
+          "max_dd": 803.6,
+          "sharpe_ann": -126.32
+        }
+      },
+      "2024->2025": {
+        "train": {
+          "n": 687,
+          "mean_net": -1.1717,
+          "std": 3.6792,
+          "t_stat": -8.35,
+          "win_rate": 33.5,
+          "total_ret": -804.97,
+          "max_dd": 803.6,
+          "sharpe_ann": -126.32
+        },
+        "test": {
+          "n": 683,
+          "mean_net": -1.0476,
+          "std": 3.1717,
+          "t_stat": -8.63,
+          "win_rate": 33.1,
+          "total_ret": -715.51,
+          "max_dd": 720.65,
+          "sharpe_ann": -130.25
+        }
+      }
+    },
+    "DOGEUSDT": {
+      "2023->2024": {
+        "train": {
+          "n": 632,
+          "mean_net": -0.9272,
+          "std": 2.2968,
+          "t_stat": -10.15,
+          "win_rate": 30.2,
+          "total_ret": -586.0,
+          "max_dd": 596.34,
+          "sharpe_ann": -147.31
+        },
+        "test": {
+          "n": 684,
+          "mean_net": -1.2563,
+          "std": 4.0343,
+          "t_stat": -8.14,
+          "win_rate": 33.8,
+          "total_ret": -859.32,
+          "max_dd": 852.83,
+          "sharpe_ann": -122.98
+        }
+      },
+      "2024->2025": {
+        "train": {
+          "n": 684,
+          "mean_net": -1.2563,
+          "std": 4.0343,
+          "t_stat": -8.14,
+          "win_rate": 33.8,
+          "total_ret": -859.32,
+          "max_dd": 852.83,
+          "sharpe_ann": -122.98
+        },
+        "test": {
+          "n": 640,
+          "mean_net": -1.1923,
+          "std": 2.923,
+          "t_stat": -10.32,
+          "win_rate": 30.8,
+          "total_ret": -763.04,
+          "max_dd": 761.69,
+          "sharpe_ann": -150.72
+        }
+      }
+    },
+    "SUIUSDT": {
+      "2023->2024": {
+        "train": {
+          "n": 430,
+          "mean_net": -1.073,
+          "std": 2.9723,
+          "t_stat": -7.49,
+          "win_rate": 33.7,
+          "total_ret": -461.37,
+          "max_dd": 470.35,
+          "sharpe_ann": -89.62
+        },
+        "test": {
+          "n": 675,
+          "mean_net": -1.4587,
+          "std": 3.7106,
+          "t_stat": -10.21,
+          "win_rate": 33.6,
+          "total_ret": -984.59,
+          "max_dd": 981.73,
+          "sharpe_ann": -153.2
+        }
+      },
+      "2024->2025": {
+        "train": {
+          "n": 675,
+          "mean_net": -1.4587,
+          "std": 3.7106,
+          "t_stat": -10.21,
+          "win_rate": 33.6,
+          "total_ret": -984.59,
+          "max_dd": 981.73,
+          "sharpe_ann": -153.2
+        },
+        "test": {
+          "n": 654,
+          "mean_net": -1.2733,
+          "std": 3.305,
+          "t_stat": -9.85,
+          "win_rate": 30.7,
+          "total_ret": -832.73,
+          "max_dd": 831.93,
+          "sharpe_ann": -145.47
+        }
+      }
+    }
+  },
+  "bonferroni": {
+    "n_tests": 18,
+    "alpha": 0.002777777777777778,
+    "critical_t": 3.07,
+    "survivors": [
+      [
+        "BTCUSDT_vw=4h, hold=3h",
+        {
+          "n": 1986,
+          "mean_net": -0.6272,
+          "std": 1.5303,
+          "t_stat": -18.26,
+          "win_rate": 31.1,
+          "total_ret": -1245.65,
+          "max_dd": 1244.67,
+          "sharpe_ann": -469.94
+        }
+      ],
+      [
+        "ETHUSDT_vw=4h, hold=3h",
+        {
+          "n": 1929,
+          "mean_net": -0.7529,
+          "std": 2.0991,
+          "t_stat": -15.75,
+          "win_rate": 32.6,
+          "total_ret": -1452.34,
+          "max_dd": 1449.53,
+          "sharpe_ann": -399.45
+        }
+      ],
+      [
+        "SOLUSDT_vw=4h, hold=3h",
+        {
+          "n": 2016,
+          "mean_net": -1.0114,
+          "std": 3.0264,
+          "t_stat": -15.01,
+          "win_rate": 34.9,
+          "total_ret": -2039.07,
+          "max_dd": 2035.16,
+          "sharpe_ann": -389.0
+        }
+      ],
+      [
+        "XRPUSDT_vw=4h, hold=3h",
+        {
+          "n": 2024,
+          "mean_net": -0.9444,
+          "std": 3.6657,
+          "t_stat": -11.59,
+          "win_rate": 34.4,
+          "total_ret": -1911.5,
+          "max_dd": 1909.81,
+          "sharpe_ann": -301.06
+        }
+      ],
+      [
+        "DOGEUSDT_vw=4h, hold=3h",
+        {
+          "n": 1961,
+          "mean_net": -1.1499,
+          "std": 3.354,
+          "t_stat": -15.18,
+          "win_rate": 33.0,
+          "total_ret": -2254.92,
+          "max_dd": 2260.83,
+          "sharpe_ann": -388.15
+        }
+      ],
+      [
+        "SUIUSDT_vw=4h, hold=3h",
+        {
+          "n": 1769,
+          "mean_net": -1.3545,
+          "std": 3.4337,
+          "t_stat": -16.59,
+          "win_rate": 33.1,
+          "total_ret": -2396.11,
+          "max_dd": 2399.8,
+          "sharpe_ann": -402.88
+        }
+      ],
+      [
+        "BTCUSDT_vw=2h, hold=2h",
+        {
+          "n": 2309,
+          "mean_net": -0.6126,
+          "std": 1.2718,
+          "t_stat": -23.15,
+          "win_rate": 27.7,
+          "total_ret": -1414.54,
+          "max_dd": 1411.88,
+          "sharpe_ann": -642.13
+        }
+      ],
+      [
+        "ETHUSDT_vw=2h, hold=2h",
+        {
+          "n": 2263,
+          "mean_net": -0.8046,
+          "std": 1.7337,
+          "t_stat": -22.08,
+          "win_rate": 26.9,
+          "total_ret": -1820.84,
+          "max_dd": 1819.51,
+          "sharpe_ann": -606.36
+        }
+      ],
+      [
+        "SOLUSDT_vw=2h, hold=2h",
+        {
+          "n": 2283,
+          "mean_net": -1.0458,
+          "std": 2.5063,
+          "t_stat": -19.94,
+          "win_rate": 31.3,
+          "total_ret": -2387.45,
+          "max_dd": 2378.62,
+          "sharpe_ann": -549.96
+        }
+      ],
+      [
+        "XRPUSDT_vw=2h, hold=2h",
+        {
+          "n": 2289,
+          "mean_net": -1.0137,
+          "std": 2.8686,
+          "t_stat": -16.91,
+          "win_rate": 30.5,
+          "total_ret": -2320.26,
+          "max_dd": 2317.3,
+          "sharpe_ann": -466.98
+        }
+      ],
+      [
+        "DOGEUSDT_vw=2h, hold=2h",
+        {
+          "n": 2267,
+          "mean_net": -1.1649,
+          "std": 2.7921,
+          "t_stat": -19.87,
+          "win_rate": 30.3,
+          "total_ret": -2640.91,
+          "max_dd": 2640.91,
+          "sharpe_ann": -546.09
+        }
+      ],
+      [
+        "SUIUSDT_vw=2h, hold=2h",
+        {
+          "n": 2054,
+          "mean_net": -1.3116,
+          "std": 2.8436,
+          "t_stat": -20.9,
+          "win_rate": 28.5,
+          "total_ret": -2694.02,
+          "max_dd": 2698.16,
+          "sharpe_ann": -546.99
+        }
+      ],
+      [
+        "BTCUSDT_vw=4h, hold=2h",
+        {
+          "n": 1986,
+          "mean_net": -0.6103,
+          "std": 1.2877,
+          "t_stat": -21.12,
+          "win_rate": 28.9,
+          "total_ret": -1212.08,
+          "max_dd": 1209.28,
+          "sharpe_ann": -543.46
+        }
+      ],
+      [
+        "ETHUSDT_vw=4h, hold=2h",
+        {
+          "n": 1929,
+          "mean_net": -0.7607,
+          "std": 1.7741,
+          "t_stat": -18.83,
+          "win_rate": 28.4,
+          "total_ret": -1467.35,
+          "max_dd": 1464.58,
+          "sharpe_ann": -477.52
+        }
+      ],
+      [
+        "SOLUSDT_vw=4h, hold=2h",
+        {
+          "n": 2016,
+          "mean_net": -0.9862,
+          "std": 2.5686,
+          "t_stat": -17.24,
+          "win_rate": 33.6,
+          "total_ret": -1988.23,
+          "max_dd": 1985.23,
+          "sharpe_ann": -446.9
+        }
+      ],
+      [
+        "XRPUSDT_vw=4h, hold=2h",
+        {
+          "n": 2024,
+          "mean_net": -1.0034,
+          "std": 3.0493,
+          "t_stat": -14.8,
+          "win_rate": 31.5,
+          "total_ret": -2030.85,
+          "max_dd": 2027.89,
+          "sharpe_ann": -384.52
+        }
+      ],
+      [
+        "DOGEUSDT_vw=4h, hold=2h",
+        {
+          "n": 1961,
+          "mean_net": -1.1886,
+          "std": 2.879,
+          "t_stat": -18.28,
+          "win_rate": 30.4,
+          "total_ret": -2330.92,
+          "max_dd": 2333.38,
+          "sharpe_ann": -467.44
+        }
+      ],
+      [
+        "SUIUSDT_vw=4h, hold=2h",
+        {
+          "n": 1769,
+          "mean_net": -1.2702,
+          "std": 2.906,
+          "t_stat": -18.38,
+          "win_rate": 30.4,
+          "total_ret": -2247.02,
+          "max_dd": 2248.44,
+          "sharpe_ann": -446.42
+        }
+      ]
+    ]
+  }
+}

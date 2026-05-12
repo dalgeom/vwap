@@ -140,3 +140,237 @@ DEMO 모드 실행 중
 2026-05-07 07:45:05,486 INFO __main__: 다음 캔들까지 900초 대기
 2026-05-07 08:00:05,014 INFO __main__: tick 2026-05-06 23:00 UTC | 심볼: ['VIRTUALUSDT', 'ONDOUSDT', 'WIFUSDT', 'LABUSDT', 'BNBUSDT']
 2026-05-07 08:00:05,711 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 10:23:18,209 INFO vwap_trader.infra.bybit_client: Server time offset applied: -1066ms
+2026-05-07 10:23:18,211 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 10:23:18,212 INFO __main__: 심볼 로드: ['VIRTUALUSDT', 'ONDOUSDT', 'WIFUSDT', 'LABUSDT', 'BNBUSDT'] (스크리너 2026-05-06)
+2026-05-07 10:23:18,298 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-07 10:23:18,387 INFO __main__: 봇 시작 | 잔고: 49838.13 USDT | DRY_RUN=False | 심볼: ['VIRTUALUSDT', 'ONDOUSDT', 'WIFUSDT', 'LABUSDT', 'BNBUSDT']
+2026-05-07 10:23:18,816 INFO __main__: 다음 캔들까지 406초 대기
+2026-05-07 10:30:05,014 INFO __main__: tick 2026-05-07 01:30 UTC | 심볼: ['VIRTUALUSDT', 'ONDOUSDT', 'WIFUSDT', 'LABUSDT', 'BNBUSDT']
+2026-05-07 10:30:05,753 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 10:35:15,610 INFO vwap_trader.infra.bybit_client: Server time offset applied: -1051ms
+2026-05-07 10:35:15,611 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 10:35:15,612 INFO __main__: 심볼 로드: ['VIRTUALUSDT', 'ONDOUSDT', 'WIFUSDT', 'LABUSDT', 'BNBUSDT'] (스크리너 2026-05-06)
+2026-05-07 10:35:15,694 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-07 10:35:15,777 INFO __main__: 봇 시작 | 잔고: 49838.13 USDT | DRY_RUN=False
+2026-05-07 10:35:16,131 INFO __main__: 재시작 스크리너 실행 중...
+2026-05-07 10:35:16,135 INFO __main__: 스크리너 실행 중...
+2026-05-07 10:35:25,219 INFO __main__: 스크리너 완료: ['IOUSDT', 'DOGEUSDT', 'ZECUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 10:35:25,219 INFO __main__: 심볼 확정: ['IOUSDT', 'DOGEUSDT', 'ZECUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 10:35:25,219 INFO __main__: 다음 캔들까지 580초 대기
+2026-05-07 10:45:05,015 INFO __main__: tick 2026-05-07 01:45 UTC | 심볼: ['IOUSDT', 'DOGEUSDT', 'ZECUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 10:45:05,712 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 11:00:05,002 INFO __main__: tick 2026-05-07 02:00 UTC | 심볼: ['IOUSDT', 'DOGEUSDT', 'ZECUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 11:00:05,725 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 11:12:49,884 INFO vwap_trader.infra.bybit_client: Server time offset applied: -1009ms
+2026-05-07 11:12:49,885 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 11:12:49,887 INFO __main__: 심볼 로드: ['IOUSDT', 'DOGEUSDT', 'ZECUSDT', 'FILUSDT', '1000PEPEUSDT'] (스크리너 2026-05-07)
+2026-05-07 11:12:49,972 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-07 11:12:50,060 INFO __main__: 봇 시작 | 잔고: 49838.13 USDT | DRY_RUN=False
+2026-05-07 11:12:50,440 INFO __main__: 재시작 스크리너 실행 중...
+2026-05-07 11:12:50,442 INFO __main__: 스크리너 실행 중...
+2026-05-07 11:12:59,969 INFO __main__: 스크리너 완료: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 11:12:59,969 INFO __main__: 심볼 확정: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 11:12:59,969 INFO __main__: 다음 캔들까지 125초 대기
+2026-05-07 11:15:05,015 INFO __main__: tick 2026-05-07 02:15 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 11:15:05,511 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 11:30:05,011 INFO __main__: tick 2026-05-07 02:30 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 11:30:05,725 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 11:45:05,013 INFO __main__: tick 2026-05-07 02:45 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 11:45:05,771 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 12:00:05,004 INFO __main__: tick 2026-05-07 03:00 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 12:00:05,430 INFO __main__: IOUSDT 신호: long (ADX=20.8)
+2026-05-07 12:00:05,674 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for IOUSDT — skipping isolated margin
+2026-05-07 12:00:05,757 ERROR vwap_trader.infra.bybit_client: place_order exception for IOUSDT: The number of contracts exceeds maximum limit allowed: too large, order_qty:64493380000000 > max_qty:19000000000000 (ErrCode: 10001) (ErrTime: 03:00:05).
+Request → POST https://api-demo.bybit.com/v5/order/create: {"category": "linear", "symbol": "IOUSDT", "side": "Buy", "orderType": "Market", "qty": "644933.8", "reduceOnly": false, "timeInForce": "IOC", "positionIdx": 1, "stopLoss": "0.15017447324524416", "takeProfit": "0.15481105350951166"}.
+2026-05-07 12:00:05,758 ERROR __main__: IOUSDT 주문 실패
+2026-05-07 12:00:06,082 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 12:15:05,008 INFO __main__: tick 2026-05-07 03:15 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 12:15:05,799 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 12:30:05,011 INFO __main__: tick 2026-05-07 03:30 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 12:30:05,809 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 12:45:05,009 INFO __main__: tick 2026-05-07 03:45 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 12:45:05,726 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 13:00:05,012 INFO __main__: tick 2026-05-07 04:00 UTC | 심볼: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT']
+2026-05-07 13:00:05,714 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 13:03:35,675 INFO vwap_trader.infra.bybit_client: Server time offset applied: -885ms
+2026-05-07 13:03:35,676 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 13:03:35,676 INFO __main__: 심볼 로드: ['IOUSDT', 'ZECUSDT', 'DOGEUSDT', 'FILUSDT', '1000PEPEUSDT'] (스크리너 2026-05-07)
+2026-05-07 13:03:35,761 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-07 13:03:35,841 INFO __main__: 봇 시작 | 잔고: 49838.13 USDT | DRY_RUN=False
+2026-05-07 13:03:36,203 INFO __main__: 재시작 스크리너 실행 중...
+2026-05-07 13:03:36,208 INFO __main__: 스크리너 실행 중...
+2026-05-07 13:03:45,328 INFO __main__: 스크리너 완료: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 13:03:45,328 INFO __main__: 심볼 확정: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 13:03:45,329 INFO __main__: 다음 캔들까지 680초 대기
+2026-05-07 13:15:05,009 INFO __main__: tick 2026-05-07 04:15 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 13:15:05,724 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 13:30:05,007 INFO __main__: tick 2026-05-07 04:30 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 13:30:05,684 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 13:45:05,003 INFO __main__: tick 2026-05-07 04:45 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 13:45:05,740 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 14:00:05,014 INFO __main__: tick 2026-05-07 05:00 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 14:00:05,498 INFO __main__: 1000PEPEUSDT 신호: long (ADX=26.0)
+2026-05-07 14:00:05,745 WARNING vwap_trader.infra.bybit_client: Demo trading not supported for 1000PEPEUSDT — skipping isolated margin
+2026-05-07 14:00:05,825 INFO vwap_trader.infra.bybit_client: place_order success: Buy 1000PEPEUSDT qty=36140700.0
+2026-05-07 14:00:06,464 INFO __main__: 진입: long 1000PEPEUSDT | entry=0.004137 sl=0.004126 tp=0.004159 qty=36140700.0 atr=0.000022
+2026-05-07 14:00:06,464 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 14:15:05,008 INFO __main__: tick 2026-05-07 05:15 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 14:15:05,323 INFO __main__: 1000PEPEUSDT Bybit 청산 확인 (SL/TP)
+2026-05-07 14:15:06,143 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 14:30:05,005 INFO __main__: tick 2026-05-07 05:30 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 14:30:05,802 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 14:45:05,004 INFO __main__: tick 2026-05-07 05:45 UTC | 심볼: ['DOGEUSDT', '1000PEPEUSDT', 'ZECUSDT', 'TAOUSDT', 'XRPUSDT']
+2026-05-07 14:45:05,725 INFO __main__: 다음 캔들까지 899초 대기
+2026-05-07 15:04:02,077 INFO vwap_trader.infra.bybit_client: Server time offset applied: -749ms
+2026-05-07 15:04:02,077 INFO vwap_trader.infra.bybit_client: BybitClient initialized in DRY_RUN mode
+2026-05-07 15:20:40,807 INFO vwap_trader.infra.bybit_client: Server time offset applied: -727ms
+2026-05-07 15:20:40,807 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 15:20:40,924 INFO vwap_trader.main: 유니버스 갱신 완료: ['SOLUSDT', 'TONUSDT', 'LABUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'B3USDT', 'TAOUSDT', 'FARTCOINUSDT', 'SUIUSDT', 'ADAUSDT', 'BILLUSDT']
+2026-05-07 16:26:06,130 INFO vwap_trader.infra.bybit_client: Server time offset applied: -655ms
+2026-05-07 16:26:06,130 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 16:26:06,466 INFO vwap_trader.main: 유니버스 제외: TONUSDT (fundingInterval=240m)
+2026-05-07 16:26:06,545 INFO vwap_trader.main: 유니버스 제외: LABUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,090 INFO vwap_trader.main: 유니버스 제외: B3USDT (fundingInterval=60m)
+2026-05-07 16:26:07,165 INFO vwap_trader.main: 유니버스 제외: TAOUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,323 INFO vwap_trader.main: 유니버스 제외: FARTCOINUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,401 INFO vwap_trader.main: 유니버스 제외: BILLUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,635 INFO vwap_trader.main: 유니버스 제외: ENAUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,714 INFO vwap_trader.main: 유니버스 제외: CLUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,792 INFO vwap_trader.main: 유니버스 제외: XAUTUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,874 INFO vwap_trader.main: 유니버스 제외: WIFUSDT (fundingInterval=240m)
+2026-05-07 16:26:07,952 INFO vwap_trader.main: 유니버스 제외: ONDOUSDT (fundingInterval=240m)
+2026-05-07 16:26:08,030 INFO vwap_trader.main: 유니버스 제외: IOUSDT (fundingInterval=240m)
+2026-05-07 16:26:08,190 INFO vwap_trader.main: 유니버스 제외: NOTUSDT (fundingInterval=240m)
+2026-05-07 16:26:08,346 INFO vwap_trader.main: 유니버스 제외: VIRTUALUSDT (fundingInterval=240m)
+2026-05-07 16:26:08,424 INFO vwap_trader.main: 유니버스 갱신 완료: ['SOLUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'SUIUSDT', 'ADAUSDT', 'ICPUSDT', 'DASHUSDT', 'LINKUSDT', 'BNBUSDT']
+2026-05-07 16:47:47,143 INFO vwap_trader.infra.bybit_client: Server time offset applied: -628ms
+2026-05-07 16:47:47,144 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-07 16:47:47,144 INFO __main__: 유니버스 로드: ['SOLUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'SUIUSDT', 'ADAUSDT', 'ICPUSDT', 'DASHUSDT', 'LINKUSDT', 'BNBUSDT'] (갱신: 2026-05-07)
+2026-05-07 16:47:47,250 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-07 16:47:47,346 INFO __main__: 봇 시작 | 잔고: 50468.32 USDT | DRY_RUN=False | 전략: 펀딩 역추세
+2026-05-07 16:47:47,347 INFO __main__: 유니버스 갱신 중...
+2026-05-07 16:47:47,647 INFO __main__: 유니버스 제외: TONUSDT (fundingInterval=240m)
+2026-05-07 16:47:47,727 INFO __main__: 유니버스 제외: LABUSDT (fundingInterval=240m)
+2026-05-07 16:47:48,206 INFO __main__: 유니버스 제외: B3USDT (fundingInterval=60m)
+2026-05-07 16:47:48,366 INFO __main__: 유니버스 제외: TAOUSDT (fundingInterval=240m)
+2026-05-07 16:47:48,526 INFO __main__: 유니버스 제외: FARTCOINUSDT (fundingInterval=240m)
+2026-05-07 16:47:48,606 INFO __main__: 유니버스 제외: BILLUSDT (fundingInterval=240m)
+2026-05-07 16:47:48,840 INFO __main__: 유니버스 제외: ENAUSDT (fundingInterval=240m)
+2026-05-07 16:47:48,920 INFO __main__: 유니버스 제외: CLUSDT (fundingInterval=240m)
+2026-05-07 16:47:48,996 INFO __main__: 유니버스 제외: XAUTUSDT (fundingInterval=240m)
+2026-05-07 16:47:49,077 INFO __main__: 유니버스 제외: WIFUSDT (fundingInterval=240m)
+2026-05-07 16:47:49,158 INFO __main__: 유니버스 제외: ONDOUSDT (fundingInterval=240m)
+2026-05-07 16:47:49,236 INFO __main__: 유니버스 제외: IOUSDT (fundingInterval=240m)
+2026-05-07 16:47:49,396 INFO __main__: 유니버스 제외: NOTUSDT (fundingInterval=240m)
+2026-05-07 16:47:49,477 INFO __main__: 유니버스 제외: VIRTUALUSDT (fundingInterval=240m)
+2026-05-07 16:47:49,642 INFO __main__: 유니버스 갱신 완료: ['SOLUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'SUIUSDT', 'ADAUSDT', 'ICPUSDT', 'DASHUSDT', 'LINKUSDT', 'BNBUSDT']
+2026-05-07 16:47:49,643 INFO __main__: 유니버스: ['SOLUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'SUIUSDT', 'ADAUSDT', 'ICPUSDT', 'DASHUSDT', 'LINKUSDT', 'BNBUSDT']
+2026-05-07 16:47:49,643 INFO __main__: 설정: 임계값=0.025% | 최대포지션=5 | 리스크=0.5% | SL=1.0ATR
+2026-05-07 16:47:49,643 INFO __main__: reconciliation: state 포지션 없음, 스킵
+2026-05-07 16:47:50,039 INFO __main__: heartbeat 스레드 시작 (30초 간격)
+2026-05-07 16:47:50,039 INFO __main__: 다음 펀딩까지 740초 대기 (08:00 UTC)
+2026-05-07 17:00:10,005 INFO __main__: === 펀딩 틱 2026-05-07 08:00 UTC (데드라인 180s) ===
+2026-05-07 17:00:10,298 INFO __main__: 일일 리셋 | 시작 잔고: 50468.32 USDT
+2026-05-07 17:00:10,395 INFO __main__: 주간 리셋 | 2026-W19 | 시작 잔고: 50468.32 USDT
+2026-05-07 17:00:10,478 INFO __main__: 월간 리셋 | 2026-05 | 시작 잔고: 50468.32 USDT
+2026-05-07 17:00:11,597 INFO __main__: 펀딩 임계값(0.025%) 초과 코인 없음
+2026-05-07 17:00:11,598 INFO __main__:   SOLUSDT: 0.0100%
+2026-05-07 17:00:11,598 INFO __main__:   XRPUSDT: 0.0100%
+2026-05-07 17:00:11,598 INFO __main__:   ZECUSDT: 0.0100%
+2026-05-07 17:00:11,598 INFO __main__:   DOGEUSDT: 0.0100%
+2026-05-07 17:00:11,599 INFO __main__:   HYPEUSDT: 0.0100%
+2026-05-07 17:00:11,600 INFO __main__: 다음 펀딩까지 28798초 대기 (16:00 UTC)
+2026-05-08 11:38:33,688 INFO vwap_trader.infra.bybit_client: Server time offset applied: -2985ms
+2026-05-08 11:38:33,689 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-08 11:38:33,698 INFO __main__: 유니버스 로드: ['SOLUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'SUIUSDT', 'ADAUSDT', 'ICPUSDT', 'DASHUSDT', 'LINKUSDT', 'BNBUSDT'] (갱신: 2026-05-07)
+2026-05-08 11:38:33,780 ERROR pybit._http_manager: invalid request, please check your server timestamp or recv_window param: req_timestamp[1778207913703],server_timestamp[1778207910798],recv_window[20000] (ErrCode: 10002). Added 2.5 seconds to recv_window. Retrying...
+2026-05-08 11:38:36,858 ERROR pybit._http_manager: invalid request, please check your server timestamp or recv_window param: req_timestamp[1778207916780],server_timestamp[1778207913874],recv_window[22500] (ErrCode: 10002). Added 2.5 seconds to recv_window. Retrying...
+2026-05-08 11:38:39,937 ERROR pybit._http_manager: invalid request, please check your server timestamp or recv_window param: req_timestamp[1778207919859],server_timestamp[1778207916953],recv_window[25000] (ErrCode: 10002). Added 2.5 seconds to recv_window. Retrying...
+2026-05-08 11:38:42,938 ERROR vwap_trader.infra.bybit_client: ensure_hedge_mode exception: Bad request. retries exceeded maximum. (ErrCode: 400) (ErrTime: 02:38:42).
+Request → POST https://api-demo.bybit.com/v5/position/switch-mode: {"category": "linear", "coin": "USDT", "mode": 3}.
+2026-05-08 11:38:42,938 ERROR __main__: Hedge mode 설정 실패
+2026-05-08 11:41:25,775 INFO vwap_trader.infra.bybit_client: Server time offset applied: -35ms
+2026-05-08 11:41:25,775 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-08 11:41:25,776 INFO __main__: 유니버스 로드: ['SOLUSDT', 'XRPUSDT', 'ZECUSDT', 'DOGEUSDT', 'HYPEUSDT', '1000PEPEUSDT', 'NEARUSDT', 'SUIUSDT', 'ADAUSDT', 'ICPUSDT', 'DASHUSDT', 'LINKUSDT', 'BNBUSDT'] (갱신: 2026-05-07)
+2026-05-08 11:41:25,859 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-08 11:41:25,939 INFO __main__: 봇 시작 | 잔고: 50468.32 USDT | DRY_RUN=False | 전략: 펀딩 역추세
+2026-05-08 11:41:25,939 INFO __main__: 유니버스 갱신 중...
+2026-05-08 11:41:26,209 INFO __main__: 유니버스 제외: TONUSDT (fundingInterval=240m)
+2026-05-08 11:41:26,362 INFO __main__: 유니버스 제외: LABUSDT (fundingInterval=240m)
+2026-05-08 11:41:26,593 INFO __main__: 유니버스 제외: B3USDT (fundingInterval=60m)
+2026-05-08 11:41:26,673 INFO __main__: 유니버스 제외: JTOUSDT (fundingInterval=240m)
+2026-05-08 11:41:26,904 INFO __main__: 유니버스 제외: NILUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,113 INFO __main__: 유니버스 제외: ONDOUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,192 INFO __main__: 유니버스 제외: NOTUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,272 INFO __main__: 유니버스 제외: CLUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,429 INFO __main__: 유니버스 제외: XAUTUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,509 INFO __main__: 유니버스 제외: FARTCOINUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,589 INFO __main__: 유니버스 제외: BILLUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,668 INFO __main__: 유니버스 제외: TAOUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,745 INFO __main__: 유니버스 제외: VIRTUALUSDT (fundingInterval=240m)
+2026-05-08 11:41:27,904 INFO __main__: 유니버스 제외: ENAUSDT (fundingInterval=240m)
+2026-05-08 11:41:28,063 INFO __main__: 유니버스 제외: MUSDT (fundingInterval=240m)
+2026-05-08 11:41:28,140 INFO __main__: 유니버스 제외: SIRENUSDT (fundingInterval=240m)
+2026-05-08 11:41:28,223 INFO __main__: 유니버스 갱신 완료: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'ADAUSDT', 'NEARUSDT', 'ICPUSDT']
+2026-05-08 11:41:28,223 INFO __main__: 유니버스: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'ADAUSDT', 'NEARUSDT', 'ICPUSDT']
+2026-05-08 11:41:28,224 INFO __main__: 설정: 임계값=0.025% | 최대포지션=5 | 리스크=0.5% | SL=1.0ATR
+2026-05-08 11:41:28,224 INFO __main__: reconciliation: state 포지션 없음, 스킵
+2026-05-08 11:41:28,685 INFO __main__: heartbeat 스레드 시작 (30초 간격)
+2026-05-08 11:41:28,686 INFO __main__: 다음 펀딩까지 19121초 대기 (08:00 UTC)
+2026-05-08 13:22:16,168 INFO vwap_trader.infra.bybit_client: Server time offset applied: 69ms
+2026-05-08 13:22:16,169 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-08 13:22:16,174 INFO __main__: 유니버스 로드: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'ADAUSDT', 'NEARUSDT', 'ICPUSDT'] (갱신: 2026-05-08)
+2026-05-08 13:22:16,259 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-08 13:22:16,342 INFO __main__: 봇 시작 | 잔고: 50468.32 USDT | DRY_RUN=False | 전략: 펀딩 역추세
+2026-05-08 13:22:16,343 INFO __main__: 유니버스 갱신 중...
+2026-05-08 13:22:16,624 INFO __main__: 유니버스 제외: TONUSDT (fundingInterval=240m)
+2026-05-08 13:22:16,703 INFO __main__: 유니버스 제외: LABUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,012 INFO __main__: 유니버스 제외: B3USDT (fundingInterval=60m)
+2026-05-08 13:22:17,090 INFO __main__: 유니버스 제외: JTOUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,249 INFO __main__: 유니버스 제외: NILUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,409 INFO __main__: 유니버스 제외: ONDOUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,495 INFO __main__: 유니버스 제외: CLUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,601 INFO __main__: 유니버스 제외: NOTUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,681 INFO __main__: 유니버스 제외: XAUTUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,839 INFO __main__: 유니버스 제외: FARTCOINUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,919 INFO __main__: 유니버스 제외: BILLUSDT (fundingInterval=240m)
+2026-05-08 13:22:17,999 INFO __main__: 유니버스 제외: TAOUSDT (fundingInterval=240m)
+2026-05-08 13:22:18,080 INFO __main__: 유니버스 제외: VIRTUALUSDT (fundingInterval=240m)
+2026-05-08 13:22:18,239 INFO __main__: 유니버스 제외: ENAUSDT (fundingInterval=240m)
+2026-05-08 13:22:18,399 INFO __main__: 유니버스 제외: SIRENUSDT (fundingInterval=240m)
+2026-05-08 13:22:18,478 INFO __main__: 유니버스 제외: MUSDT (fundingInterval=240m)
+2026-05-08 13:22:18,640 INFO __main__: 유니버스 갱신 완료: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'ADAUSDT', 'DYDXUSDT', 'NEARUSDT', 'ICPUSDT']
+2026-05-08 13:22:18,642 INFO __main__: 유니버스: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'ADAUSDT', 'DYDXUSDT', 'NEARUSDT', 'ICPUSDT']
+2026-05-08 13:22:18,642 INFO __main__: 설정: 임계값=0.020% | 최대포지션=5 | 리스크=0.5% | SL=1.0ATR
+2026-05-08 13:22:18,642 INFO __main__: reconciliation: state 포지션 없음, 스킵
+2026-05-08 13:22:18,989 INFO __main__: heartbeat 스레드 시작 (30초 간격)
+2026-05-08 13:22:18,990 INFO __main__: 다음 펀딩까지 13071초 대기 (08:00 UTC)
+2026-05-08 16:05:37,900 INFO vwap_trader.infra.bybit_client: Server time offset applied: 252ms
+2026-05-08 16:05:37,900 INFO vwap_trader.infra.bybit_client: BybitClient initialized
+2026-05-08 16:05:37,907 INFO __main__: 유니버스 로드: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'ADAUSDT', 'DYDXUSDT', 'NEARUSDT', 'ICPUSDT'] (갱신: 2026-05-08)
+2026-05-08 16:05:37,992 INFO vwap_trader.infra.bybit_client: Hedge mode confirmed
+2026-05-08 16:05:38,074 INFO __main__: 봇 시작 | 잔고: 50468.32 USDT | DRY_RUN=False | 전략: 펀딩 역추세
+2026-05-08 16:05:38,075 INFO __main__: 유니버스 갱신 중...
+2026-05-08 16:05:38,342 INFO __main__: 유니버스 제외: TONUSDT (fundingInterval=240m)
+2026-05-08 16:05:38,419 INFO __main__: 유니버스 제외: LABUSDT (fundingInterval=240m)
+2026-05-08 16:05:38,733 INFO __main__: 유니버스 제외: JTOUSDT (fundingInterval=240m)
+2026-05-08 16:05:38,809 INFO __main__: 유니버스 제외: NILUSDT (fundingInterval=240m)
+2026-05-08 16:05:38,963 INFO __main__: 유니버스 제외: B3USDT (fundingInterval=60m)
+2026-05-08 16:05:39,041 INFO __main__: 유니버스 제외: ONDOUSDT (fundingInterval=240m)
+2026-05-08 16:05:39,195 INFO __main__: 유니버스 제외: CLUSDT (fundingInterval=240m)
+2026-05-08 16:05:39,274 INFO __main__: 유니버스 제외: XAUTUSDT (fundingInterval=240m)
+2026-05-08 16:05:39,513 INFO __main__: 유니버스 제외: NOTUSDT (fundingInterval=240m)
+2026-05-08 16:05:39,595 INFO __main__: 유니버스 제외: FARTCOINUSDT (fundingInterval=240m)
+2026-05-08 16:05:39,673 INFO __main__: 유니버스 제외: BILLUSDT (fundingInterval=240m)
+2026-05-08 16:05:39,750 INFO __main__: 유니버스 제외: TAOUSDT (fundingInterval=240m)
+2026-05-08 16:05:40,054 INFO __main__: 유니버스 제외: SIRENUSDT (fundingInterval=240m)
+2026-05-08 16:05:40,220 INFO __main__: 유니버스 제외: MUSDT (fundingInterval=240m)
+2026-05-08 16:05:40,299 INFO __main__: 유니버스 제외: ENAUSDT (fundingInterval=240m)
+2026-05-08 16:05:40,379 INFO __main__: 유니버스 제외: VIRTUALUSDT (fundingInterval=240m)
+2026-05-08 16:05:40,380 INFO __main__: 유니버스 갱신 완료: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'DYDXUSDT', 'ADAUSDT', 'ICPUSDT']
+2026-05-08 16:05:40,381 INFO __main__: 유니버스: ['SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ZECUSDT', '1000PEPEUSDT', 'HYPEUSDT', 'SUIUSDT', 'DYDXUSDT', 'ADAUSDT', 'ICPUSDT']
+2026-05-08 16:05:40,381 INFO __main__: 설정: 임계값=0.012%~0.025% | 최대포지션=5 | 리스크=0.5% | SL=1.0ATR
+2026-05-08 16:05:40,381 INFO __main__: reconciliation: state 포지션 없음, 스킵
+2026-05-08 16:05:40,742 INFO __main__: heartbeat 스레드 시작 (30초 간격)
+2026-05-08 16:05:40,742 INFO __main__: 다음 펀딩까지 3269초 대기 (08:00 UTC)

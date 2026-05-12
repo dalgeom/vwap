@@ -1,0 +1,1940 @@
+{
+  "BTCUSDT": {
+    "vol_window_120min": {
+      "compression": {
+        "n_events": 187,
+        "holds": {
+          "30min": {
+            "n": 187,
+            "mean": -0.0052,
+            "std": 0.1496,
+            "t_stat": -0.48,
+            "win_rate": 45.5,
+            "net_fee": -0.1152
+          },
+          "60min": {
+            "n": 187,
+            "mean": 0.0046,
+            "std": 0.2049,
+            "t_stat": 0.31,
+            "win_rate": 48.1,
+            "net_fee": -0.1054
+          },
+          "120min": {
+            "n": 187,
+            "mean": -0.0292,
+            "std": 0.3431,
+            "t_stat": -1.16,
+            "win_rate": 46.0,
+            "net_fee": -0.1392
+          },
+          "180min": {
+            "n": 187,
+            "mean": -0.0102,
+            "std": 0.463,
+            "t_stat": -0.3,
+            "win_rate": 47.6,
+            "net_fee": -0.1202
+          },
+          "240min": {
+            "n": 187,
+            "mean": -0.0108,
+            "std": 0.5631,
+            "t_stat": -0.26,
+            "win_rate": 46.5,
+            "net_fee": -0.1208
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 187,
+        "holds": {
+          "30min": {
+            "n": 187,
+            "mean": 0.0527,
+            "std": 0.5701,
+            "t_stat": 1.26,
+            "win_rate": 54.0,
+            "net_fee": -0.0573
+          },
+          "60min": {
+            "n": 187,
+            "mean": -0.0159,
+            "std": 0.7694,
+            "t_stat": -0.28,
+            "win_rate": 50.3,
+            "net_fee": -0.1259
+          },
+          "120min": {
+            "n": 187,
+            "mean": -0.0634,
+            "std": 0.9422,
+            "t_stat": -0.92,
+            "win_rate": 52.4,
+            "net_fee": -0.1734
+          },
+          "180min": {
+            "n": 187,
+            "mean": -0.0776,
+            "std": 1.0826,
+            "t_stat": -0.98,
+            "win_rate": 50.3,
+            "net_fee": -0.1876
+          },
+          "240min": {
+            "n": 187,
+            "mean": -0.1332,
+            "std": 1.1886,
+            "t_stat": -1.53,
+            "win_rate": 46.5,
+            "net_fee": -0.2432
+          }
+        }
+      }
+    },
+    "vol_window_240min": {
+      "compression": {
+        "n_events": 160,
+        "holds": {
+          "30min": {
+            "n": 160,
+            "mean": 0.0061,
+            "std": 0.1693,
+            "t_stat": 0.46,
+            "win_rate": 46.9,
+            "net_fee": -0.1039
+          },
+          "60min": {
+            "n": 160,
+            "mean": 0.0042,
+            "std": 0.2196,
+            "t_stat": 0.24,
+            "win_rate": 47.5,
+            "net_fee": -0.1058
+          },
+          "120min": {
+            "n": 160,
+            "mean": -0.0129,
+            "std": 0.3415,
+            "t_stat": -0.48,
+            "win_rate": 48.1,
+            "net_fee": -0.1229
+          },
+          "180min": {
+            "n": 160,
+            "mean": -0.0114,
+            "std": 0.5299,
+            "t_stat": -0.27,
+            "win_rate": 48.8,
+            "net_fee": -0.1214
+          },
+          "240min": {
+            "n": 160,
+            "mean": -0.0498,
+            "std": 0.6511,
+            "t_stat": -0.97,
+            "win_rate": 45.0,
+            "net_fee": -0.1598
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 157,
+        "holds": {
+          "30min": {
+            "n": 157,
+            "mean": 0.0819,
+            "std": 0.497,
+            "t_stat": 2.06,
+            "win_rate": 58.6,
+            "net_fee": -0.0281
+          },
+          "60min": {
+            "n": 157,
+            "mean": 0.0795,
+            "std": 0.7195,
+            "t_stat": 1.38,
+            "win_rate": 52.2,
+            "net_fee": -0.0305
+          },
+          "120min": {
+            "n": 157,
+            "mean": 0.0827,
+            "std": 0.8997,
+            "t_stat": 1.15,
+            "win_rate": 55.4,
+            "net_fee": -0.0273
+          },
+          "180min": {
+            "n": 157,
+            "mean": 0.0952,
+            "std": 1.0232,
+            "t_stat": 1.17,
+            "win_rate": 56.7,
+            "net_fee": -0.0148
+          },
+          "240min": {
+            "n": 157,
+            "mean": 0.041,
+            "std": 1.109,
+            "t_stat": 0.46,
+            "win_rate": 49.7,
+            "net_fee": -0.069
+          }
+        }
+      }
+    },
+    "vol_window_360min": {
+      "compression": {
+        "n_events": 148,
+        "holds": {
+          "30min": {
+            "n": 148,
+            "mean": -0.0035,
+            "std": 0.1648,
+            "t_stat": -0.26,
+            "win_rate": 45.3,
+            "net_fee": -0.1135
+          },
+          "60min": {
+            "n": 148,
+            "mean": -0.0063,
+            "std": 0.2252,
+            "t_stat": -0.34,
+            "win_rate": 50.0,
+            "net_fee": -0.1163
+          },
+          "120min": {
+            "n": 148,
+            "mean": -0.0251,
+            "std": 0.4924,
+            "t_stat": -0.62,
+            "win_rate": 50.7,
+            "net_fee": -0.1351
+          },
+          "180min": {
+            "n": 148,
+            "mean": -0.0094,
+            "std": 0.5496,
+            "t_stat": -0.21,
+            "win_rate": 48.0,
+            "net_fee": -0.1194
+          },
+          "240min": {
+            "n": 148,
+            "mean": -0.0193,
+            "std": 0.5957,
+            "t_stat": -0.39,
+            "win_rate": 45.9,
+            "net_fee": -0.1293
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 138,
+        "holds": {
+          "30min": {
+            "n": 138,
+            "mean": 0.0652,
+            "std": 0.5275,
+            "t_stat": 1.45,
+            "win_rate": 55.8,
+            "net_fee": -0.0448
+          },
+          "60min": {
+            "n": 138,
+            "mean": 0.0851,
+            "std": 0.7189,
+            "t_stat": 1.39,
+            "win_rate": 58.0,
+            "net_fee": -0.0249
+          },
+          "120min": {
+            "n": 138,
+            "mean": 0.1074,
+            "std": 0.8302,
+            "t_stat": 1.52,
+            "win_rate": 60.9,
+            "net_fee": -0.0026
+          },
+          "180min": {
+            "n": 138,
+            "mean": 0.0878,
+            "std": 0.9786,
+            "t_stat": 1.05,
+            "win_rate": 58.7,
+            "net_fee": -0.0222
+          },
+          "240min": {
+            "n": 138,
+            "mean": 0.0929,
+            "std": 1.0218,
+            "t_stat": 1.07,
+            "win_rate": 52.9,
+            "net_fee": -0.0171
+          }
+        }
+      }
+    },
+    "bb_squeeze": {
+      "n_events": 74,
+      "holds": {
+        "30min": {
+          "n": 74,
+          "mean": 0.0381,
+          "std": 0.3836,
+          "t_stat": 0.86,
+          "win_rate": 51.4,
+          "net_fee": -0.0719
+        },
+        "60min": {
+          "n": 74,
+          "mean": 0.0462,
+          "std": 0.5334,
+          "t_stat": 0.74,
+          "win_rate": 47.3,
+          "net_fee": -0.0638
+        },
+        "120min": {
+          "n": 74,
+          "mean": 0.0074,
+          "std": 0.7531,
+          "t_stat": 0.08,
+          "win_rate": 44.6,
+          "net_fee": -0.1026
+        },
+        "180min": {
+          "n": 74,
+          "mean": -0.0037,
+          "std": 0.8482,
+          "t_stat": -0.04,
+          "win_rate": 43.2,
+          "net_fee": -0.1137
+        },
+        "240min": {
+          "n": 74,
+          "mean": 0.074,
+          "std": 0.9048,
+          "t_stat": 0.7,
+          "win_rate": 51.4,
+          "net_fee": -0.036
+        }
+      }
+    }
+  },
+  "ETHUSDT": {
+    "vol_window_120min": {
+      "compression": {
+        "n_events": 184,
+        "holds": {
+          "30min": {
+            "n": 184,
+            "mean": -0.0107,
+            "std": 0.1843,
+            "t_stat": -0.79,
+            "win_rate": 45.7,
+            "net_fee": -0.1207
+          },
+          "60min": {
+            "n": 184,
+            "mean": 0.0321,
+            "std": 0.4073,
+            "t_stat": 1.07,
+            "win_rate": 52.7,
+            "net_fee": -0.0779
+          },
+          "120min": {
+            "n": 184,
+            "mean": 0.0485,
+            "std": 0.498,
+            "t_stat": 1.32,
+            "win_rate": 49.5,
+            "net_fee": -0.0615
+          },
+          "180min": {
+            "n": 184,
+            "mean": 0.0836,
+            "std": 0.5907,
+            "t_stat": 1.92,
+            "win_rate": 50.5,
+            "net_fee": -0.0264
+          },
+          "240min": {
+            "n": 184,
+            "mean": 0.026,
+            "std": 0.7249,
+            "t_stat": 0.49,
+            "win_rate": 50.5,
+            "net_fee": -0.084
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 191,
+        "holds": {
+          "30min": {
+            "n": 191,
+            "mean": 0.1033,
+            "std": 0.7615,
+            "t_stat": 1.88,
+            "win_rate": 56.0,
+            "net_fee": -0.0067
+          },
+          "60min": {
+            "n": 191,
+            "mean": 0.0973,
+            "std": 0.9641,
+            "t_stat": 1.39,
+            "win_rate": 56.5,
+            "net_fee": -0.0127
+          },
+          "120min": {
+            "n": 191,
+            "mean": 0.173,
+            "std": 1.2005,
+            "t_stat": 1.99,
+            "win_rate": 57.6,
+            "net_fee": 0.063
+          },
+          "180min": {
+            "n": 191,
+            "mean": 0.1845,
+            "std": 1.3339,
+            "t_stat": 1.91,
+            "win_rate": 56.0,
+            "net_fee": 0.0745
+          },
+          "240min": {
+            "n": 191,
+            "mean": 0.1401,
+            "std": 1.4427,
+            "t_stat": 1.34,
+            "win_rate": 53.9,
+            "net_fee": 0.0301
+          }
+        }
+      }
+    },
+    "vol_window_240min": {
+      "compression": {
+        "n_events": 166,
+        "holds": {
+          "30min": {
+            "n": 166,
+            "mean": 0.0145,
+            "std": 0.1992,
+            "t_stat": 0.94,
+            "win_rate": 48.2,
+            "net_fee": -0.0955
+          },
+          "60min": {
+            "n": 166,
+            "mean": 0.0367,
+            "std": 0.4163,
+            "t_stat": 1.14,
+            "win_rate": 47.6,
+            "net_fee": -0.0733
+          },
+          "120min": {
+            "n": 166,
+            "mean": 0.0601,
+            "std": 0.5404,
+            "t_stat": 1.43,
+            "win_rate": 49.4,
+            "net_fee": -0.0499
+          },
+          "180min": {
+            "n": 166,
+            "mean": 0.1026,
+            "std": 0.6617,
+            "t_stat": 2.0,
+            "win_rate": 50.0,
+            "net_fee": -0.0074
+          },
+          "240min": {
+            "n": 166,
+            "mean": 0.006,
+            "std": 0.7899,
+            "t_stat": 0.1,
+            "win_rate": 51.2,
+            "net_fee": -0.104
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 156,
+        "holds": {
+          "30min": {
+            "n": 156,
+            "mean": 0.0876,
+            "std": 0.7156,
+            "t_stat": 1.53,
+            "win_rate": 57.1,
+            "net_fee": -0.0224
+          },
+          "60min": {
+            "n": 156,
+            "mean": 0.1182,
+            "std": 0.9779,
+            "t_stat": 1.51,
+            "win_rate": 54.5,
+            "net_fee": 0.0082
+          },
+          "120min": {
+            "n": 156,
+            "mean": 0.1754,
+            "std": 1.1909,
+            "t_stat": 1.84,
+            "win_rate": 54.5,
+            "net_fee": 0.0654
+          },
+          "180min": {
+            "n": 156,
+            "mean": 0.2436,
+            "std": 1.1832,
+            "t_stat": 2.57,
+            "win_rate": 56.4,
+            "net_fee": 0.1336
+          },
+          "240min": {
+            "n": 156,
+            "mean": 0.1654,
+            "std": 1.3818,
+            "t_stat": 1.49,
+            "win_rate": 52.6,
+            "net_fee": 0.0554
+          }
+        }
+      }
+    },
+    "vol_window_360min": {
+      "compression": {
+        "n_events": 151,
+        "holds": {
+          "30min": {
+            "n": 151,
+            "mean": 0.0034,
+            "std": 0.1773,
+            "t_stat": 0.23,
+            "win_rate": 45.7,
+            "net_fee": -0.1066
+          },
+          "60min": {
+            "n": 151,
+            "mean": 0.026,
+            "std": 0.4247,
+            "t_stat": 0.75,
+            "win_rate": 45.0,
+            "net_fee": -0.084
+          },
+          "120min": {
+            "n": 151,
+            "mean": 0.0535,
+            "std": 0.5879,
+            "t_stat": 1.12,
+            "win_rate": 47.7,
+            "net_fee": -0.0565
+          },
+          "180min": {
+            "n": 151,
+            "mean": 0.0355,
+            "std": 0.6193,
+            "t_stat": 0.7,
+            "win_rate": 47.7,
+            "net_fee": -0.0745
+          },
+          "240min": {
+            "n": 151,
+            "mean": -0.0058,
+            "std": 0.652,
+            "t_stat": -0.11,
+            "win_rate": 51.0,
+            "net_fee": -0.1158
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 141,
+        "holds": {
+          "30min": {
+            "n": 141,
+            "mean": 0.0696,
+            "std": 0.6509,
+            "t_stat": 1.27,
+            "win_rate": 56.0,
+            "net_fee": -0.0404
+          },
+          "60min": {
+            "n": 141,
+            "mean": 0.0351,
+            "std": 0.8981,
+            "t_stat": 0.46,
+            "win_rate": 51.8,
+            "net_fee": -0.0749
+          },
+          "120min": {
+            "n": 141,
+            "mean": 0.0891,
+            "std": 1.0958,
+            "t_stat": 0.97,
+            "win_rate": 51.1,
+            "net_fee": -0.0209
+          },
+          "180min": {
+            "n": 141,
+            "mean": 0.0943,
+            "std": 1.143,
+            "t_stat": 0.98,
+            "win_rate": 51.1,
+            "net_fee": -0.0157
+          },
+          "240min": {
+            "n": 141,
+            "mean": 0.0148,
+            "std": 1.3481,
+            "t_stat": 0.13,
+            "win_rate": 49.6,
+            "net_fee": -0.0952
+          }
+        }
+      }
+    },
+    "bb_squeeze": {
+      "n_events": 76,
+      "holds": {
+        "30min": {
+          "n": 76,
+          "mean": -0.09,
+          "std": 0.407,
+          "t_stat": -1.93,
+          "win_rate": 30.3,
+          "net_fee": -0.2
+        },
+        "60min": {
+          "n": 76,
+          "mean": -0.1434,
+          "std": 0.4605,
+          "t_stat": -2.71,
+          "win_rate": 30.3,
+          "net_fee": -0.2534
+        },
+        "120min": {
+          "n": 76,
+          "mean": -0.0381,
+          "std": 0.603,
+          "t_stat": -0.55,
+          "win_rate": 40.8,
+          "net_fee": -0.1481
+        },
+        "180min": {
+          "n": 76,
+          "mean": -0.1078,
+          "std": 0.8724,
+          "t_stat": -1.08,
+          "win_rate": 43.4,
+          "net_fee": -0.2178
+        },
+        "240min": {
+          "n": 76,
+          "mean": -0.1399,
+          "std": 0.9671,
+          "t_stat": -1.26,
+          "win_rate": 51.3,
+          "net_fee": -0.2499
+        }
+      }
+    }
+  },
+  "SOLUSDT": {
+    "vol_window_120min": {
+      "compression": {
+        "n_events": 195,
+        "holds": {
+          "30min": {
+            "n": 195,
+            "mean": -0.0247,
+            "std": 0.2323,
+            "t_stat": -1.49,
+            "win_rate": 42.6,
+            "net_fee": -0.1347
+          },
+          "60min": {
+            "n": 195,
+            "mean": -0.0127,
+            "std": 0.3319,
+            "t_stat": -0.53,
+            "win_rate": 45.1,
+            "net_fee": -0.1227
+          },
+          "120min": {
+            "n": 195,
+            "mean": -0.029,
+            "std": 0.5291,
+            "t_stat": -0.77,
+            "win_rate": 47.7,
+            "net_fee": -0.139
+          },
+          "180min": {
+            "n": 195,
+            "mean": -0.0297,
+            "std": 0.6259,
+            "t_stat": -0.66,
+            "win_rate": 44.1,
+            "net_fee": -0.1397
+          },
+          "240min": {
+            "n": 195,
+            "mean": -0.0539,
+            "std": 0.7557,
+            "t_stat": -1.0,
+            "win_rate": 45.6,
+            "net_fee": -0.1639
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 182,
+        "holds": {
+          "30min": {
+            "n": 182,
+            "mean": 0.1042,
+            "std": 0.8022,
+            "t_stat": 1.75,
+            "win_rate": 52.7,
+            "net_fee": -0.0058
+          },
+          "60min": {
+            "n": 182,
+            "mean": 0.1013,
+            "std": 1.1058,
+            "t_stat": 1.24,
+            "win_rate": 54.9,
+            "net_fee": -0.0087
+          },
+          "120min": {
+            "n": 182,
+            "mean": 0.1062,
+            "std": 1.3771,
+            "t_stat": 1.04,
+            "win_rate": 50.0,
+            "net_fee": -0.0038
+          },
+          "180min": {
+            "n": 182,
+            "mean": 0.2038,
+            "std": 1.5465,
+            "t_stat": 1.78,
+            "win_rate": 54.4,
+            "net_fee": 0.0938
+          },
+          "240min": {
+            "n": 182,
+            "mean": 0.1947,
+            "std": 1.7245,
+            "t_stat": 1.52,
+            "win_rate": 53.8,
+            "net_fee": 0.0847
+          }
+        }
+      }
+    },
+    "vol_window_240min": {
+      "compression": {
+        "n_events": 177,
+        "holds": {
+          "30min": {
+            "n": 177,
+            "mean": 0.0243,
+            "std": 0.2496,
+            "t_stat": 1.3,
+            "win_rate": 47.5,
+            "net_fee": -0.0857
+          },
+          "60min": {
+            "n": 177,
+            "mean": 0.054,
+            "std": 0.3277,
+            "t_stat": 2.19,
+            "win_rate": 49.2,
+            "net_fee": -0.056
+          },
+          "120min": {
+            "n": 177,
+            "mean": 0.0411,
+            "std": 0.5487,
+            "t_stat": 1.0,
+            "win_rate": 53.1,
+            "net_fee": -0.0689
+          },
+          "180min": {
+            "n": 177,
+            "mean": 0.045,
+            "std": 0.5881,
+            "t_stat": 1.02,
+            "win_rate": 50.8,
+            "net_fee": -0.065
+          },
+          "240min": {
+            "n": 177,
+            "mean": -0.0029,
+            "std": 0.6941,
+            "t_stat": -0.06,
+            "win_rate": 51.4,
+            "net_fee": -0.1129
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 163,
+        "holds": {
+          "30min": {
+            "n": 163,
+            "mean": 0.0673,
+            "std": 0.7797,
+            "t_stat": 1.1,
+            "win_rate": 51.5,
+            "net_fee": -0.0427
+          },
+          "60min": {
+            "n": 163,
+            "mean": 0.0944,
+            "std": 1.0648,
+            "t_stat": 1.13,
+            "win_rate": 57.7,
+            "net_fee": -0.0156
+          },
+          "120min": {
+            "n": 163,
+            "mean": 0.1508,
+            "std": 1.3469,
+            "t_stat": 1.43,
+            "win_rate": 55.8,
+            "net_fee": 0.0408
+          },
+          "180min": {
+            "n": 163,
+            "mean": 0.1411,
+            "std": 1.5855,
+            "t_stat": 1.14,
+            "win_rate": 50.9,
+            "net_fee": 0.0311
+          },
+          "240min": {
+            "n": 163,
+            "mean": 0.0584,
+            "std": 1.7522,
+            "t_stat": 0.43,
+            "win_rate": 46.0,
+            "net_fee": -0.0516
+          }
+        }
+      }
+    },
+    "vol_window_360min": {
+      "compression": {
+        "n_events": 171,
+        "holds": {
+          "30min": {
+            "n": 171,
+            "mean": -0.0103,
+            "std": 0.2415,
+            "t_stat": -0.56,
+            "win_rate": 46.2,
+            "net_fee": -0.1203
+          },
+          "60min": {
+            "n": 171,
+            "mean": 0.0151,
+            "std": 0.2878,
+            "t_stat": 0.69,
+            "win_rate": 46.8,
+            "net_fee": -0.0949
+          },
+          "120min": {
+            "n": 171,
+            "mean": 0.0138,
+            "std": 0.4672,
+            "t_stat": 0.39,
+            "win_rate": 55.0,
+            "net_fee": -0.0962
+          },
+          "180min": {
+            "n": 171,
+            "mean": 0.0483,
+            "std": 0.6128,
+            "t_stat": 1.03,
+            "win_rate": 53.2,
+            "net_fee": -0.0617
+          },
+          "240min": {
+            "n": 171,
+            "mean": 0.0149,
+            "std": 0.6353,
+            "t_stat": 0.31,
+            "win_rate": 52.0,
+            "net_fee": -0.0951
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 148,
+        "holds": {
+          "30min": {
+            "n": 148,
+            "mean": 0.0569,
+            "std": 0.6902,
+            "t_stat": 1.0,
+            "win_rate": 48.0,
+            "net_fee": -0.0531
+          },
+          "60min": {
+            "n": 148,
+            "mean": -0.0448,
+            "std": 0.9808,
+            "t_stat": -0.56,
+            "win_rate": 45.3,
+            "net_fee": -0.1548
+          },
+          "120min": {
+            "n": 148,
+            "mean": -0.0824,
+            "std": 1.2565,
+            "t_stat": -0.8,
+            "win_rate": 46.6,
+            "net_fee": -0.1924
+          },
+          "180min": {
+            "n": 148,
+            "mean": -0.1064,
+            "std": 1.5213,
+            "t_stat": -0.85,
+            "win_rate": 48.0,
+            "net_fee": -0.2164
+          },
+          "240min": {
+            "n": 148,
+            "mean": -0.1721,
+            "std": 1.6981,
+            "t_stat": -1.23,
+            "win_rate": 42.6,
+            "net_fee": -0.2821
+          }
+        }
+      }
+    },
+    "bb_squeeze": {
+      "n_events": 97,
+      "holds": {
+        "30min": {
+          "n": 97,
+          "mean": -0.0209,
+          "std": 0.384,
+          "t_stat": -0.54,
+          "win_rate": 43.3,
+          "net_fee": -0.1309
+        },
+        "60min": {
+          "n": 97,
+          "mean": -0.0711,
+          "std": 0.5344,
+          "t_stat": -1.31,
+          "win_rate": 43.3,
+          "net_fee": -0.1811
+        },
+        "120min": {
+          "n": 97,
+          "mean": -0.1645,
+          "std": 0.7389,
+          "t_stat": -2.19,
+          "win_rate": 40.2,
+          "net_fee": -0.2745
+        },
+        "180min": {
+          "n": 97,
+          "mean": -0.2172,
+          "std": 1.026,
+          "t_stat": -2.08,
+          "win_rate": 43.3,
+          "net_fee": -0.3272
+        },
+        "240min": {
+          "n": 97,
+          "mean": -0.111,
+          "std": 1.3057,
+          "t_stat": -0.84,
+          "win_rate": 45.4,
+          "net_fee": -0.221
+        }
+      }
+    }
+  },
+  "XRPUSDT": {
+    "vol_window_120min": {
+      "compression": {
+        "n_events": 194,
+        "holds": {
+          "30min": {
+            "n": 194,
+            "mean": -0.0111,
+            "std": 0.1655,
+            "t_stat": -0.94,
+            "win_rate": 40.7,
+            "net_fee": -0.1211
+          },
+          "60min": {
+            "n": 194,
+            "mean": -0.0178,
+            "std": 0.3302,
+            "t_stat": -0.75,
+            "win_rate": 44.8,
+            "net_fee": -0.1278
+          },
+          "120min": {
+            "n": 194,
+            "mean": -0.0434,
+            "std": 0.4759,
+            "t_stat": -1.27,
+            "win_rate": 44.3,
+            "net_fee": -0.1534
+          },
+          "180min": {
+            "n": 194,
+            "mean": -0.0008,
+            "std": 0.6094,
+            "t_stat": -0.02,
+            "win_rate": 45.9,
+            "net_fee": -0.1108
+          },
+          "240min": {
+            "n": 194,
+            "mean": -0.0094,
+            "std": 0.6695,
+            "t_stat": -0.2,
+            "win_rate": 46.4,
+            "net_fee": -0.1194
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 194,
+        "holds": {
+          "30min": {
+            "n": 194,
+            "mean": -0.0287,
+            "std": 0.7348,
+            "t_stat": -0.54,
+            "win_rate": 51.0,
+            "net_fee": -0.1387
+          },
+          "60min": {
+            "n": 194,
+            "mean": -0.0459,
+            "std": 0.9705,
+            "t_stat": -0.66,
+            "win_rate": 54.1,
+            "net_fee": -0.1559
+          },
+          "120min": {
+            "n": 194,
+            "mean": -0.0977,
+            "std": 1.3189,
+            "t_stat": -1.03,
+            "win_rate": 51.5,
+            "net_fee": -0.2077
+          },
+          "180min": {
+            "n": 194,
+            "mean": -0.0568,
+            "std": 1.4998,
+            "t_stat": -0.53,
+            "win_rate": 52.1,
+            "net_fee": -0.1668
+          },
+          "240min": {
+            "n": 194,
+            "mean": -0.1833,
+            "std": 1.7207,
+            "t_stat": -1.48,
+            "win_rate": 45.4,
+            "net_fee": -0.2933
+          }
+        }
+      }
+    },
+    "vol_window_240min": {
+      "compression": {
+        "n_events": 159,
+        "holds": {
+          "30min": {
+            "n": 159,
+            "mean": -0.0156,
+            "std": 0.182,
+            "t_stat": -1.08,
+            "win_rate": 43.4,
+            "net_fee": -0.1256
+          },
+          "60min": {
+            "n": 159,
+            "mean": -0.0236,
+            "std": 0.3273,
+            "t_stat": -0.91,
+            "win_rate": 40.9,
+            "net_fee": -0.1336
+          },
+          "120min": {
+            "n": 159,
+            "mean": -0.0724,
+            "std": 0.4618,
+            "t_stat": -1.98,
+            "win_rate": 43.4,
+            "net_fee": -0.1824
+          },
+          "180min": {
+            "n": 159,
+            "mean": -0.0232,
+            "std": 0.5812,
+            "t_stat": -0.5,
+            "win_rate": 40.9,
+            "net_fee": -0.1332
+          },
+          "240min": {
+            "n": 159,
+            "mean": -0.0498,
+            "std": 0.6078,
+            "t_stat": -1.03,
+            "win_rate": 44.0,
+            "net_fee": -0.1598
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 172,
+        "holds": {
+          "30min": {
+            "n": 172,
+            "mean": 0.0069,
+            "std": 0.7033,
+            "t_stat": 0.13,
+            "win_rate": 55.2,
+            "net_fee": -0.1031
+          },
+          "60min": {
+            "n": 172,
+            "mean": -0.0325,
+            "std": 0.9217,
+            "t_stat": -0.46,
+            "win_rate": 52.3,
+            "net_fee": -0.1425
+          },
+          "120min": {
+            "n": 172,
+            "mean": -0.0178,
+            "std": 1.2475,
+            "t_stat": -0.19,
+            "win_rate": 54.7,
+            "net_fee": -0.1278
+          },
+          "180min": {
+            "n": 172,
+            "mean": 0.0841,
+            "std": 1.541,
+            "t_stat": 0.72,
+            "win_rate": 53.5,
+            "net_fee": -0.0259
+          },
+          "240min": {
+            "n": 172,
+            "mean": -0.0267,
+            "std": 1.823,
+            "t_stat": -0.19,
+            "win_rate": 48.3,
+            "net_fee": -0.1367
+          }
+        }
+      }
+    },
+    "vol_window_360min": {
+      "compression": {
+        "n_events": 157,
+        "holds": {
+          "30min": {
+            "n": 157,
+            "mean": -0.0086,
+            "std": 0.1975,
+            "t_stat": -0.54,
+            "win_rate": 44.6,
+            "net_fee": -0.1186
+          },
+          "60min": {
+            "n": 157,
+            "mean": -0.0081,
+            "std": 0.244,
+            "t_stat": -0.42,
+            "win_rate": 47.8,
+            "net_fee": -0.1181
+          },
+          "120min": {
+            "n": 157,
+            "mean": -0.0189,
+            "std": 0.419,
+            "t_stat": -0.57,
+            "win_rate": 45.9,
+            "net_fee": -0.1289
+          },
+          "180min": {
+            "n": 157,
+            "mean": -0.0095,
+            "std": 0.5328,
+            "t_stat": -0.22,
+            "win_rate": 43.9,
+            "net_fee": -0.1195
+          },
+          "240min": {
+            "n": 157,
+            "mean": -0.0144,
+            "std": 0.6028,
+            "t_stat": -0.3,
+            "win_rate": 49.0,
+            "net_fee": -0.1244
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 153,
+        "holds": {
+          "30min": {
+            "n": 153,
+            "mean": -0.034,
+            "std": 0.6665,
+            "t_stat": -0.63,
+            "win_rate": 51.6,
+            "net_fee": -0.144
+          },
+          "60min": {
+            "n": 153,
+            "mean": -0.0703,
+            "std": 0.9243,
+            "t_stat": -0.94,
+            "win_rate": 51.0,
+            "net_fee": -0.1803
+          },
+          "120min": {
+            "n": 153,
+            "mean": -0.0381,
+            "std": 1.2601,
+            "t_stat": -0.37,
+            "win_rate": 54.2,
+            "net_fee": -0.1481
+          },
+          "180min": {
+            "n": 153,
+            "mean": 0.0134,
+            "std": 1.5632,
+            "t_stat": 0.11,
+            "win_rate": 52.3,
+            "net_fee": -0.0966
+          },
+          "240min": {
+            "n": 153,
+            "mean": -0.0916,
+            "std": 1.8416,
+            "t_stat": -0.62,
+            "win_rate": 47.1,
+            "net_fee": -0.2016
+          }
+        }
+      }
+    },
+    "bb_squeeze": {
+      "n_events": 85,
+      "holds": {
+        "30min": {
+          "n": 85,
+          "mean": 0.026,
+          "std": 0.307,
+          "t_stat": 0.78,
+          "win_rate": 48.2,
+          "net_fee": -0.084
+        },
+        "60min": {
+          "n": 85,
+          "mean": 0.0232,
+          "std": 0.395,
+          "t_stat": 0.54,
+          "win_rate": 47.1,
+          "net_fee": -0.0868
+        },
+        "120min": {
+          "n": 85,
+          "mean": 0.0516,
+          "std": 0.5348,
+          "t_stat": 0.89,
+          "win_rate": 49.4,
+          "net_fee": -0.0584
+        },
+        "180min": {
+          "n": 85,
+          "mean": 0.0435,
+          "std": 0.6222,
+          "t_stat": 0.64,
+          "win_rate": 47.1,
+          "net_fee": -0.0665
+        },
+        "240min": {
+          "n": 85,
+          "mean": -0.0088,
+          "std": 0.712,
+          "t_stat": -0.11,
+          "win_rate": 45.9,
+          "net_fee": -0.1188
+        }
+      }
+    }
+  },
+  "DOGEUSDT": {
+    "vol_window_120min": {
+      "compression": {
+        "n_events": 204,
+        "holds": {
+          "30min": {
+            "n": 204,
+            "mean": 0.0186,
+            "std": 0.2848,
+            "t_stat": 0.93,
+            "win_rate": 48.5,
+            "net_fee": -0.0914
+          },
+          "60min": {
+            "n": 204,
+            "mean": 0.0263,
+            "std": 0.4169,
+            "t_stat": 0.9,
+            "win_rate": 50.0,
+            "net_fee": -0.0837
+          },
+          "120min": {
+            "n": 204,
+            "mean": 0.0146,
+            "std": 0.6762,
+            "t_stat": 0.31,
+            "win_rate": 50.0,
+            "net_fee": -0.0954
+          },
+          "180min": {
+            "n": 204,
+            "mean": 0.0601,
+            "std": 0.8858,
+            "t_stat": 0.97,
+            "win_rate": 52.0,
+            "net_fee": -0.0499
+          },
+          "240min": {
+            "n": 204,
+            "mean": 0.0516,
+            "std": 1.0471,
+            "t_stat": 0.7,
+            "win_rate": 50.5,
+            "net_fee": -0.0584
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 182,
+        "holds": {
+          "30min": {
+            "n": 182,
+            "mean": 0.1002,
+            "std": 0.8104,
+            "t_stat": 1.67,
+            "win_rate": 53.3,
+            "net_fee": -0.0098
+          },
+          "60min": {
+            "n": 182,
+            "mean": 0.0528,
+            "std": 1.1129,
+            "t_stat": 0.64,
+            "win_rate": 54.9,
+            "net_fee": -0.0572
+          },
+          "120min": {
+            "n": 182,
+            "mean": 0.0407,
+            "std": 1.5873,
+            "t_stat": 0.35,
+            "win_rate": 53.3,
+            "net_fee": -0.0693
+          },
+          "180min": {
+            "n": 182,
+            "mean": -0.1079,
+            "std": 1.8217,
+            "t_stat": -0.8,
+            "win_rate": 50.0,
+            "net_fee": -0.2179
+          },
+          "240min": {
+            "n": 182,
+            "mean": -0.1942,
+            "std": 2.1584,
+            "t_stat": -1.21,
+            "win_rate": 51.1,
+            "net_fee": -0.3042
+          }
+        }
+      }
+    },
+    "vol_window_240min": {
+      "compression": {
+        "n_events": 176,
+        "holds": {
+          "30min": {
+            "n": 176,
+            "mean": -0.0117,
+            "std": 0.2623,
+            "t_stat": -0.59,
+            "win_rate": 46.0,
+            "net_fee": -0.1217
+          },
+          "60min": {
+            "n": 176,
+            "mean": 0.0209,
+            "std": 0.3796,
+            "t_stat": 0.73,
+            "win_rate": 47.7,
+            "net_fee": -0.0891
+          },
+          "120min": {
+            "n": 176,
+            "mean": 0.031,
+            "std": 0.6482,
+            "t_stat": 0.63,
+            "win_rate": 48.9,
+            "net_fee": -0.079
+          },
+          "180min": {
+            "n": 176,
+            "mean": 0.0644,
+            "std": 0.8039,
+            "t_stat": 1.06,
+            "win_rate": 48.9,
+            "net_fee": -0.0456
+          },
+          "240min": {
+            "n": 176,
+            "mean": 0.0527,
+            "std": 0.9157,
+            "t_stat": 0.76,
+            "win_rate": 49.4,
+            "net_fee": -0.0573
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 154,
+        "holds": {
+          "30min": {
+            "n": 154,
+            "mean": 0.0774,
+            "std": 0.8803,
+            "t_stat": 1.09,
+            "win_rate": 54.5,
+            "net_fee": -0.0326
+          },
+          "60min": {
+            "n": 154,
+            "mean": -0.0062,
+            "std": 1.0822,
+            "t_stat": -0.07,
+            "win_rate": 51.3,
+            "net_fee": -0.1162
+          },
+          "120min": {
+            "n": 154,
+            "mean": -0.0756,
+            "std": 1.4222,
+            "t_stat": -0.66,
+            "win_rate": 48.1,
+            "net_fee": -0.1856
+          },
+          "180min": {
+            "n": 154,
+            "mean": -0.2371,
+            "std": 1.9447,
+            "t_stat": -1.51,
+            "win_rate": 40.9,
+            "net_fee": -0.3471
+          },
+          "240min": {
+            "n": 154,
+            "mean": -0.2922,
+            "std": 2.2094,
+            "t_stat": -1.64,
+            "win_rate": 39.0,
+            "net_fee": -0.4022
+          }
+        }
+      }
+    },
+    "vol_window_360min": {
+      "compression": {
+        "n_events": 170,
+        "holds": {
+          "30min": {
+            "n": 170,
+            "mean": -0.0089,
+            "std": 0.2669,
+            "t_stat": -0.43,
+            "win_rate": 44.7,
+            "net_fee": -0.1189
+          },
+          "60min": {
+            "n": 170,
+            "mean": 0.0302,
+            "std": 0.4851,
+            "t_stat": 0.81,
+            "win_rate": 44.7,
+            "net_fee": -0.0798
+          },
+          "120min": {
+            "n": 170,
+            "mean": 0.0254,
+            "std": 0.7173,
+            "t_stat": 0.46,
+            "win_rate": 45.9,
+            "net_fee": -0.0846
+          },
+          "180min": {
+            "n": 170,
+            "mean": 0.0159,
+            "std": 0.7834,
+            "t_stat": 0.26,
+            "win_rate": 45.9,
+            "net_fee": -0.0941
+          },
+          "240min": {
+            "n": 170,
+            "mean": 0.0003,
+            "std": 0.9168,
+            "t_stat": 0.0,
+            "win_rate": 46.5,
+            "net_fee": -0.1097
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 146,
+        "holds": {
+          "30min": {
+            "n": 146,
+            "mean": 0.0339,
+            "std": 0.8609,
+            "t_stat": 0.48,
+            "win_rate": 52.1,
+            "net_fee": -0.0761
+          },
+          "60min": {
+            "n": 146,
+            "mean": -0.0357,
+            "std": 1.1217,
+            "t_stat": -0.38,
+            "win_rate": 45.2,
+            "net_fee": -0.1457
+          },
+          "120min": {
+            "n": 146,
+            "mean": -0.0792,
+            "std": 1.5357,
+            "t_stat": -0.62,
+            "win_rate": 50.0,
+            "net_fee": -0.1892
+          },
+          "180min": {
+            "n": 146,
+            "mean": -0.2053,
+            "std": 2.0636,
+            "t_stat": -1.2,
+            "win_rate": 45.9,
+            "net_fee": -0.3153
+          },
+          "240min": {
+            "n": 146,
+            "mean": -0.2345,
+            "std": 2.3587,
+            "t_stat": -1.2,
+            "win_rate": 43.2,
+            "net_fee": -0.3445
+          }
+        }
+      }
+    },
+    "bb_squeeze": {
+      "n_events": 109,
+      "holds": {
+        "30min": {
+          "n": 109,
+          "mean": -0.0164,
+          "std": 0.5125,
+          "t_stat": -0.33,
+          "win_rate": 42.2,
+          "net_fee": -0.1264
+        },
+        "60min": {
+          "n": 109,
+          "mean": -0.0308,
+          "std": 0.6045,
+          "t_stat": -0.53,
+          "win_rate": 42.2,
+          "net_fee": -0.1408
+        },
+        "120min": {
+          "n": 109,
+          "mean": 0.0178,
+          "std": 0.7945,
+          "t_stat": 0.23,
+          "win_rate": 45.9,
+          "net_fee": -0.0922
+        },
+        "180min": {
+          "n": 109,
+          "mean": 0.049,
+          "std": 1.0166,
+          "t_stat": 0.5,
+          "win_rate": 50.5,
+          "net_fee": -0.061
+        },
+        "240min": {
+          "n": 109,
+          "mean": 0.1455,
+          "std": 1.1161,
+          "t_stat": 1.36,
+          "win_rate": 53.2,
+          "net_fee": 0.0355
+        }
+      }
+    }
+  },
+  "SUIUSDT": {
+    "vol_window_120min": {
+      "compression": {
+        "n_events": 214,
+        "holds": {
+          "30min": {
+            "n": 214,
+            "mean": -0.0207,
+            "std": 0.347,
+            "t_stat": -0.87,
+            "win_rate": 43.9,
+            "net_fee": -0.1307
+          },
+          "60min": {
+            "n": 214,
+            "mean": 0.0026,
+            "std": 0.5284,
+            "t_stat": 0.07,
+            "win_rate": 45.3,
+            "net_fee": -0.1074
+          },
+          "120min": {
+            "n": 214,
+            "mean": -0.01,
+            "std": 0.7275,
+            "t_stat": -0.2,
+            "win_rate": 46.3,
+            "net_fee": -0.12
+          },
+          "180min": {
+            "n": 214,
+            "mean": -0.0007,
+            "std": 0.8068,
+            "t_stat": -0.01,
+            "win_rate": 48.6,
+            "net_fee": -0.1107
+          },
+          "240min": {
+            "n": 214,
+            "mean": -0.0425,
+            "std": 1.0272,
+            "t_stat": -0.61,
+            "win_rate": 43.9,
+            "net_fee": -0.1525
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 184,
+        "holds": {
+          "30min": {
+            "n": 184,
+            "mean": 0.0227,
+            "std": 0.9796,
+            "t_stat": 0.31,
+            "win_rate": 54.3,
+            "net_fee": -0.0873
+          },
+          "60min": {
+            "n": 184,
+            "mean": 0.0018,
+            "std": 1.3444,
+            "t_stat": 0.02,
+            "win_rate": 51.1,
+            "net_fee": -0.1082
+          },
+          "120min": {
+            "n": 184,
+            "mean": -0.017,
+            "std": 1.8768,
+            "t_stat": -0.12,
+            "win_rate": 48.9,
+            "net_fee": -0.127
+          },
+          "180min": {
+            "n": 184,
+            "mean": -0.035,
+            "std": 2.2108,
+            "t_stat": -0.21,
+            "win_rate": 54.3,
+            "net_fee": -0.145
+          },
+          "240min": {
+            "n": 184,
+            "mean": -0.1631,
+            "std": 2.627,
+            "t_stat": -0.84,
+            "win_rate": 51.6,
+            "net_fee": -0.2731
+          }
+        }
+      }
+    },
+    "vol_window_240min": {
+      "compression": {
+        "n_events": 168,
+        "holds": {
+          "30min": {
+            "n": 168,
+            "mean": -0.0274,
+            "std": 0.3106,
+            "t_stat": -1.14,
+            "win_rate": 44.0,
+            "net_fee": -0.1374
+          },
+          "60min": {
+            "n": 168,
+            "mean": -0.0355,
+            "std": 0.6088,
+            "t_stat": -0.75,
+            "win_rate": 45.2,
+            "net_fee": -0.1455
+          },
+          "120min": {
+            "n": 168,
+            "mean": -0.0623,
+            "std": 0.8102,
+            "t_stat": -1.0,
+            "win_rate": 38.7,
+            "net_fee": -0.1723
+          },
+          "180min": {
+            "n": 168,
+            "mean": -0.0201,
+            "std": 0.8815,
+            "t_stat": -0.3,
+            "win_rate": 45.2,
+            "net_fee": -0.1301
+          },
+          "240min": {
+            "n": 168,
+            "mean": -0.0812,
+            "std": 1.0354,
+            "t_stat": -1.02,
+            "win_rate": 39.9,
+            "net_fee": -0.1912
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 148,
+        "holds": {
+          "30min": {
+            "n": 148,
+            "mean": 0.0011,
+            "std": 0.9514,
+            "t_stat": 0.01,
+            "win_rate": 52.7,
+            "net_fee": -0.1089
+          },
+          "60min": {
+            "n": 148,
+            "mean": -0.086,
+            "std": 1.3695,
+            "t_stat": -0.76,
+            "win_rate": 49.3,
+            "net_fee": -0.196
+          },
+          "120min": {
+            "n": 148,
+            "mean": -0.1126,
+            "std": 1.8478,
+            "t_stat": -0.74,
+            "win_rate": 48.6,
+            "net_fee": -0.2226
+          },
+          "180min": {
+            "n": 148,
+            "mean": -0.1049,
+            "std": 2.4996,
+            "t_stat": -0.51,
+            "win_rate": 54.1,
+            "net_fee": -0.2149
+          },
+          "240min": {
+            "n": 148,
+            "mean": -0.2434,
+            "std": 3.1121,
+            "t_stat": -0.95,
+            "win_rate": 50.0,
+            "net_fee": -0.3534
+          }
+        }
+      }
+    },
+    "vol_window_360min": {
+      "compression": {
+        "n_events": 157,
+        "holds": {
+          "30min": {
+            "n": 157,
+            "mean": -0.0019,
+            "std": 0.3831,
+            "t_stat": -0.06,
+            "win_rate": 46.5,
+            "net_fee": -0.1119
+          },
+          "60min": {
+            "n": 157,
+            "mean": -0.0013,
+            "std": 0.5704,
+            "t_stat": -0.03,
+            "win_rate": 43.9,
+            "net_fee": -0.1113
+          },
+          "120min": {
+            "n": 157,
+            "mean": -0.0454,
+            "std": 0.7923,
+            "t_stat": -0.72,
+            "win_rate": 41.4,
+            "net_fee": -0.1554
+          },
+          "180min": {
+            "n": 157,
+            "mean": -0.0201,
+            "std": 0.7689,
+            "t_stat": -0.33,
+            "win_rate": 41.4,
+            "net_fee": -0.1301
+          },
+          "240min": {
+            "n": 157,
+            "mean": -0.0847,
+            "std": 0.9689,
+            "t_stat": -1.1,
+            "win_rate": 40.1,
+            "net_fee": -0.1947
+          }
+        }
+      },
+      "expansion": {
+        "n_events": 128,
+        "holds": {
+          "30min": {
+            "n": 128,
+            "mean": 0.0315,
+            "std": 0.9672,
+            "t_stat": 0.37,
+            "win_rate": 53.1,
+            "net_fee": -0.0785
+          },
+          "60min": {
+            "n": 128,
+            "mean": -0.0282,
+            "std": 1.3543,
+            "t_stat": -0.24,
+            "win_rate": 49.2,
+            "net_fee": -0.1382
+          },
+          "120min": {
+            "n": 128,
+            "mean": -0.1965,
+            "std": 1.8863,
+            "t_stat": -1.18,
+            "win_rate": 42.2,
+            "net_fee": -0.3065
+          },
+          "180min": {
+            "n": 128,
+            "mean": -0.2681,
+            "std": 2.5402,
+            "t_stat": -1.19,
+            "win_rate": 47.7,
+            "net_fee": -0.3781
+          },
+          "240min": {
+            "n": 128,
+            "mean": -0.3806,
+            "std": 3.1916,
+            "t_stat": -1.35,
+            "win_rate": 44.5,
+            "net_fee": -0.4906
+          }
+        }
+      }
+    },
+    "bb_squeeze": {
+      "n_events": 101,
+      "holds": {
+        "30min": {
+          "n": 101,
+          "mean": -0.0132,
+          "std": 0.5136,
+          "t_stat": -0.26,
+          "win_rate": 53.5,
+          "net_fee": -0.1232
+        },
+        "60min": {
+          "n": 101,
+          "mean": -0.0145,
+          "std": 0.642,
+          "t_stat": -0.23,
+          "win_rate": 48.5,
+          "net_fee": -0.1245
+        },
+        "120min": {
+          "n": 101,
+          "mean": -0.05,
+          "std": 0.8577,
+          "t_stat": -0.59,
+          "win_rate": 50.5,
+          "net_fee": -0.16
+        },
+        "180min": {
+          "n": 101,
+          "mean": -0.0522,
+          "std": 0.9183,
+          "t_stat": -0.57,
+          "win_rate": 49.5,
+          "net_fee": -0.1622
+        },
+        "240min": {
+          "n": 101,
+          "mean": -0.008,
+          "std": 1.1949,
+          "t_stat": -0.07,
+          "win_rate": 51.5,
+          "net_fee": -0.118
+        }
+      }
+    }
+  }
+}

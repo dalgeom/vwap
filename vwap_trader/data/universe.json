@@ -1,18 +1,15 @@
 {
-  "updated_at": "2026-05-07T07:47:49.641930+00:00",
+  "updated_at": "2026-05-08T07:05:40.379923+00:00",
   "coins": [
     "SOLUSDT",
     "XRPUSDT",
-    "ZECUSDT",
     "DOGEUSDT",
-    "HYPEUSDT",
+    "ZECUSDT",
     "1000PEPEUSDT",
-    "NEARUSDT",
+    "HYPEUSDT",
     "SUIUSDT",
+    "DYDXUSDT",
     "ADAUSDT",
-    "ICPUSDT",
-    "DASHUSDT",
-    "LINKUSDT",
-    "BNBUSDT"
+    "ICPUSDT"
   ]
 }

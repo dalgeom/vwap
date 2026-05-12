@@ -1,0 +1,35 @@
+# Momentum Bot Configuration
+
+strategy:
+  pctile: 97              # top 3% return threshold
+  threshold_window: 2000  # rolling window for threshold (5min bars)
+  atr_period: 20          # ATR lookback
+  sl_atr_mult: 3.0        # SL = N x ATR
+  tp_rr: 2.0              # TP = SL x RR
+  max_hold_bars: 36       # 3 hours (36 x 5min)
+  cooldown_bars: 12       # 1 hour cooldown per coin
+
+risk:
+  risk_pct: 0.005         # 0.5% per trade
+  max_positions: 10       # max concurrent positions
+  daily_loss_pct: 0.02    # -2% daily loss halt
+  max_leverage: 3.0       # effective leverage cap
+
+universe:
+  min_volume_usdt: 20_000_000  # $20M 24h volume
+  refresh_interval_hours: 24
+  blacklist:
+    - XAUTUSDT    # gold
+    - XAGUSDT     # silver
+    - XAUUSDT     # gold
+
+exchange:
+  candle_interval: "5"    # 5 minute candles
+  candle_fetch_count: 2100  # threshold_window + buffer
+  demo: true              # demo mode (true for testing)
+  leverage: 5
+
+logging:
+  slippage_file: slippage_momentum.jsonl
+  trades_file: trades_momentum.jsonl
+  state_file: state_momentum.json

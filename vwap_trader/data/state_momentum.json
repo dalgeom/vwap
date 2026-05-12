@@ -1,0 +1,41 @@
+{
+  "positions": [
+    {
+      "symbol": "SAGAUSDT",
+      "direction": "long",
+      "entry_price": 0.03142,
+      "qty": 112376.5,
+      "sl": 0.0291745,
+      "tp": 0.035911,
+      "entry_time": "2026-05-12T05:01:08.396861+00:00",
+      "entry_bar": 26,
+      "intended_price": 0.03142
+    },
+    {
+      "symbol": "INJUSDT",
+      "direction": "long",
+      "entry_price": 4.712,
+      "qty": 3362.3,
+      "sl": 4.6373,
+      "tp": 4.8614,
+      "entry_time": "2026-05-12T05:37:12.576706+00:00",
+      "entry_bar": 32,
+      "intended_price": 4.712
+    },
+    {
+      "symbol": "HUSDT",
+      "direction": "long",
+      "entry_price": 0.2908,
+      "qty": 27020.0,
+      "sl": 0.281509,
+      "tp": 0.309382,
+      "entry_time": "2026-05-12T06:30:21.123226+00:00",
+      "entry_bar": 42,
+      "intended_price": 0.2908
+    }
+  ],
+  "bar_counter": 46,
+  "daily_pnl": -0.11,
+  "daily_trades": 1,
+  "last_save": "2026-05-12T06:50:26.742413+00:00"
+}
