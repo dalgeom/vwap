@@ -13,6 +13,7 @@ import os
 import sys
 import time
 import threading
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,6 +24,28 @@ from pybit.unified_trading import HTTP
 from vwap_trader.strategy.momentum import MomentumStrategy, MomentumSignal
 from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader import notifier as _notifier_mod
+
+# ── Clock offset fix for Bybit timestamp validation ──────
+def _sync_clock_offset() -> int:
+    """Measure local-vs-Bybit clock offset (ms). Returns offset to subtract."""
+    import requests
+    try:
+        local_before = int(time.time() * 1000)
+        resp = requests.get("https://api.bybit.com/v5/market/time", timeout=5)
+        local_after = int(time.time() * 1000)
+        server_ts = int(resp.json()["result"]["timeNano"]) // 1_000_000
+        local_mid = (local_before + local_after) // 2
+        return local_mid - server_ts  # positive = local ahead
+    except Exception:
+        return 0
+
+_clock_offset_ms = _sync_clock_offset()
+if abs(_clock_offset_ms) > 500:
+    import pybit._helpers as _pybit_helpers
+    _original_ts = _pybit_helpers.generate_timestamp
+    _pybit_helpers.generate_timestamp = lambda: _original_ts() - _clock_offset_ms
+    logging.getLogger("momentum_bot").info(
+        "Clock offset: %dms — patched pybit timestamp", _clock_offset_ms)
 
 logger = logging.getLogger("momentum_bot")
 
@@ -37,7 +60,12 @@ ENV_PATH = ROOT / "config" / ".env"
 class OpenPosition:
     def __init__(self, symbol: str, direction: str, entry_price: float,
                  qty: float, sl: float, tp: float, entry_time: str,
-                 entry_bar: int, intended_price: float):
+                 entry_bar: int, intended_price: float,
+                 trade_id: str = "", atr_at_entry: float = 0.0,
+                 signal_strength: float = 0.0, signal_return_pct: float = 0.0,
+                 btc_price_at_entry: float = 0.0, btc_1h_change_pct: float = 0.0,
+                 position_size_usd: float = 0.0,
+                 mfe: float = 0.0, mae: float = 0.0):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -47,13 +75,25 @@ class OpenPosition:
         self.entry_time = entry_time
         self.entry_bar = entry_bar
         self.intended_price = intended_price
+        self.trade_id = trade_id or str(uuid.uuid4())[:8]
+        self.atr_at_entry = atr_at_entry
+        self.signal_strength = signal_strength      # percentile value of trigger bar
+        self.signal_return_pct = signal_return_pct  # 5min return of trigger bar
+        self.btc_price_at_entry = btc_price_at_entry
+        self.btc_1h_change_pct = btc_1h_change_pct
+        self.position_size_usd = position_size_usd
+        self.mfe = mfe  # max favorable excursion (price units)
+        self.mae = mae  # max adverse excursion (price units)
 
     def to_dict(self) -> dict:
         return vars(self)
 
     @classmethod
     def from_dict(cls, d: dict) -> OpenPosition:
-        return cls(**d)
+        import inspect
+        valid_keys = set(inspect.signature(cls.__init__).parameters.keys()) - {"self"}
+        filtered = {k: v for k, v in d.items() if k in valid_keys}
+        return cls(**filtered)
 
 
 # ── Bot ──────────────────────────────────────────────────
@@ -102,7 +142,7 @@ class MomentumBot:
         self._candle_cache: dict[str, list[tuple]] = {}
 
     def _load_config(self) -> dict:
-        with open(CONFIG_PATH) as f:
+        with open(CONFIG_PATH, encoding="utf-8") as f:
             return yaml.safe_load(f)
 
     # ── Universe ─────────────────────────────────────────
@@ -381,27 +421,49 @@ class MomentumBot:
             pnl_pct = (pos.entry_price - exit_price) / pos.entry_price * 100
 
         fee_pct = 0.055 * 2  # round trip taker
-        net_pnl = pnl_pct - fee_pct
+        pnl_usd = pnl_pct / 100 * pos.position_size_usd - (fee_pct / 100 * pos.position_size_usd)
+        hold_bars = self.bar_counter - pos.entry_bar
+
+        now = datetime.now(timezone.utc)
+        entry_dt = datetime.fromisoformat(pos.entry_time)
+
+        # MFE/MAE as percentage of entry price
+        mfe_pct = (pos.mfe / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
+        mae_pct = (pos.mae / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
 
         record = {
+            "trade_id": pos.trade_id,
+            "timestamp_utc": pos.entry_time,
+            "exit_timestamp_utc": now.isoformat(),
             "symbol": pos.symbol,
-            "direction": pos.direction,
+            "side": pos.direction,
             "entry_price": pos.entry_price,
             "exit_price": exit_price,
-            "qty": pos.qty,
+            "position_size_usd": round(pos.position_size_usd, 2),
+            "sl_price": pos.sl,
+            "tp_price": pos.tp,
+            "exit_reason": reason,
+            "pnl_usd": round(pnl_usd, 4),
             "pnl_pct": round(pnl_pct, 4),
-            "net_pnl": round(net_pnl, 4),
-            "reason": reason,
-            "entry_time": pos.entry_time,
-            "exit_time": datetime.now(timezone.utc).isoformat(),
+            "atr_at_entry": round(pos.atr_at_entry, 8),
+            "hold_time_bars": hold_bars,
+            "max_favorable_excursion": round(mfe_pct, 4),
+            "max_adverse_excursion": round(mae_pct, 4),
+            "signal_strength": round(pos.signal_strength, 4),
+            "signal_return_pct": round(pos.signal_return_pct, 4),
+            "btc_price_at_entry": round(pos.btc_price_at_entry, 2),
+            "btc_1h_change_pct": round(pos.btc_1h_change_pct, 4),
+            "hour_of_day_utc": entry_dt.hour,
+            "day_of_week_utc": entry_dt.weekday(),
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
 
-        self.daily_pnl += net_pnl
+        self.daily_pnl += pnl_pct
         self.daily_trades += 1
-        logger.info("TRADE %s %s pnl=%.4f%% net=%.4f%% reason=%s",
-                     pos.symbol, pos.direction, pnl_pct, net_pnl, reason)
+        logger.info("TRADE [%s] %s %s pnl=%.2f%% $%.2f reason=%s hold=%dbars MFE=%.2f%% MAE=%.2f%%",
+                     pos.trade_id, pos.symbol, pos.direction, pnl_pct, pnl_usd,
+                     reason, hold_bars, mfe_pct, mae_pct)
 
     def _log_slippage(self, symbol: str, direction: str,
                       intended: float, fill: float):
@@ -448,6 +510,33 @@ class MomentumBot:
                         len(self.positions), self.bar_counter)
         except Exception as e:
             logger.error("State load error: %s", e)
+
+    # ── BTC Data ──────────────────────────────────────────
+    def _get_btc_data(self, price_map: dict[str, float] | None = None) -> tuple[float, float]:
+        """Get current BTC price and 1h change %. Returns (price, change_pct).
+        Uses price_map if available to avoid extra ticker API call."""
+        try:
+            btc_price = (price_map or {}).get("BTCUSDT", 0.0)
+            if btc_price == 0.0:
+                ticker = self.public_session.get_tickers(
+                    category="linear", symbol="BTCUSDT")
+                if ticker.get("retCode") == 0:
+                    btc_price = float(ticker["result"]["list"][0]["lastPrice"])
+
+            if btc_price > 0:
+                # 1 API call for 1h change
+                resp = self.public_session.get_kline(
+                    category="linear", symbol="BTCUSDT",
+                    interval="60", limit=2)
+                if resp.get("retCode") == 0 and len(resp["result"]["list"]) >= 2:
+                    prev_close = float(resp["result"]["list"][1][4])
+                    if prev_close > 0:
+                        change_pct = (btc_price - prev_close) / prev_close * 100
+                        return btc_price, round(change_pct, 4)
+                return btc_price, 0.0
+        except Exception as e:
+            logger.debug("BTC data fetch error: %s", e)
+        return 0.0, 0.0
 
     # ── Heartbeat ────────────────────────────────────────
     def _heartbeat_loop(self):
@@ -525,11 +614,6 @@ class MomentumBot:
                 self.daily_pnl = 0.0
                 self.daily_trades = 0
 
-            # Daily loss check
-            if self.daily_pnl <= -(self.cfg["risk"]["daily_loss_pct"] * 100):
-                logger.warning("Daily loss limit hit: %.2f%% — skipping", self.daily_pnl)
-                continue
-
             # Refresh universe daily
             self.refresh_universe()
 
@@ -540,10 +624,10 @@ class MomentumBot:
                 continue
 
             # 1. Check existing positions (SL/TP hit? timeout?)
-            self._manage_positions()
+            price_map = self._manage_positions()
 
             # 2. Scan for new signals
-            self._scan_universe(balance)
+            self._scan_universe(balance, price_map)
 
             # 3. Save state
             self._save_state()
@@ -576,17 +660,94 @@ class MomentumBot:
         logger.error("Balance fetch failed after 3 attempts")
         return 0.0
 
-    def _manage_positions(self):
-        """Check existing positions: SL/TP hit or timeout."""
+    def _fetch_all_tickers(self) -> dict[str, float]:
+        """Fetch all linear tickers in one API call. Returns {symbol: lastPrice}."""
+        try:
+            resp = self.public_session.get_tickers(category="linear")
+            if resp.get("retCode") == 0:
+                return {t["symbol"]: float(t["lastPrice"])
+                        for t in resp["result"]["list"]}
+        except Exception as e:
+            logger.warning("Batch ticker fetch error: %s", e)
+        return {}
+
+    def _update_mfe_mae(self, pos: OpenPosition, price_map: dict[str, float]):
+        """Update MFE/MAE using candle high/low for intra-bar resolution.
+        Falls back to lastPrice from price_map if no candle data.
+        Both mfe and mae are stored as positive price-unit values."""
+        # Use candle cache high/low for better intra-bar resolution
+        cached = self._candle_cache.get(pos.symbol)
+        if cached and len(cached) >= 1:
+            latest = cached[-1]  # (ts, open, high, low, close)
+            bar_high = latest[2]
+            bar_low = latest[3]
+
+            if pos.direction == "long":
+                best = bar_high - pos.entry_price
+                worst = pos.entry_price - bar_low  # positive = adverse
+            else:
+                best = pos.entry_price - bar_low
+                worst = bar_high - pos.entry_price
+
+            if best > pos.mfe:
+                pos.mfe = best
+            if worst > pos.mae:
+                pos.mae = worst
+        else:
+            # Fallback: use ticker lastPrice
+            last_price = price_map.get(pos.symbol)
+            if last_price is None:
+                return
+            if pos.direction == "long":
+                excursion = last_price - pos.entry_price
+            else:
+                excursion = pos.entry_price - last_price
+            if excursion > pos.mfe:
+                pos.mfe = excursion
+            if -excursion > pos.mae:
+                pos.mae = -excursion
+
+    def _classify_exit_reason(self, pos: OpenPosition, exit_price: float) -> str:
+        """Classify SL/TP hit based on exit price proximity."""
+        sl_dist = abs(exit_price - pos.sl)
+        tp_dist = abs(exit_price - pos.tp)
+        if tp_dist < sl_dist:
+            return "TP"
+        return "SL"
+
+    def _manage_positions(self) -> dict[str, float]:
+        """Check existing positions: SL/TP hit or timeout. Update MFE/MAE.
+        Returns price_map for reuse by _scan_universe."""
+        # Batch fetch all tickers once (1 API call instead of N)
+        price_map = self._fetch_all_tickers()
+
+        # Refresh candles for open position symbols (for intra-bar MFE/MAE)
+        for pos in self.positions:
+            self._fetch_candles(pos.symbol)
+            time.sleep(0.2)
+
         closed = []
         for pos in self.positions:
+            # Update MFE/MAE using candle high/low
+            self._update_mfe_mae(pos, price_map)
+
             # Check on exchange
             size = self._get_position_from_exchange(pos.symbol, pos.direction)
 
             if size == 0:
                 # SL or TP was hit by exchange — get actual exit price from closed PnL
                 exit_price = self._get_closed_pnl_price(pos)
-                reason = "sl_or_tp"
+                reason = self._classify_exit_reason(pos, exit_price)
+                # Final MFE/MAE update with exit price
+                if pos.direction == "long":
+                    final_exc = exit_price - pos.entry_price
+                else:
+                    final_exc = pos.entry_price - exit_price
+                if final_exc > pos.mfe:
+                    pos.mfe = final_exc
+                if -final_exc > pos.mae:
+                    pos.mae = -final_exc
+
                 logger.info("Position %s closed by exchange (%s) exit=%.4f",
                             pos.symbol, reason, exit_price)
                 self._log_trade(pos, exit_price, reason)
@@ -603,14 +764,25 @@ class MomentumBot:
                 logger.info("Position %s timeout — closing", pos.symbol)
                 exit_price = self._close_position(pos, "timeout")
                 if exit_price:
-                    self._log_trade(pos, exit_price, "timeout")
+                    # Final MFE/MAE update
+                    if pos.direction == "long":
+                        final_exc = exit_price - pos.entry_price
+                    else:
+                        final_exc = pos.entry_price - exit_price
+                    if final_exc > pos.mfe:
+                        pos.mfe = final_exc
+                    if -final_exc > pos.mae:
+                        pos.mae = -final_exc
+                    self._log_trade(pos, exit_price, "Timeout")
                 closed.append(pos)
 
         for pos in closed:
             if pos in self.positions:
                 self.positions.remove(pos)
 
-    def _scan_universe(self, balance: float):
+        return price_map
+
+    def _scan_universe(self, balance: float, price_map: dict[str, float] | None = None):
         """Scan all coins for momentum signals."""
         max_pos = self.cfg["risk"]["max_positions"]
         if len(self.positions) >= max_pos:
@@ -621,6 +793,9 @@ class MomentumBot:
         open_symbols = {p.symbol for p in self.positions}
         scanned = 0
         signals_found = 0
+
+        # Pre-fetch BTC data once per scan cycle (reuse price_map from _manage_positions)
+        btc_price, btc_1h_change = self._get_btc_data(price_map)
 
         for symbol in self.universe:
             if len(self.positions) >= max_pos:
@@ -675,23 +850,31 @@ class MomentumBot:
             fill_price = float(result.get("avgPrice", 0)) or signal.close_price
             self._log_slippage(symbol, direction_str, signal.close_price, fill_price)
 
-            # Track position
+            entry_price = fill_price if fill_price > 0 else signal.close_price
+
+            # Track position with v2 enhanced fields
             pos = OpenPosition(
                 symbol=symbol,
                 direction=direction_str,
-                entry_price=fill_price if fill_price > 0 else signal.close_price,
+                entry_price=entry_price,
                 qty=size.qty,
                 sl=sl_tp.sl,
                 tp=sl_tp.tp,
                 entry_time=datetime.now(timezone.utc).isoformat(),
                 entry_bar=self.bar_counter,
                 intended_price=signal.close_price,
+                atr_at_entry=signal.atr,
+                signal_strength=signal.percentile_rank,
+                signal_return_pct=signal.trigger_ret,
+                btc_price_at_entry=btc_price,
+                btc_1h_change_pct=btc_1h_change,
+                position_size_usd=size.notional,
             )
             self.positions.append(pos)
 
-            logger.info("ENTRY %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f",
-                        symbol, direction_str, pos.entry_price,
-                        size.qty, sl_tp.sl, sl_tp.tp)
+            logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f atr=%.4f sig=%.2f%%",
+                        pos.trade_id, symbol, direction_str, pos.entry_price,
+                        size.qty, sl_tp.sl, sl_tp.tp, signal.atr, signal.trigger_ret)
             notify(f"[ENTRY] {symbol} {direction_str} @ {pos.entry_price:.4f} "
                    f"qty={size.qty:.4f} SL={sl_tp.sl:.4f} TP={sl_tp.tp:.4f}")
 

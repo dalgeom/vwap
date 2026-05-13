@@ -26,6 +26,7 @@ class MomentumSignal:
     threshold: float    # rolling threshold at that moment (%)
     close_price: float  # bar close price (reference for slippage measurement)
     atr: float          # ATR in price units
+    percentile_rank: float = 0.0  # actual percentile rank of trigger bar (0-100)
 
 
 @dataclass
@@ -118,6 +119,10 @@ class MomentumStrategy:
         direction = 1 if current_ret > 0 else -1
         self._last_signal_bar[symbol] = bar_number
 
+        # Percentile rank: what % of past bars had |return| <= |current_ret|
+        pct_rank = float(np.searchsorted(np.sort(past_abs_ret), abs(current_ret))
+                         / len(past_abs_ret) * 100)
+
         signal = MomentumSignal(
             symbol=symbol,
             direction=direction,
@@ -125,6 +130,7 @@ class MomentumStrategy:
             threshold=round(threshold, 4),
             close_price=closes[-1],
             atr=atr,
+            percentile_rank=round(pct_rank, 2),
         )
         logger.info(
             "SIGNAL %s %s ret=%.4f%% thresh=%.4f%% atr=%.4f",

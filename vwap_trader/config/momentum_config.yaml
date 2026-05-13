@@ -4,15 +4,14 @@ strategy:
   pctile: 97              # top 3% return threshold
   threshold_window: 2000  # rolling window for threshold (5min bars)
   atr_period: 20          # ATR lookback
-  sl_atr_mult: 3.0        # SL = N x ATR
-  tp_rr: 2.0              # TP = SL x RR
-  max_hold_bars: 36       # 3 hours (36 x 5min)
+  sl_atr_mult: 1.5        # SL = 1.5 x ATR (v2: 3.0→1.5)
+  tp_rr: 1.33             # TP = SL x 1.33 (v2: 2.0→1.33, = 2×ATR)
+  max_hold_bars: 12       # 1 hour (v2: 36→12, 12 x 5min)
   cooldown_bars: 12       # 1 hour cooldown per coin
 
 risk:
   risk_pct: 0.005         # 0.5% per trade
   max_positions: 10       # max concurrent positions
-  daily_loss_pct: 0.02    # -2% daily loss halt
   max_leverage: 3.0       # effective leverage cap
 
 universe:

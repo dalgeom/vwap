@@ -1,145 +1,122 @@
 
-============================================
-  VWAP Trader - 세션 인계 프롬프트
-  (2026-05-13 기준)
-============================================
+# 모멘텀 봇 — 세션 인계 프롬프트 (2026-05-13)
 
-git pull 후 새 세션 첫 메시지로 붙여넣으세요.
-
---------------------------------------------------------------
-
-# VWAP Trader 세션 인계
-
-## 프로젝트 위치
-`c:\Users\PC\Desktop\현진\code` (다른 PC면 경로 확인)
-
-## 현재 상태 (2026-05-13)
-- **봇**: 실행 중 (momentum_bot.py) — 데모 계좌, 데이터 수집 목적
-- **오픈 포지션**: 수시로 변동 (state_momentum.json 확인)
-- **전략**: 모멘텀 봇 (5분봉, 40코인 유니버스)
+## 프로젝트 개요
+Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
+전략 핵심: 5분봉 return이 rolling top 3%(97 percentile) 초과 시 같은 방향 진입 (Big Move Follow-Through).
 
 --------------------------------------------------------------
 
-## 전략 전체 흐름 (6개월 요약)
+## v1 → v2 전환 배경
 
-### 1단계: EMA 전략 (폐기됨)
-- EMA9/21 크로스 + ADX>20, ATR 기반 SL/TP, 15분봉
-- 백테스트 결과: BTC/ETH 승률 28% → EV 음수 → 폐기
+### v1 실패 요약 (2026-05-12 14:11 ~ 05-13 09:00, 약 19시간)
+- 78거래, 승률 25.6% (20W/58L), PnL -$8,974, Profit Factor 0.382
+- 설계 RR 1:2인데 실제 RR 1.05 — TP(6×ATR)가 너무 멀어 도달 못함
+- SL(3×ATR)에서 대부분 끊기고, 이후 원래 방향으로 가는 패턴
+- Whipsaw 심각: 같은 심볼 양방향 반복 손절 (INJUSDT 7건 14% 등)
+- Long 승률 18.4%로 특히 심각 (BTC 하락 추세에서 long 모멘텀)
+- 시간대 편향: UTC 21-22시 14건 승률 0% (-$4,066), UTC 00-03시 12건 승률 83% (+$1,888)
+- 43코인 유니버스 vs 6코인 백테스트 → edge 없는 심볼에서 무차별 진입
 
-### 2단계: 펀딩 역추세 (Funding Contrarian) — 폐기됨
-- |펀딩비| > 임계값 구간 역방향 진입, 8h 후 청산
-- 원래 백테스트 결과(EV +0.506R, Sharpe 3.31)가 SL 시뮬 오류로 모두 무효화됨
-- SL 시뮬 오류: 8h 종가 1회 체크(잘못) → 실제는 매봉 low/high 체크 → SL 비율 41%→83%
-- 정확한 시뮬 결과: 모든 SL 조합에서 EV 음수 → 폐기
-
-### 3단계: 모멘텀 봇 — 현재 전략 (데이터 수집 중)
-- 5분봉, 40코인 유니버스 스캔
-- ATR 기반 SL/TP, 리스크 per trade ~0.5% 잔고
-- 데모 계좌에서 실시간 운영 중 (가짜 돈, 데이터 수집이 목적)
-- 일일 손실 한도 비활성화됨 (데이터 수집 목적으로 의도적 비활성화)
+### v2 설계 의도
+v1 실패 원인 분석 후, **수익이 아닌 데이터 수집 목적**으로 v2 개발.
+최소 200건의 깨끗한 거래 표본을 모아 코인별/시간대별/방향별/신호강도별 분석 후 v3 방향 결정.
+"어떻게 박살나는지" 자체가 분석 데이터이므로, 필터/안전장치 의도적으로 미적용.
 
 --------------------------------------------------------------
 
-## 2026-05-12 실전 운영 성과 (35건, 약 9시간)
+## v2 파라미터 (v1 대비 변경점)
 
-| 항목 | 값 |
-|------|----|
-| 총 거래 | 35건 |
-| 승률 | 14.3% (5승 30패) |
-| 평균 EV | -1.41% / 거래 |
-| 추정 달러 P&L | -$6,183 |
-| 평균 보유 시간 | 84분 |
+| 파라미터 | v1 | v2 | 변경 이유 |
+|----------|----|----|-----------|
+| SL | 3.0×ATR | 1.5×ATR | v1에서 SL 너무 커서 손실 단가 높음 |
+| TP | SL×2.0 (=6×ATR) | SL×1.33 (=2×ATR) | v1 TP 도달률 극히 낮음 → 현실적 수준으로 |
+| Max Hold | 36 bars (3시간) | 12 bars (1시간) | 장기 보유 시 되돌림 피해 |
+| Daily loss cap | 있음 | **제거** | 데이터 수집 목적, 의도적 |
 
-### 방향별
-- Long 17건: 승률 11.8%, EV -0.59%
-- Short 18건: 승률 16.7%, EV -2.19%
-- → 2026-05-12는 전반적 상승장 → 숏 전략 특히 불리했음
+유지된 파라미터:
+- Signal: 97 percentile, threshold window 2000 bars
+- ATR period: 20
+- Cooldown: 12 bars (1시간)
+- Max positions: 10
+- Risk: 0.5%/거래
+- Leverage cap: 3x (실효)
+- Universe: min $20M volume, 자동 스캔 (30~60개)
 
-### 주요 승리 거래
-- SAGAUSDT long +14.21% ($+502) — 전체 수익의 29%가 이 1건
-- BCHUSDT short 2건 합산 +$907
-- CRVUSDT short +$244
-
-### 주요 손실 패턴
-- GIGAUSDT: 같은 날 long -$258 + short -$241 = -$499 (극단 변동성)
-- BTCUSDT: 2건 -$714 (포지션 크고 SL 촘촘)
-- SAGAUSDT: 3건 net -$51 (1 big win + 2 big losses)
-
-### 진단
-- 35건은 통계 노이즈 범위 → 판단 보류
-- 최소 200~300건 쌓인 후 전략 EV 유효 판단
-- 현 속도 하루 ~35건, 약 1주일이면 250건 예상
+### ⚠️ 절대 추가 금지 (데이터 수집 기간 동안)
+코인 유니버스 축소, 시간대 필터, 일일 손실 한도, 연속 손실 중단, 추세 필터, 변동성/거래량 필터, cooldown 연장 — 전부 금지.
 
 --------------------------------------------------------------
 
-## 이번 세션에서 수정한 것
+## v2에서 수정한 코드
 
-### 버그 수정: qty 부동소수점 오류
-- **파일**: `vwap_trader/src/vwap_trader/core/position_sizer.py`
-- **증상**: ETHUSDT `qty=21.240000000000002`, SAGAUSDT `qty=86517.90000000001` → Bybit `Qty invalid (ErrCode: 10001)` 주문 실패
-- **원인**: `floor(clamped_qty / lot_size) * lot_size` — float 곱셈 부동소수점 오류
-- **수정**: Python `Decimal` 모듈로 정확한 계산
-```python
-# 수정 전 (잘못됨)
-from math import floor
-qty = floor(clamped_qty / lot_size) * lot_size
+### momentum_config.yaml
+- SL/TP/Hold 파라미터 변경, daily_loss_pct 설정 제거
 
-# 수정 후
-from decimal import Decimal, ROUND_DOWN
-lot_d = Decimal(str(lot_size))
-qty = float(
-    (Decimal(str(clamped_qty)) / lot_d).to_integral_value(ROUND_DOWN) * lot_d
-)
-```
+### momentum_bot.py — 주요 변경
+- **OpenPosition 필드 확장**: trade_id, atr_at_entry, signal_strength, signal_return_pct, btc_price_at_entry, btc_1h_change_pct, position_size_usd, mfe, mae
+- **_fetch_all_tickers()**: 배치 티커 1회 호출로 API 절약 (기존 코인별 개별 호출 → 전체 1회)
+- **_get_btc_data()**: BTC 현재가 + 1시간 변동률 (price_map 재활용)
+- **_update_mfe_mae()**: 캔들 캐시 high/low 기반 intra-bar MFE/MAE 추적
+- **_manage_positions()**: 오픈 포지션 캔들 매 bar 갱신 + MFE/MAE 추적 + exit_reason(SL/TP/Timeout) 분류
+- **_log_trade()**: 23개 필드 JSONL 로깅
+- **_sync_clock_offset()**: Bybit 서버 시계 offset 자동 보정 (pybit monkey-patch)
+- **from_dict()**: 기존 v1 state 호환성 방어
+- Daily loss cap 체크 로직 제거
 
---------------------------------------------------------------
-
-## 핵심 파일
-
-```
-vwap_trader/
-├── src/vwap_trader/
-│   ├── momentum_bot.py              # 모멘텀 봇 메인 (현재 실행 중)
-│   ├── strategy/momentum.py        # 모멘텀 신호 로직
-│   ├── core/position_sizer.py      # qty 계산 (Decimal 수정됨)
-│   ├── infra/bybit_client.py       # 데모 계좌 + 공개 API 펀딩비
-│   └── scripts/
-│       └── regime_analysis.py      # 펀딩 역추세 SL sweep 분석 (폐기 근거)
-├── data/
-│   ├── trades_momentum.jsonl       # 청산 거래 기록 (35건+ 누적 중)
-│   ├── state_momentum.json         # 봇 포지션 상태
-│   └── slippage_momentum.jsonl     # 슬리피지 기록
-└── config/.env                     # API 키 (데모)
-```
-
-## 봇 실행 방법
-```bash
-cd vwap_trader/src
-python -m vwap_trader.momentum_bot
-```
+### strategy/momentum.py
+- MomentumSignal에 percentile_rank 필드 추가
+- feed_candle()에서 실제 percentile rank(0-100) 계산하여 반환
 
 --------------------------------------------------------------
 
-## 세션 시작 후 확인할 것
+## 로깅 필드 (trades_momentum.jsonl, 23개)
 
-1. `vwap_trader/data/state_momentum.json` — 현재 포지션 확인
-2. `vwap_trader/logs/bot.log` 마지막 20줄 — 봇 정상 여부
-3. `vwap_trader/data/trades_momentum.jsonl` 줄 수 — 거래 누적 현황
-4. 250건 이상이면 전략 EV 분석 시작
-
---------------------------------------------------------------
-
-## 알려진 이슈
-
-- **DOGEUSDT**: Bybit 화면에 거래 기록 있으나 trades_momentum.jsonl에 누락됨 → 로깅 버그 가능성 (미수정)
-- **일일 손실 한도**: 데이터 수집 목적으로 의도적 비활성화 상태 유지
+trade_id, timestamp_utc, exit_timestamp_utc, symbol, side, entry_price, exit_price,
+position_size_usd, sl_price, tp_price, exit_reason(TP/SL/Timeout), pnl_usd, pnl_pct,
+atr_at_entry, hold_time_bars, max_favorable_excursion(%), max_adverse_excursion(%),
+signal_strength(percentile rank 97~100), signal_return_pct,
+btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 --------------------------------------------------------------
 
-## 전략 원칙 (유지)
-- Simple Is Best
-- 백테스트 SL 시뮬은 반드시 "매봉 low/high 체크" 방식으로
-- 데모 계좌 API 펀딩비는 고정값 반환 → 반드시 공개 API 사용
-- 슬리피지 0.10% 이상 항상 반영
+## 데이터 파일 위치
+
+| 파일 | 설명 |
+|------|------|
+| vwap_trader/data/trades_momentum.jsonl | v2 거래 로그 (현재 39건 적재 중) |
+| vwap_trader/data/trades_momentum_v1.jsonl | v1 백업 75건 (signal_strength 정의 다름 — threshold 값 vs percentile rank) |
+| vwap_trader/data/state_momentum.json | 봇 실행 상태 (positions, bar_counter 등) |
+| vwap_trader/config/momentum_config.yaml | 현재 설정 파일 |
+| vwap_trader/logs/momentum_bot.log | 실행 로그 |
 
 --------------------------------------------------------------
+
+## 현재 봇 상태 (2026-05-13 기준)
+
+- **v2 봇 가동 중** — 2026-05-13 11:08 KST (02:08 UTC) 시작
+- 실행 명령: `cd vwap_trader && venv\Scripts\python.exe -m vwap_trader.momentum_bot`
+- 데모 계좌 잔고: ~$31,400
+- v2 거래 39건 적재 (첫 거래 03:00 UTC ~ 최근 07:40 UTC)
+- 현재 중간 성적: 39건, 승률 51.3% (20W/19L), PnL +$1,251 (SL 18건, TP 19건, Timeout 2건)
+- 봇 시작/종료는 사용자 수동. 자동 종료 조건 없음
+- **목표: 200건 모이면 분석 후 v3 변경점 결정**
+
+--------------------------------------------------------------
+
+## 해결된 이슈 (참고)
+
+1. **Windows cp949 인코딩** → config YAML 로드 시 `encoding="utf-8"` 명시
+2. **Bybit 시계 offset (~3초)** → `_sync_clock_offset()` + pybit timestamp monkey-patch
+3. **MFE/MAE 해상도** → lastPrice 대신 캔들 high/low 사용, 오픈 포지션 캔들 매 bar 갱신
+4. **signal_strength 정의 오류** → threshold 값 대신 percentile rank(0-100)로 수정
+5. **API 과다 호출** → `_fetch_all_tickers()` 배치 1회 + price_map 재활용
+6. **qty 부동소수점 오류** → Decimal 사용으로 수정
+
+--------------------------------------------------------------
+
+## 알려진 제약/참고
+
+- **API rate limit**: 유니버스 30~60개 코인 kline 개별 호출 → 가끔 Bybit rate limit 에러 발생 (ErrCode 10006). pybit 자동 재시도(2초 sleep)하므로 데이터 유실 없음. 심각하지 않음.
+- **v1 vs v2 signal_strength 비호환**: v1은 threshold 값(절대값), v2는 percentile rank(0-100). 두 데이터셋 합산 분석 시 주의.
+- **봇 재시작 시**: state_momentum.json에서 오픈 포지션 복원됨. 캔들 캐시는 재구축.
