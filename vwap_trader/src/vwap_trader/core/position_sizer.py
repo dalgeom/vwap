@@ -4,7 +4,7 @@ Dev-Core(이승준) 구현
 """
 from __future__ import annotations
 
-from math import floor
+from decimal import Decimal, ROUND_DOWN
 
 from vwap_trader.models import PositionSizeResult
 
@@ -40,7 +40,10 @@ def compute_position_size(
     max_qty_by_leverage = (balance * MAX_LEVERAGE_REAL) / entry_price
     clamped_qty = min(raw_qty, max_qty_by_leverage)
 
-    qty = floor(clamped_qty / lot_size) * lot_size
+    lot_d = Decimal(str(lot_size))
+    qty = float(
+        (Decimal(str(clamped_qty)) / lot_d).to_integral_value(ROUND_DOWN) * lot_d
+    )
 
     if qty <= 0:
         return PositionSizeResult(

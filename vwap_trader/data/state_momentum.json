@@ -3,39 +3,50 @@
     {
       "symbol": "SAGAUSDT",
       "direction": "long",
-      "entry_price": 0.03142,
-      "qty": 112376.5,
-      "sl": 0.0291745,
-      "tp": 0.035911,
-      "entry_time": "2026-05-12T05:01:08.396861+00:00",
-      "entry_bar": 26,
-      "intended_price": 0.03142
+      "entry_price": 0.05239,
+      "qty": 27863.5,
+      "sl": 0.044695,
+      "tp": 0.06778,
+      "entry_time": "2026-05-12T21:45:18.791183+00:00",
+      "entry_bar": 215,
+      "intended_price": 0.05239
     },
     {
-      "symbol": "INJUSDT",
+      "symbol": "CRVUSDT",
+      "direction": "short",
+      "entry_price": 0.2785,
+      "qty": 91523.4,
+      "sl": 0.28084,
+      "tp": 0.27382,
+      "entry_time": "2026-05-12T21:50:18.101920+00:00",
+      "entry_bar": 216,
+      "intended_price": 0.2785
+    },
+    {
+      "symbol": "ZECUSDT",
       "direction": "long",
-      "entry_price": 4.712,
-      "qty": 3362.3,
-      "sl": 4.6373,
-      "tp": 4.8614,
-      "entry_time": "2026-05-12T05:37:12.576706+00:00",
-      "entry_bar": 32,
-      "intended_price": 4.712
+      "entry_price": 564.44,
+      "qty": 45.49,
+      "sl": 559.793,
+      "tp": 573.734,
+      "entry_time": "2026-05-12T22:05:11.668843+00:00",
+      "entry_bar": 219,
+      "intended_price": 564.44
     },
     {
       "symbol": "HUSDT",
       "direction": "long",
-      "entry_price": 0.2908,
-      "qty": 27020.0,
-      "sl": 0.281509,
-      "tp": 0.309382,
-      "entry_time": "2026-05-12T06:30:21.123226+00:00",
-      "entry_bar": 42,
-      "intended_price": 0.2908
+      "entry_price": 0.24623,
+      "qty": 25000.0,
+      "sl": 0.237875,
+      "tp": 0.26294,
+      "entry_time": "2026-05-12T22:55:16.779412+00:00",
+      "entry_bar": 229,
+      "intended_price": 0.24623
     }
   ],
-  "bar_counter": 46,
-  "daily_pnl": -0.11,
-  "daily_trades": 1,
-  "last_save": "2026-05-12T06:50:26.742413+00:00"
+  "bar_counter": 232,
+  "daily_pnl": -103.74695670401323,
+  "daily_trades": 71,
+  "last_save": "2026-05-12T23:10:25.911796+00:00"
 }
