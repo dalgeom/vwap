@@ -1,7 +1,28 @@
 {
-  "positions": [],
-  "bar_counter": 496,
-  "daily_pnl": -0.26251079167251434,
-  "daily_trades": 3,
-  "last_save": "2026-05-14T00:19:43.688528+00:00"
+  "positions": [
+    {
+      "symbol": "BILLUSDT",
+      "direction": "long",
+      "entry_price": 0.17161,
+      "qty": 28540.0,
+      "sl": 0.166642,
+      "tp": 0.17821744,
+      "entry_time": "2026-05-14T07:15:10.472309+00:00",
+      "entry_bar": 382,
+      "intended_price": 0.17161,
+      "trade_id": "bbfb653b",
+      "atr_at_entry": 0.003312,
+      "signal_strength": 98.85,
+      "signal_return_pct": 4.3476,
+      "btc_price_at_entry": 79700.6,
+      "btc_1h_change_pct": -0.0871,
+      "position_size_usd": 4897.749400000001,
+      "mfe": 0.0,
+      "mae": 0.004260000000000014
+    }
+  ],
+  "bar_counter": 383,
+  "daily_pnl": -117.9363097018888,
+  "daily_trades": 176,
+  "last_save": "2026-05-14T07:23:04.130735+00:00"
 }

@@ -1,7 +1,7 @@
 # Momentum Bot Configuration
 
 strategy:
-  pctile: 97              # top 3% return threshold
+  pctile: 99.5            # top 0.5% return threshold (v3: 97→99.5)
   threshold_window: 2000  # rolling window for threshold (5min bars)
   atr_period: 20          # ATR lookback
   sl_atr_mult: 1.5        # SL = 1.5 x ATR (v2: 3.0→1.5)
