@@ -1,48 +1,7 @@
 {
-  "positions": [
-    {
-      "symbol": "HYPEUSDT",
-      "direction": "short",
-      "entry_price": 40.13,
-      "qty": 1535.71,
-      "sl": 40.22885,
-      "tp": 39.9985295,
-      "entry_time": "2026-05-13T07:15:13.314675+00:00",
-      "entry_bar": 294,
-      "intended_price": 40.13,
-      "trade_id": "6f94c953",
-      "atr_at_entry": 0.06589999999999954,
-      "signal_strength": 99.7,
-      "signal_return_pct": -0.656,
-      "btc_price_at_entry": 80976.4,
-      "btc_1h_change_pct": 0.0351,
-      "position_size_usd": 61628.04230000001,
-      "mfe": 0.08300000000000551,
-      "mae": 0.015999999999998238
-    },
-    {
-      "symbol": "ZECUSDT",
-      "direction": "short",
-      "entry_price": 550.2,
-      "qty": 66.81,
-      "sl": 552.45825,
-      "tp": 547.1965275,
-      "entry_time": "2026-05-13T07:20:12.396413+00:00",
-      "entry_bar": 295,
-      "intended_price": 550.2,
-      "trade_id": "f155806d",
-      "atr_at_entry": 1.505499999999995,
-      "signal_strength": 99.45,
-      "signal_return_pct": -1.4897,
-      "btc_price_at_entry": 80920.0,
-      "btc_1h_change_pct": -0.0346,
-      "position_size_usd": 36758.862,
-      "mfe": 1.8700000000000045,
-      "mae": 0.30999999999994543
-    }
-  ],
-  "bar_counter": 301,
-  "daily_pnl": -114.2111853500058,
-  "daily_trades": 126,
-  "last_save": "2026-05-13T07:50:33.097021+00:00"
+  "positions": [],
+  "bar_counter": 496,
+  "daily_pnl": -0.26251079167251434,
+  "daily_trades": 3,
+  "last_save": "2026-05-14T00:19:43.688528+00:00"
 }

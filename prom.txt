@@ -1,5 +1,5 @@
 
-# 모멘텀 봇 — 세션 인계 프롬프트 (2026-05-13)
+# 모멘텀 봇 — 세션 인계 프롬프트 (2026-05-14)
 
 ## 프로젝트 개요
 Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
@@ -68,6 +68,9 @@ v1 실패 원인 분석 후, **수익이 아닌 데이터 수집 목적**으로 
 - MomentumSignal에 percentile_rank 필드 추가
 - feed_candle()에서 실제 percentile rank(0-100) 계산하여 반환
 
+### scripts/analyze_trades.py (신규)
+- v2 거래 데이터 분석 스크립트 (시간대별/방향별/심볼별 PnL 분석)
+
 --------------------------------------------------------------
 
 ## 로깅 필드 (trades_momentum.jsonl, 23개)
@@ -84,7 +87,7 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 | 파일 | 설명 |
 |------|------|
-| vwap_trader/data/trades_momentum.jsonl | v2 거래 로그 (현재 39건 적재 중) |
+| vwap_trader/data/trades_momentum.jsonl | v2 거래 로그 (현재 168건) |
 | vwap_trader/data/trades_momentum_v1.jsonl | v1 백업 75건 (signal_strength 정의 다름 — threshold 값 vs percentile rank) |
 | vwap_trader/data/state_momentum.json | 봇 실행 상태 (positions, bar_counter 등) |
 | vwap_trader/config/momentum_config.yaml | 현재 설정 파일 |
@@ -92,15 +95,60 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 --------------------------------------------------------------
 
-## 현재 봇 상태 (2026-05-13 기준)
+## 현재 봇 상태 (2026-05-14 기준)
 
-- **v2 봇 가동 중** — 2026-05-13 11:08 KST (02:08 UTC) 시작
-- 실행 명령: `cd vwap_trader && venv\Scripts\python.exe -m vwap_trader.momentum_bot`
-- 데모 계좌 잔고: ~$31,400
-- v2 거래 39건 적재 (첫 거래 03:00 UTC ~ 최근 07:40 UTC)
-- 현재 중간 성적: 39건, 승률 51.3% (20W/19L), PnL +$1,251 (SL 18건, TP 19건, Timeout 2건)
-- 봇 시작/종료는 사용자 수동. 자동 종료 조건 없음
-- **목표: 200건 모이면 분석 후 v3 변경점 결정**
+- **v2 봇 정지 중** — 수동 정지 (재가동 필요 시 아래 명령 실행)
+- 실행 명령 (PowerShell): `cd C:\Users\PC\Desktop\현진\code\vwap_trader; venv\Scripts\python.exe -m vwap_trader.momentum_bot`
+- 데모 계좌 잔고: 확인 필요 (봇 실행 시 로그 참조)
+- **v2 거래 168건 적재 완료** (2026-05-13 03:00 UTC ~ 2026-05-14 00:10 UTC, 약 21시간)
+- 오픈 포지션: 0건 (정지 시점)
+- **목표: 200건 모이면 v3 분석 진행** — 32건 추가 필요
+
+--------------------------------------------------------------
+
+## v2 중간 성과 요약 (168건 기준)
+
+| 지표 | 값 |
+|------|----|
+| 총 거래 | 168건 |
+| 승률 | 48.8% (82W/86L) |
+| 총 PnL | -$2,392.47 |
+| Profit Factor | 0.864 |
+| exit_reason | SL 81건 / TP 79건 / Timeout 8건 |
+| Long | 69건, 승률 53.6% |
+| Short | 99건, 승률 45.5% |
+
+### 시간대별 PnL (UTC)
+
+| 시간 | 건수 | 승률 | PnL |
+|------|------|------|-----|
+| 03h | 7 | 29% | -$381 |
+| 04h | 11 | 45% | +$635 |
+| 05h | 11 | 55% | +$127 |
+| 06h | 6 | 67% | +$313 |
+| 07h | 7 | 71% | +$145 |
+| 08h | 7 | 71% | +$449 |
+| 09h | 17 | 59% | +$297 |
+| 10h | 9 | 33% | -$578 |
+| 11h | 3 | 67% | +$171 |
+| 12h | 16 | 31% | -$1,291 |
+| 13h | 14 | 50% | +$4 |
+| 14h | 8 | 0% | -$1,451 ⚠️ |
+| 15h | 16 | 75% | +$1,157 ✅ |
+| 16h | 10 | 40% | -$407 |
+| 17h | 6 | 67% | +$294 |
+| 18h | 8 | 50% | -$132 |
+| 21h | 2 | 0% | -$372 |
+| 22h | 3 | 0% | -$1,344 ⚠️ |
+
+**눈에 띄는 패턴**: UTC 14h·22h는 0% 승률로 큰 손실. UTC 15h·07~08h는 고승률 수익구간.
+단, 200건 미만으로 통계적 유의성 낮음 — v3에서 판단 예정.
+
+### 심볼별 PnL (상·하위 5개)
+
+**손실 심볼**: ZECUSDT -$1,537 / GIGAUSDT -$1,125 / HUSDT -$643 / VVVUSDT -$600 / USELESSUSDT -$596
+
+**수익 심볼**: BNBUSDT +$1,216 / TRUTHUSDT +$725 / SOLUSDT +$538 / INJUSDT +$513 / LINKUSDT +$496
 
 --------------------------------------------------------------
 
@@ -112,6 +160,7 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 4. **signal_strength 정의 오류** → threshold 값 대신 percentile rank(0-100)로 수정
 5. **API 과다 호출** → `_fetch_all_tickers()` 배치 1회 + price_map 재활용
 6. **qty 부동소수점 오류** → Decimal 사용으로 수정
+7. **다른 PC에서 venv 재생성** → `venv` 삭제 후 `python -m venv venv` + `pip install -r requirements.txt` + `pip install -e .`
 
 --------------------------------------------------------------
 
@@ -120,3 +169,4 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 - **API rate limit**: 유니버스 30~60개 코인 kline 개별 호출 → 가끔 Bybit rate limit 에러 발생 (ErrCode 10006). pybit 자동 재시도(2초 sleep)하므로 데이터 유실 없음. 심각하지 않음.
 - **v1 vs v2 signal_strength 비호환**: v1은 threshold 값(절대값), v2는 percentile rank(0-100). 두 데이터셋 합산 분석 시 주의.
 - **봇 재시작 시**: state_momentum.json에서 오픈 포지션 복원됨. 캔들 캐시는 재구축.
+- **PowerShell에서 실행 시**: `&&` 연산자 불가. `;` 으로 명령 구분.
