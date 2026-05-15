@@ -83,7 +83,7 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 --------------------------------------------------------------
 
-## 현재 봇 상태 (2026-05-14 기준)
+## 현재 봇 상태 (2026-05-15 기준)
 
 - **v3 봇 정지 중** -- 재가동 필요 시 아래 명령 실행
 - 실행 명령 (PowerShell): `cd C:\Users\PC\Desktop\현진\code\vwap_trader; venv\Scripts\python.exe -m vwap_trader.momentum_bot`
@@ -91,15 +91,49 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 --------------------------------------------------------------
 
+## v3 중간 성과 (42건, 2026-05-14 07:15 ~ 20:10 UTC)
+
+| 지표 | 값 |
+|------|----|
+| 총 거래 | 42건 |
+| 승률 | 45.2% (19W/23L) |
+| 총 PnL | -$935.49 |
+| EV | -$22.27/건 |
+| Profit Factor | 0.784 |
+| exit_reason | SL 21건 / TP 19건 / Timeout 2건 |
+| Long | 30건, 승률 50.0% |
+| Short | 12건, 승률 33.3% |
+
+**주의**: v2에서 99.5+ 구간(39건)의 EV는 +$36.72/건이었으나, v3 실전에서는 -$22.27/건으로 음수.
+과적합이거나 시장 환경 변화 가능성. 50건 도달 시 재평가 필요.
+
+### ⚠️ 알려진 이슈: ErrCode 10002 (timestamp 불일치)
+로컬 시계가 Bybit 서버보다 ~1.5초 앞서서 잔고 조회 실패 → 해당 bar 전체 스킵 발생.
+**재가동 전 반드시 실행** (PowerShell 관리자 권한):
+```
+w32tm /resync /force
+```
+
+### 다른 PC에서 재가동 시 (venv 없는 경우)
+```powershell
+cd C:\...\vwap_trader
+python -m venv venv
+venv\Scripts\pip install -r requirements.txt
+venv\Scripts\pip install -e .
+venv\Scripts\python.exe -m vwap_trader.momentum_bot
+```
+
+--------------------------------------------------------------
+
 ## v3 검증 계획
 
-1. 봇 재가동 후 50건 수집 (예상 소요: ~33시간)
+1. 봇 재가동 후 50건 수집 (현재 42건, 8건 추가 필요)
 2. 50건 도달 시 분석:
-   - 거래당 EV가 양수 유지되는지?
-   - v2의 99.5+ 구간(39건, +$36.72/건)과 유사한 성과인지?
+   - EV 양수 전환 여부 (현재 -$22.27/건)
+   - v2 99.5+ 구간과 성과 비교
    - 승률, PF, exit_reason 분포 확인
 3. EV 양수 유지 시 -> 추가 필터(BTC 환경, 코인 블랙리스트) 검토
-4. EV 음수 전환 시 -> 전략 자체 재설계 또는 중단 검토
+4. EV 음수 유지 시 -> 전략 재설계 또는 pctile 추가 상향 검토
 
 --------------------------------------------------------------
 
