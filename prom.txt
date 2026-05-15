@@ -1,5 +1,5 @@
 
-# 모멘텀 봇 -- 세션 인계 프롬프트 (2026-05-14)
+# 모멘텀 봇 -- 세션 인계 프롬프트 (2026-05-15)
 
 ## 프로젝트 개요
 Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
@@ -7,7 +7,7 @@ Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
 
 --------------------------------------------------------------
 
-## v1 -> v2 -> v3 전환 히스토리
+## v1 -> v2 -> v3 -> v3.1 전환 히스토리
 
 ### v1 실패 요약 (2026-05-12 14:11 ~ 05-13 09:00, 약 19시간)
 - 78거래, 승률 25.6% (20W/58L), PnL -$8,974, Profit Factor 0.382
@@ -29,34 +29,87 @@ Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
   - 최악 코인: ZECUSDT(7건, 14.3%, -$1,762), VVVUSDT(8건, 12.5%, -$1,044)
   - 98.0-98.5 구간이 가장 나쁨 (37건, -$54.58/건)
 
-### v3 변경 (2026-05-14)
+### v3 (2026-05-14 07:15 ~ 20:10, 약 13시간)
 - **단일 변경**: pctile 97 -> 99.5 (top 3% -> top 0.5%)
-- 나머지 파라미터 전부 유지 (SL/TP/Hold/Cooldown/Universe 등)
-- 변경 근거: 216건 실전 데이터에서 99.5+ 구간만 양의 EV. 과적합 위험 인지하되, -$12/건 EV로 계속 돈 잃으면서 데이터 모으는 것보다 합리적.
-- **예상 트레이드오프**: 거래 빈도 ~1/5 감소 (시간당 8건 -> ~1.5건)
-- **검증 목표**: 50건 모은 후 99.5 임계값 상향 효과 재평가
+- 42건 거래, 승률 45.2%, PnL -$935.49, EV -$22.27/건, PF 0.784
+- **결론**: v2에서 99.5+ 구간 양의 EV(+$36.72/건)는 과적합 가능성 높음. v3 실전에서 -$22.27/건으로 반전.
+- 실제 RR 0.949 (설계 1.33에 미달) -- 슬리피지+수수료+진입타이밍 때문
+- BTC UP + Long만 유일한 양의 EV (19건, +$25.62/건)
+- Short 일관 부진 (12건, EV -$54.87/건)
+- SIRENUSDT 슬리피지 극악 (+2.3%p), LINKUSDT 3전 3패 (-$742)
+
+### v3.1 변경 (2026-05-15, 옵션 B 적용)
+- **전문가 분석 기반 업그레이드**. v1/v2/v3 전체 335건 데이터를 종합 분석 의뢰 후 결정.
+- **변경 내용 (안전 필터 3종)**:
+  1. Short 제한: BTC 1h 변화율 > -0.05%이면 Short 진입 차단 (BTC DOWN 환경에서만 Short 허용)
+  2. 슬리피지 cooldown: SL 청산 시 슬리피지 > 1%p인 코인은 48시간 자동 cooldown
+  3. 유동성 필터: min_volume_usdt $20M 기존 유지 (추가 강화는 보류)
+- **코드 변경 파일**:
+  - `vwap_trader/config/momentum_config.yaml` — filters 섹션 추가
+  - `vwap_trader/src/vwap_trader/momentum_bot.py` — _scan_universe에 필터 로직, _log_trade에 슬리피지 감지
+- **기대 효과**: v3 42건 기준 ~6건 제거(Short 4건 + SIRENUSDT 2건), -$649 손실 방지. PF 0.784 -> 0.85~0.95 추정
+- **거래 빈도**: 시간당 ~3건 -> ~2.5건 (약 20% 감소), 일 ~63건 예상
 
 --------------------------------------------------------------
 
-## v3 파라미터
+## 전문가 분석 요약 (2026-05-15)
 
-| 파라미터 | v2 | v3 | 변경 이유 |
-|----------|----|----|-----------|
-| pctile | 97 (top 3%) | **99.5 (top 0.5%)** | 216건 실전에서 99.5+ 유일한 양의 EV |
+v1/v2/v3 전체 335건 데이터를 알고리즘 트레이딩 전문가에게 분석 의뢰. 핵심 진단:
+
+### 전략 현 상태
+- "edge는 존재하지만 실행 비용(슬리피지+수수료+진입타이밍)에 먹히는 상태"
+- v2+v3 합산 PF 0.864 = 비용 제거 시 PF ~1.05. 미약한 raw edge
+- 5분봉 close 후 시장가 진입은 이미 move 완료 후 추격 → HFT의 exit liquidity 제공자가 됨
+
+### RR 미달 원인 (설계 1.33 vs 실현 0.95)
+- SL 슬리피지 (시장가 청산, 평균 +0.1~0.5%p)
+- 수수료 비대칭 (왕복 0.11%)
+- 진입 슬리피지 (시장가 진입)
+- → 설계 RR 1.8~2.0이어야 실현 1.3
+
+### 가장 impact 큰 단일 변경 (전문가 추천)
+**Pullback entry**: signal 후 0.3 ATR pullback에 limit order 진입, 3 bars 내 미체결 시 취소
+- 진입 슬리피지 제거 + MFE=0(꼭대기 진입) 자동 필터링
+- PF 0.86 → 1.05~1.15 예상 (fill rate 65% 가정)
+- → 옵션 C로 문서화, B 검증 후 적용 예정
+
+### 프롬프트/문서 파일
+- `prompt_expert_analysis.md` — 전문가 분석 의뢰용 프롬프트 (335건 데이터 종합)
+- `vwap_trader/docs/upgrade_options.md` — 옵션 A~F 상세 비교 문서
+
+--------------------------------------------------------------
+
+## 업그레이드 로드맵 (옵션 A~F)
+
+상세 내용: `vwap_trader/docs/upgrade_options.md`
+
+| 옵션 | 내용 | 일 거래수 | 상태 |
+|------|------|----------|------|
+| A | 데이터만 더 쌓기 (현행 유지) | ~77건 | - |
+| **B** | **안전 필터 (Short 제한 + 슬리피지 cooldown)** | **~63건** | **✅ 적용 완료 (v3.1)** |
+| C | Pullback Entry (0.3 ATR pullback limit order) | ~50건 | 대기 (B 검증 후) |
+| D | B + C 동시 적용 | ~41건 | 대기 |
+| E | A/B 테스트 (pullback vs 시장가 랜덤 분배) | ~50건 | 대기 |
+| F | 전략 피벗 (처음부터 재설계) | ~18건 | 대기 |
+
+**추천 순서**: B(50건 수집) → C 추가(50건 수집) → 결과 보고 D/F 결정
+
+--------------------------------------------------------------
+
+## v3.1 파라미터 (현재)
+
+| 파라미터 | v3 | v3.1 | 변경 이유 |
+|----------|-----|------|-----------|
+| pctile | 99.5 | 99.5 | 유지 |
 | SL | 1.5xATR | 1.5xATR | 유지 |
-| TP | SL x 1.33 (=2xATR) | SL x 1.33 | 유지 |
-| Max Hold | 12 bars (1시간) | 12 bars | 유지 |
+| TP | SL x 1.33 | SL x 1.33 | 유지 |
+| Max Hold | 12 bars | 12 bars | 유지 |
 | Cooldown | 12 bars | 12 bars | 유지 |
 | Risk | 0.5%/거래 | 0.5%/거래 | 유지 |
 | Max positions | 10 | 10 | 유지 |
-| Universe | auto scan 30-60 coins | auto scan | 유지 |
-
---------------------------------------------------------------
-
-## v3에서 수정한 코드
-
-### momentum_config.yaml
-- `pctile: 97` -> `pctile: 99.5`
+| Universe | auto scan | auto scan | 유지 |
+| **Short 제한** | 없음 | **BTC DOWN에서만 허용** | v2/v3 Short 일관 부진 |
+| **슬리피지 cooldown** | 없음 | **>1%p → 48h cooldown** | SIRENUSDT 등 극악 슬리피지 |
 
 --------------------------------------------------------------
 
@@ -74,66 +127,43 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 | 파일 | 설명 |
 |------|------|
-| vwap_trader/data/trades_momentum.jsonl | **v3 거래 로그 (비어있음, 수집 시작 대기)** |
+| vwap_trader/data/trades_momentum.jsonl | **v3.1 거래 로그 (수집 중, 2026-05-15~)** |
+| vwap_trader/data/trades_momentum_v3.jsonl | v3 백업 42건 |
 | vwap_trader/data/trades_momentum_v2.jsonl | v2 백업 216건 (pctile 97, 분석 완료) |
 | vwap_trader/data/trades_momentum_v1.jsonl | v1 백업 75건 (signal_strength 정의 다름) |
+| vwap_trader/data/slippage_momentum.jsonl | v3.1 슬리피지 로그 (수집 중) |
+| vwap_trader/data/slippage_momentum_v3.jsonl | v3 슬리피지 백업 |
 | vwap_trader/data/state_momentum.json | 봇 실행 상태 |
-| vwap_trader/config/momentum_config.yaml | 현재 설정 파일 (v3) |
-| vwap_trader/analysis_v2.py | v2 분석 스크립트 (v3에도 재사용 가능) |
+| vwap_trader/config/momentum_config.yaml | 현재 설정 파일 (v3.1) |
+| vwap_trader/docs/upgrade_options.md | 업그레이드 옵션 A~F 문서 |
+| prompt_expert_analysis.md | 전문가 분석 의뢰 프롬프트 |
+| vwap_trader/analysis_v2.py | v2 분석 스크립트 |
+| vwap_trader/analysis_v3.py | v3 분석 스크립트 |
+| vwap_trader/analysis_all.py | v1/v2/v3 종합 분석 스크립트 |
 
 --------------------------------------------------------------
 
-## 현재 봇 상태 (2026-05-15 기준)
+## 현재 봇 상태 (2026-05-15 16:40 KST 기준)
 
-- **v3 봇 정지 중** -- 재가동 필요 시 아래 명령 실행
+- **v3.1 봇 정지 중** — 다른 PC에서 pull 후 재가동 필요
+- 잔고: ~$28,000
+- v3.1 데이터: 10건 수집 완료 (6W/4L, 승률 60%, 순손익 +$47)
 - 실행 명령 (PowerShell): `cd C:\Users\PC\Desktop\현진\code\vwap_trader; venv\Scripts\python.exe -m vwap_trader.momentum_bot`
-- 오픈 포지션: 0건
+- **재가동 전 반드시**: `w32tm /resync /force` (PowerShell 관리자)
 
 --------------------------------------------------------------
 
-## v3 중간 성과 (42건, 2026-05-14 07:15 ~ 20:10 UTC)
+## v3.1 검증 계획
 
-| 지표 | 값 |
-|------|----|
-| 총 거래 | 42건 |
-| 승률 | 45.2% (19W/23L) |
-| 총 PnL | -$935.49 |
-| EV | -$22.27/건 |
-| Profit Factor | 0.784 |
-| exit_reason | SL 21건 / TP 19건 / Timeout 2건 |
-| Long | 30건, 승률 50.0% |
-| Short | 12건, 승률 33.3% |
-
-**주의**: v2에서 99.5+ 구간(39건)의 EV는 +$36.72/건이었으나, v3 실전에서는 -$22.27/건으로 음수.
-과적합이거나 시장 환경 변화 가능성. 50건 도달 시 재평가 필요.
-
-### ⚠️ 알려진 이슈: ErrCode 10002 (timestamp 불일치)
-로컬 시계가 Bybit 서버보다 ~1.5초 앞서서 잔고 조회 실패 → 해당 bar 전체 스킵 발생.
-**재가동 전 반드시 실행** (PowerShell 관리자 권한):
-```
-w32tm /resync /force
-```
-
-### 다른 PC에서 재가동 시 (venv 없는 경우)
-```powershell
-cd C:\...\vwap_trader
-python -m venv venv
-venv\Scripts\pip install -r requirements.txt
-venv\Scripts\pip install -e .
-venv\Scripts\python.exe -m vwap_trader.momentum_bot
-```
-
---------------------------------------------------------------
-
-## v3 검증 계획
-
-1. 봇 재가동 후 50건 수집 (현재 42건, 8건 추가 필요)
+1. 50건 수집 (예상 ~19시간)
 2. 50건 도달 시 분석:
-   - EV 양수 전환 여부 (현재 -$22.27/건)
-   - v2 99.5+ 구간과 성과 비교
-   - 승률, PF, exit_reason 분포 확인
-3. EV 양수 유지 시 -> 추가 필터(BTC 환경, 코인 블랙리스트) 검토
-4. EV 음수 유지 시 -> 전략 재설계 또는 pctile 추가 상향 검토
+   - v3(필터 없음) 42건 vs v3.1(필터 적용) 50건 비교
+   - Short 제한 효과: 차단된 Short 건수 및 예상 손실 방지액
+   - 슬리피지 cooldown 발동 횟수
+   - EV/PF 개선 여부
+3. 결과에 따라:
+   - PF 개선 확인 → 옵션 C(Pullback Entry) 추가 적용
+   - PF 미개선 → 옵션 F(전략 피벗) 검토
 
 --------------------------------------------------------------
 
@@ -151,6 +181,18 @@ venv\Scripts\python.exe -m vwap_trader.momentum_bot
 ## 알려진 제약/참고
 
 - **API rate limit**: 유니버스 30~60개 코인 kline 개별 호출 -> 가끔 Bybit rate limit 에러 발생. pybit 자동 재시도(2초 sleep). 심각하지 않음.
-- **v1 vs v2 signal_strength 비호환**: v1은 threshold 값(절대값), v2/v3는 percentile rank(0-100). 두 데이터셋 합산 분석 시 주의.
+- **v1 vs v2 signal_strength 비호환**: v1은 threshold 값(절대값), v2/v3/v3.1은 percentile rank(0-100). 두 데이터셋 합산 분석 시 주의.
 - **봇 재시작 시**: state_momentum.json에서 오픈 포지션 복원됨. 캔들 캐시는 재구축.
 - **PowerShell에서 실행 시**: `&&` 연산자 불가. `;` 으로 명령 구분.
+- **재가동 전 반드시 시계 동기화**: `w32tm /resync /force` (PowerShell 관리자)
+
+--------------------------------------------------------------
+
+## 다른 PC에서 재가동 시 (venv 없는 경우)
+```powershell
+cd C:\...\vwap_trader
+python -m venv venv
+venv\Scripts\pip install -r requirements.txt
+venv\Scripts\pip install -e .
+venv\Scripts\python.exe -m vwap_trader.momentum_bot
+```

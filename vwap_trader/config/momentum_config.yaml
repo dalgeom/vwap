@@ -14,6 +14,12 @@ risk:
   max_positions: 10       # max concurrent positions
   max_leverage: 3.0       # effective leverage cap
 
+filters:
+  short_only_btc_down: true       # Short는 BTC 1h 하락(< -0.05%) 환경에서만 허용
+  btc_down_threshold: -0.05       # BTC DOWN 판정 기준 (%)
+  slippage_cooldown_hours: 48     # SL 슬리피지 > 1%p 코인 cooldown
+  slippage_cooldown_threshold: 1.0  # 슬리피지 기준 (%p)
+
 universe:
   min_volume_usdt: 20_000_000  # $20M 24h volume
   refresh_interval_hours: 24

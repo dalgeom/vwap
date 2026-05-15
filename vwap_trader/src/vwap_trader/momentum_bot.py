@@ -14,7 +14,7 @@ import sys
 import time
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import yaml
@@ -140,6 +140,9 @@ class MomentumBot:
         self._lot_size_cache: dict[str, float] = {}
         # Candle cache: {symbol: [(ts, o, h, l, c), ...]} sorted by ts
         self._candle_cache: dict[str, list[tuple]] = {}
+
+        # ── Option B filters ──
+        self._slippage_cooldown: dict[str, datetime] = {}  # symbol → cooldown until
 
     def _load_config(self) -> dict:
         with open(CONFIG_PATH, encoding="utf-8") as f:
@@ -458,6 +461,23 @@ class MomentumBot:
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
+
+        # ── Slippage cooldown: SL exit with excessive slippage → cooldown ──
+        if reason == "SL":
+            if pos.direction == "long":
+                planned_loss_pct = abs(pos.entry_price - pos.sl) / pos.entry_price * 100
+            else:
+                planned_loss_pct = abs(pos.sl - pos.entry_price) / pos.entry_price * 100
+            actual_loss_pct = abs(pnl_pct)
+            slip_pp = actual_loss_pct - planned_loss_pct
+            filters_cfg = self.cfg.get("filters", {})
+            slip_threshold = filters_cfg.get("slippage_cooldown_threshold", 1.0)
+            slip_hours = filters_cfg.get("slippage_cooldown_hours", 48)
+            if slip_pp > slip_threshold:
+                until = datetime.now(timezone.utc) + timedelta(hours=slip_hours)
+                self._slippage_cooldown[pos.symbol] = until
+                logger.warning("SLIPPAGE COOLDOWN %s: %.2f%%p > %.1f%%p — blocked until %s",
+                               pos.symbol, slip_pp, slip_threshold, until.strftime("%m-%d %H:%M"))
 
         self.daily_pnl += pnl_pct
         self.daily_trades += 1
@@ -820,8 +840,30 @@ class MomentumBot:
                 continue
             signals_found += 1
 
-            # Position sizing
             direction_str = "long" if signal.direction == 1 else "short"
+
+            # ── Option B filters ──
+            filters_cfg = self.cfg.get("filters", {})
+
+            # Filter 1: Short only when BTC is down
+            if filters_cfg.get("short_only_btc_down", False) and direction_str == "short":
+                btc_down_th = filters_cfg.get("btc_down_threshold", -0.05)
+                if btc_1h_change > btc_down_th:
+                    logger.debug("FILTER short blocked %s: BTC 1h=%.4f%% > %.2f%%",
+                                 symbol, btc_1h_change, btc_down_th)
+                    continue
+
+            # Filter 2: Slippage cooldown
+            if symbol in self._slippage_cooldown:
+                until = self._slippage_cooldown[symbol]
+                if datetime.now(timezone.utc) < until:
+                    logger.debug("FILTER slippage cooldown %s until %s",
+                                 symbol, until.strftime("%m-%d %H:%M"))
+                    continue
+                else:
+                    del self._slippage_cooldown[symbol]
+
+            # Position sizing
             sl_tp = self.strategy.calc_sl_tp(
                 signal.close_price, signal.direction, signal.atr)
 
