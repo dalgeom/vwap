@@ -141,8 +141,20 @@ class MomentumBot:
         # Candle cache: {symbol: [(ts, o, h, l, c), ...]} sorted by ts
         self._candle_cache: dict[str, list[tuple]] = {}
 
-        # ── Option B filters ──
+        # ── Option B/G filters ──
         self._slippage_cooldown: dict[str, datetime] = {}  # symbol → cooldown until
+
+        # ── Option G: pullback pending orders ──
+        # List of dicts: {symbol, order_id, direction, signal_price, limit_price,
+        #                  qty, sl, tp, atr, signal_strength, signal_return_pct,
+        #                  btc_price, btc_1h_change, btc_4h_return, btc_4h_atr,
+        #                  regime, position_size_usd, created_bar}
+        self._pending_orders: list[dict] = []
+
+        # ── Regime data (cached per bar) ──
+        self._btc_4h_return: float = 0.0
+        self._btc_4h_atr: float = 0.0
+        self._regime: str = "UNKNOWN"
 
     def _load_config(self) -> dict:
         with open(CONFIG_PATH, encoding="utf-8") as f:
@@ -326,6 +338,148 @@ class MomentumBot:
             logger.error("Order exception %s: %s", symbol, e)
             return None
 
+    def _place_limit_order(self, symbol: str, side: str, qty: float,
+                           price: float, sl: float, tp: float) -> dict | None:
+        """Place a limit order with SL/TP. Returns result dict or None."""
+        if self.dry_run:
+            logger.info("[DRY_RUN] LIMIT %s %s qty=%.6f price=%.6f", side, symbol, qty, price)
+            return {"orderId": "dry_run_limit", "avgPrice": "0"}
+        try:
+            pos_idx = 1 if side == "Buy" else 2
+            resp = self.session.place_order(
+                category="linear",
+                symbol=symbol,
+                side=side,
+                orderType="Limit",
+                qty=str(qty),
+                price=str(round(price, 8)),
+                stopLoss=str(round(sl, 8)),
+                takeProfit=str(round(tp, 8)),
+                positionIdx=pos_idx,
+                slTriggerBy="MarkPrice",
+                tpTriggerBy="MarkPrice",
+                timeInForce="GTC",
+            )
+            if resp.get("retCode") == 0:
+                result = resp["result"]
+                logger.info("Limit order placed: %s %s qty=%s price=%.6f orderId=%s",
+                            side, symbol, qty, price, result.get("orderId"))
+                return result
+            else:
+                logger.error("Limit order failed %s: %s", symbol, resp)
+                return None
+        except Exception as e:
+            logger.error("Limit order exception %s: %s", symbol, e)
+            return None
+
+    def _cancel_order(self, symbol: str, order_id: str) -> bool:
+        """Cancel an open order. Returns True if successful."""
+        try:
+            resp = self.session.cancel_order(
+                category="linear", symbol=symbol, orderId=order_id)
+            if resp.get("retCode") == 0:
+                logger.info("Order cancelled: %s %s", symbol, order_id)
+                return True
+            else:
+                logger.debug("Cancel failed %s (may be filled): %s", symbol, resp)
+                return False
+        except Exception as e:
+            logger.debug("Cancel exception %s: %s", symbol, e)
+            return False
+
+    def _get_order_status(self, symbol: str, order_id: str) -> str:
+        """Check order status. Returns 'Filled', 'New', 'Cancelled', or 'Unknown'."""
+        try:
+            resp = self.session.get_open_orders(
+                category="linear", symbol=symbol, orderId=order_id)
+            if resp.get("retCode") == 0:
+                orders = resp["result"]["list"]
+                if not orders:
+                    # Not in open orders → likely filled or cancelled
+                    return "Filled"
+                return orders[0].get("orderStatus", "Unknown")
+        except Exception:
+            pass
+        return "Unknown"
+
+    def _get_order_fill_price(self, symbol: str, order_id: str) -> float:
+        """Get fill price of a completed order."""
+        try:
+            resp = self.session.get_order_history(
+                category="linear", symbol=symbol, orderId=order_id)
+            if resp.get("retCode") == 0 and resp["result"]["list"]:
+                order = resp["result"]["list"][0]
+                if order.get("orderStatus") == "Filled":
+                    return float(order.get("avgPrice", 0))
+        except Exception:
+            pass
+        return 0.0
+
+    def _manage_pending_orders(self):
+        """Check pending pullback limit orders: fill → track position, expire → cancel."""
+        if not self._pending_orders:
+            return
+
+        filled = []
+        expired = []
+        filters_cfg = self.cfg.get("filters", {})
+        expire_bars = filters_cfg.get("pullback_expire_bars", 3)
+
+        for pend in self._pending_orders:
+            age = self.bar_counter - pend["created_bar"]
+
+            # Check if filled
+            status = self._get_order_status(pend["symbol"], pend["order_id"])
+
+            if status == "Filled":
+                fill_price = self._get_order_fill_price(pend["symbol"], pend["order_id"])
+                if fill_price <= 0:
+                    fill_price = pend["limit_price"]
+
+                self._log_slippage(pend["symbol"], pend["direction"],
+                                   pend["signal_price"], fill_price)
+
+                pos = OpenPosition(
+                    symbol=pend["symbol"],
+                    direction=pend["direction"],
+                    entry_price=fill_price,
+                    qty=pend["qty"],
+                    sl=pend["sl"],
+                    tp=pend["tp"],
+                    entry_time=datetime.now(timezone.utc).isoformat(),
+                    entry_bar=self.bar_counter,
+                    intended_price=pend["signal_price"],
+                    atr_at_entry=pend["atr"],
+                    signal_strength=pend["signal_strength"],
+                    signal_return_pct=pend["signal_return_pct"],
+                    btc_price_at_entry=pend["btc_price"],
+                    btc_1h_change_pct=pend["btc_1h_change"],
+                    position_size_usd=pend["position_size_usd"],
+                )
+                # Store regime data on position for logging at exit
+                pos._btc_4h_return = pend["btc_4h_return"]
+                pos._btc_4h_atr = pend["btc_4h_atr"]
+                pos._regime = pend["regime"]
+                self.positions.append(pos)
+
+                logger.info("PULLBACK FILLED [%s] %s %s @ %.4f (signal=%.4f)",
+                            pos.trade_id, pend["symbol"], pend["direction"],
+                            fill_price, pend["signal_price"])
+                notify(f"[PULLBACK FILL] {pend['symbol']} {pend['direction']} "
+                       f"@ {fill_price:.4f} SL={pend['sl']:.4f} TP={pend['tp']:.4f}")
+                filled.append(pend)
+
+            elif age >= expire_bars:
+                # Expired — cancel
+                self._cancel_order(pend["symbol"], pend["order_id"])
+                logger.info("PULLBACK EXPIRED %s %s after %d bars",
+                            pend["symbol"], pend["direction"], age)
+                expired.append(pend)
+
+        for p in filled + expired:
+            if p in self._pending_orders:
+                self._pending_orders.remove(p)
+
     def _close_position(self, pos: OpenPosition, reason: str) -> float | None:
         """Close a position. Returns exit price or None."""
         side = "Sell" if pos.direction == "long" else "Buy"
@@ -458,6 +612,10 @@ class MomentumBot:
             "btc_1h_change_pct": round(pos.btc_1h_change_pct, 4),
             "hour_of_day_utc": entry_dt.hour,
             "day_of_week_utc": entry_dt.weekday(),
+            # Option G: regime fields
+            "btc_4h_return_pct": round(getattr(pos, "_btc_4h_return", self._btc_4h_return), 4),
+            "btc_4h_atr": round(getattr(pos, "_btc_4h_atr", self._btc_4h_atr), 2),
+            "regime": getattr(pos, "_regime", self._regime),
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -558,6 +716,46 @@ class MomentumBot:
             logger.debug("BTC data fetch error: %s", e)
         return 0.0, 0.0
 
+    def _get_btc_4h_data(self) -> tuple[float, float]:
+        """Get BTC 4h return (%) and 4h ATR (volatility proxy).
+        Returns (btc_4h_return, btc_4h_atr)."""
+        try:
+            resp = self.public_session.get_kline(
+                category="linear", symbol="BTCUSDT",
+                interval="240", limit=6)  # 6 bars for ATR calc
+            if resp.get("retCode") == 0 and len(resp["result"]["list"]) >= 2:
+                bars = resp["result"]["list"]  # newest first
+                # 4h return: current close vs previous close
+                curr_close = float(bars[0][4])
+                prev_close = float(bars[1][4])
+                btc_4h_ret = (curr_close - prev_close) / prev_close * 100 if prev_close > 0 else 0.0
+
+                # 4h ATR (simple: average of high-low over last 5 bars)
+                trs = []
+                for b in bars[:5]:
+                    h, l = float(b[2]), float(b[3])
+                    trs.append(h - l)
+                btc_4h_atr = sum(trs) / len(trs) if trs else 0.0
+
+                return round(btc_4h_ret, 4), round(btc_4h_atr, 2)
+        except Exception as e:
+            logger.debug("BTC 4h data fetch error: %s", e)
+        return 0.0, 0.0
+
+    def _classify_regime(self, btc_1h_ret: float, btc_4h_ret: float,
+                         btc_4h_atr: float) -> str:
+        """Classify market regime. Returns label like 'UP_LOW', 'DOWN_HIGH'."""
+        # Trend: based on 4h return
+        if btc_4h_ret > 0.1:
+            trend = "UP"
+        elif btc_4h_ret < -0.1:
+            trend = "DOWN"
+        else:
+            trend = "FLAT"
+        # Volatility: 4h ATR relative threshold ($200 as rough median)
+        vol = "HIGH" if btc_4h_atr > 200 else "LOW"
+        return f"{trend}_{vol}"
+
     # ── Heartbeat ────────────────────────────────────────
     def _heartbeat_loop(self):
         while True:
@@ -643,10 +841,13 @@ class MomentumBot:
                 logger.error("Balance is zero — skipping")
                 continue
 
-            # 1. Check existing positions (SL/TP hit? timeout?)
+            # 1. Check pending pullback orders (fill/expire)
+            self._manage_pending_orders()
+
+            # 2. Check existing positions (SL/TP hit? timeout?)
             price_map = self._manage_positions()
 
-            # 2. Scan for new signals
+            # 3. Scan for new signals
             self._scan_universe(balance, price_map)
 
             # 3. Save state
@@ -803,27 +1004,44 @@ class MomentumBot:
         return price_map
 
     def _scan_universe(self, balance: float, price_map: dict[str, float] | None = None):
-        """Scan all coins for momentum signals."""
+        """Scan all coins for momentum signals. Option G: cluster limit + pullback entry."""
         max_pos = self.cfg["risk"]["max_positions"]
         if len(self.positions) >= max_pos:
             logger.info("Max positions reached (%d) — skip scan", max_pos)
             return
 
-        # Coins with open positions
-        open_symbols = {p.symbol for p in self.positions}
-        scanned = 0
-        signals_found = 0
+        filters_cfg = self.cfg.get("filters", {})
+        max_entries = filters_cfg.get("max_entries_per_bar", 2)
+        max_long = filters_cfg.get("max_long_positions", 3)
+        max_short = filters_cfg.get("max_short_positions", 3)
+        pullback_enabled = filters_cfg.get("pullback_enabled", False)
+        pullback_atr_mult = filters_cfg.get("pullback_atr_mult", 0.3)
 
-        # Pre-fetch BTC data once per scan cycle (reuse price_map from _manage_positions)
+        # Current direction counts (positions + pending)
+        long_count = sum(1 for p in self.positions if p.direction == "long")
+        long_count += sum(1 for p in self._pending_orders if p["direction"] == "long")
+        short_count = sum(1 for p in self.positions if p.direction == "short")
+        short_count += sum(1 for p in self._pending_orders if p["direction"] == "short")
+
+        open_symbols = {p.symbol for p in self.positions}
+        pending_symbols = {p["symbol"] for p in self._pending_orders}
+        scanned = 0
+
+        # Pre-fetch BTC data once per scan cycle
         btc_price, btc_1h_change = self._get_btc_data(price_map)
 
+        # Fetch BTC 4h data + regime (once per bar)
+        self._btc_4h_return, self._btc_4h_atr = self._get_btc_4h_data()
+        self._regime = self._classify_regime(btc_1h_change, self._btc_4h_return, self._btc_4h_atr)
+        logger.info("Regime: %s (BTC 1h=%.2f%% 4h=%.2f%% ATR=$%.0f)",
+                     self._regime, btc_1h_change, self._btc_4h_return, self._btc_4h_atr)
+
+        # Phase 1: Collect all signals, then pick top N by signal_strength
+        candidates = []
         for symbol in self.universe:
-            if len(self.positions) >= max_pos:
-                break
-            if symbol in open_symbols:
+            if symbol in open_symbols or symbol in pending_symbols:
                 continue
 
-            # Fetch candles (with inter-symbol delay to avoid rate limit)
             if scanned > 0:
                 time.sleep(0.5)
             candle_data = self._fetch_candles(symbol)
@@ -832,41 +1050,52 @@ class MomentumBot:
             scanned += 1
 
             opens, highs, lows, closes = candle_data
-
-            # Check signal
             signal = self.strategy.feed_candle(
                 symbol, opens, highs, lows, closes, bar_number=self.bar_counter)
             if signal is None:
                 continue
-            signals_found += 1
 
             direction_str = "long" if signal.direction == 1 else "short"
 
-            # ── Option B filters ──
-            filters_cfg = self.cfg.get("filters", {})
-
-            # Filter 1: Short only when BTC is down
+            # Option B filter: Short only when BTC is down (disabled by default)
             if filters_cfg.get("short_only_btc_down", False) and direction_str == "short":
                 btc_down_th = filters_cfg.get("btc_down_threshold", -0.05)
                 if btc_1h_change > btc_down_th:
-                    logger.debug("FILTER short blocked %s: BTC 1h=%.4f%% > %.2f%%",
-                                 symbol, btc_1h_change, btc_down_th)
                     continue
 
-            # Filter 2: Slippage cooldown
+            # Slippage cooldown
             if symbol in self._slippage_cooldown:
                 until = self._slippage_cooldown[symbol]
                 if datetime.now(timezone.utc) < until:
-                    logger.debug("FILTER slippage cooldown %s until %s",
-                                 symbol, until.strftime("%m-%d %H:%M"))
                     continue
                 else:
                     del self._slippage_cooldown[symbol]
 
-            # Position sizing
+            candidates.append((signal, direction_str))
+
+        # Sort by signal_strength descending, take top max_entries
+        candidates.sort(key=lambda x: x[0].percentile_rank, reverse=True)
+        logger.info("Scan: %d/%d scanned, %d candidates, picking top %d",
+                     scanned, len(self.universe), len(candidates), max_entries)
+
+        entries_this_bar = 0
+        for signal, direction_str in candidates:
+            if entries_this_bar >= max_entries:
+                break
+            if len(self.positions) + len(self._pending_orders) >= max_pos:
+                break
+
+            # Direction cap
+            if direction_str == "long" and long_count >= max_long:
+                logger.debug("FILTER long cap reached (%d)", long_count)
+                continue
+            if direction_str == "short" and short_count >= max_short:
+                logger.debug("FILTER short cap reached (%d)", short_count)
+                continue
+
+            symbol = signal.symbol
             sl_tp = self.strategy.calc_sl_tp(
                 signal.close_price, signal.direction, signal.atr)
-
             lot_size = self._get_lot_size(symbol)
             size = compute_position_size(
                 balance=balance,
@@ -875,56 +1104,99 @@ class MomentumBot:
                 lot_size=lot_size,
                 risk_pct=self.cfg["risk"]["risk_pct"],
             )
-
             if not size.valid:
-                logger.debug("Size invalid for %s: %s", symbol, size.reason)
                 continue
 
-            # Execute
             side = "Buy" if signal.direction == 1 else "Sell"
-            result = self._place_market_order(
-                symbol, side, size.qty, sl_tp.sl, sl_tp.tp)
 
-            if result is None:
-                continue
+            if pullback_enabled:
+                # Pullback entry: limit order at signal_price ± 0.3×ATR
+                offset = signal.atr * pullback_atr_mult
+                if signal.direction == 1:  # long: buy lower
+                    limit_price = signal.close_price - offset
+                else:  # short: sell higher
+                    limit_price = signal.close_price + offset
 
-            # Record fill price
-            fill_price = float(result.get("avgPrice", 0)) or signal.close_price
-            self._log_slippage(symbol, direction_str, signal.close_price, fill_price)
+                result = self._place_limit_order(
+                    symbol, side, size.qty, limit_price, sl_tp.sl, sl_tp.tp)
+                if result is None:
+                    continue
 
-            entry_price = fill_price if fill_price > 0 else signal.close_price
+                pend = {
+                    "symbol": symbol,
+                    "order_id": result.get("orderId", ""),
+                    "direction": direction_str,
+                    "signal_price": signal.close_price,
+                    "limit_price": limit_price,
+                    "qty": size.qty,
+                    "sl": sl_tp.sl,
+                    "tp": sl_tp.tp,
+                    "atr": signal.atr,
+                    "signal_strength": signal.percentile_rank,
+                    "signal_return_pct": signal.trigger_ret,
+                    "btc_price": btc_price,
+                    "btc_1h_change": btc_1h_change,
+                    "btc_4h_return": self._btc_4h_return,
+                    "btc_4h_atr": self._btc_4h_atr,
+                    "regime": self._regime,
+                    "position_size_usd": size.notional,
+                    "created_bar": self.bar_counter,
+                }
+                self._pending_orders.append(pend)
 
-            # Track position with v2 enhanced fields
-            pos = OpenPosition(
-                symbol=symbol,
-                direction=direction_str,
-                entry_price=entry_price,
-                qty=size.qty,
-                sl=sl_tp.sl,
-                tp=sl_tp.tp,
-                entry_time=datetime.now(timezone.utc).isoformat(),
-                entry_bar=self.bar_counter,
-                intended_price=signal.close_price,
-                atr_at_entry=signal.atr,
-                signal_strength=signal.percentile_rank,
-                signal_return_pct=signal.trigger_ret,
-                btc_price_at_entry=btc_price,
-                btc_1h_change_pct=btc_1h_change,
-                position_size_usd=size.notional,
-            )
-            self.positions.append(pos)
+                logger.info("PULLBACK ORDER [%s] %s %s limit=%.4f (signal=%.4f, offset=%.4f)",
+                            result.get("orderId", "")[:8], symbol, direction_str,
+                            limit_price, signal.close_price, offset)
+            else:
+                # Fallback: market order (original behavior)
+                result = self._place_market_order(
+                    symbol, side, size.qty, sl_tp.sl, sl_tp.tp)
+                if result is None:
+                    continue
 
-            logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f atr=%.4f sig=%.2f%%",
-                        pos.trade_id, symbol, direction_str, pos.entry_price,
-                        size.qty, sl_tp.sl, sl_tp.tp, signal.atr, signal.trigger_ret)
-            notify(f"[ENTRY] {symbol} {direction_str} @ {pos.entry_price:.4f} "
-                   f"qty={size.qty:.4f} SL={sl_tp.sl:.4f} TP={sl_tp.tp:.4f}")
+                fill_price = float(result.get("avgPrice", 0)) or signal.close_price
+                self._log_slippage(symbol, direction_str, signal.close_price, fill_price)
+                entry_price = fill_price if fill_price > 0 else signal.close_price
 
-            time.sleep(0.2)  # rate limit buffer
+                pos = OpenPosition(
+                    symbol=symbol,
+                    direction=direction_str,
+                    entry_price=entry_price,
+                    qty=size.qty,
+                    sl=sl_tp.sl,
+                    tp=sl_tp.tp,
+                    entry_time=datetime.now(timezone.utc).isoformat(),
+                    entry_bar=self.bar_counter,
+                    intended_price=signal.close_price,
+                    atr_at_entry=signal.atr,
+                    signal_strength=signal.percentile_rank,
+                    signal_return_pct=signal.trigger_ret,
+                    btc_price_at_entry=btc_price,
+                    btc_1h_change_pct=btc_1h_change,
+                    position_size_usd=size.notional,
+                )
+                pos._btc_4h_return = self._btc_4h_return
+                pos._btc_4h_atr = self._btc_4h_atr
+                pos._regime = self._regime
+                self.positions.append(pos)
+
+                logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f",
+                            pos.trade_id, symbol, direction_str, pos.entry_price,
+                            size.qty, sl_tp.sl, sl_tp.tp)
+                notify(f"[ENTRY] {symbol} {direction_str} @ {pos.entry_price:.4f} "
+                       f"qty={size.qty:.4f} SL={sl_tp.sl:.4f} TP={sl_tp.tp:.4f}")
+
+            entries_this_bar += 1
+            if direction_str == "long":
+                long_count += 1
+            else:
+                short_count += 1
+            time.sleep(0.2)
 
         cached_coins = len(self._candle_cache)
-        logger.info("Scan done: %d/%d scanned, %d signals, %d positions (cache: %d coins)",
-                     scanned, len(self.universe), signals_found, len(self.positions), cached_coins)
+        logger.info("Scan done: %d entries, %d pending, %d positions (cache: %d)",
+                     entries_this_bar, len(self._pending_orders),
+                     len(self.positions), cached_coins)
 
 
 # ── Notify helper ────────────────────────────────────────

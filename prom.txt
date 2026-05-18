@@ -1,5 +1,5 @@
 
-# 모멘텀 봇 -- 세션 인계 프롬프트 (2026-05-15)
+# 모멘텀 봇 -- 세션 인계 프롬프트 (2026-05-18)
 
 ## 프로젝트 개요
 Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
@@ -127,11 +127,13 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 | 파일 | 설명 |
 |------|------|
-| vwap_trader/data/trades_momentum.jsonl | **v3.1 거래 로그 (수집 중, 2026-05-15~)** |
+| vwap_trader/data/trades_momentum.jsonl | **v4.1 거래 로그 (수집 중)** |
+| vwap_trader/data/trades_momentum_v4.jsonl | v4 백업 12건 (pullback, 실패) |
+| vwap_trader/data/trades_momentum_v31.jsonl | v3.1 백업 59건 (옵션B, 실패) |
 | vwap_trader/data/trades_momentum_v3.jsonl | v3 백업 42건 |
 | vwap_trader/data/trades_momentum_v2.jsonl | v2 백업 216건 (pctile 97, 분석 완료) |
 | vwap_trader/data/trades_momentum_v1.jsonl | v1 백업 75건 (signal_strength 정의 다름) |
-| vwap_trader/data/slippage_momentum.jsonl | v3.1 슬리피지 로그 (수집 중) |
+| vwap_trader/data/slippage_momentum.jsonl | v4 슬리피지 로그 (비어있음) |
 | vwap_trader/data/slippage_momentum_v3.jsonl | v3 슬리피지 백업 |
 | vwap_trader/data/state_momentum.json | 봇 실행 상태 |
 | vwap_trader/config/momentum_config.yaml | 현재 설정 파일 (v3.1) |
@@ -143,27 +145,60 @@ btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
 
 --------------------------------------------------------------
 
-## 현재 봇 상태 (2026-05-15 16:40 KST 기준)
+## 현재 봇 상태 (2026-05-18 기준)
 
-- **v3.1 봇 정지 중** — 다른 PC에서 pull 후 재가동 필요
-- 잔고: ~$28,000
-- v3.1 데이터: 10건 수집 완료 (6W/4L, 승률 60%, 순손익 +$47)
-- 실행 명령 (PowerShell): `cd C:\Users\PC\Desktop\현진\code\vwap_trader; venv\Scripts\python.exe -m vwap_trader.momentum_bot`
+- **v4.1 봇 가동 중** (pullback off + 옵션 G 나머지 유지)
+- v4 pullback entry 실패: 12건, MFE=0 75%, 구조적 충돌 확인 → pullback 즉시 비활성화
+- 잔고: ~$24,000
+- 실행 명령 (PowerShell): `cd C:\Users\DEV_BASIC\Downloads\code\vwap_trader; venv\Scripts\python.exe -m vwap_trader.momentum_bot`
 - **재가동 전 반드시**: `w32tm /resync /force` (PowerShell 관리자)
 
 --------------------------------------------------------------
 
-## v3.1 검증 계획
+## v4 → v4.1 변경 이력
 
-1. 50건 수집 (예상 ~19시간)
-2. 50건 도달 시 분석:
-   - v3(필터 없음) 42건 vs v3.1(필터 적용) 50건 비교
-   - Short 제한 효과: 차단된 Short 건수 및 예상 손실 방지액
-   - 슬리피지 cooldown 발동 횟수
-   - EV/PF 개선 여부
-3. 결과에 따라:
-   - PF 개선 확인 → 옵션 C(Pullback Entry) 추가 적용
-   - PF 미개선 → 옵션 F(전략 피벗) 검토
+### v4 (옵션 G, 2026-05-18)
+1. 옵션 B 필터 비활성화 — short_only_btc_down: false
+2. 클러스터 제한 — 같은 5분 bar에서 max 2건 (signal_strength 상위)
+3. 방향별 포지션 cap — Long 최대 3건, Short 최대 3건
+4. ~~Pullback Entry~~ — **12건 테스트 후 실패 확인, v4.1에서 비활성화**
+5. Regime 태그 로깅 — btc_4h_return_pct, btc_4h_atr, regime 라벨
+
+### v4.1 (2026-05-18, 현재)
+- **pullback_enabled: false** — 시장가 진입으로 복귀
+- 실패 원인: pullback fill = 모멘텀 소진 (adverse selection). MFE=0 75%.
+- 나머지(클러스터 제한, 방향 cap, regime 로깅)는 유지
+
+### 로깅 필드 (v4, 26개 = 기존 23개 + 3개 추가)
+기존 23개 + btc_4h_return_pct, btc_4h_atr, regime
+
+### Regime 분류 기준
+- Trend: BTC 4h return > 0.1% → UP, < -0.1% → DOWN, else → FLAT
+- Volatility: BTC 4h ATR > $200 → HIGH, else → LOW
+- 라벨 예: "UP_LOW", "DOWN_HIGH", "FLAT_LOW"
+
+## 로드맵 진행 상태 (2026-05-18)
+
+| Phase | 상태 | 내용 |
+|-------|------|------|
+| Phase 0 | ✅ 완료 | v4(옵션 G) 구현. v4 pullback 실패 → v4.1(pullback off) |
+| Phase 1 | ✅ 완료 | 319건 regime 라벨링 + 탐색 분석 |
+| Phase 2 | **진행 중** | v4.1 봇 300건 수집 (예상 2~3주) |
+| Phase 3 | 대기 | 300건 도달 후 regime별 성과 검증 → 행동 테이블 |
+| Phase 4 | 대기 | Regime 규칙 봇에 적용 (v5) |
+| Phase 5 | 대기 | Circuit breaker 추가 |
+| Phase 6 | 대기 | Go/No-Go 판단 |
+
+### Phase 1 핵심 결과
+- 319건 중 DOWN_HIGH+Short가 156건, EV -$31/건 → 전체 손실의 63%
+- 모든 regime에서 EV 음수. LOW volatility 데이터 전무 → v4에서 수집 필요
+- 분석 스크립트: `vwap_trader/regime_analysis.py`
+
+### Phase 2 규칙
+- **300건 수집 완료까지 봇 코드/파라미터 수정 금지**
+- 주 1회 중간 분석 (승률, PF, regime별 성과)
+
+상세 로드맵: `vwap_trader/docs/upgrade_options.md`
 
 --------------------------------------------------------------
 
