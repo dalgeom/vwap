@@ -1,0 +1,785 @@
+{
+  "final": [
+    {
+      "n": 681,
+      "mean": 2.4404,
+      "t": 34.86,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 1661.88,
+      "dd": 0.0,
+      "avg_win": 2.4404,
+      "avg_loss": 0,
+      "best": 13.7192,
+      "worst": 0.0246,
+      "reasons": {
+        "be_trail_sl": 680,
+        "timeout": 1
+      },
+      "tf": "15m",
+      "strat": "be+trail_1.0atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 681,
+      "mean": 2.4237,
+      "t": 34.52,
+      "wr": 99.7,
+      "pf": 469.814,
+      "total": 1650.51,
+      "dd": 2.72,
+      "avg_win": 2.436,
+      "avg_loss": -1.7603,
+      "best": 13.7192,
+      "worst": -2.7185,
+      "reasons": {
+        "trail_sl": 681
+      },
+      "tf": "15m",
+      "strat": "trail_1.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 681,
+      "mean": 2.3905,
+      "t": 27.02,
+      "wr": 97.1,
+      "pf": 240.533,
+      "total": 1627.94,
+      "dd": 1.2,
+      "avg_win": 2.4731,
+      "avg_loss": -0.3398,
+      "best": 19.9823,
+      "worst": -1.1976,
+      "reasons": {
+        "trail_sl": 673,
+        "timeout": 8
+      },
+      "tf": "15m",
+      "strat": "trail_1.5atr",
+      "type": "trailing"
+    },
+    {
+      "n": 681,
+      "mean": 2.3853,
+      "t": 27.14,
+      "wr": 97.1,
+      "pf": 728.993,
+      "total": 1624.37,
+      "dd": 0.26,
+      "avg_win": 2.4608,
+      "avg_loss": -0.1116,
+      "best": 19.9823,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 680,
+        "timeout": 1
+      },
+      "tf": "15m",
+      "strat": "be+trail_1.5atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 681,
+      "mean": 2.2484,
+      "t": 23.88,
+      "wr": 89.1,
+      "pf": 47.127,
+      "total": 1531.16,
+      "dd": 3.19,
+      "avg_win": 2.5772,
+      "avg_loss": -0.4486,
+      "best": 18.7386,
+      "worst": -2.0316,
+      "reasons": {
+        "trail_sl": 673,
+        "timeout": 8
+      },
+      "tf": "15m",
+      "strat": "trail_2.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 681,
+      "mean": 2.244,
+      "t": 24.4,
+      "wr": 88.0,
+      "pf": 155.166,
+      "total": 1528.19,
+      "dd": 0.8,
+      "avg_win": 2.5678,
+      "avg_loss": -0.1209,
+      "best": 18.7386,
+      "worst": -0.8021,
+      "reasons": {
+        "be_trail_sl": 673,
+        "timeout": 7,
+        "init_sl": 1
+      },
+      "tf": "15m",
+      "strat": "tight+trail_2.0",
+      "type": "be_trail"
+    },
+    {
+      "n": 681,
+      "mean": 2.2289,
+      "t": 23.67,
+      "wr": 88.5,
+      "pf": 45.777,
+      "total": 1517.86,
+      "dd": 4.09,
+      "avg_win": 2.5734,
+      "avg_loss": -0.4346,
+      "best": 18.7386,
+      "worst": -3.9584,
+      "reasons": {
+        "be_trail_sl": 664,
+        "timeout": 7,
+        "init_sl": 10
+      },
+      "tf": "15m",
+      "strat": "be+trail_2.0atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 681,
+      "mean": 2.1832,
+      "t": 15.42,
+      "wr": 80.0,
+      "pf": 11.396,
+      "total": 1486.77,
+      "dd": 8.83,
+      "avg_win": 2.9904,
+      "avg_loss": -1.0515,
+      "best": 42.411,
+      "worst": -4.3814,
+      "reasons": {
+        "trail_sl": 618,
+        "timeout": 63
+      },
+      "tf": "15m",
+      "strat": "trail_3.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 681,
+      "mean": 2.1133,
+      "t": 18.42,
+      "wr": 75.5,
+      "pf": 68.71,
+      "total": 1439.19,
+      "dd": 0.93,
+      "avg_win": 2.8413,
+      "avg_loss": -0.1273,
+      "best": 39.4579,
+      "worst": -0.8021,
+      "reasons": {
+        "be_trail_sl": 634,
+        "timeout": 46,
+        "init_sl": 1
+      },
+      "tf": "15m",
+      "strat": "tight+trail_3.0",
+      "type": "be_trail"
+    },
+    {
+      "n": 681,
+      "mean": 1.6831,
+      "t": 21.11,
+      "wr": 83.7,
+      "pf": 8.805,
+      "total": 1146.16,
+      "dd": 9.36,
+      "avg_win": 2.2684,
+      "avg_loss": -1.323,
+      "best": 13.4722,
+      "worst": -4.4738,
+      "reasons": {
+        "tp": 545,
+        "timeout": 33,
+        "sl": 103
+      },
+      "tf": "15m",
+      "strat": "fixed_tp_rr3.0",
+      "type": "fixed"
+    },
+    {
+      "n": 681,
+      "mean": 1.6423,
+      "t": 21.79,
+      "wr": 88.4,
+      "pf": 9.143,
+      "total": 1118.41,
+      "dd": 12.33,
+      "avg_win": 2.086,
+      "avg_loss": -1.7385,
+      "best": 13.4722,
+      "worst": -6.6458,
+      "reasons": {
+        "tp": 526,
+        "timeout": 99,
+        "sl": 56
+      },
+      "tf": "15m",
+      "strat": "fixed_sl1.5_rr2.0",
+      "type": "fixed"
+    },
+    {
+      "n": 190,
+      "mean": 5.7665,
+      "t": 11.85,
+      "wr": 98.4,
+      "pf": 2810.313,
+      "total": 1095.63,
+      "dd": 0.26,
+      "avg_win": 5.8611,
+      "avg_loss": -0.13,
+      "best": 47.1393,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 183,
+        "timeout": 7
+      },
+      "tf": "1h",
+      "strat": "be+trail_2.0atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 190,
+      "mean": 5.7534,
+      "t": 11.8,
+      "wr": 98.4,
+      "pf": 380.352,
+      "total": 1093.14,
+      "dd": 2.65,
+      "avg_win": 5.8611,
+      "avg_loss": -0.9605,
+      "best": 47.1393,
+      "worst": -1.9322,
+      "reasons": {
+        "trail_sl": 183,
+        "timeout": 7
+      },
+      "tf": "1h",
+      "strat": "trail_2.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 190,
+      "mean": 5.7104,
+      "t": 11.69,
+      "wr": 97.4,
+      "pf": 1670.181,
+      "total": 1084.97,
+      "dd": 0.26,
+      "avg_win": 5.8682,
+      "avg_loss": -0.13,
+      "best": 47.1393,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 185,
+        "timeout": 5
+      },
+      "tf": "1h",
+      "strat": "tight+trail_2.0",
+      "type": "be_trail"
+    },
+    {
+      "n": 190,
+      "mean": 5.5734,
+      "t": 9.5,
+      "wr": 89.5,
+      "pf": 461.873,
+      "total": 1058.95,
+      "dd": 0.26,
+      "avg_win": 6.2426,
+      "avg_loss": -0.1149,
+      "best": 61.4792,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 183,
+        "timeout": 7
+      },
+      "tf": "1h",
+      "strat": "tight+trail_3.0",
+      "type": "be_trail"
+    },
+    {
+      "n": 190,
+      "mean": 5.541,
+      "t": 9.37,
+      "wr": 91.6,
+      "pf": 50.127,
+      "total": 1052.8,
+      "dd": 4.42,
+      "avg_win": 6.1737,
+      "avg_loss": -1.3394,
+      "best": 61.4792,
+      "worst": -4.4225,
+      "reasons": {
+        "trail_sl": 180,
+        "timeout": 10
+      },
+      "tf": "1h",
+      "strat": "trail_3.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 194,
+      "mean": 5.2993,
+      "t": 14.77,
+      "wr": 99.5,
+      "pf": 2524.496,
+      "total": 1028.07,
+      "dd": 0.41,
+      "avg_win": 5.3289,
+      "avg_loss": -0.4074,
+      "best": 37.156,
+      "worst": -0.4074,
+      "reasons": {
+        "trail_sl": 188,
+        "timeout": 6
+      },
+      "tf": "1h",
+      "strat": "trail_1.5atr",
+      "type": "trailing"
+    },
+    {
+      "n": 194,
+      "mean": 5.277,
+      "t": 16.46,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 1023.75,
+      "dd": 0.0,
+      "avg_win": 5.277,
+      "avg_loss": 0,
+      "best": 31.9942,
+      "worst": 0.0715,
+      "reasons": {
+        "trail_sl": 193,
+        "timeout": 1
+      },
+      "tf": "1h",
+      "strat": "trail_1.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 194,
+      "mean": 5.277,
+      "t": 16.46,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 1023.75,
+      "dd": 0.0,
+      "avg_win": 5.277,
+      "avg_loss": 0,
+      "best": 31.9942,
+      "worst": 0.0715,
+      "reasons": {
+        "be_trail_sl": 193,
+        "timeout": 1
+      },
+      "tf": "1h",
+      "strat": "be+trail_1.0atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 190,
+      "mean": 5.2459,
+      "t": 14.47,
+      "wr": 98.9,
+      "pf": 3834.512,
+      "total": 996.71,
+      "dd": 0.13,
+      "avg_win": 5.303,
+      "avg_loss": -0.13,
+      "best": 37.156,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 189,
+        "timeout": 1
+      },
+      "tf": "1h",
+      "strat": "be+trail_1.5atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 681,
+      "mean": 1.382,
+      "t": 26.22,
+      "wr": 94.4,
+      "pf": 17.225,
+      "total": 941.12,
+      "dd": 5.5,
+      "avg_win": 1.5539,
+      "avg_loss": -1.5265,
+      "best": 9.3251,
+      "worst": -3.0395,
+      "reasons": {
+        "tp": 624,
+        "sl": 34,
+        "timeout": 23
+      },
+      "tf": "15m",
+      "strat": "fixed_tp_rr2.0",
+      "type": "fixed"
+    },
+    {
+      "n": 195,
+      "mean": 3.8428,
+      "t": 18.4,
+      "wr": 97.4,
+      "pf": 45.371,
+      "total": 749.35,
+      "dd": 5.69,
+      "avg_win": 4.0329,
+      "avg_loss": -3.3777,
+      "best": 20.1957,
+      "worst": -5.6903,
+      "reasons": {
+        "tp": 178,
+        "timeout": 13,
+        "sl": 4
+      },
+      "tf": "1h",
+      "strat": "fixed_sl1.5_rr2.0",
+      "type": "fixed"
+    },
+    {
+      "n": 194,
+      "mean": 3.7603,
+      "t": 17.16,
+      "wr": 95.4,
+      "pf": 31.765,
+      "total": 729.49,
+      "dd": 3.93,
+      "avg_win": 4.0714,
+      "avg_loss": -2.6346,
+      "best": 20.1957,
+      "worst": -3.9284,
+      "reasons": {
+        "tp": 180,
+        "sl": 9,
+        "timeout": 5
+      },
+      "tf": "1h",
+      "strat": "fixed_tp_rr3.0",
+      "type": "fixed"
+    },
+    {
+      "n": 681,
+      "mean": 1.046,
+      "t": 30.49,
+      "wr": 99.0,
+      "pf": 83.371,
+      "total": 712.3,
+      "dd": 2.68,
+      "avg_win": 1.0696,
+      "avg_loss": -1.2353,
+      "best": 7.2887,
+      "worst": -2.6822,
+      "reasons": {
+        "tp": 675,
+        "sl": 5,
+        "timeout": 1
+      },
+      "tf": "15m",
+      "strat": "fixed_tp_rr1.33",
+      "type": "fixed"
+    },
+    {
+      "n": 67,
+      "mean": 9.0308,
+      "t": 11.29,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 605.07,
+      "dd": 0.0,
+      "avg_win": 9.0308,
+      "avg_loss": 0,
+      "best": 41.1568,
+      "worst": 2.2285,
+      "reasons": {
+        "trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "trail_1.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 67,
+      "mean": 9.0308,
+      "t": 11.29,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 605.07,
+      "dd": 0.0,
+      "avg_win": 9.0308,
+      "avg_loss": 0,
+      "best": 41.1568,
+      "worst": 2.2285,
+      "reasons": {
+        "be_trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "be+trail_1.0atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 67,
+      "mean": 8.5067,
+      "t": 10.43,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 569.95,
+      "dd": 0.0,
+      "avg_win": 8.5067,
+      "avg_loss": 0,
+      "best": 39.7307,
+      "worst": 0.9124,
+      "reasons": {
+        "trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "trail_1.5atr",
+      "type": "trailing"
+    },
+    {
+      "n": 67,
+      "mean": 8.5067,
+      "t": 10.43,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 569.95,
+      "dd": 0.0,
+      "avg_win": 8.5067,
+      "avg_loss": 0,
+      "best": 39.7307,
+      "worst": 0.9124,
+      "reasons": {
+        "be_trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "be+trail_1.5atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 67,
+      "mean": 8.485,
+      "t": 7.16,
+      "wr": 95.5,
+      "pf": 1458.677,
+      "total": 568.49,
+      "dd": 0.13,
+      "avg_win": 8.8888,
+      "avg_loss": -0.13,
+      "best": 67.1213,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "be+trail_2.0atr",
+      "type": "be_trail"
+    },
+    {
+      "n": 67,
+      "mean": 8.485,
+      "t": 7.16,
+      "wr": 95.5,
+      "pf": 1458.677,
+      "total": 568.49,
+      "dd": 0.13,
+      "avg_win": 8.8888,
+      "avg_loss": -0.13,
+      "best": 67.1213,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "tight+trail_2.0",
+      "type": "be_trail"
+    },
+    {
+      "n": 67,
+      "mean": 8.4762,
+      "t": 7.14,
+      "wr": 97.0,
+      "pf": 395.733,
+      "total": 567.9,
+      "dd": 0.78,
+      "avg_win": 8.7591,
+      "avg_loss": -0.7194,
+      "best": 67.1213,
+      "worst": -0.7789,
+      "reasons": {
+        "trail_sl": 67
+      },
+      "tf": "4h",
+      "strat": "trail_2.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 195,
+      "mean": 2.762,
+      "t": 19.18,
+      "wr": 99.0,
+      "pf": 88.686,
+      "total": 538.59,
+      "dd": 3.84,
+      "avg_win": 2.8224,
+      "avg_loss": -3.0711,
+      "best": 13.4205,
+      "worst": -3.8369,
+      "reasons": {
+        "tp": 193,
+        "sl": 2
+      },
+      "tf": "1h",
+      "strat": "fixed_tp_rr2.0",
+      "type": "fixed"
+    },
+    {
+      "n": 67,
+      "mean": 7.4159,
+      "t": 6.23,
+      "wr": 88.1,
+      "pf": 39.826,
+      "total": 496.87,
+      "dd": 4.16,
+      "avg_win": 8.6384,
+      "avg_loss": -1.5997,
+      "best": 64.6389,
+      "worst": -4.1615,
+      "reasons": {
+        "trail_sl": 64,
+        "timeout": 3
+      },
+      "tf": "4h",
+      "strat": "trail_3.0atr",
+      "type": "trailing"
+    },
+    {
+      "n": 67,
+      "mean": 7.3944,
+      "t": 6.26,
+      "wr": 85.1,
+      "pf": 431.352,
+      "total": 495.42,
+      "dd": 0.13,
+      "avg_win": 8.7118,
+      "avg_loss": -0.1151,
+      "best": 64.6389,
+      "worst": -0.13,
+      "reasons": {
+        "be_trail_sl": 66,
+        "timeout": 1
+      },
+      "tf": "4h",
+      "strat": "tight+trail_3.0",
+      "type": "be_trail"
+    },
+    {
+      "n": 68,
+      "mean": 5.8408,
+      "t": 16.48,
+      "wr": 94.1,
+      "pf": 73.614,
+      "total": 397.17,
+      "dd": 3.78,
+      "avg_win": 6.2913,
+      "avg_loss": -1.3674,
+      "best": 12.0505,
+      "worst": -3.7814,
+      "reasons": {
+        "tp": 58,
+        "timeout": 9,
+        "sl": 1
+      },
+      "tf": "4h",
+      "strat": "fixed_sl1.5_rr2.0",
+      "type": "fixed"
+    },
+    {
+      "n": 67,
+      "mean": 5.6958,
+      "t": 14.32,
+      "wr": 92.5,
+      "pf": 33.346,
+      "total": 381.62,
+      "dd": 3.51,
+      "avg_win": 6.3454,
+      "avg_loss": -2.3596,
+      "best": 12.0505,
+      "worst": -3.5126,
+      "reasons": {
+        "tp": 59,
+        "sl": 4,
+        "timeout": 4
+      },
+      "tf": "4h",
+      "strat": "fixed_tp_rr3.0",
+      "type": "fixed"
+    },
+    {
+      "n": 195,
+      "mean": 1.8533,
+      "t": 19.97,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 361.4,
+      "dd": 0.0,
+      "avg_win": 1.8533,
+      "avg_loss": 0,
+      "best": 8.8811,
+      "worst": 0.183,
+      "reasons": {
+        "tp": 195
+      },
+      "tf": "1h",
+      "strat": "fixed_tp_rr1.33",
+      "type": "fixed"
+    },
+    {
+      "n": 68,
+      "mean": 4.451,
+      "t": 21.25,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 302.67,
+      "dd": 0.0,
+      "avg_win": 4.451,
+      "avg_loss": 0,
+      "best": 10.5874,
+      "worst": 1.2312,
+      "reasons": {
+        "tp": 67,
+        "timeout": 1
+      },
+      "tf": "4h",
+      "strat": "fixed_tp_rr2.0",
+      "type": "fixed"
+    },
+    {
+      "n": 68,
+      "mean": 2.9602,
+      "t": 21.29,
+      "wr": 100.0,
+      "pf": 999,
+      "total": 201.29,
+      "dd": 0.0,
+      "avg_win": 2.9602,
+      "avg_loss": 0,
+      "best": 6.9971,
+      "worst": 0.7752,
+      "reasons": {
+        "tp": 68
+      },
+      "tf": "4h",
+      "strat": "fixed_tp_rr1.33",
+      "type": "fixed"
+    }
+  ]
+}

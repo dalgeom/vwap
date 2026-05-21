@@ -1,233 +1,132 @@
 
-# 모멘텀 봇 -- 세션 인계 프롬프트 (2026-05-18)
+# 모멘텀 봇 — 세션 인계 프롬프트 (2026-05-21)
 
 ## 프로젝트 개요
-Bybit 데모 계좌에서 5분봉 모멘텀 전략을 자동 매매하는 봇.
-전략 핵심: 5분봉 return이 rolling top percentile 초과 시 같은 방향 진입 (Big Move Follow-Through).
+Bybit 데모 계좌에서 모멘텀 전략을 자동 매매하는 봇.
+전략 핵심: bar return이 rolling P99.5 초과 시 같은 방향 진입 (Big Move Follow-Through).
 
 --------------------------------------------------------------
 
-## v1 -> v2 -> v3 -> v3.1 전환 히스토리
+## 현재 버전: v5 (1시간봉 + BE+Trailing Stop)
 
-### v1 실패 요약 (2026-05-12 14:11 ~ 05-13 09:00, 약 19시간)
-- 78거래, 승률 25.6% (20W/58L), PnL -$8,974, Profit Factor 0.382
-- 설계 RR 1:2인데 실제 RR 1.05 -- TP(6xATR)가 너무 멀어 도달 못함
-- SL(3xATR)에서 대부분 끊기고, 이후 원래 방향으로 가는 패턴
-- 43코인 유니버스 vs 6코인 백테스트 -> edge 없는 심볼에서 무차별 진입
+### v5 핵심 변경 (2026-05-21)
+- **Timeframe**: 5분봉 → **1시간봉**
+- **Exit**: 고정 TP → **Breakeven + Trailing Stop**
+  - 초기 SL: 1.5 ATR
+  - 1.5 ATR 수익 도달 시 → SL을 본전(entry)으로 이동
+  - 이후 매 bar: SL = max(SL, best_price - 2 ATR) 갱신
+  - Bybit 서버사이드 SL → 매 bar `set_trading_stop()` 으로 업데이트
+- **TP**: 없음 (trailing stop이 수익 확정)
+- **Max hold**: 48 bars (48시간)
+- **Threshold window**: 500 bars (~20일)
+- **Cooldown**: 1 bar (1시간)
 
-### v2 데이터 수집 (2026-05-13 03:00 ~ 05-14 06:05, 약 27시간)
-- **목적**: 데이터 수집용. 필터/안전장치 의도적 미적용.
-- 216건 거래, 승률 49.1%, PnL -$2,242, Profit Factor 0.880
-- SL 1.5xATR / TP 2xATR (RR 1:1.33) / 12 bars max hold
-- **핵심 발견**: signal_strength >= 99.5 구간(39건)만 양의 EV (+$36.72/건, PF 1.37)
-  - < 99.5 구간(177건)은 -$20.76/건으로 봇을 갉아먹는 노이즈
-  - 99.5 우위는 170건 -> 197건 -> 214건 -> 216건까지 일관 유지
-- 기타 발견:
-  - MFE=0 (즉시 되돌림) 27.6% -- 진입 시점이 모멘텀의 끝인 경우
-  - Short 130건 -$2,244 vs Long 84건 -$325
-  - BTC UP + long만 유일한 양수 환경 조합
-  - 최악 코인: ZECUSDT(7건, 14.3%, -$1,762), VVVUSDT(8건, 12.5%, -$1,044)
-  - 98.0-98.5 구간이 가장 나쁨 (37건, -$54.58/건)
-
-### v3 (2026-05-14 07:15 ~ 20:10, 약 13시간)
-- **단일 변경**: pctile 97 -> 99.5 (top 3% -> top 0.5%)
-- 42건 거래, 승률 45.2%, PnL -$935.49, EV -$22.27/건, PF 0.784
-- **결론**: v2에서 99.5+ 구간 양의 EV(+$36.72/건)는 과적합 가능성 높음. v3 실전에서 -$22.27/건으로 반전.
-- 실제 RR 0.949 (설계 1.33에 미달) -- 슬리피지+수수료+진입타이밍 때문
-- BTC UP + Long만 유일한 양의 EV (19건, +$25.62/건)
-- Short 일관 부진 (12건, EV -$54.87/건)
-- SIRENUSDT 슬리피지 극악 (+2.3%p), LINKUSDT 3전 3패 (-$742)
-
-### v3.1 변경 (2026-05-15, 옵션 B 적용)
-- **전문가 분석 기반 업그레이드**. v1/v2/v3 전체 335건 데이터를 종합 분석 의뢰 후 결정.
-- **변경 내용 (안전 필터 3종)**:
-  1. Short 제한: BTC 1h 변화율 > -0.05%이면 Short 진입 차단 (BTC DOWN 환경에서만 Short 허용)
-  2. 슬리피지 cooldown: SL 청산 시 슬리피지 > 1%p인 코인은 48시간 자동 cooldown
-  3. 유동성 필터: min_volume_usdt $20M 기존 유지 (추가 강화는 보류)
-- **코드 변경 파일**:
-  - `vwap_trader/config/momentum_config.yaml` — filters 섹션 추가
-  - `vwap_trader/src/vwap_trader/momentum_bot.py` — _scan_universe에 필터 로직, _log_trade에 슬리피지 감지
-- **기대 효과**: v3 42건 기준 ~6건 제거(Short 4건 + SIRENUSDT 2건), -$649 손실 방지. PF 0.784 -> 0.85~0.95 추정
-- **거래 빈도**: 시간당 ~3건 -> ~2.5건 (약 20% 감소), 일 ~63건 예상
+### v5 근거
+- 다중 TF 백테스트 (15m/1h/4h × 12심볼 × 2023-2026)
+- **Bybit 실제 1h 캔들로 검증** (리샘플링 대비 -12% decay, 여전히 강한 양의 EV)
+- 2026 OOS: be+trail 2.0 ATR → **EV +5.04%, WR 98.7%, PF 2,877**
+- 트레일링이 고정 TP 대비 **+50% EV 개선** (fat tail capture)
+- BTC/ETH 포함 14개 심볼 전부 양의 EV
 
 --------------------------------------------------------------
 
-## 전문가 분석 요약 (2026-05-15)
+## 버전 히스토리
 
-v1/v2/v3 전체 335건 데이터를 알고리즘 트레이딩 전문가에게 분석 의뢰. 핵심 진단:
+| 버전 | 기간 | 거래 | EV/건 | 핵심 변경 | 결과 |
+|------|------|------|-------|----------|------|
+| v1 | 05-12~13 | 78건 | -$115 | P97, SL3ATR/TP6ATR | 실패 |
+| v2 | 05-13~14 | 216건 | -$10 | P97, SL1.5/TP2ATR | 데이터 수집용 |
+| v3 | 05-14~15 | 42건 | -$22 | P99.5 only | v2 edge 과적합 확인 |
+| v3.1 | 05-15~16 | 59건 | -$70 | 옵션 B (BTC DOWN 필터) | 상관관계 집중 → 악화 |
+| v4 | 05-18 | 12건 | -$55 | pullback entry | 역선택 → 즉시 폐기 |
+| v4.1 | 05-18~19 | 29건 | -$52 | 시장가 복귀 + 클러스터 제한 | 5분봉 한계 확인 |
+| **v5** | **05-21~** | **수집 중** | **TBD** | **1h + BE+Trailing** | **Demo 운영** |
 
-### 전략 현 상태
-- "edge는 존재하지만 실행 비용(슬리피지+수수료+진입타이밍)에 먹히는 상태"
-- v2+v3 합산 PF 0.864 = 비용 제거 시 PF ~1.05. 미약한 raw edge
-- 5분봉 close 후 시장가 진입은 이미 move 완료 후 추격 → HFT의 exit liquidity 제공자가 됨
-
-### RR 미달 원인 (설계 1.33 vs 실현 0.95)
-- SL 슬리피지 (시장가 청산, 평균 +0.1~0.5%p)
-- 수수료 비대칭 (왕복 0.11%)
-- 진입 슬리피지 (시장가 진입)
-- → 설계 RR 1.8~2.0이어야 실현 1.3
-
-### 가장 impact 큰 단일 변경 (전문가 추천)
-**Pullback entry**: signal 후 0.3 ATR pullback에 limit order 진입, 3 bars 내 미체결 시 취소
-- 진입 슬리피지 제거 + MFE=0(꼭대기 진입) 자동 필터링
-- PF 0.86 → 1.05~1.15 예상 (fill rate 65% 가정)
-- → 옵션 C로 문서화, B 검증 후 적용 예정
-
-### 프롬프트/문서 파일
-- `prompt_expert_analysis.md` — 전문가 분석 의뢰용 프롬프트 (335건 데이터 종합)
-- `vwap_trader/docs/upgrade_options.md` — 옵션 A~F 상세 비교 문서
+### 핵심 교훈
+- 5분봉 P99.5 모멘텀은 실행 비용(수수료+슬리피지) > raw edge
+- MFE=0 (즉시 되돌림) 문제는 timeframe을 늘리면 구조적 감소
+- Pullback entry는 모멘텀 전략과 구조적 충돌 (adverse selection)
+- 고정 TP는 fat tail을 버림 → trailing이 +50% 개선
 
 --------------------------------------------------------------
 
-## 업그레이드 로드맵 (옵션 A~F)
+## v5 파라미터
 
-상세 내용: `vwap_trader/docs/upgrade_options.md`
-
-| 옵션 | 내용 | 일 거래수 | 상태 |
-|------|------|----------|------|
-| A | 데이터만 더 쌓기 (현행 유지) | ~77건 | - |
-| **B** | **안전 필터 (Short 제한 + 슬리피지 cooldown)** | **~63건** | **✅ 적용 완료 (v3.1)** |
-| C | Pullback Entry (0.3 ATR pullback limit order) | ~50건 | 대기 (B 검증 후) |
-| D | B + C 동시 적용 | ~41건 | 대기 |
-| E | A/B 테스트 (pullback vs 시장가 랜덤 분배) | ~50건 | 대기 |
-| F | 전략 피벗 (처음부터 재설계) | ~18건 | 대기 |
-
-**추천 순서**: B(50건 수집) → C 추가(50건 수집) → 결과 보고 D/F 결정
-
---------------------------------------------------------------
-
-## v3.1 파라미터 (현재)
-
-| 파라미터 | v3 | v3.1 | 변경 이유 |
-|----------|-----|------|-----------|
-| pctile | 99.5 | 99.5 | 유지 |
-| SL | 1.5xATR | 1.5xATR | 유지 |
-| TP | SL x 1.33 | SL x 1.33 | 유지 |
-| Max Hold | 12 bars | 12 bars | 유지 |
-| Cooldown | 12 bars | 12 bars | 유지 |
-| Risk | 0.5%/거래 | 0.5%/거래 | 유지 |
-| Max positions | 10 | 10 | 유지 |
-| Universe | auto scan | auto scan | 유지 |
-| **Short 제한** | 없음 | **BTC DOWN에서만 허용** | v2/v3 Short 일관 부진 |
-| **슬리피지 cooldown** | 없음 | **>1%p → 48h cooldown** | SIRENUSDT 등 극악 슬리피지 |
+| 파라미터 | 값 | 설명 |
+|----------|-----|------|
+| candle_interval | 60 (1h) | 1시간봉 |
+| pctile | 99.5 | top 0.5% return |
+| threshold_window | 500 bars | ~20일 rolling |
+| atr_period | 20 | ATR lookback |
+| sl_atr_mult | 1.5 | 초기 SL = 1.5 ATR |
+| exit_mode | be_trail | BE+Trailing Stop |
+| trail_atr_mult | 2.0 | trailing 거리 = 2 ATR |
+| be_trigger_atr | 1.5 | 1.5 ATR 수익 시 BE 발동 |
+| max_hold_bars | 48 | 48시간 timeout |
+| cooldown_bars | 1 | 1시간 쿨다운 |
+| max_entries_per_bar | 2 | bar당 최대 2건 |
+| max_long/short | 3/3 | 방향별 최대 3건 |
+| risk_pct | 0.005 | 건당 0.5% 리스크 |
+| max_positions | 10 | 최대 동시 포지션 |
 
 --------------------------------------------------------------
 
-## 로깅 필드 (trades_momentum.jsonl, 23개)
-
-trade_id, timestamp_utc, exit_timestamp_utc, symbol, side, entry_price, exit_price,
-position_size_usd, sl_price, tp_price, exit_reason(TP/SL/Timeout), pnl_usd, pnl_pct,
-atr_at_entry, hold_time_bars, max_favorable_excursion(%), max_adverse_excursion(%),
-signal_strength(percentile rank 99.5~100), signal_return_pct,
-btc_price_at_entry, btc_1h_change_pct, hour_of_day_utc, day_of_week_utc
-
---------------------------------------------------------------
-
-## 데이터 파일 위치
+## 데이터 파일
 
 | 파일 | 설명 |
 |------|------|
-| vwap_trader/data/trades_momentum.jsonl | **v4.1 거래 로그 (수집 중)** |
-| vwap_trader/data/trades_momentum_v4.jsonl | v4 백업 12건 (pullback, 실패) |
-| vwap_trader/data/trades_momentum_v31.jsonl | v3.1 백업 59건 (옵션B, 실패) |
-| vwap_trader/data/trades_momentum_v3.jsonl | v3 백업 42건 |
-| vwap_trader/data/trades_momentum_v2.jsonl | v2 백업 216건 (pctile 97, 분석 완료) |
-| vwap_trader/data/trades_momentum_v1.jsonl | v1 백업 75건 (signal_strength 정의 다름) |
-| vwap_trader/data/slippage_momentum.jsonl | v4 슬리피지 로그 (비어있음) |
-| vwap_trader/data/slippage_momentum_v3.jsonl | v3 슬리피지 백업 |
-| vwap_trader/data/state_momentum.json | 봇 실행 상태 |
-| vwap_trader/config/momentum_config.yaml | 현재 설정 파일 (v3.1) |
-| vwap_trader/docs/upgrade_options.md | 업그레이드 옵션 A~F 문서 |
-| prompt_expert_analysis.md | 전문가 분석 의뢰 프롬프트 |
-| vwap_trader/analysis_v2.py | v2 분석 스크립트 |
-| vwap_trader/analysis_v3.py | v3 분석 스크립트 |
-| vwap_trader/analysis_all.py | v1/v2/v3 종합 분석 스크립트 |
+| trades_momentum.jsonl | **v5 거래 로그 (수집 중)** |
+| trades_momentum_v41.jsonl | v4.1 백업 29건 |
+| trades_momentum_v4.jsonl | v4 백업 12건 (pullback) |
+| trades_momentum_v31.jsonl | v3.1 백업 59건 |
+| trades_momentum_v3.jsonl | v3 백업 42건 |
+| trades_momentum_v2.jsonl | v2 백업 216건 |
+| trades_momentum_v1.jsonl | v1 백업 75건 |
+| state_momentum.json | 봇 실행 상태 |
+| momentum_config.yaml | v5 설정 |
 
 --------------------------------------------------------------
 
-## 현재 봇 상태 (2026-05-18 기준)
+## 봇 실행
 
-- **v4.1 봇 가동 중** (pullback off + 옵션 G 나머지 유지)
-- v4 pullback entry 실패: 12건, MFE=0 75%, 구조적 충돌 확인 → pullback 즉시 비활성화
-- 잔고: ~$24,000
-- 실행 명령 (PowerShell): `cd C:\Users\DEV_BASIC\Downloads\code\vwap_trader; venv\Scripts\python.exe -m vwap_trader.momentum_bot`
-- **재가동 전 반드시**: `w32tm /resync /force` (PowerShell 관리자)
+```powershell
+# 시계 동기화 (관리자 PowerShell)
+w32tm /resync /force
+
+# 봇 실행
+cd C:\Users\DEV_BASIC\Downloads\code\vwap_trader
+venv\Scripts\python.exe -m vwap_trader.momentum_bot
+```
 
 --------------------------------------------------------------
 
-## v4 → v4.1 변경 이력
+## 백테스트 스크립트
 
-### v4 (옵션 G, 2026-05-18)
-1. 옵션 B 필터 비활성화 — short_only_btc_down: false
-2. 클러스터 제한 — 같은 5분 bar에서 max 2건 (signal_strength 상위)
-3. 방향별 포지션 cap — Long 최대 3건, Short 최대 3건
-4. ~~Pullback Entry~~ — **12건 테스트 후 실패 확인, v4.1에서 비활성화**
-5. Regime 태그 로깅 — btc_4h_return_pct, btc_4h_atr, regime 라벨
+| 파일 | 설명 |
+|------|------|
+| backtest_multi_tf.py | 다중 TF × 파라미터 그리드 (리샘플링) |
+| backtest_oos_2026.py | 2026 OOS 검증 |
+| backtest_trailing.py | Trailing vs Fixed TP 비교 |
+| backtest_real_candles.py | **Bybit 실제 캔들로 검증** |
 
-### v4.1 (2026-05-18, 현재)
-- **pullback_enabled: false** — 시장가 진입으로 복귀
-- 실패 원인: pullback fill = 모멘텀 소진 (adverse selection). MFE=0 75%.
-- 나머지(클러스터 제한, 방향 cap, regime 로깅)는 유지
+--------------------------------------------------------------
 
-### 로깅 필드 (v4, 26개 = 기존 23개 + 3개 추가)
-기존 23개 + btc_4h_return_pct, btc_4h_atr, regime
+## 다음 단계
 
-### Regime 분류 기준
-- Trend: BTC 4h return > 0.1% → UP, < -0.1% → DOWN, else → FLAT
-- Volatility: BTC 4h ATR > $200 → HIGH, else → LOW
-- 라벨 예: "UP_LOW", "DOWN_HIGH", "FLAT_LOW"
-
-## 로드맵 진행 상태 (2026-05-18)
-
-| Phase | 상태 | 내용 |
-|-------|------|------|
-| Phase 0 | ✅ 완료 | v4(옵션 G) 구현. v4 pullback 실패 → v4.1(pullback off) |
-| Phase 1 | ✅ 완료 | 319건 regime 라벨링 + 탐색 분석 |
-| Phase 2 | **진행 중** | v4.1 봇 300건 수집 (예상 2~3주) |
-| Phase 3 | 대기 | 300건 도달 후 regime별 성과 검증 → 행동 테이블 |
-| Phase 4 | 대기 | Regime 규칙 봇에 적용 (v5) |
-| Phase 5 | 대기 | Circuit breaker 추가 |
-| Phase 6 | 대기 | Go/No-Go 판단 |
-
-### Phase 1 핵심 결과
-- 319건 중 DOWN_HIGH+Short가 156건, EV -$31/건 → 전체 손실의 63%
-- 모든 regime에서 EV 음수. LOW volatility 데이터 전무 → v4에서 수집 필요
-- 분석 스크립트: `vwap_trader/regime_analysis.py`
-
-### Phase 2 규칙
-- **300건 수집 완료까지 봇 코드/파라미터 수정 금지**
-- 주 1회 중간 분석 (승률, PF, regime별 성과)
-
-상세 로드맵: `vwap_trader/docs/upgrade_options.md`
+1. v5 봇 Demo 운영 시작
+2. 50건 수집 후 백테스트 예측과 비교 (WR ~98%, EV ~+5%)
+3. 일치하면 유지, 괴리 크면 재분석
+4. 200건+ 후 Go/No-Go 판단
 
 --------------------------------------------------------------
 
 ## 해결된 이슈 (참고)
 
-1. **Windows cp949 인코딩** -> config YAML 로드 시 `encoding="utf-8"` 명시
-2. **Bybit 시계 offset (~3초)** -> `_sync_clock_offset()` + pybit timestamp monkey-patch
-3. **MFE/MAE 해상도** -> lastPrice 대신 캔들 high/low 사용, 오픈 포지션 캔들 매 bar 갱신
-4. **signal_strength 정의 오류** -> threshold 값 대신 percentile rank(0-100)로 수정
-5. **API 과다 호출** -> `_fetch_all_tickers()` 배치 1회 + price_map 재활용
-6. **qty 부동소수점 오류** -> Decimal 사용으로 수정
-
---------------------------------------------------------------
-
-## 알려진 제약/참고
-
-- **API rate limit**: 유니버스 30~60개 코인 kline 개별 호출 -> 가끔 Bybit rate limit 에러 발생. pybit 자동 재시도(2초 sleep). 심각하지 않음.
-- **v1 vs v2 signal_strength 비호환**: v1은 threshold 값(절대값), v2/v3/v3.1은 percentile rank(0-100). 두 데이터셋 합산 분석 시 주의.
-- **봇 재시작 시**: state_momentum.json에서 오픈 포지션 복원됨. 캔들 캐시는 재구축.
-- **PowerShell에서 실행 시**: `&&` 연산자 불가. `;` 으로 명령 구분.
-- **재가동 전 반드시 시계 동기화**: `w32tm /resync /force` (PowerShell 관리자)
-
---------------------------------------------------------------
-
-## 다른 PC에서 재가동 시 (venv 없는 경우)
-```powershell
-cd C:\...\vwap_trader
-python -m venv venv
-venv\Scripts\pip install -r requirements.txt
-venv\Scripts\pip install -e .
-venv\Scripts\python.exe -m vwap_trader.momentum_bot
-```
+1. Windows cp949 인코딩 → utf-8 명시
+2. Bybit 시계 offset → pybit timestamp monkey-patch
+3. MFE/MAE 해상도 → 캔들 high/low 사용
+4. signal_strength 정의 → percentile rank(0-100)
+5. API 과다 호출 → batch ticker
+6. qty 부동소수점 → Decimal
+7. 5분봉 모멘텀 한계 → 1시간봉 전환 (v5)
+8. 고정 TP → trailing stop (fat tail capture)

@@ -1,8 +1,8 @@
 """
-Momentum Bot — Big Move Follow-Through Strategy
+Momentum Bot — Big Move Follow-Through Strategy (v5)
 
-5분마다 유니버스 전체를 스캔하여 모멘텀 신호 감지 시 진입.
-SL/TP는 Bybit 서버사이드, timeout 만료 시 봇이 시장가 청산.
+매 bar(config interval)마다 유니버스 스캔 → 모멘텀 신호 감지 시 진입.
+v5: 1시간봉 + BE+Trailing Stop. SL은 Bybit 서버사이드, 매 bar 트레일링 갱신.
 """
 from __future__ import annotations
 
@@ -65,7 +65,8 @@ class OpenPosition:
                  signal_strength: float = 0.0, signal_return_pct: float = 0.0,
                  btc_price_at_entry: float = 0.0, btc_1h_change_pct: float = 0.0,
                  position_size_usd: float = 0.0,
-                 mfe: float = 0.0, mae: float = 0.0):
+                 mfe: float = 0.0, mae: float = 0.0,
+                 best_price: float = 0.0, be_triggered: bool = False):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -77,13 +78,16 @@ class OpenPosition:
         self.intended_price = intended_price
         self.trade_id = trade_id or str(uuid.uuid4())[:8]
         self.atr_at_entry = atr_at_entry
-        self.signal_strength = signal_strength      # percentile value of trigger bar
-        self.signal_return_pct = signal_return_pct  # 5min return of trigger bar
+        self.signal_strength = signal_strength
+        self.signal_return_pct = signal_return_pct
         self.btc_price_at_entry = btc_price_at_entry
         self.btc_1h_change_pct = btc_1h_change_pct
         self.position_size_usd = position_size_usd
         self.mfe = mfe  # max favorable excursion (price units)
         self.mae = mae  # max adverse excursion (price units)
+        # v5: trailing stop state
+        self.best_price = best_price or entry_price  # best price seen (for trailing)
+        self.be_triggered = be_triggered  # breakeven SL activated?
 
     def to_dict(self) -> dict:
         return vars(self)
@@ -114,12 +118,16 @@ class MomentumBot:
         )
         self.public_session = HTTP(testnet=False)
 
+        # v5: trailing mode uses tp_rr=0 (no fixed TP)
+        exit_mode = self.cfg["strategy"].get("exit_mode", "fixed")
+        tp_rr = self.cfg["strategy"].get("tp_rr", 0) if exit_mode == "fixed" else 0
+
         self.strategy = MomentumStrategy(
             pctile=self.cfg["strategy"]["pctile"],
             threshold_window=self.cfg["strategy"]["threshold_window"],
             atr_period=self.cfg["strategy"]["atr_period"],
             sl_atr_mult=self.cfg["strategy"]["sl_atr_mult"],
-            tp_rr=self.cfg["strategy"]["tp_rr"],
+            tp_rr=tp_rr,
             max_hold_bars=self.cfg["strategy"]["max_hold_bars"],
             cooldown_bars=self.cfg["strategy"]["cooldown_bars"],
         )
@@ -199,7 +207,7 @@ class MomentumBot:
 
     # ── Candle Fetch (with cache) ────────────────────────
     def _fetch_candles(self, symbol: str) -> tuple[list, list, list, list] | None:
-        """Fetch 5min candles with incremental cache. Only fetches new bars."""
+        """Fetch candles with incremental cache. Interval from config."""
         interval = self.cfg["exchange"]["candle_interval"]
         needed = self.cfg["exchange"]["candle_fetch_count"]
 
@@ -314,18 +322,22 @@ class MomentumBot:
 
         try:
             pos_idx = 1 if side == "Buy" else 2
-            resp = self.session.place_order(
+            order_params = dict(
                 category="linear",
                 symbol=symbol,
                 side=side,
                 orderType="Market",
                 qty=str(qty),
                 stopLoss=str(round(sl, 8)),
-                takeProfit=str(round(tp, 8)),
                 positionIdx=pos_idx,
                 slTriggerBy="MarkPrice",
-                tpTriggerBy="MarkPrice",
             )
+            # v5: only set TP if using fixed exit mode (tp > 0)
+            if tp > 0:
+                order_params["takeProfit"] = str(round(tp, 8))
+                order_params["tpTriggerBy"] = "MarkPrice"
+
+            resp = self.session.place_order(**order_params)
             if resp.get("retCode") == 0:
                 result = resp["result"]
                 logger.info("Order placed: %s %s qty=%s orderId=%s",
@@ -346,7 +358,7 @@ class MomentumBot:
             return {"orderId": "dry_run_limit", "avgPrice": "0"}
         try:
             pos_idx = 1 if side == "Buy" else 2
-            resp = self.session.place_order(
+            order_params = dict(
                 category="linear",
                 symbol=symbol,
                 side=side,
@@ -354,12 +366,14 @@ class MomentumBot:
                 qty=str(qty),
                 price=str(round(price, 8)),
                 stopLoss=str(round(sl, 8)),
-                takeProfit=str(round(tp, 8)),
                 positionIdx=pos_idx,
                 slTriggerBy="MarkPrice",
-                tpTriggerBy="MarkPrice",
                 timeInForce="GTC",
             )
+            if tp > 0:
+                order_params["takeProfit"] = str(round(tp, 8))
+                order_params["tpTriggerBy"] = "MarkPrice"
+            resp = self.session.place_order(**order_params)
             if resp.get("retCode") == 0:
                 result = resp["result"]
                 logger.info("Limit order placed: %s %s qty=%s price=%.6f orderId=%s",
@@ -599,6 +613,8 @@ class MomentumBot:
             "position_size_usd": round(pos.position_size_usd, 2),
             "sl_price": pos.sl,
             "tp_price": pos.tp,
+            "best_price": round(pos.best_price, 8),
+            "be_triggered": pos.be_triggered,
             "exit_reason": reason,
             "pnl_usd": round(pnl_usd, 4),
             "pnl_pct": round(pnl_pct, 4),
@@ -620,8 +636,8 @@ class MomentumBot:
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
 
-        # ── Slippage cooldown: SL exit with excessive slippage → cooldown ──
-        if reason == "SL":
+        # ── Slippage cooldown: SL/TrailSL/BE exit with excessive slippage → cooldown ──
+        if reason in ("SL", "TrailSL", "BE"):
             if pos.direction == "long":
                 planned_loss_pct = abs(pos.entry_price - pos.sl) / pos.entry_price * 100
             else:
@@ -822,7 +838,7 @@ class MomentumBot:
                 self._stop_file.unlink()
                 break
 
-            # Wait for next 5-min bar close
+            # Wait for next bar close
             self._wait_next_bar()
             self.bar_counter += 1
 
@@ -854,13 +870,14 @@ class MomentumBot:
             self._save_state()
 
     def _wait_next_bar(self):
-        """Wait until next 5-minute boundary + 5 seconds."""
+        """Wait until next bar boundary + 5 seconds. Interval from config."""
         now = time.time()
-        interval_sec = 5 * 60  # 5 minutes
+        interval_min = int(self.cfg["exchange"]["candle_interval"])
+        interval_sec = interval_min * 60
         next_bar = math.ceil(now / interval_sec) * interval_sec + 5
         wait = max(0, next_bar - time.time())
         if wait > 0:
-            logger.info("Waiting %.0fs for next 5min bar...", wait)
+            logger.info("Waiting %.0fs for next %dmin bar...", wait, interval_min)
             time.sleep(wait)
         logger.info("=== Bar %d scan start ===", self.bar_counter + 1)
 
@@ -930,11 +947,111 @@ class MomentumBot:
 
     def _classify_exit_reason(self, pos: OpenPosition, exit_price: float) -> str:
         """Classify SL/TP hit based on exit price proximity."""
-        sl_dist = abs(exit_price - pos.sl)
-        tp_dist = abs(exit_price - pos.tp)
-        if tp_dist < sl_dist:
-            return "TP"
+        if pos.tp > 0:
+            sl_dist = abs(exit_price - pos.sl)
+            tp_dist = abs(exit_price - pos.tp)
+            if tp_dist < sl_dist:
+                return "TP"
+        # v5: trailing mode — distinguish BE vs TrailSL
+        if pos.be_triggered:
+            if pos.direction == "long" and pos.sl > pos.entry_price:
+                return "TrailSL"
+            elif pos.direction == "short" and pos.sl < pos.entry_price:
+                return "TrailSL"
+            return "BE"
         return "SL"
+
+    def _modify_sl_on_exchange(self, pos: OpenPosition, new_sl: float) -> bool:
+        """Update SL on Bybit for an open position."""
+        if self.dry_run:
+            return True
+        try:
+            pos_idx = 1 if pos.direction == "long" else 2
+            resp = self.session.set_trading_stop(
+                category="linear",
+                symbol=pos.symbol,
+                stopLoss=str(round(new_sl, 8)),
+                slTriggerBy="MarkPrice",
+                positionIdx=pos_idx,
+            )
+            if resp.get("retCode") == 0:
+                return True
+            # 110032 = position not exists (already closed)
+            if resp.get("retCode") == 110032:
+                return False
+            logger.warning("Modify SL failed %s: %s", pos.symbol, resp)
+            return False
+        except Exception as e:
+            logger.warning("Modify SL exception %s: %s", pos.symbol, e)
+            return False
+
+    def _update_trailing_sl(self, pos: OpenPosition, price_map: dict[str, float]):
+        """v5: Update trailing stop for a position. Called every bar."""
+        exit_mode = self.cfg["strategy"].get("exit_mode", "fixed")
+        if exit_mode == "fixed":
+            return  # no trailing in fixed mode
+
+        trail_mult = self.cfg["strategy"].get("trail_atr_mult", 2.0)
+        be_trigger = self.cfg["strategy"].get("be_trigger_atr", 1.5)
+        trail_dist = trail_mult * pos.atr_at_entry
+        be_level = be_trigger * pos.atr_at_entry
+
+        # Get current high/low from candle cache for best price update
+        cached = self._candle_cache.get(pos.symbol)
+        if cached and len(cached) >= 1:
+            latest = cached[-1]
+            bar_high, bar_low = latest[2], latest[3]
+        else:
+            # Fallback to ticker
+            price = price_map.get(pos.symbol)
+            if not price:
+                return
+            bar_high = bar_low = price
+
+        old_sl = pos.sl
+
+        if pos.direction == "long":
+            # Update best price
+            if bar_high > pos.best_price:
+                pos.best_price = bar_high
+
+            # Check breakeven trigger
+            if not pos.be_triggered and pos.best_price >= pos.entry_price + be_level:
+                pos.be_triggered = True
+                new_sl = max(pos.sl, pos.entry_price)
+                if new_sl > pos.sl:
+                    pos.sl = new_sl
+                    logger.info("BE triggered %s: SL → %.4f (entry)", pos.symbol, new_sl)
+
+            # Trail from best price (after BE or always for pure trailing)
+            if pos.be_triggered or exit_mode == "trailing":
+                new_sl = pos.best_price - trail_dist
+                if new_sl > pos.sl:
+                    pos.sl = new_sl
+        else:  # short
+            if bar_low < pos.best_price:
+                pos.best_price = bar_low
+
+            if not pos.be_triggered and pos.best_price <= pos.entry_price - be_level:
+                pos.be_triggered = True
+                new_sl = min(pos.sl, pos.entry_price)
+                if new_sl < pos.sl:
+                    pos.sl = new_sl
+                    logger.info("BE triggered %s: SL → %.4f (entry)", pos.symbol, new_sl)
+
+            if pos.be_triggered or exit_mode == "trailing":
+                new_sl = pos.best_price + trail_dist
+                if new_sl < pos.sl:
+                    pos.sl = new_sl
+
+        # If SL changed, update on Bybit
+        if pos.sl != old_sl:
+            success = self._modify_sl_on_exchange(pos, pos.sl)
+            if success:
+                logger.info("TRAIL SL updated %s: %.4f → %.4f (best=%.4f, be=%s)",
+                            pos.symbol, old_sl, pos.sl, pos.best_price, pos.be_triggered)
+            else:
+                pos.sl = old_sl  # rollback on failure
 
     def _manage_positions(self) -> dict[str, float]:
         """Check existing positions: SL/TP hit or timeout. Update MFE/MAE.
@@ -951,6 +1068,9 @@ class MomentumBot:
         for pos in self.positions:
             # Update MFE/MAE using candle high/low
             self._update_mfe_mae(pos, price_map)
+
+            # v5: Update trailing stop
+            self._update_trailing_sl(pos, price_map)
 
             # Check on exchange
             size = self._get_position_from_exchange(pos.symbol, pos.direction)

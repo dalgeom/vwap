@@ -1,7 +1,33 @@
 {
-  "positions": [],
-  "bar_counter": 1338,
-  "daily_pnl": 0.0,
-  "daily_trades": 0,
-  "last_save": "2026-05-19T00:06:38.238095+00:00"
+  "positions": [
+    {
+      "symbol": "HYPEUSDT",
+      "direction": "long",
+      "entry_price": 58.398,
+      "qty": 69.68,
+      "sl": 56.809125,
+      "tp": 0.0,
+      "entry_time": "2026-05-21T08:00:33.899692+00:00",
+      "entry_bar": 8,
+      "intended_price": 58.398,
+      "trade_id": "896b8dcf",
+      "atr_at_entry": 1.05925,
+      "signal_strength": 99.6,
+      "signal_return_pct": 3.3904,
+      "btc_price_at_entry": 77854.1,
+      "btc_1h_change_pct": 0.018,
+      "position_size_usd": 4069.1726400000007,
+      "mfe": 0.0,
+      "mae": 0.0,
+      "best_price": 58.398,
+      "be_triggered": false,
+      "_btc_4h_return": 0.018,
+      "_btc_4h_atr": 526.2,
+      "_regime": "FLAT_HIGH"
+    }
+  ],
+  "bar_counter": 8,
+  "daily_pnl": -4.18236623963828,
+  "daily_trades": 1,
+  "last_save": "2026-05-21T08:00:34.101093+00:00"
 }

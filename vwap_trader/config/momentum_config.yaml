@@ -1,13 +1,18 @@
-# Momentum Bot Configuration
+# Momentum Bot Configuration — v5 (1h + BE+Trailing Stop)
 
 strategy:
-  pctile: 99.5            # top 0.5% return threshold (v3: 97→99.5)
-  threshold_window: 2000  # rolling window for threshold (5min bars)
+  pctile: 99.5            # top 0.5% return threshold
+  threshold_window: 500   # rolling window (1h bars, ~20 days)
   atr_period: 20          # ATR lookback
-  sl_atr_mult: 1.5        # SL = 1.5 x ATR (v2: 3.0→1.5)
-  tp_rr: 1.33             # TP = SL x 1.33 (v2: 2.0→1.33, = 2×ATR)
-  max_hold_bars: 12       # 1 hour (v2: 36→12, 12 x 5min)
-  cooldown_bars: 12       # 1 hour cooldown per coin
+  sl_atr_mult: 1.5        # initial SL = 1.5 x ATR
+  # tp_rr: 2.0            # (fixed mode only) TP = SL x RR. Not used in be_trail mode.
+  max_hold_bars: 48       # 48 hours max hold
+  cooldown_bars: 1        # 1 bar (1 hour) cooldown per coin
+
+  # v5: Trailing stop (replaces fixed TP)
+  exit_mode: "be_trail"   # "fixed" | "trailing" | "be_trail"
+  trail_atr_mult: 2.0     # trailing distance = 2.0 x ATR
+  be_trigger_atr: 1.5     # move SL to breakeven after 1.5 ATR profit
 
 risk:
   risk_pct: 0.005         # 0.5% per trade
@@ -15,33 +20,27 @@ risk:
   max_leverage: 3.0       # effective leverage cap
 
 filters:
-  # Option B (disabled — caused correlation concentration)
   short_only_btc_down: false
   btc_down_threshold: -0.05
-  # Slippage cooldown (kept from B)
   slippage_cooldown_hours: 48
   slippage_cooldown_threshold: 1.0
-  # Option G: cluster + direction cap
-  max_entries_per_bar: 2          # max new entries in same 5min bar
-  max_long_positions: 3           # max simultaneous long positions
-  max_short_positions: 3          # max simultaneous short positions
-  # Option G: pullback entry
-  pullback_enabled: false          # v4.1: disabled — adverse selection with momentum strategy
-  pullback_atr_mult: 0.3          # limit order at entry ± 0.3×ATR
-  pullback_expire_bars: 3         # cancel if not filled in 3 bars
+  max_entries_per_bar: 2          # max new entries in same 1h bar
+  max_long_positions: 3
+  max_short_positions: 3
+  pullback_enabled: false          # v4 실패, 비활성화 유지
 
 universe:
   min_volume_usdt: 20_000_000  # $20M 24h volume
   refresh_interval_hours: 24
   blacklist:
-    - XAUTUSDT    # gold
-    - XAGUSDT     # silver
-    - XAUUSDT     # gold
+    - XAUTUSDT
+    - XAGUSDT
+    - XAUUSDT
 
 exchange:
-  candle_interval: "5"    # 5 minute candles
-  candle_fetch_count: 2100  # threshold_window + buffer
-  demo: true              # demo mode (true for testing)
+  candle_interval: "60"     # 1 hour candles (v5: 5→60)
+  candle_fetch_count: 600   # threshold_window + buffer
+  demo: true
   leverage: 5
 
 logging:

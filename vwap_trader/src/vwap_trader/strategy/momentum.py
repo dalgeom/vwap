@@ -1,10 +1,9 @@
 """
 Big Move Follow-Through (Momentum) Strategy
 
-Signal: 5min bar return exceeds rolling top 3% threshold
+Signal: bar return exceeds rolling top percentile threshold
 Direction: Follow the move (momentum)
-SL: ATR-based, TP: Risk-reward ratio
-Hold: max 2-3 hours, then timeout exit
+Exit: BE+Trailing stop (v5) or fixed SL/TP (legacy)
 
 No lookahead bias: threshold computed from past data only.
 """
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 class MomentumSignal:
     symbol: str
     direction: int      # 1=long, -1=short
-    trigger_ret: float  # the 5min return that triggered (%)
+    trigger_ret: float  # the bar return that triggered (%)
     threshold: float    # rolling threshold at that moment (%)
     close_price: float  # bar close price (reference for slippage measurement)
     atr: float          # ATR in price units
@@ -140,16 +139,21 @@ class MomentumStrategy:
         return signal
 
     def calc_sl_tp(self, entry_price: float, direction: int, atr: float) -> SlTp:
-        """Calculate SL and TP prices from entry price and ATR."""
+        """Calculate SL and TP prices from entry price and ATR.
+        In trailing mode (tp_rr=0), TP is set to 0 (no fixed TP)."""
         sl_dist = self.sl_atr_mult * atr
-        tp_dist = sl_dist * self.tp_rr
+
+        if self.tp_rr > 0:
+            tp_dist = sl_dist * self.tp_rr
+        else:
+            tp_dist = 0.0
 
         if direction == 1:  # long
             sl = entry_price - sl_dist
-            tp = entry_price + tp_dist
+            tp = entry_price + tp_dist if tp_dist > 0 else 0.0
         else:  # short
             sl = entry_price + sl_dist
-            tp = entry_price - tp_dist
+            tp = entry_price - tp_dist if tp_dist > 0 else 0.0
 
         return SlTp(
             sl=round(sl, 8),
