@@ -78,7 +78,13 @@ class Signal(NamedTuple):
 
 def load_15m(symbol: str, year: str) -> list[dict]:
     f = CACHE_DIR / f"{symbol}_{year}_15m.json"
-    return json.load(open(f)) if f.exists() else []
+    if not f.exists():
+        return []
+    data = json.load(open(f))
+    for c in data:
+        if "ts" not in c and "t" in c:
+            c["ts"] = c["t"]
+    return data
 
 
 def resample(candles_15m: list[dict], factor: int) -> list[dict]:
@@ -93,7 +99,7 @@ def resample(candles_15m: list[dict], factor: int) -> list[dict]:
             "h": max(c["h"] for c in chunk),
             "l": min(c["l"] for c in chunk),
             "c": chunk[-1]["c"],
-            "v": sum(c["v"] for c in chunk),
+            "v": 0.0,
         })
     return out
 

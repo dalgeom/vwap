@@ -23,7 +23,9 @@ from pybit.unified_trading import HTTP
 
 from vwap_trader.strategy.momentum import MomentumStrategy, MomentumSignal
 from vwap_trader.core.position_sizer import compute_position_size
+from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
+from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
 def _sync_clock_offset() -> int:
@@ -40,12 +42,31 @@ def _sync_clock_offset() -> int:
         return 0
 
 _clock_offset_ms = _sync_clock_offset()
+# Always patch: lambda re-reads _clock_offset_ms each call,
+# so periodic _resync_clock_offset() updates take effect automatically.
+import pybit._helpers as _pybit_helpers
+_original_ts = _pybit_helpers.generate_timestamp
+_pybit_helpers.generate_timestamp = lambda: _original_ts() - _clock_offset_ms
 if abs(_clock_offset_ms) > 500:
-    import pybit._helpers as _pybit_helpers
-    _original_ts = _pybit_helpers.generate_timestamp
-    _pybit_helpers.generate_timestamp = lambda: _original_ts() - _clock_offset_ms
     logging.getLogger("momentum_bot").info(
         "Clock offset: %dms — patched pybit timestamp", _clock_offset_ms)
+
+
+def _resync_clock_offset() -> int:
+    """v5.1: Periodic clock drift re-sync. Updates module-level _clock_offset_ms.
+    Called every hour by _main_loop to prevent ErrCode 10002 timestamp errors."""
+    global _clock_offset_ms
+    try:
+        new_offset = _sync_clock_offset()
+        if abs(new_offset - _clock_offset_ms) > 100:
+            logging.getLogger("momentum_bot").info(
+                "Clock offset updated: %dms → %dms",
+                _clock_offset_ms, new_offset)
+        _clock_offset_ms = new_offset
+        return new_offset
+    except Exception as e:
+        logging.getLogger("momentum_bot").warning("Clock resync failed: %s", e)
+        return _clock_offset_ms
 
 logger = logging.getLogger("momentum_bot")
 
@@ -137,6 +158,7 @@ class MomentumBot:
         self.daily_pnl = 0.0
         self.daily_trades = 0
         self.universe: list[str] = []
+        self._universe_volumes: dict[str, float] = {}   # symbol → 24h turnover USDT (tier 분류용)
         self._last_universe_refresh = ""
 
         self._state_file = DATA_DIR / self.cfg["logging"]["state_file"]
@@ -169,6 +191,71 @@ class MomentumBot:
             return yaml.safe_load(f)
 
     # ── Universe ─────────────────────────────────────────
+    def _apply_tier_cap(
+        self,
+        symbol: str,
+        size: PositionSizeResult,
+        entry_price: float,
+        lot_size: float,
+    ) -> PositionSizeResult:
+        """v5.1: Tier별 max position notional cap 적용.
+        24h volume 기준 tier 분류 → notional 초과 시 qty 비례 축소.
+        """
+        caps = self.cfg.get("risk", {}).get("tier_caps", {})
+        if not caps:
+            return size
+
+        vol = self._universe_volumes.get(symbol, 0.0)
+        if vol >= caps.get("tier1_min_volume_usdt", 5e8):
+            tier, tier_cap = 1, caps.get("tier1_max_position_usd", float("inf"))
+        elif vol >= caps.get("tier2_min_volume_usdt", 1e8):
+            tier, tier_cap = 2, caps.get("tier2_max_position_usd", float("inf"))
+        elif vol >= caps.get("tier3_min_volume_usdt", 5e7):
+            tier, tier_cap = 3, caps.get("tier3_max_position_usd", float("inf"))
+        else:
+            tier, tier_cap = 4, caps.get("tier4_max_position_usd", float("inf"))
+
+        final_cap = min(tier_cap, caps.get("hard_cap_usd", float("inf")))
+
+        if size.notional <= final_cap:
+            return size
+
+        # qty 비례 축소 후 lot_size 단위로 floor
+        scale = final_cap / size.notional
+        lot_d = Decimal(str(lot_size))
+        new_qty = float(
+            (Decimal(str(size.qty * scale)) / lot_d)
+            .to_integral_value(ROUND_DOWN) * lot_d
+        )
+
+        if new_qty <= 0:
+            return PositionSizeResult(
+                qty=0, notional=0, effective_leverage=0,
+                leverage_setting=size.leverage_setting,
+                valid=False, reason=f"tier{tier}_cap_qty_zero",
+            )
+
+        new_notional = new_qty * entry_price
+        if new_notional < 50.0:  # MIN_NOTIONAL
+            return PositionSizeResult(
+                qty=0, notional=0, effective_leverage=0,
+                leverage_setting=size.leverage_setting,
+                valid=False, reason=f"tier{tier}_cap_notional_too_small",
+            )
+
+        logger.info(
+            "TIER%d CAP %s: vol=$%.0fM notional %.0f → %.0f (cap=$%.0f)",
+            tier, symbol, vol / 1e6, size.notional, new_notional, final_cap,
+        )
+
+        return PositionSizeResult(
+            qty=new_qty,
+            notional=new_notional,
+            effective_leverage=size.effective_leverage * scale,
+            leverage_setting=size.leverage_setting,
+            valid=True,
+        )
+
     def refresh_universe(self) -> list[str]:
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         if today == self._last_universe_refresh and self.universe:
@@ -197,6 +284,7 @@ class MomentumBot:
 
             symbols.sort(key=lambda x: -x[1])
             self.universe = [s[0] for s in symbols]
+            self._universe_volumes = {s[0]: s[1] for s in symbols}
             self._last_universe_refresh = today
             logger.info("Universe: %d coins (min vol $%dM)",
                         len(self.universe), min_vol // 1_000_000)
@@ -272,7 +360,7 @@ class MomentumBot:
                         break
                     oldest = min(int(r[0]) for r in rows)
                     end_time = oldest - 1
-                    time.sleep(0.25)
+                    time.sleep(0.4)  # v5.1: rate limit 완화 (0.25 → 0.4)
 
                 # Deduplicate + sort
                 seen = set()
@@ -603,6 +691,7 @@ class MomentumBot:
         mae_pct = (pos.mae / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
 
         record = {
+            "bot_version": "v5.1",
             "trade_id": pos.trade_id,
             "timestamp_utc": pos.entry_time,
             "exit_timestamp_utc": now.isoformat(),
@@ -677,11 +766,16 @@ class MomentumBot:
 
     # ── State Persistence ────────────────────────────────
     def _save_state(self):
+        # v5.1: slippage_cooldown ISO datetime으로 직렬화 (봇 재시작 시 복원)
+        cooldown_serialized = {
+            sym: ts.isoformat() for sym, ts in self._slippage_cooldown.items()
+        }
         state = {
             "positions": [p.to_dict() for p in self.positions],
             "bar_counter": self.bar_counter,
             "daily_pnl": self.daily_pnl,
             "daily_trades": self.daily_trades,
+            "slippage_cooldown": cooldown_serialized,
             "last_save": datetime.now(timezone.utc).isoformat(),
         }
         with open(self._state_file, "w") as f:
@@ -697,11 +791,23 @@ class MomentumBot:
             self.bar_counter = state.get("bar_counter", 0)
             self.daily_pnl = state.get("daily_pnl", 0.0)
             self.daily_trades = state.get("daily_trades", 0)
+            # v5.1: slippage_cooldown 복원 (만료된 항목은 건너뜀)
+            now = datetime.now(timezone.utc)
+            cd_raw = state.get("slippage_cooldown", {})
+            restored = 0
+            for sym, iso_ts in cd_raw.items():
+                try:
+                    until = datetime.fromisoformat(iso_ts)
+                    if until > now:
+                        self._slippage_cooldown[sym] = until
+                        restored += 1
+                except Exception:
+                    continue
             # Restore cooldown state in strategy from open positions
             for pos in self.positions:
                 self.strategy.sync_cooldown_after_entry(pos.symbol, pos.entry_bar)
-            logger.info("State loaded: %d positions, bar=%d",
-                        len(self.positions), self.bar_counter)
+            logger.info("State loaded: %d positions, bar=%d, slip_cooldowns=%d",
+                        len(self.positions), self.bar_counter, restored)
         except Exception as e:
             logger.error("State load error: %s", e)
 
@@ -831,6 +937,14 @@ class MomentumBot:
             notify("[Momentum Bot] Stopped")
 
     def _main_loop(self):
+        """
+        v5.1: 매 1분마다 깨어나 포지션(BE/Trail) 갱신.
+        매 1h 정각(분=0)에 한 번만 universe 스캔으로 신규 진입 검사.
+        → 봉 안 변동 시에도 BE/Trail이 거의 실시간으로 작동.
+        """
+        interval_min = int(self.cfg["exchange"]["candle_interval"])
+        last_scan_hour_bar = -1  # 마지막으로 scan을 실행한 1h 봉 인덱스
+
         while True:
             # Check STOP file
             if self._stop_file.exists():
@@ -838,48 +952,55 @@ class MomentumBot:
                 self._stop_file.unlink()
                 break
 
-            # Wait for next bar close
-            self._wait_next_bar()
-            self.bar_counter += 1
+            # Wait until next minute boundary + 5s
+            self._wait_next_minute()
 
-            # Daily reset at UTC midnight
             now = datetime.now(timezone.utc)
-            if now.hour == 0 and now.minute < 6:
+            current_hour_bar = int(now.timestamp() // (interval_min * 60))
+            is_scan_tick = (now.minute == 0 and current_hour_bar != last_scan_hour_bar)
+
+            # Daily reset at UTC midnight (scan tick에만)
+            if is_scan_tick and now.hour == 0:
                 self.daily_pnl = 0.0
                 self.daily_trades = 0
 
-            # Refresh universe daily
-            self.refresh_universe()
+            # v5.1: Clock resync 매 분마다 (이전 정각만 → drift 빠르게 발견)
+            _resync_clock_offset()
 
-            # Get balance
+            # Get balance (light call; 매 분 호출)
             balance = self._get_balance()
             if balance <= 0:
+                # v5.1: balance fetch 실패 시 추가 clock resync (timestamp drift 의심)
+                logger.warning("Balance fetch failed — extra clock resync attempt")
+                _resync_clock_offset()
                 logger.error("Balance is zero — skipping")
                 continue
 
-            # 1. Check pending pullback orders (fill/expire)
+            # 1. Pending pullback orders (fill/expire) — 매 분
             self._manage_pending_orders()
 
-            # 2. Check existing positions (SL/TP hit? timeout?)
+            # 2. 포지션 관리: SL/TP/timeout/BE/Trail — 매 분
             price_map = self._manage_positions()
 
-            # 3. Scan for new signals
-            self._scan_universe(balance, price_map)
+            # 3. Scan for new signals — 정각(분=0)에만 1회
+            if is_scan_tick:
+                self.bar_counter += 1
+                logger.info("=== Bar %d scan start ===", self.bar_counter)
+                # Note: clock resync는 매 분 호출됨 (위)
+                self.refresh_universe()
+                self._scan_universe(balance, price_map)
+                last_scan_hour_bar = current_hour_bar
 
-            # 3. Save state
+            # 4. Save state — 매 분
             self._save_state()
 
-    def _wait_next_bar(self):
-        """Wait until next bar boundary + 5 seconds. Interval from config."""
+    def _wait_next_minute(self):
+        """Wait until next minute boundary + 5 seconds."""
         now = time.time()
-        interval_min = int(self.cfg["exchange"]["candle_interval"])
-        interval_sec = interval_min * 60
-        next_bar = math.ceil(now / interval_sec) * interval_sec + 5
-        wait = max(0, next_bar - time.time())
+        next_min = math.ceil(now / 60) * 60 + 5
+        wait = max(0, next_min - time.time())
         if wait > 0:
-            logger.info("Waiting %.0fs for next %dmin bar...", wait, interval_min)
             time.sleep(wait)
-        logger.info("=== Bar %d scan start ===", self.bar_counter + 1)
 
     def _get_balance(self) -> float:
         for attempt in range(3):
@@ -1062,7 +1183,7 @@ class MomentumBot:
         # Refresh candles for open position symbols (for intra-bar MFE/MAE)
         for pos in self.positions:
             self._fetch_candles(pos.symbol)
-            time.sleep(0.2)
+            time.sleep(0.4)  # v5.1: rate limit 완화 (0.2 → 0.4) — 매 분 호출, BE/Trail 안정성
 
         closed = []
         for pos in self.positions:
@@ -1163,7 +1284,7 @@ class MomentumBot:
                 continue
 
             if scanned > 0:
-                time.sleep(0.5)
+                time.sleep(0.7)  # v5.1: rate limit 완화 (0.5 → 0.7) — 매 정각 41회 발생, scan 시간 +8s
             candle_data = self._fetch_candles(symbol)
             if candle_data is None:
                 continue
@@ -1225,6 +1346,12 @@ class MomentumBot:
                 risk_pct=self.cfg["risk"]["risk_pct"],
             )
             if not size.valid:
+                continue
+
+            # v5.1: Tier 기반 position cap 적용 (catastrophic slip 방지)
+            size = self._apply_tier_cap(symbol, size, signal.close_price, lot_size)
+            if not size.valid:
+                logger.info("TIER CAP rejected %s: %s", symbol, size.reason)
                 continue
 
             side = "Buy" if signal.direction == 1 else "Sell"

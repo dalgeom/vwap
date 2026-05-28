@@ -19,6 +19,19 @@ risk:
   max_positions: 10       # max concurrent positions
   max_leverage: 3.0       # effective leverage cap
 
+  # v5.1: Liquidity-tiered position caps (catastrophic slippage 방지)
+  # 24h turnover 기준 tier 분류 → tier별 position notional cap
+  # 이 값을 넘으면 qty를 비례 축소 (entry/SL/신호 조건은 동일)
+  tier_caps:
+    tier1_min_volume_usdt: 500_000_000   # > $500M (BTC/ETH/SOL 급)
+    tier1_max_position_usd: 10000
+    tier2_min_volume_usdt: 100_000_000   # > $100M
+    tier2_max_position_usd: 5000
+    tier3_min_volume_usdt: 50_000_000    # > $50M
+    tier3_max_position_usd: 2000
+    tier4_max_position_usd: 1000         # < $50M
+    hard_cap_usd: 10000                  # 절대 max (모든 tier 통합)
+
 filters:
   short_only_btc_down: false
   btc_down_threshold: -0.05

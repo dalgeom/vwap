@@ -156,7 +156,11 @@ def load_15m_all(symbol):
         f = CACHE_DIR / f"{symbol}_{y}_15m.json"
         if f.exists():
             with open(f) as fh:
-                all_c.extend(json.load(fh))
+                data = json.load(fh)
+                for c in data:
+                    if "ts" not in c and "t" in c:
+                        c["ts"] = c["t"]
+                all_c.extend(data)
     seen = set()
     unique = [c for c in all_c if c["ts"] not in seen and not seen.add(c["ts"])]
     unique.sort(key=lambda x: x["ts"])
@@ -172,7 +176,7 @@ def resample(candles_15m, factor):
         out.append({
             "ts": chunk[0]["ts"], "o": chunk[0]["o"],
             "h": max(c["h"] for c in chunk), "l": min(c["l"] for c in chunk),
-            "c": chunk[-1]["c"], "v": sum(c["v"] for c in chunk),
+            "c": chunk[-1]["c"], "v": 0.0,
         })
     return out
 
