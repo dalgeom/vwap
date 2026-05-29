@@ -1,168 +1,98 @@
-## 컨텍스트 인계 프롬프트 — Momentum Bot v5.1 (작성일: 2026-05-28)
+## 컨텍스트 인계 프롬프트 — Momentum Bot v5.1+ (갱신: 2026-05-29, PC 이전용)
 
-너는 Claude. 사용자가 이전 PC에서 진행하던 vwap_trader 모멘텀 봇 v5.1 작업을 새 PC에서 이어 받았다.
-이 프롬프트는 즉시 작업을 이어갈 수 있도록 모든 컨텍스트를 담는다.
+너는 Claude. 사용자가 진행 중인 vwap_trader 모멘텀 봇 작업을 **다른 PC에서 이어받았다.**
+이 프롬프트 + 메모리(project_signal_research) + PLAN.md 만 읽으면 즉시 이어갈 수 있다.
 
----
+═══════════════════════════════════════════════
+★★★ PC 이전 — 가장 먼저 읽을 것 ★★★
+═══════════════════════════════════════════════
+이 repo는 다른 PC에서 봇을 중단하고 git push 한 상태다. 이 PC에서 재가동 전:
+
+1. **`git pull` 먼저.** `data/state_momentum.json`에 오픈 포지션 3개·bar_counter·cooldown이 들어 있다. pull 안 하면 봇이 옛 상태로 떠서 포지션 추적이 어긋난다.
+2. **절대 두 PC에서 동시에 돌리지 말 것.** 같은 Bybit 데모 계좌를 둘이 관리하면 주문 중복·SL 충돌로 망가진다. 이전 PC의 봇이 완전히 죽었는지 먼저 확인.
+3. 재가동: `w32tm /resync /force`(관리자) → `.\venv\Scripts\python.exe -m vwap_trader.momentum_bot`
+4. 로그에 `State loaded: 3 positions, bar=188...` 뜨는지 확인. 포지션은 Bybit 서버에 살아있으니 봇 꺼진 동안에도 SL은 작동.
+
+───────────────────────────────────────────────
 
 ## 1. 프로젝트 개요
+- **위치**: `vwap_trader/`, Windows + PowerShell, venv `vwap_trader/venv/`. **git root는 한 단계 위(`code/`)**.
+- **봇**: Bybit USDT 무기한 선물 **데모 계좌**, 모멘텀 추종.
+- **버전 v5.1+**: 1h봉 + BE+Trailing + 1m 폴링 + Tier Cap + Clock Resync + **신호컨텍스트 로깅 + Shadow Log**.
+- **핵심 원리**: 1h봉 abs(return)이 과거 500봉 99.5%ile 초과 시 그 방향 진입.
+- **현 단계**: 데이터 수집 + 손실 원인 연구. 검증 임계점 50건(첫 평가) / 200건(Go/No-Go).
 
-- **위치**: `vwap_trader/` (이 디렉토리)
-- **봇**: Bybit USDT 무기한 선물 데모 계좌, 모멘텀 추종 전략
-- **버전**: **v5.1** (1h 봉 + BE+Trailing Stop + 1m 폴링 + Tier Cap + Clock Resync)
-- **핵심 원리**: 1h 봉 abs(return)이 과거 500봉 99.5%ile 초과 시 모멘텀 방향 진입
+## 2. 필독 문서 (순서대로)
+1. 메모리 `project_signal_research` — 연구 결론.
+2. `PLAN.md` — **단일 정본**. 상태/전략/안전장치/한계/의사결정 이력 전부. (※ docs/upgrade_options.md는 PLAN에 통합 후 삭제됨)
+3. `config/momentum_config.yaml` — 파라미터.
+4. `src/vwap_trader/momentum_bot.py` (~1560줄), `src/vwap_trader/strategy/momentum.py` (신호 검출).
 
----
+## 3. 봇 운영 상태 (2026-05-29, bar 188 기준)
+- **누적 44건 청산, WR 37.2%, PnL -$233.** v5.1만(tier cap 이후) 13건 WR 약 42% **+$191 (양전환)**.
+- **오픈 포지션 3개 (전부 long, 새 필드 O)**:
+  - ALLOUSDT long entry 0.18844 → **+54% 🚀 BE잠금** (대박 진행 중, trailing이 견인)
+  - XPLUSDT long entry 0.09361 → **+4% BE잠금**
+  - XLMUSDT long entry 0.20847 → **-1.5%**
+- 직전 청산: BCHUSDT short SL -2.22%(상승장 역추세 숏, BE 못 닿음).
 
-## 2. 필독 문서 (순서대로 읽을 것)
+## 4. 이번 세션 핵심 발견 ★ 가장 중요 (상세 PLAN §8.5)
 
-1. **`PLAN.md`** — 봇 현재 상태, 전략, 안전장치, 모니터링 항목, 의사결정 이력 전부
-2. **`docs/upgrade_options.md`** — v1~v5.1 버전 히스토리 + v5.1 진단/검증 결과
-3. **`config/momentum_config.yaml`** — 모든 파라미터 (strategy/risk/tier_caps/filters/universe)
-4. **`src/vwap_trader/momentum_bot.py`** (1450줄, 핵심 코드)
-5. **`src/vwap_trader/strategy/momentum.py`** (188줄, 신호 검출)
+### 4.1 손실 원인 (473건 분석)
+- 패자 **82%가 진입 직후 역행(MFE<0.5%)** = 구조적 adverse selection(신호가 단기 극점 포착).
+- **진입 시점 변수(신호세기·변동성·BTC방향·꼬리·거래량)로는 winner/loser 변별 불가.**
 
----
+### 4.2 조기컷 = 막다른 길 (재시도 금지)
+- 인트라바 백테스트(WR 98.7%)는 실전 손실 재현 못 해 검증 불가. 시간 기반 컷은 늦터지는 대박을 죽여 역효과(-$600~800).
 
-## 3. 봇 운영 상태 (2026-05-28 기준)
+### 4.3 변별신호 가설 — "이미 한참 오른 막차=탈진" (38건, 가설 단계)
+- 후보: 선행추세 `ret_12/24`, 연속봉 `consec`, OI변화 `oi_chg`(승자 증가/패자 감소 가설).
+- **무효(변별력 없음)**: 꼬리, 거래량 spike, 펀딩, 군집.
+- ⚠️ **단일 필드 불완전 — 실거래 반례 누적 중**:
+  - ALLO: `ret_12=73%`(극단 막차, 가설상 위험 1순위)인데 **+54% 최대 winner**. OI +5.5.
+  - BCH: 패자인데 `oi_chg=+9.97`(OI 증가, 가설상 승자 신호). → SL.
+  - → OI 부호/ret_12 하나로는 못 거른다. **다변량 + 표본**이 답.
 
-- **누적 trades**: 37건 청산 + 2건 오픈 (ERA short, XPL short)
-- **버전별 분리**:
-  - v5 (1h polling): 14건, WR 35.7%, +$1,358
-  - v5 (1m polling, no cap): 17건, WR 35.3%, -$1,775 (GRASS2 -$1,798 catastrophic 1건 포함)
-  - **v5.1**: 6건, WR 33.3%, **-$78** (BSB +$275, GRASS +$35, 4건 즉시 반전 SL)
-- **누적 실현 PnL**: -$495
-- **검증 임계점**: 50건(첫 평가), 200건(Go/No-Go)
+## 5. 이번 세션 코드 변경 (momentum_bot.py + config, 거래로직 무영향)
 
----
+### 5.1 신호 컨텍스트 5필드 (로깅 전용)
+- `signal_ret_6/12/24`(진입 전 N봉 누적수익, 방향 반영 %), `signal_consec`(연속 동방향봉), `signal_oi_chg`(OI 1h 변화율 %).
+- `_compute_signal_context()` → OpenPosition → `_log_trade`. 미래 진입부터 기록(소급 X).
 
-## 4. v5.1 핵심 변경사항 (전부 `momentum_bot.py`에 구현됨)
+### 5.2 Shadow Log ★ 이번 세션 신규 구현 완료
+- **목적**: fire 됐지만 진입 안 된 신호 기록 → **생존편향 깨기**(걸린 신호의 가상 성과로 대조군 확보).
+- 출력 `data/shadow_momentum.jsonl`, trades와 **동일 스키마**(exit/pnl 제외 + `shadow_reason`). forward 성과는 symbol+timestamp+signal_price로 klines 소급.
+- `_log_shadow()` + `_scan_universe` 재구성: 만석도 `scan_only`로 신호 포착, 진입만 skip. reason 9종(max_pos_full/btc_filter/slippage_cooldown/rank_cutoff/long_cap/short_cap/size_invalid/tier_cap/order_failed). 로그 `Scan done: N entries, M shadow,...`.
+- **현재 파일 미생성** = 아직 걸린 신호 0건(신호 자체가 희귀 + 포지션 여유 있어 다 진입됨). long 3개 차서 다음 long 신호부터 `long_cap` shadow 예상.
+- config `logging.shadow_file: shadow_momentum.jsonl` 추가.
 
-| 변경 | 효과 | 검증 |
-|---|---|---|
-| 1m 폴링 (`_main_loop` 분리) | BE/Trail 매 분 갱신 | NEAR2/LIT3/ERA BE 보호 ✓, BSB/GRASS trailing winner ✓ |
-| `_apply_tier_cap()` | catastrophic slip 손실 한정 | PHA/ESPORTS/GRASS/XPL 4건 발동 ✓ |
-| `_resync_clock_offset()` 매 분 + balance fail 시 즉시 | ErrCode 10002 차단 | 강화 후 0건 ✓ |
-| `slippage_cooldown` state 저장/복원 | 봇 재시작 시 cooldown 유지 | 구현 완료, 검증은 데이터 누적 후 |
-| Rate Limit sleep 완화 (0.5→0.7, 0.2→0.4 등) | ErrCode 10006 부분 완화 | _manage_positions RL 4→1건 ✓, scan은 시간대 의존 |
-| trade record `bot_version` 필드 | v5/v5.1 분석 분리 | "v5.1" 필드 있으면 v5.1 |
+## 6. 미해결/우선순위 (냉철한 순서)
 
----
+1. **데이터 축적이 1순위.** 봇 돌리며 표본 50건+ → entered vs shadow 비교로 ret/consec/oi 검증. 그 전엔 필터 적용 금지(weak winner 죽임).
+2. **rate limit(10006)은 critical 아님으로 결론**(5/29). 거래 실패는 retry로 회복, 네트워크 마비는 랜선 일회성 사고. 단 매 정각 scan 47/51(RL로 4코인 skip)은 shadow의 관측 구멍 → **표본 쌓은 뒤** universe 축소($20M→$50M)로 해소 검토. 지금 손대지 말 것.
+3. 검증 후: regime 필터(BCH 역추세 숏 사례), exit 튜닝(winner가 MFE 상당분 반납하는 패턴), sizing.
 
-## 5. 봇 실행 / 중단 / 검증
+⚠️ **필드 인플레 경계**: 표본 작은데 변수 많으면 다중비교 함정. 가설 명확한 것만, 표본 먼저.
 
-```powershell
-# 봇 시작 (Windows PowerShell)
-cd c:\...\vwap_trader   # 새 PC 경로
-.\venv\Scripts\Activate.ps1
-python -m vwap_trader.momentum_bot
+## 7. 분석 스크립트 (repo 루트 vwap_trader/)
+- `analyze_signal_features.py` — D-소급(신호모양/선행추세/OI/펀딩) winner/loser 비교.
+- `backtest_earlycut.py` — 조기컷 인트라바 백테스트(**무용 확인됨**).
+- `backtest_earlycut_real.py` — 실전 1분봉 조기컷 검증.
+- 캐시 `data/cache/*.json`(재생성 가능, **git 미커밋**), 과거버전 거래 `data/trades_momentum_v1~v41.jsonl`.
 
-# 봇 시작 전 권장 (관리자 PowerShell)
-w32tm /resync /force    # OS 시계 NTP 동기화
+## 8. 작업 원칙 (사용자 메모리)
+- **한국어 응답**, 기술용어 영어. **객관·냉철, 맞장구 금지, 데이터 기반.**
+- **분석 전 답변 금지** — 파일 끝까지 읽고 로직 추적 후.
+- 도구: `rg`(NOT grep), `fd`(NOT find), `bat -r`, `wc -l` 선행, jq 없음→python.
+- **봇은 정각(분=0)에만 무거운 scan** → 분석용 API는 정각 피해서.
+- 3+ 파일/복잡 로직은 계획 공유 → 승인 후. **자동 커밋 금지**. rm/force/reset 확인 후.
+- 콘솔 cp949 → python 출력 시 `PYTHONIOENCODING=utf-8` 또는 open(encoding='utf-8').
 
-# 봇 중단
-# - 안전: data/STOP_MOMENTUM 파일 생성 → 다음 분에 정상 종료
-# - 즉시: 프로세스 kill (state.json 매 분 저장됨, 손실 거의 없음)
-```
-
-**재시작 후 검증 포인트**:
-1. `State loaded: N positions, bar=X, slip_cooldowns=Y` 로그 출력
-2. 매 분 _manage_positions 호출 (BE/Trail update 로그)
-3. 매 정각 `=== Bar X scan start ===` + 다음 정각마다 `Clock offset updated` (drift 100ms+ 시)
-4. 신호 진입 시 `TIER X CAP {symbol}: ...` 로그 (Tier 3/4 작은 코인 진입 시)
-
----
-
-## 6. 데이터 확인 명령
-
-```powershell
-# 누적 trade 수
-wc -l data/trades_momentum.jsonl
-
-# 오픈 포지션 + bar_counter + slippage_cooldown
-cat data/state_momentum.json
-
-# v5/v5.1 분리 분석
-python -c "import json; trades=[json.loads(l) for l in open('data/trades_momentum.jsonl')]; v5=[t for t in trades if 'bot_version' not in t]; v51=[t for t in trades if t.get('bot_version')=='v5.1']; print(f'v5: {len(v5)}, v5.1: {len(v51)}')"
-```
-
----
-
-## 7. 핵심 발견 (현재 검증된 패턴)
-
-### ✅ 잘 작동
-- **Trailing winner**: BSB short +23.92% (hold 38봉), GRASS short +3.63% (hold 22봉) — **1m 폴링 효과 검증**
-- **BE 보호**: NEAR2 -0.06%, LIT3 -0.12%, ERA 진행 중 — sl=entry로 정확히 이동
-- **Tier Cap**: 4건 모두 catastrophic 없이 처리 (대조군: GRASS2 v5 -$1,798)
-- **Clock Resync**: ErrCode 10002 강화 후 0건
-
-### ⚠️ 약점 / 모니터링 중
-- **즉시 반전 SL 67%** (v5.1 4/6 = NEAR/ESPORTS/PHA/ETH, hold 0~2봉)
-  - 전략 자체 한계. P99.5% 신호의 일부가 exhaustion spike
-- **Rate Limit 시간대 의존성**: UTC 10/14시 (미국 시장) 5~6건 폭주, 다른 시간대 1~2건
-  - sleep만으론 burst limit 한계
-- **누적 PnL은 5~7건의 jackpot에 의존**: BSB(x2), BEAT1, NEAR1, PROVE, IN2 빠지면 큰 손실
-
-### 데이터 분석 결과 (n=37, 표본 작음, 즉시 적용 보류)
-- **signal_ret abs >= 8%** 만 거래 시 가상 net +$1,200 (현재 -$495)
-- "강한 신호 reject" 가설은 **정반대**로 입증
-- 단순 threshold filter는 NEAR1(sig +4%)/PROVE(sig -4.5%) 같은 weak winner도 잃음
-
----
-
-## 8. 향후 결정 후보 (사용자와 상의 필요)
-
-1. **signal_ret 임계값 적용 시점** — 50~100건 누적 후 신뢰성 검증 (지금은 보류)
-2. **Rate Limit 추가 완화** — 심볼 간 sleep 0.7→1.0 또는 universe scan을 정각+30초로 분산
-3. **고변동성 코인 blacklist** — ESPORTS 같은 1.5 ATR이 entry의 10%+ 인 코인
-4. **slippage_cooldown threshold 강화** — 현재 1%p → 0.5%p
-5. **min_volume_usdt 상향** — $20M → $50M+ (universe 축소)
-
----
-
-## 9. 작업 시 지켜야 할 원칙 (사용자 메모리 기반)
-
-- **한국어 응답**. 기술 용어/명령어는 영어 유지
-- **객관적 답 유지**: 사용자 반박/동의에 흔들리지 말고 데이터 기반으로 판단
-- **분석 전 답변 금지**: 관련 파일 전체 읽고 로직 끝까지 추적 후 단 한 번만 답변
-- **도구 효율성**: `rg` (NOT grep), `fd` (NOT find), `bat -r 20:80 file` (NOT cat), `wc -l` (파일 로드 전), `jq` (JSON 탐색)
-- **3개 이상 파일 수정 시 계획 먼저 공유** → 승인 후 진행
-- **자동 커밋 금지**, **rm -rf/--force/git reset --hard 명시적 확인 후에만**
-
----
-
-## 10. 즉시 시작 가능한 첫 작업
-
-새 PC에서 봇 시작 전:
-1. `cat data/state_momentum.json` → 오픈 포지션 (ERA, XPL) 정상인지 확인
-2. `wc -l data/trades_momentum.jsonl` → 37건 (또는 그 이상) 확인
-3. `w32tm /resync /force` (관리자) → OS 시계 동기화
-4. 봇 실행 → 첫 1~2분 로그 검증 (state loaded, 매 분 _manage_positions, 매 정각 scan)
-5. 사용자에게 "봇 정상 재시작 완료" 보고
-
----
-
-## 11. 사용자 작업 스타일
-
-- 봇 로그를 자주 공유하며 "분석해줘" 요청 → 데이터 변화를 분석 + 인사이트 추출
-- 매 정각 후 로그 / state 변화 확인 요청 가능
-- v5.1 trade record 누적 추이 (특히 winner/loser 패턴) 관심 큼
-- BSB/GRASS 같은 큰 winner 청산 시 의미 분석 원함
-- 즉시 반전 SL 같은 패턴 발견 시 원인 + 대응책 검토 원함
-- 변경 사항은 항상 PLAN.md / docs/upgrade_options.md 에 반영 (사용자가 명시적으로 요청)
-
----
-
-## 12. 환경
-
-- OS: Windows 11 Pro
-- Shell: PowerShell 기본 (bash 가능)
-- Python venv: `vwap_trader/venv/`
-- 시간대: 봇 로그 시각은 **KST 한국 시각**, trade timestamps + state.json은 **UTC**
-
----
+## 9. 환경
+- Windows 11 Pro, PowerShell(bash 가능), venv `vwap_trader/venv/`.
+- 경로 `...\code\vwap_trader` (git root는 `...\code`). git: master, origin https://github.com/dalgeom/vwap.git.
+- 시간대: 봇 로그 KST, trade timestamp/state.json UTC.
 
 ## 끝.
-
-이 프롬프트만 보고도 즉시 사용자와 작업 이어갈 수 있다.
-필요시 PLAN.md를 먼저 읽고 상세 컨텍스트 보충.
+다른 PC에서 재가동 시: **git pull → 동시 실행 금지 확인 → 봇 시작 → State loaded 3 positions 확인.**
+지금 할 일은 새 기능이 아니라 **봇 안정 가동 + 표본 축적**. 50건 닿으면 shadow 대조로 첫 검증.

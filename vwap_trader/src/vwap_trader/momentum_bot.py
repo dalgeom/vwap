@@ -87,7 +87,10 @@ class OpenPosition:
                  btc_price_at_entry: float = 0.0, btc_1h_change_pct: float = 0.0,
                  position_size_usd: float = 0.0,
                  mfe: float = 0.0, mae: float = 0.0,
-                 best_price: float = 0.0, be_triggered: bool = False):
+                 best_price: float = 0.0, be_triggered: bool = False,
+                 signal_ret_6: float = 0.0, signal_ret_12: float = 0.0,
+                 signal_ret_24: float = 0.0, signal_consec: int = 0,
+                 signal_oi_chg: float = 0.0):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -109,6 +112,12 @@ class OpenPosition:
         # v5: trailing stop state
         self.best_price = best_price or entry_price  # best price seen (for trailing)
         self.be_triggered = be_triggered  # breakeven SL activated?
+        # v5.1+: signal context (D-소급 검증 변별신호 — 로깅 전용, 거래결정 무영향)
+        self.signal_ret_6 = signal_ret_6      # 진입 전 6봉 누적수익(방향 반영, %)
+        self.signal_ret_12 = signal_ret_12    # 진입 전 12봉
+        self.signal_ret_24 = signal_ret_24    # 진입 전 24봉
+        self.signal_consec = signal_consec    # 진입 전 연속 동방향 봉 수
+        self.signal_oi_chg = signal_oi_chg    # 신호봉 직전 OI 변화율(%)
 
     def to_dict(self) -> dict:
         return vars(self)
@@ -164,6 +173,8 @@ class MomentumBot:
         self._state_file = DATA_DIR / self.cfg["logging"]["state_file"]
         self._trades_file = DATA_DIR / self.cfg["logging"]["trades_file"]
         self._slippage_file = DATA_DIR / self.cfg["logging"]["slippage_file"]
+        self._shadow_file = DATA_DIR / self.cfg["logging"].get(
+            "shadow_file", "shadow_momentum.jsonl")
         self._heartbeat_file = DATA_DIR / "heartbeat_momentum"
         self._stop_file = DATA_DIR / "STOP_MOMENTUM"
 
@@ -721,6 +732,12 @@ class MomentumBot:
             "btc_4h_return_pct": round(getattr(pos, "_btc_4h_return", self._btc_4h_return), 4),
             "btc_4h_atr": round(getattr(pos, "_btc_4h_atr", self._btc_4h_atr), 2),
             "regime": getattr(pos, "_regime", self._regime),
+            # v5.1+: D-소급 검증 변별신호 (선행추세/연속성/OI)
+            "signal_ret_6": round(getattr(pos, "signal_ret_6", 0.0), 4),
+            "signal_ret_12": round(getattr(pos, "signal_ret_12", 0.0), 4),
+            "signal_ret_24": round(getattr(pos, "signal_ret_24", 0.0), 4),
+            "signal_consec": getattr(pos, "signal_consec", 0),
+            "signal_oi_chg": round(getattr(pos, "signal_oi_chg", 0.0), 4),
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -1244,12 +1261,77 @@ class MomentumBot:
 
         return price_map
 
+    def _compute_signal_context(self, symbol: str, direction: int) -> dict:
+        """v5.1+: D-소급 검증된 변별 신호 계산 (로깅 전용, 거래 결정엔 영향 없음).
+        선행추세(ret_6/12/24, 방향 반영), 연속 동방향봉, OI 변화율(%)."""
+        ctx = {"ret_6": 0.0, "ret_12": 0.0, "ret_24": 0.0, "consec": 0, "oi_chg": 0.0}
+        cache = self._candle_cache.get(symbol, [])
+        if len(cache) > 25:
+            closes = [c[4] for c in cache]
+            opens = [c[1] for c in cache]
+            for n in (6, 12, 24):
+                base = closes[-1 - n]
+                if base > 0:
+                    ctx[f"ret_{n}"] = round(direction * (closes[-1] - base) / base * 100, 4)
+            cc = 0
+            for i in range(len(closes) - 2, -1, -1):
+                if (closes[i] - opens[i]) * direction > 0:
+                    cc += 1
+                else:
+                    break
+            ctx["consec"] = cc
+        try:
+            resp = self.public_session.get_open_interest(
+                category="linear", symbol=symbol, intervalTime="1h", limit=2)
+            lst = resp["result"]["list"]
+            if len(lst) >= 2:
+                cur, prev = float(lst[0]["openInterest"]), float(lst[1]["openInterest"])
+                if prev > 0:
+                    ctx["oi_chg"] = round((cur - prev) / prev * 100, 4)
+        except Exception as e:
+            logger.debug("OI fetch failed %s: %s", symbol, e)
+        return ctx
+
+    def _log_shadow(self, signal, direction_str: str, reason: str,
+                    btc_price: float, btc_1h_change: float):
+        """v5.1+: fire 됐지만 진입 안 된 신호 기록 (생존편향 분석용).
+        trades 로그와 동일 스키마(exit/pnl 제외 + shadow_reason). forward 성과는
+        symbol+timestamp+signal_price로 추후 klines에서 소급 재구성."""
+        sig_ctx = self._compute_signal_context(signal.symbol, signal.direction)
+        now = datetime.now(timezone.utc)
+        record = {
+            "bot_version": "v5.1",
+            "timestamp_utc": now.isoformat(),
+            "symbol": signal.symbol,
+            "side": direction_str,
+            "shadow_reason": reason,
+            "signal_price": signal.close_price,
+            "atr_at_entry": round(signal.atr, 8),
+            "signal_strength": round(signal.percentile_rank, 4),
+            "signal_return_pct": round(signal.trigger_ret, 4),
+            "btc_price_at_entry": round(btc_price, 2),
+            "btc_1h_change_pct": round(btc_1h_change, 4),
+            "btc_4h_return_pct": round(self._btc_4h_return, 4),
+            "btc_4h_atr": round(self._btc_4h_atr, 2),
+            "regime": self._regime,
+            "hour_of_day_utc": now.hour,
+            "day_of_week_utc": now.weekday(),
+            "signal_ret_6": sig_ctx["ret_6"],
+            "signal_ret_12": sig_ctx["ret_12"],
+            "signal_ret_24": sig_ctx["ret_24"],
+            "signal_consec": sig_ctx["consec"],
+            "signal_oi_chg": sig_ctx["oi_chg"],
+        }
+        with open(self._shadow_file, "a") as f:
+            f.write(json.dumps(record) + "\n")
+
     def _scan_universe(self, balance: float, price_map: dict[str, float] | None = None):
         """Scan all coins for momentum signals. Option G: cluster limit + pullback entry."""
         max_pos = self.cfg["risk"]["max_positions"]
-        if len(self.positions) >= max_pos:
-            logger.info("Max positions reached (%d) — skip scan", max_pos)
-            return
+        # v5.1+: 만석이어도 shadow log 위해 스캔은 수행 (진입만 skip)
+        scan_only = len(self.positions) >= max_pos
+        if scan_only:
+            logger.info("Max positions reached (%d) — shadow-scan only", max_pos)
 
         filters_cfg = self.cfg.get("filters", {})
         max_entries = filters_cfg.get("max_entries_per_bar", 2)
@@ -1279,6 +1361,7 @@ class MomentumBot:
 
         # Phase 1: Collect all signals, then pick top N by signal_strength
         candidates = []
+        shadow_list = []  # v5.1+: (signal, direction_str, reason) — fired but not entered
         for symbol in self.universe:
             if symbol in open_symbols or symbol in pending_symbols:
                 continue
@@ -1302,12 +1385,14 @@ class MomentumBot:
             if filters_cfg.get("short_only_btc_down", False) and direction_str == "short":
                 btc_down_th = filters_cfg.get("btc_down_threshold", -0.05)
                 if btc_1h_change > btc_down_th:
+                    shadow_list.append((signal, direction_str, "btc_filter"))
                     continue
 
             # Slippage cooldown
             if symbol in self._slippage_cooldown:
                 until = self._slippage_cooldown[symbol]
                 if datetime.now(timezone.utc) < until:
+                    shadow_list.append((signal, direction_str, "slippage_cooldown"))
                     continue
                 else:
                     del self._slippage_cooldown[symbol]
@@ -1319,19 +1404,34 @@ class MomentumBot:
         logger.info("Scan: %d/%d scanned, %d candidates, picking top %d",
                      scanned, len(self.universe), len(candidates), max_entries)
 
+        # v5.1+: 만석이면 진입 없이 잡힌 신호 전부 shadow 기록 후 종료
+        if scan_only:
+            for sig, d in candidates:
+                shadow_list.append((sig, d, "max_pos_full"))
+            for sig, d, reason in shadow_list:
+                self._log_shadow(sig, d, reason, btc_price, btc_1h_change)
+            logger.info("Scan done (shadow-only): %d signals logged", len(shadow_list))
+            return
+
         entries_this_bar = 0
-        for signal, direction_str in candidates:
+        for idx, (signal, direction_str) in enumerate(candidates):
             if entries_this_bar >= max_entries:
+                for sig, d in candidates[idx:]:
+                    shadow_list.append((sig, d, "rank_cutoff"))
                 break
             if len(self.positions) + len(self._pending_orders) >= max_pos:
+                for sig, d in candidates[idx:]:
+                    shadow_list.append((sig, d, "max_pos_full"))
                 break
 
             # Direction cap
             if direction_str == "long" and long_count >= max_long:
                 logger.debug("FILTER long cap reached (%d)", long_count)
+                shadow_list.append((signal, direction_str, "long_cap"))
                 continue
             if direction_str == "short" and short_count >= max_short:
                 logger.debug("FILTER short cap reached (%d)", short_count)
+                shadow_list.append((signal, direction_str, "short_cap"))
                 continue
 
             symbol = signal.symbol
@@ -1346,12 +1446,14 @@ class MomentumBot:
                 risk_pct=self.cfg["risk"]["risk_pct"],
             )
             if not size.valid:
+                shadow_list.append((signal, direction_str, "size_invalid"))
                 continue
 
             # v5.1: Tier 기반 position cap 적용 (catastrophic slip 방지)
             size = self._apply_tier_cap(symbol, size, signal.close_price, lot_size)
             if not size.valid:
                 logger.info("TIER CAP rejected %s: %s", symbol, size.reason)
+                shadow_list.append((signal, direction_str, "tier_cap"))
                 continue
 
             side = "Buy" if signal.direction == 1 else "Sell"
@@ -1367,6 +1469,7 @@ class MomentumBot:
                 result = self._place_limit_order(
                     symbol, side, size.qty, limit_price, sl_tp.sl, sl_tp.tp)
                 if result is None:
+                    shadow_list.append((signal, direction_str, "order_failed"))
                     continue
 
                 pend = {
@@ -1399,11 +1502,14 @@ class MomentumBot:
                 result = self._place_market_order(
                     symbol, side, size.qty, sl_tp.sl, sl_tp.tp)
                 if result is None:
+                    shadow_list.append((signal, direction_str, "order_failed"))
                     continue
 
                 fill_price = float(result.get("avgPrice", 0)) or signal.close_price
                 self._log_slippage(symbol, direction_str, signal.close_price, fill_price)
                 entry_price = fill_price if fill_price > 0 else signal.close_price
+
+                sig_ctx = self._compute_signal_context(symbol, signal.direction)
 
                 pos = OpenPosition(
                     symbol=symbol,
@@ -1421,6 +1527,11 @@ class MomentumBot:
                     btc_price_at_entry=btc_price,
                     btc_1h_change_pct=btc_1h_change,
                     position_size_usd=size.notional,
+                    signal_ret_6=sig_ctx["ret_6"],
+                    signal_ret_12=sig_ctx["ret_12"],
+                    signal_ret_24=sig_ctx["ret_24"],
+                    signal_consec=sig_ctx["consec"],
+                    signal_oi_chg=sig_ctx["oi_chg"],
                 )
                 pos._btc_4h_return = self._btc_4h_return
                 pos._btc_4h_atr = self._btc_4h_atr
@@ -1440,9 +1551,13 @@ class MomentumBot:
                 short_count += 1
             time.sleep(0.2)
 
+        # v5.1+: 진입 안 된 신호 전부 shadow 기록
+        for sig, d, reason in shadow_list:
+            self._log_shadow(sig, d, reason, btc_price, btc_1h_change)
+
         cached_coins = len(self._candle_cache)
-        logger.info("Scan done: %d entries, %d pending, %d positions (cache: %d)",
-                     entries_this_bar, len(self._pending_orders),
+        logger.info("Scan done: %d entries, %d shadow, %d pending, %d positions (cache: %d)",
+                     entries_this_bar, len(shadow_list), len(self._pending_orders),
                      len(self.positions), cached_coins)
 
 

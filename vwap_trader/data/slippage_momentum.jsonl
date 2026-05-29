@@ -37,3 +37,11 @@
 {"symbol": "GRASSUSDT", "direction": "short", "intended_price": 0.55079, "fill_price": 0.55079, "slippage_pct": 0.0, "timestamp": "2026-05-26T18:00:37.760389+00:00"}
 {"symbol": "ETHUSDT", "direction": "short", "intended_price": 2015.41, "fill_price": 2015.41, "slippage_pct": 0.0, "timestamp": "2026-05-27T22:00:44.878050+00:00"}
 {"symbol": "XPLUSDT", "direction": "short", "intended_price": 0.08578, "fill_price": 0.08578, "slippage_pct": 0.0, "timestamp": "2026-05-27T22:00:45.234646+00:00"}
+{"symbol": "LINKUSDT", "direction": "short", "intended_price": 8.88, "fill_price": 8.88, "slippage_pct": 0.0, "timestamp": "2026-05-28T04:00:44.583756+00:00"}
+{"symbol": "WLDUSDT", "direction": "short", "intended_price": 0.2941, "fill_price": 0.2941, "slippage_pct": 0.0, "timestamp": "2026-05-28T11:00:53.848024+00:00"}
+{"symbol": "BCHUSDT", "direction": "short", "intended_price": 301.7, "fill_price": 301.7, "slippage_pct": 0.0, "timestamp": "2026-05-28T12:00:54.790528+00:00"}
+{"symbol": "XLMUSDT", "direction": "long", "intended_price": 0.19048, "fill_price": 0.19048, "slippage_pct": 0.0, "timestamp": "2026-05-28T13:00:52.597954+00:00"}
+{"symbol": "ESPORTSUSDT", "direction": "long", "intended_price": 0.05681, "fill_price": 0.05681, "slippage_pct": 0.0, "timestamp": "2026-05-28T15:00:52.640358+00:00"}
+{"symbol": "XPLUSDT", "direction": "long", "intended_price": 0.09361, "fill_price": 0.09361, "slippage_pct": 0.0, "timestamp": "2026-05-28T18:00:54.436521+00:00"}
+{"symbol": "ALLOUSDT", "direction": "long", "intended_price": 0.18844, "fill_price": 0.18844, "slippage_pct": 0.0, "timestamp": "2026-05-29T03:00:52.922594+00:00"}
+{"symbol": "XLMUSDT", "direction": "long", "intended_price": 0.20847, "fill_price": 0.20847, "slippage_pct": 0.0, "timestamp": "2026-05-29T04:00:48.507137+00:00"}

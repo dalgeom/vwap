@@ -60,3 +60,4 @@ logging:
   slippage_file: slippage_momentum.jsonl
   trades_file: trades_momentum.jsonl
   state_file: state_momentum.json
+  shadow_file: shadow_momentum.jsonl

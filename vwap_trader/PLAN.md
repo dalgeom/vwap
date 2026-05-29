@@ -1,6 +1,6 @@
-# Momentum Bot — 전략 계획서 (v5.1)
+# Momentum Bot — 전략 계획서 (v5.1+)
 
-> 최종 업데이트: 2026-05-27
+> 최종 업데이트: 2026-05-29
 > 이전 펀딩 역추세 봇 PLAN은 [PLAN_funding_legacy.md](PLAN_funding_legacy.md) 참조 (폐기됨)
 
 ---
@@ -10,7 +10,7 @@
 Bybit USDT 무기한 선물 데모 계좌에서 **모멘텀 추종(Big Move Follow-Through)** 전략 자동 운영.
 P99.5 percentile 이상 1h 봉 수익률 → 모멘텀 방향으로 진입 → BE+Trailing Stop 청산.
 
-- **현재 단계**: v5.1 운영, 데이터 수집 중 (37 trades, 2 open)
+- **현재 단계**: v5.1+ 운영, 데이터 수집 중 (43 trades, 4 open). 신호연구 병행 — 변별신호 로깅 + shadow log 가동
 - **검증 임계점**: 50건(첫 평가), 200건(Go/No-Go)
 
 ---
@@ -71,79 +71,45 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 | v4.1 | 2026-05-19 | 클러스터 제한 (옵션 G) | EV -$52, 5분봉 한계 명확 |
 | v5 | 2026-05-21 | **1h 봉 전환 + BE+Trailing Stop** | OOS WR 98.7% 백테스트 |
 | **v5.1** | **2026-05-23~27** | **1m 폴링 + Tier Cap + Clock resync + bot_version** | **운영 중** |
-
-자세한 옵션 실패 분석은 [docs/upgrade_options.md](docs/upgrade_options.md) 참조.
-
----
-
-## 4. v5.1 변경 사항 상세
-
-### 4.1 1분 폴링 (가장 중요)
-
-**발견된 결함**: v5 코드에서 `_main_loop`가 1h 정각에만 깨어남 → BE/Trail SL 갱신이 1h 지연.
-**증거**: HYPEUSDT trade 2번 (be_triggered=true인데 SL은 초기값, -2.81% 손실).
-
-**수정** ([momentum_bot.py:833-890](src/vwap_trader/momentum_bot.py#L833)):
-- `_wait_next_minute()` 신규 (1분 단위 깨어남)
-- 매 분 `_manage_positions()` (BE/Trail/Bybit SL update)
-- 정각(분=0)에만 `_scan_universe()` (신호 검출 빈도 동일)
-
-**검증**:
-- NEARUSDT trade 23 (5/24): be_triggered=true, sl=entry → 정확한 BE 청산 (-0.06%, -$5.75)
-- LITUSDT trade 28 (5/25): 동일 패턴 (-0.12%, -$13)
-
-### 4.2 Tier Cap
-
-**발견된 결함**: GRASSUSDT trade 27 (5/25 19:00) — 5분 만에 -30.10% (-$1,798) catastrophic slip. position $5,953, SL distance -2%였으나 호가창 잠식으로 -30% 체결.
-
-**수정**: `_apply_tier_cap()` 신규 ([momentum_bot.py:172-237](src/vwap_trader/momentum_bot.py#L172)). 24h volume 기반 tier 분류 → notional 초과 시 qty 비례 축소.
-
-**상태**: 코드 작동 검증됨 (NEAR trade 32에서 Tier 1 cap 안에 들어옴 → 미적용). **Tier 3/4 작은 코인 진입 시 실제 발동 검증 대기**.
-
-### 4.3 Clock Resync (2단계 강화)
-
-**발견된 결함**: 봇 3시간 운영 후 시스템 시계 drift → ErrCode 10002 폭주 → 거래 처리 마비.
-
-**1차 수정** (5/26):
-- 시작 시 monkey-patch 무조건 적용 (offset 작아도) — lambda가 글로벌 `_clock_offset_ms` 매 호출 lookup
-- `_resync_clock_offset()` 매 **정각** 호출 ([momentum_bot.py:53-66](src/vwap_trader/momentum_bot.py#L53))
-
-**2차 강화** (5/27): 정각만으로는 drift catch 못 함 (6분 만에 1초+ drift 케이스 발견)
-- `_resync_clock_offset()` 호출 빈도: 정각 → **매 분**
-- Balance fetch 실패 시 즉시 추가 resync ([momentum_bot.py:859-867](src/vwap_trader/momentum_bot.py#L859))
-
-**검증**: 1시간당 약 -150ms drift 관찰. 매 분 자동 보정 → ErrCode 10002 = 0건.
-
-### 4.4 bot_version 필드 + 시스템 시계 NTP
-
-- `_log_trade` record에 `"bot_version": "v5.1"` 추가 → 분석 시 `t.get("bot_version") == "v5.1"`로 필터링.
-- 외부 조치: 관리자 PowerShell에서 `w32tm /resync /force` (봇 시작 전 OS 시계 정확도 보장).
-
-### 4.5 slippage_cooldown State 저장/복원
-
-**발견된 결함**: 메모리 dict이라 봇 재시작 시 cooldown 정보 소실. GRASSUSDT가 catastrophic slip 후 48h cooldown 적용됐으나 봇 재시작으로 정보 사라져 cooldown 안에 재진입 발생.
-
-**수정** ([momentum_bot.py:768-803](src/vwap_trader/momentum_bot.py#L768)):
-- `_save_state`에서 `slippage_cooldown` dict를 ISO datetime 문자열로 직렬화 저장
-- `_load_state`에서 복원 + 만료된 항목 자동 필터링
-- 로그: `State loaded: N positions, bar=X, slip_cooldowns=Y`
-
-### 4.6 Rate Limit 완화 (5/27, 2단계)
-
-**발견**: 매 정각 universe scan 시 ErrCode 10006 폭주 (UTC 10/14시 특히 심함, 시간대 의존). _manage_positions에서도 산발적 발생. 자동 retry로 처리되지만 scan 시간 70초+ + 일부 심볼 skip (38/41).
-
-**수정**:
-| 위치 | 변경 |
-|---|---|
-| `_fetch_candles` 페이지네이션 sleep | 0.25s → **0.4s** |
-| `_scan_universe` 심볼 간 sleep | 0.5s → **0.7s** |
-| `_manage_positions` candle fetch sleep | 0.2s → **0.4s** |
-
-**결과**: _manage_positions RL 4→1건. scan RL은 시간대별 큰 차이 (sleep만으로 한계). 더 줄이려면 옵션 검토 §8.4.
+| **v5.1+** | **2026-05-28~29** | **신호 컨텍스트 5필드 로깅 + Shadow Log (걸린 신호 기록)** | **운영 중, 거래로직 무변경** |
 
 ---
 
-## 5. 운영 현황 스냅샷 (2026-05-28 기준, 37 trades)
+## 4. v5.1 변경 사항 (요약)
+
+v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지연**(HYPE1: be_triggered인데 SL 초기값 → -2.81%). 진단 과정(4가설 기각)은 §10 의사결정 이력 참조.
+
+| 변경 | 계기 | 효과 / 검증 |
+|------|------|-------------|
+| **1m 폴링** (`_main_loop` 분리) | BE/Trail 1h 지연 (HYPE1) | 매 분 BE/Trail 갱신, 정각만 scan. NEAR2/LIT3 BE 보호 ✓ |
+| **Tier Cap** (`_apply_tier_cap`) | GRASS2 -30.1% / -$1,798 catastrophic slip | 24h volume 기반 notional 축소. 4건 발동 ✓ |
+| **Clock Resync 매 분** | 시계 drift → ErrCode 10002 폭주 | 정각→매 분 + balance fail 시 즉시. 10002 = 0건 ✓ |
+| **cooldown state 저장** | 재시작 시 cooldown 소실 → 재진입 | ISO 직렬화 저장/복원 + 만료 필터 |
+| **Rate Limit sleep 완화** | 정각 scan ErrCode 10006 | 페이지 0.25→0.4, 심볼 0.5→0.7, manage 0.2→0.4. manage RL 4→1 ✓ (§8.4) |
+| **bot_version 필드** | v5/v5.1 분석 분리 | `_log_trade`에 기록 |
+
+> OS 시계: 봇 시작 전 `w32tm /resync /force` (관리자 PowerShell)로 정확도 보장.
+
+### 4.7 신호 컨텍스트 로깅 + Shadow Log (v5.1+, 5/28~29)
+
+**배경**: D-소급 신호 연구(§8.5)에서 "진입 시점 변수로는 winner/loser 변별 불가, 그러나 *선행추세·연속성·OI변화*가 변별력 있을 가능성" 가설 도출. 검증 데이터를 봇이 직접 쌓도록 로깅 확장.
+
+**4.7.1 신호 컨텍스트 5필드** ([momentum_bot.py `_compute_signal_context`](src/vwap_trader/momentum_bot.py#L1262)):
+- `signal_ret_6/12/24` (선행추세, 방향 반영 %), `signal_consec` (연속 동방향봉), `signal_oi_chg` (OI 1h 변화율 %)
+- 진입 시 `OpenPosition`에 저장 → `_log_trade`에서 trades 레코드에 기록.
+- **거래 결정엔 일절 영향 없음. 순수 기록.** 미래 신규 진입부터 축적.
+
+**4.7.2 Shadow Log** ([momentum_bot.py `_log_shadow`](src/vwap_trader/momentum_bot.py#L1293)):
+- **목적**: fire 됐지만 진입 안 된 신호를 기록 → **생존편향(survivorship bias) 깨기**. 진입한 거래만 봐선 "안 들어간 신호가 실제로 더 나빴는지" 대조 불가.
+- 출력: `data/shadow_momentum.jsonl`. trades 로그와 **동일 스키마**(exit/pnl 제외 + `shadow_reason`) → 분석 시 union 가능. forward 성과는 symbol+timestamp+signal_price로 추후 klines 소급 재구성.
+- `_scan_universe` 재구성: 만석이어도 스캔 수행(`scan_only`), 진입만 skip하고 잡힌 신호 전부 shadow. 9종 reason: `max_pos_full`/`btc_filter`/`slippage_cooldown`/`rank_cutoff`/`long_cap`/`short_cap`/`size_invalid`/`tier_cap`/`order_failed`.
+- 로그: `Scan done: N entries, M shadow, ...`.
+
+**비용/주의**: 만석 시 매 정각 풀 스캔(이전엔 skip)하나, 실효 cap이 long3+short3=6이라 `max_pos_full`(10) 경로는 거의 안 걸려 rate-limit 추가비용 미미. **단, shadow가 데이터 소스가 되면서 scan 누락(47/51, RL로 4코인 skip)이 새 관측 구멍** → §8.4 참조.
+
+---
+
+## 5. 운영 현황 스냅샷 (2026-05-29 기준, 43 trades)
 
 > 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조.
 
@@ -151,20 +117,22 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 
 | 그룹 | 건수 | WR | 누적 PnL |
 |------|------|------|------|
-| v5 (1h polling) | 14 | 35.7% | +$1,358 |
-| v5 (1m polling, no cap) | 17 | 35.3% | -$1,775 (GRASS2 -$1,798 포함) |
-| **v5.1** | **6** | **33.3%** | **-$78** (BSB +$275, GRASS +$35, 4건 SL) |
-| **합계** | **37** | **32.4%** | **-$495** |
+| v5.1 이전 (bot_version 없음) | 31 | 35.5% | -$447 (GRASS2 -$1,798 포함) |
+| **v5.1 (tier cap 이후)** | **12** | **41.7%** | **+$214** 🟢 양전환 |
+| **합계** | **43** | **37.2%** | **-$233** |
+
+> v5.1만 떼어보면 WR 41.7% / +$214로 **순(net) 플러스 전환**. tier cap이 catastrophic loss를 막고 1m 폴링이 trailing winner를 견인한 효과. 단 12건이라 표본 작음 — 50건까지 안정성 확인 필요.
 
 ### 5.2 청산 유형 분포
 
-| 유형 | 건수 | 평균 PnL |
+(43건 실집계, exit_reason 기준)
+
+| 유형 | 건수 | 비고 |
 |---|---|---|
-| TrailSL (winner) | 7 | +19.9% (BSB, BEAT1, NEAR1, BSB2, GRASS2(v5.1), HYPE3, NEAR3) |
-| Timeout | 1 | +14.2% (PROVE) |
-| BE 보호 | 3 | -1.00% (HYPE1 v5 결함, NEAR2/LIT3 v5.1 보호 ✓) |
-| 일반 SL | 25 | -3.3% |
-| Catastrophic SL | 1 | **-30.1%** (GRASS2 v5) ⚠️ |
+| SL | 23 | 손실 주류. GRASS2 catastrophic -30.1% 포함 |
+| TrailSL | 15 | winner 견인 (BSB +24%, XLM +4.75% 등) |
+| BE 보호 | 3 | NEAR2/LIT3 보호 ✓ (HYPE1은 v5 결함) |
+| Timeout | 2 | PROVE +14.2% 등 |
 
 ### 5.3 패턴 인사이트
 
@@ -172,19 +140,7 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 - **Hold 7~38봉 (모멘텀 형성)**: trailing이 큰 winner 견인 (BSB +24%, +50%).
 - **누적 수익은 6~7건의 jackpot에 의존**: BSB(x2), BEAT1, NEAR1, PROVE, IN2 등.
 - **v5.1 trailing 정상 작동 검증**: BSB(38h) +24%, GRASS(22h) +4% — 1m 폴링이 trailing edge 확보.
-- **즉시 반전 SL 비율 (v5.1)**: 4/6 = 67% — 전략 약점 지속.
-
-### 5.4 Signal_ret 임계값 분석 (n=37)
-
-| Threshold | n | WR | Avg PnL | Net PnL |
-|---|---|---|---|---|
-| 모두 | 37 | 32.4% | -0.5% | -$495 |
-| **abs >= 8%** | ~10 | **~50%** | **~+6%** | **약 +$1,200** 🌟 |
-| abs < 5% (weak) | ~14 | ~35% | ~-0.5% | 음수 |
-
-**핵심**: 약한 신호 (abs < 5%)가 손실 주범. 강한 신호 (abs >= 8%)는 net positive.
-
-**단 표본 작음** (abs >= 8% n=10). 즉시 적용 보류. 그러나 NEAR1 +21%(sig +4%), PROVE +14%(sig -4.5%) 같은 weak winner도 존재 → 단순 threshold filter 위험. **volume spike, regime 등 추가 filter 필요**.
+- **즉시 반전 SL 비율 (v5.1)**: 4/6 = 67% — 전략 약점 지속 (§8.1/§8.5).
 
 ---
 
@@ -210,13 +166,11 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 
 ### 7.1 v5.1 효과 검증 (단기, 50건까지)
 
-- [x] **Tier Cap 실제 발동** ✓ — PHA $1,000, ESPORTS $908, GRASS $999, XPL $999 (4건 적용 확인)
-- [x] **BE 보호 작동** ✓ — NEAR2, LIT3, ERA(오픈) 3건 검증
-- [x] **Trailing winner** ✓ — BSB +24%(v5.1), GRASS +4%(v5.1) — 1m 폴링이 trailing edge 확보
-- [x] **ErrCode 10002 차단** ✓ — clock resync 매 분 강화 후 0건
-- [x] **Rate Limit 완화** ✓ — manage_positions RL 4→1건, scan은 시간대별 변동 (UTC 10/14시 폭주)
-- [ ] **즉시 반전 SL 비율** ⚠️ — v5.1 4/6 = 67% (NEAR/ESPORTS/PHA/ETH). 전략 약점 지속
+검증 완료 ✓: Tier Cap 발동(4건), BE 보호(NEAR2/LIT3), Trailing winner(BSB +24%/GRASS +4%), ErrCode 10002 차단, Rate Limit 완화(manage 4→1).
+
+- [ ] **즉시 반전 SL 비율** ⚠️ — v5.1 67% 지속, 전략 약점 (§8.1/§8.5)
 - [ ] **50건 누적 시 winner ratio 안정성**
+- [ ] **변별신호 검증** — shadow log + 신호 컨텍스트로 entered vs filtered 비교 (§4.7/§8.5)
 
 ### 7.2 전략 자체 평가 (중기, 200건)
 
@@ -241,16 +195,12 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 ## 8. 알려진 한계 / 향후 개선 후보
 
 ### 8.1 즉시 반전 SL (전략 한계 — 가장 큰 문제)
-**문제**: hold 0~3봉 SL이 전체 손실의 주요 원인. 신호 직후 trend reversal. v5.1 후에도 지속.
-**가설**: P99.5% 신호 중 일부는 "exhaustion spike" (반전 임박). momentum follow가 아니라 mean reversion 대상.
-**5/27 데이터 분석 시사점** (n=34, 표본 작음):
-- abs(signal_ret) >= 8% 만 거래했을 시 가상 net +$1,246 (현재 -$728 대비)
-- 약한 신호 (3~5%)가 손실의 주범
-- 단순 threshold filter는 NEAR1 (+20%, sig +4%) / PROVE (+14%, sig -4.5%) 같은 weak signal winner도 잃음
-**후보 대응**:
-- volume spike 확인 추가 (momentum의 "real" 시그널 식별)
-- BTC regime과 alt direction 일치 여부 필터
-- 신호 직후 1~2분 가격 행동 확인 후 지연 진입 (백테스트 검증 필요)
+**문제**: hold 0~3봉 SL이 전체 손실의 주요 원인. 신호 직후 trend reversal, v5.1 후에도 67% 지속.
+**원인/가설**: §8.5 — adverse selection(신호가 단기 극점 포착). 진입 시점 변수론 변별 불가, "막차 탈진" 신호가 변별 후보.
+**후보 대응** (검증 후 적용):
+- volume spike 확인 (real momentum 식별)
+- BTC regime과 alt direction 일치 필터
+- 신호 직후 1~2분 가격 행동 확인 후 지연 진입 (백테스트 필요)
 - pullback 진입 재검토 (v4 실패 이유 재분석 후)
 
 ### 8.2 Catastrophic Slip
@@ -269,7 +219,24 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 **문제**: 매 정각 universe scan 시 ErrCode 10006. **시간대 의존성** 명확: UTC 10/14시 (미국 시장 시간) 5~6건 폭주, 다른 시간대 1~2건 안정. sleep만으론 burst limit 한계.
 **적용** (§4.6 참조): _fetch_candles 페이지 0.25→0.4, _scan 심볼 0.5→0.7, _manage 0.2→0.4.
 **결과**: _manage_positions RL 4→1건 ✓. scan RL은 시간대별 큰 차이 잔존.
-**효과 부족 시 후보**: 심볼 간 sleep 0.7→1.0, universe scan을 정각+30초로 분산, incremental cache 강화.
+**5/29 재평가**: 거래 체결 실패는 retry로 회복돼 **critical 아님**으로 결론(네트워크 취약은 랜선 일회성 사고). 단 **shadow log가 데이터 소스가 된 지금** scan 누락(매 정각 47/51, RL로 4코인 skip)은 "거래 실패"가 아니라 "관측 누락" — 그 4코인 신호가 candidate에도 shadow에도 안 잡힌다.
+**우선순위**: 지금 4/51(~8%)은 치명적 아님. **표본 50건+ 쌓은 뒤** universe 축소($20M→$50M, 51→~30개)로 scan 부하를 줄여 누락 해소 검토. 그 외 후보: 심볼 sleep 0.7→1.0, scan 정각+30초 분산, incremental cache 강화.
+
+### 8.5 신호 연구 — D-소급 변별신호 (5/28, 핵심 발견)
+
+**손실 원인 확정** (473건 분석): 패자의 **82%가 진입 직후 역행(MFE<0.5%)** = 구조적 **adverse selection**(신호가 단기 극점을 잡음). **진입 시점 변수(신호세기·변동성·BTC방향·꼬리·거래량)로는 winner/loser 변별 불가** — §5.4의 8% threshold도 단일 필터론 weak winner(NEAR/PROVE) 죽임.
+
+**조기컷 = 막다른 길** (검증 완료, 재시도 금지):
+- 인트라바 백테스트는 WR 98.7%로 실전 손실 재현 못 해 → 조기컷 **검증 자체가 불가**.
+- 실전 1분봉 검증(37건): "N분내 MFE<X% 컷"은 cut 0.3%만 미세 개선, 0.5%+는 **늦게 터진 대박(NEAR/HYPE)을 죽여 역효과**(-$600~800). 시간 기반 컷으론 즉시死 vs 늦터지는 대박 분리 불가.
+
+**변별신호 가설** (analyze_signal_features.py, 38건): "**이미 한참 오른 막차 = 탈진**"
+- **선행추세** `ret_12/24`: 패자가 진입 전 이미 더 올라 있음.
+- **연속 동방향봉** `consec`.
+- **OI 변화** `oi_chg`: 승자=OI 증가 / 패자=OI 감소 (부호가 갈림). 예: ESPORTS(OI감소→즉사) vs XLM(OI증가→winner).
+- ⚠️ **38건 표본, 다중비교·기간효과 주의. 단일필드 불완전 → 검증된 룰 아닌 가설.** 봇 로깅(§4.7)으로 표본 확대 후 재검증.
+
+**경로**: 로깅(현재) → 표본 50건+ entered vs shadow 비교 검증 → 통계 확인 시 진입 게이트 전환(예: `oi_chg<0` 또는 `ret_12` 과도 시 skip). 상세는 메모리 `project_signal_research`.
 
 ---
 
@@ -307,10 +274,14 @@ python -m vwap_trader.momentum_bot
 | 2026-05-27 | signal_ret 임계값 분석 — "weak 신호가 손실 주범", 8% threshold 시 net +$1,246 추정. 표본 작아 즉시 적용 보류 |
 | 2026-05-27 | slippage_cooldown state.json 저장/복원 구현 (봇 재시작 시 cooldown 정보 유지) |
 | 2026-05-27 | Clock resync 매 분 강화 + balance fail 시 즉시 resync (정각만으론 부족) |
-| 2026-05-27 | Rate Limit 완화 1차: `_fetch_candles` 페이지 sleep 0.25→0.4s, `_scan_universe` 심볼 sleep 0.5→0.7s |
-| 2026-05-27 | Rate Limit 완화 2차: `_manage_positions` candle fetch sleep 0.2→0.4s (산발적 RL 차단) |
+| 2026-05-27 | Rate Limit sleep 완화: 페이지 0.25→0.4, 심볼 0.5→0.7, manage 0.2→0.4 |
 | 2026-05-27 | **BSB v5.1 첫 trailing winner** +23.92% (+$275, hold 38봉) — 1m 폴링 + BE/Trail 정상 작동 검증 |
 | 2026-05-28 | GRASS v5.1 두 번째 trailing winner +3.63% (+$35, hold 22봉) |
 | 2026-05-28 | ETH 즉시 반전 SL (-0.66%, weak signal -2.25%) — 약한 신호 즉시 반전 패턴 재확인 |
 | 2026-05-28 | XPL 신규 진입 (Tier 4 cap $999.94) — 4번째 cap 발동 사례 |
 | 2026-05-28 | Rate Limit 시간대 의존성 확인 (UTC 10/14시 폭주, sleep만으론 한계) |
+| 2026-05-28 | **신호 연구**: 473건 손실분석 → 패자 82% 진입직후 역행 = adverse selection. 조기컷 막다른 길 확정. D-소급 변별신호 가설(ret_12/24·consec·OI, 38건) |
+| 2026-05-28 | **v5.1+ 신호 컨텍스트 5필드 로깅 추가** (signal_ret_6/12/24, consec, oi_chg) — 거래로직 무영향, 가설 검증 데이터 축적용 |
+| 2026-05-29 | Rate limit 재평가: 거래실패는 retry로 회복 = critical 아님. shadow log 우선 결정 |
+| 2026-05-29 | **Shadow Log 구현** (`shadow_momentum.jsonl`, 9종 reason) — 걸린 신호 기록으로 생존편향 깨기. 만석도 scan-only로 신호 포착 |
+| 2026-05-29 | v5.1 통계 양전환 확인 — 12건 WR 41.7% +$214 (전체 43건 -$233) |
