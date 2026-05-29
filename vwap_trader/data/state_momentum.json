@@ -28,36 +28,6 @@
       "signal_oi_chg": 14.9734
     },
     {
-      "symbol": "ALLOUSDT",
-      "direction": "long",
-      "entry_price": 0.18844,
-      "qty": 7708.0,
-      "sl": 0.22371,
-      "tp": 0.0,
-      "entry_time": "2026-05-29T03:00:53.005089+00:00",
-      "entry_bar": 184,
-      "intended_price": 0.18844,
-      "trade_id": "3657680f",
-      "atr_at_entry": 0.010225,
-      "signal_strength": 99.8,
-      "signal_return_pct": 10.2182,
-      "btc_price_at_entry": 73237.6,
-      "btc_1h_change_pct": 0.0652,
-      "position_size_usd": 1452.49552,
-      "mfe": 0.05571999999999999,
-      "mae": 0.0019299999999999873,
-      "best_price": 0.24416,
-      "be_triggered": true,
-      "signal_ret_6": 21.4801,
-      "signal_ret_12": 73.1508,
-      "signal_ret_24": 108.3361,
-      "signal_consec": 1,
-      "signal_oi_chg": 5.4783,
-      "_btc_4h_return": -0.5125,
-      "_btc_4h_atr": 779.4,
-      "_regime": "DOWN_HIGH"
-    },
-    {
       "symbol": "XLMUSDT",
       "direction": "long",
       "entry_price": 0.20847,
@@ -88,11 +58,11 @@
       "_regime": "FLAT_HIGH"
     }
   ],
-  "bar_counter": 188,
-  "daily_pnl": -2.186747048376101,
-  "daily_trades": 2,
+  "bar_counter": 189,
+  "daily_pnl": 42.278334675249475,
+  "daily_trades": 3,
   "slippage_cooldown": {
     "ESPORTSUSDT": "2026-05-30T15:02:08.500375+00:00"
   },
-  "last_save": "2026-05-29T07:57:07.779029+00:00"
+  "last_save": "2026-05-29T08:12:06.658933+00:00"
 }

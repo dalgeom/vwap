@@ -8,10 +8,10 @@
 ═══════════════════════════════════════════════
 이 repo는 다른 PC에서 봇을 중단하고 git push 한 상태다. 이 PC에서 재가동 전:
 
-1. **`git pull` 먼저.** `data/state_momentum.json`에 오픈 포지션 3개·bar_counter·cooldown이 들어 있다. pull 안 하면 봇이 옛 상태로 떠서 포지션 추적이 어긋난다.
+1. **`git pull` 먼저.** `data/state_momentum.json`에 오픈 포지션(현재 2개: XPL·XLM)·bar_counter·cooldown이 들어 있다. pull 안 하면 봇이 옛 상태로 떠서 포지션 추적이 어긋난다.
 2. **절대 두 PC에서 동시에 돌리지 말 것.** 같은 Bybit 데모 계좌를 둘이 관리하면 주문 중복·SL 충돌로 망가진다. 이전 PC의 봇이 완전히 죽었는지 먼저 확인.
 3. 재가동: `w32tm /resync /force`(관리자) → `.\venv\Scripts\python.exe -m vwap_trader.momentum_bot`
-4. 로그에 `State loaded: 3 positions, bar=188...` 뜨는지 확인. 포지션은 Bybit 서버에 살아있으니 봇 꺼진 동안에도 SL은 작동.
+4. 로그에 `State loaded: N positions, bar=...` 뜨는지 확인(현재 2 positions). 포지션은 Bybit 서버에 살아있으니 봇 꺼진 동안에도 SL은 작동.
 
 ───────────────────────────────────────────────
 
@@ -28,13 +28,12 @@
 3. `config/momentum_config.yaml` — 파라미터.
 4. `src/vwap_trader/momentum_bot.py` (~1560줄), `src/vwap_trader/strategy/momentum.py` (신호 검출).
 
-## 3. 봇 운영 상태 (2026-05-29, bar 188 기준)
-- **누적 44건 청산, WR 37.2%, PnL -$233.** v5.1만(tier cap 이후) 13건 WR 약 42% **+$191 (양전환)**.
-- **오픈 포지션 3개 (전부 long, 새 필드 O)**:
-  - ALLOUSDT long entry 0.18844 → **+54% 🚀 BE잠금** (대박 진행 중, trailing이 견인)
-  - XPLUSDT long entry 0.09361 → **+4% BE잠금**
-  - XLMUSDT long entry 0.20847 → **-1.5%**
-- 직전 청산: BCHUSDT short SL -2.22%(상승장 역추세 숏, BE 못 닿음).
+## 3. 봇 운영 상태 (2026-05-29, bar 189 기준)
+- **누적 45건 청산, WR 37.8%, PnL +$388 (플러스 전환).** v5.1만(tier cap 이후) 14건 WR 42.9% **+$835**.
+- **오픈 포지션 2개 (전부 long, 새 필드 O)**:
+  - XPLUSDT long entry 0.09361 → 약 +4% BE잠금
+  - XLMUSDT long entry 0.20847 → 약 -1.5%
+- 직전 청산: **ALLOUSDT long TrailSL +44.47% (+$644) — 역대 최대 winner**(아래 §4.3 참조). BCHUSDT short SL -2.22%.
 
 ## 4. 이번 세션 핵심 발견 ★ 가장 중요 (상세 PLAN §8.5)
 
@@ -48,10 +47,11 @@
 ### 4.3 변별신호 가설 — "이미 한참 오른 막차=탈진" (38건, 가설 단계)
 - 후보: 선행추세 `ret_12/24`, 연속봉 `consec`, OI변화 `oi_chg`(승자 증가/패자 감소 가설).
 - **무효(변별력 없음)**: 꼬리, 거래량 spike, 펀딩, 군집.
-- ⚠️ **단일 필드 불완전 — 실거래 반례 누적 중**:
-  - ALLO: `ret_12=73%`(극단 막차, 가설상 위험 1순위)인데 **+54% 최대 winner**. OI +5.5.
-  - BCH: 패자인데 `oi_chg=+9.97`(OI 증가, 가설상 승자 신호). → SL.
-  - → OI 부호/ret_12 하나로는 못 거른다. **다변량 + 표본**이 답.
+- ⚠️ **신호는 더해지지 않고 곱해진다(interaction) — 단일 필드 필터 전부 반례에 무너짐:**
+  - **ALLO** (+44%/+$644 최대 winner): ret_12=73·ret_24=108(극단 막차), signal 99.8, DOWN_HIGH(역추세 long) = 모든 위험 플래그 red인데 대박. OI **+5.5**.
+  - **ESPORTS** (-9% 즉사): 동일 극단 막차·강신호인데 OI **-2.9**.
+  - 차이는 **OI 부호 하나**. → **막차+OI↑(실수요)=폭발 / 막차+OI↓(가짜)=붕괴.** "극단=대박"도 "극단=죽음"도 아님 — 조합의 코너에서만 갈림. → 미래 룰은 linear 필터가 아니라 **decision-tree식 비선형**.
+  - 검증법: 표본 쌓이면 극단 신호 진입을 OI 부호로 쪼개 OI↑ 그룹이 체계적으로 이기는지(8:2 vs 5:5). ⚠️ 극단 2건뿐, 가설. ALLO만 기억하는 selection bias 경계.
 
 ## 5. 이번 세션 코드 변경 (momentum_bot.py + config, 거래로직 무영향)
 
