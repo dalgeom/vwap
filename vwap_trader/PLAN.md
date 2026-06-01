@@ -74,6 +74,7 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 | v5 | 2026-05-21 | **1h 봉 전환 + BE+Trailing Stop** | OOS WR 98.7% 백테스트 |
 | **v5.1** | **2026-05-23~27** | **1m 폴링 + Tier Cap + Clock resync + bot_version** | **운영 중** |
 | **v5.1+** | **2026-05-28~29** | **신호 컨텍스트 5필드 로깅 + Shadow Log (걸린 신호 기록)** | **운영 중, 거래로직 무변경** |
+| **v5.1+** | **2026-06-01** | **Trailing SL spike-retrace 버그 수정** (best_price 봉고점 되밀림 시 무효 SL 거부→BE floor 재확정) | **운영 중** |
 
 ---
 
@@ -114,6 +115,12 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 ## 5. 운영 현황 스냅샷 (2026-06-01 기준, 64 trades — 봇 가동 중이라 변동, 최신은 rebuild_pnl.py 재실행)
 
 > 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조. **분석은 항상 corrected**([data/trades_momentum_corrected.jsonl](data/trades_momentum_corrected.jsonl), `rebuild_pnl.py`로 재생성). 원본 jsonl은 v5.1+ 신규분만 정확(`pnl_source:exchange`), 과거 47건은 버그 오염 잔존.
+
+### 5.0 계좌 레벨 (2026-06-01 거래소 조회, cumRealisedPnl 항등식)
+- **데모 초기 지급 = $40,000.00 확정** (walletBalance $24,165.24 + cumRealisedPnl −$15,834.76 = 정확히 $40,000 → 추가입금·보너스 없는 단일 지급).
+- **현재 totalEquity $24,434** (미실현 +$298 포함). 계좌 평생 실현 **−$15,835 (−40%)**.
+- ⚠️ 이 −15.8k는 **거의 전부 5분봉 v1~v4 시대(전부 실패) 손실**(≈ −$17.7k 역산). **1h봉 v5/v5.1 시대(65건 corrected) = +$1,912 = 우상향.** 봇 평가는 v5 시대만 유효, 과거 era는 무관.
+- 데모 API는 transaction log ~1일·closed_pnl 40건만 보관 → 과거 날짜별 조회 불가. v5 완전본은 로컬 corrected jsonl이 유일.
 
 ### 5.1 누적 통계 (2026-06-01 거래소 closed-pnl deterministic 1:1 재구축 — 실제값)
 
@@ -235,7 +242,7 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 
 ### 8.5 신호 연구 — D-소급 변별신호 (5/28, 핵심 발견)
 
-> ⚠️ **2026-05-29 재검토 필요**: 이 절의 손익·손실규모는 PnL 버그로 오염된 데이터 기반(GRASS·ESPORTS 등 손실 과대계상). exit-price 오염은 47건 중 4건이나 pnl은 광범위. MFE/MAE는 캔들 기반이라 "82% 즉시 역행" 방향성은 유지 가능성 있으나, **corrected 데이터 재계산 전까지 결론 잠정.** ALLO(실 +$624)·ESPORTS(실 -$84) 대조는 유효.
+> ⚠️ **5/28 원문은 PnL 버그 오염 라벨 기반 → §8.5+에서 corrected 64건으로 재계산 완료.** 아래 손익규모는 참고용, **확정 결론은 §8.5+** 참조. (MFE/MAE 기반 "82% 즉시역행" 방향성은 corrected에서 57.5%로 유지됨.)
 
 **손실 원인 확정** (473건 분석): 패자의 **82%가 진입 직후 역행(MFE<0.5%)** = 구조적 **adverse selection**(신호가 단기 극점을 잡음). **진입 시점 변수(신호세기·변동성·BTC방향·꼬리·거래량)로는 winner/loser 변별 불가** — §5.4의 8% threshold도 단일 필터론 weak winner(NEAR/PROVE) 죽임.
 
@@ -325,3 +332,46 @@ python -m vwap_trader.momentum_bot
 | 2026-05-29 | **PnL 기록 버그 발견** — `_get_closed_pnl_price`가 청산 직후 race 시 직전 무관 거래의 exit를 기록(side만으로 fallback). 47건 중 4건 exit 오염(GRASS 치명) |
 | 2026-05-29 | **버그 수정**: closed-pnl 강한매칭(side+entry±1%+qty±1%)+retry 5×0.6s, 엉뚱레코드/ticker fallback 제거, 거래소 실 closedPnl 직접 기록(`pnl_source` 필드 추가). 봇 재가동 |
 | 2026-05-29 | **거래소 재구축**(deterministic 1:1, 47건 전건 매칭, 2회 run 동일 해시): 기록 +$202 → 실제 **+$2,010**. **GRASS2 -$1,798=가짜(-$105)** → catastrophic slip/Tier Cap 동기 무효(§8.2/§8.6). v5.1기 +$97 breakeven, adverse selection 확인(loser MFE<0.5%=55%) (§8.5+). `trades_momentum_corrected.jsonl` 생성, 메모리 기록 |
+| 2026-06-01 | **trailing SL spike-retrace 버그 수정**: best_price(봉 고점) 되밀림 시 trail SL이 현재가 초과 → Bybit 10001 거부 + 롤백으로 SL 초기값 묶임. 가드 추가(trail이 현재가 침범 시 entry/BE floor 재확정). H 0.5121→0.5440 복구 검증 |
+| 2026-06-01 | **사전등록 가설 보드(§11) 등록** (65 closed 시점) — 진입선별 1렌즈 편중 교정. Primary 6 / Secondary 8 / Null 1 + v6 개입후보 5 분리. OI 가설 검정력 한계 명시(Secondary 강등) |
+| 2026-06-01 | **계좌 감사**(§5.0): 데모 시작 **$40,000 확정**(cumRealised 항등식). 평생 −$15,835(5분봉 시대 ≈−$17.7k가 지배), **v5/v5.1 시대 +$1,912=우상향**. 데모 API 단기보관으로 과거 날짜조회 불가 |
+| 2026-06-01 | **OI 가설 반례 누적**: PORTAL(OI+4.3, 최극단막차 ret24=140) −9.8% 즉사 / H(OI−0.2) +20% 최대 winner → "막차+OI↑=폭발" 반증. §8.5+ "단순부호 변별불가" 재확인. ⚠️오픈 미실현, peeking 금지 |
+| 2026-06-01 | **PC 핸드오프**: 정각(15:00) 정전·DNS 단절 무해 — 진입+SL atomic(place_order 동봉), 재시작 후 state↔거래소 reconcile **완전일치**(orphan/phantom 0). bar 261, 5 positions(short3: ASTER·ALLO·HOME / long2: H·STG) |
+
+---
+
+## 11. 사전등록 가설 보드 (pre-registered 2026-06-01, 65 closed)
+
+**목적**: OI 단일 가설 올인 방지. 같은 누적 데이터셋으로 다각도 가설을 **일괄** 검증 + 사후 cherry-pick·데이터마이닝 차단.
+
+**규율 (pre-registration)**:
+- 주지표 = **EV(평균 PnL/건) + 총 PnL.** WR은 보조 (잭팟 구조라 WR 오도). 방향 **단측 사전지정**, 사후 변경 금지(§10 이력에만 기록).
+- 1차 검증 = **200 closed 일괄.** 중간 peeking으로 조기 중단/적용 금지.
+- 다중비교: **Primary만 confirmatory** (α=0.05/6, Bonferroni). **Secondary는 탐색·가설생성 전용** — "유의"해도 확정 아님, 후속 사전등록으로 재검증해야 채택.
+- ⚠️ 검정력: 200건(ctx ~150)에서 1분할(~75/75)은 견디나, 2분할(~37)·극단 부분집합·요일 셀은 부족 → Secondary 분류 근거.
+
+### Primary — confirmatory (~200건 검정력 O)
+| ID | 가설 (방향) | 검정 필드 | 현황 |
+|----|------------|-----------|------|
+| H1 | adverse selection 지속: loser 즉시역행률(MFE<0.5%) ≫ winner | MFE | 57.5% vs 0% (유지 여부) |
+| H2 | 출구 비효율: winner가 peak MFE의 **median >30% 반납** (→ I1/I2 동기) | best_price·exit_price | H 사례 +38%→+16% |
+| H3 | regime 비대칭: side×regime EV 차 (예: UP_HIGH long > DOWN long) | regime·side | §7.2 등재 |
+| H4 | 군집 노이즈: 동일봉 동시신호 수↑ → EV↓ | timestamp 군집크기 | 미탐색 |
+| H5 | 배치내 순위: 동일봉 최강 signal_strength 진입 EV↑ | signal_strength | shadow와 직결 |
+| **H0** | **(NULL·기각 목표)** 어떤 진입시점 변수도 EV를 노이즈 이상 분리 못 함 | 전 진입필드 | 단일필드 전패 → 현 baseline |
+
+### Secondary — exploratory (검정력 부족, 가설생성 전용)
+| ID | 가설 (방향) | 검정 필드 | 한계 |
+|----|------------|-----------|------|
+| H6 | ★OI interaction: 극단막차(abs ret24>50)서 OI+ EV > OI− | ret24×oi_chg | **헤드라인이나 최저 검정력**, ~20 극단 필요 → 200건엔 미완 |
+| H7 | 막차 main effect: abs(ret24)↑ → 평균 EV↓·우측꼬리 비대 | ret24 | 기술적(잭팟 예외 ALLO) |
+| H8 | BTC변동: btc_4h_atr↑ 진입 → 즉시역행률↑ | btc_4h_atr·MFE | |
+| H9 | 추세정합: 신호↔BTC 1h 방향 일치 시 EV↑ | btc_1h_change·side | 반례 ALLO(역추세 잭팟) |
+| H10 | 슬리피지: 진입 슬립↑ → EV↓ | slippage_momentum | |
+| H11 | tier(사이즈): 저유동성 tier EV 차 | position_size_usd | 시총·상장일 필드 없음(프록시만) |
+| H12 | 시간: 특정 요일/시간대 EV 약화 | day_of_week·hour_of_day | 셀당 표본 극소, 장기 |
+| H13 | 반사실: shadow(거른 신호)가 entered만큼 벌면 선별 무가치 | shadow vs trades | shadow 누적 느림(7건), 장기 |
+
+### v6 개입 후보 (관측데이터로 검정 불가 — backtest/live A-B 필요, 가설 아님)
+- **I1** trail 거리(2ATR) 튜닝 · **I2** 부분익절(scale-out) · **I3** BE 트리거(1.5ATR) 타이밍 · **I4** BTC 1h 급변 시 신규진입 정지(chaos=관망) · **I5** regime 게이팅 진입.
+- 적용 조건: H2/H3/H8 등이 신호를 준 **뒤** backtest 검증 통과 시에만. 단독 도입 금지.

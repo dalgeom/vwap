@@ -1180,6 +1180,13 @@ class MomentumBot:
             # Trail from best price (after BE or always for pure trailing)
             if pos.be_triggered or exit_mode == "trailing":
                 new_sl = pos.best_price - trail_dist
+                # Spike-retrace guard: best_price = intra-bar high already retraced
+                # past, so trail sits at/above current price → Bybit rejects (10001).
+                # Assert the BE floor (entry) instead of an invalid over-trail; this
+                # also repairs a position whose SL was rolled back while be_triggered.
+                cur = price_map.get(pos.symbol)
+                if cur and new_sl >= cur:
+                    new_sl = pos.entry_price if (pos.be_triggered and pos.entry_price < cur) else pos.sl
                 if new_sl > pos.sl:
                     pos.sl = new_sl
         else:  # short
@@ -1195,6 +1202,11 @@ class MomentumBot:
 
             if pos.be_triggered or exit_mode == "trailing":
                 new_sl = pos.best_price + trail_dist
+                # Spike-retrace guard (mirror of long): short SL must stay above mark;
+                # assert BE floor (entry) if trail would sit at/below current price.
+                cur = price_map.get(pos.symbol)
+                if cur and new_sl <= cur:
+                    new_sl = pos.entry_price if (pos.be_triggered and pos.entry_price > cur) else pos.sl
                 if new_sl < pos.sl:
                     pos.sl = new_sl
 

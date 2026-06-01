@@ -65,3 +65,7 @@
 {"symbol": "HUSDT", "direction": "long", "intended_price": 0.46277, "fill_price": 0.46277, "slippage_pct": 0.0, "timestamp": "2026-05-31T23:00:39.020878+00:00"}
 {"symbol": "HUSDT", "direction": "long", "intended_price": 0.54401, "fill_price": 0.54401, "slippage_pct": 0.0, "timestamp": "2026-06-01T01:00:40.055664+00:00"}
 {"symbol": "PORTALUSDT", "direction": "long", "intended_price": 0.042357, "fill_price": 0.042357, "slippage_pct": 0.0, "timestamp": "2026-06-01T01:00:40.515295+00:00"}
+{"symbol": "STGUSDT", "direction": "long", "intended_price": 0.3561, "fill_price": 0.3561, "slippage_pct": 0.0, "timestamp": "2026-06-01T03:00:39.337558+00:00"}
+{"symbol": "HOMEUSDT", "direction": "long", "intended_price": 0.041352, "fill_price": 0.041352, "slippage_pct": 0.0, "timestamp": "2026-06-01T05:00:34.814689+00:00"}
+{"symbol": "ALLOUSDT", "direction": "short", "intended_price": 0.19954, "fill_price": 0.19954, "slippage_pct": 0.0, "timestamp": "2026-06-01T06:00:38.696315+00:00"}
+{"symbol": "HOMEUSDT", "direction": "short", "intended_price": 0.037385, "fill_price": 0.037385, "slippage_pct": 0.0, "timestamp": "2026-06-01T07:01:24.453217+00:00"}
