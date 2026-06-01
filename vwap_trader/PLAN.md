@@ -1,7 +1,9 @@
 # Momentum Bot — 전략 계획서 (v5.1+)
 
-> 최종 업데이트: 2026-05-29
+> 최종 업데이트: 2026-06-01
 > 이전 펀딩 역추세 봇 PLAN은 [PLAN_funding_legacy.md](PLAN_funding_legacy.md) 참조 (폐기됨)
+>
+> ⚠️ **2026-05-29 PnL 기록 버그 발견·수정 완료.** `_get_closed_pnl_price`가 청산 직후 race 시 **직전 무관 거래의 exit price**를 오기록 → 과거 손익 광범위 오염. 거래소 closed-pnl로 deterministic 1:1 재구축(`rebuild_pnl.py` → `data/trades_momentum_corrected.jsonl`, 전건 매칭). **GRASS2 -$1,798은 가짜(실제 -$105)** → §8.2 catastrophic slip / Tier Cap 전제 무효(§8.6). 버그 수정으로 신규 거래는 `pnl_source:exchange`로 정확. **분석은 항상 corrected 사용**(원본 jsonl 과거분 오염 잔존). 실제 누적·통계 §5.1, 신호결론 §8.5+, 메모리 `project_pnl_recording_bug`.
 
 ---
 
@@ -10,7 +12,7 @@
 Bybit USDT 무기한 선물 데모 계좌에서 **모멘텀 추종(Big Move Follow-Through)** 전략 자동 운영.
 P99.5 percentile 이상 1h 봉 수익률 → 모멘텀 방향으로 진입 → BE+Trailing Stop 청산.
 
-- **현재 단계**: v5.1+ 운영, 데이터 수집 중 (45 trades, 2 open). 신호연구 병행 — 변별신호 로깅 + shadow log 가동
+- **현재 단계**: v5.1+ 운영, 데이터 수집 중 (64 trades, 거래소 재구축 누적 **+$2,025**, PF 1.54, 잭팟 의존 §5.1). 신호연구 병행 — 변별신호 로깅 + shadow log 가동(6건)
 - **검증 임계점**: 50건(첫 평가), 200건(Go/No-Go)
 
 ---
@@ -82,7 +84,7 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 | 변경 | 계기 | 효과 / 검증 |
 |------|------|-------------|
 | **1m 폴링** (`_main_loop` 분리) | BE/Trail 1h 지연 (HYPE1) | 매 분 BE/Trail 갱신, 정각만 scan. NEAR2/LIT3 BE 보호 ✓ |
-| **Tier Cap** (`_apply_tier_cap`) | GRASS2 -30.1% / -$1,798 catastrophic slip | 24h volume 기반 notional 축소. 4건 발동 ✓ |
+| **Tier Cap** (`_apply_tier_cap`) | GRASS2 -30.1% / -$1,798 (⚠️ **버그였음**, 실제 -$105 — §8.2 철회) | 24h volume 기반 notional 축소. 4건 발동. **동기 무효 → 재검토 대상** |
 | **Clock Resync 매 분** | 시계 drift → ErrCode 10002 폭주 | 정각→매 분 + balance fail 시 즉시. 10002 = 0건 ✓ |
 | **cooldown state 저장** | 재시작 시 cooldown 소실 → 재진입 | ISO 직렬화 저장/복원 + 만료 필터 |
 | **Rate Limit sleep 완화** | 정각 scan ErrCode 10006 | 페이지 0.25→0.4, 심볼 0.5→0.7, manage 0.2→0.4. manage RL 4→1 ✓ (§8.4) |
@@ -109,38 +111,50 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 
 ---
 
-## 5. 운영 현황 스냅샷 (2026-05-29 기준, 45 trades)
+## 5. 운영 현황 스냅샷 (2026-06-01 기준, 64 trades — 봇 가동 중이라 변동, 최신은 rebuild_pnl.py 재실행)
 
-> 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조.
+> 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조. **분석은 항상 corrected**([data/trades_momentum_corrected.jsonl](data/trades_momentum_corrected.jsonl), `rebuild_pnl.py`로 재생성). 원본 jsonl은 v5.1+ 신규분만 정확(`pnl_source:exchange`), 과거 47건은 버그 오염 잔존.
 
-### 5.1 누적 통계
+### 5.1 누적 통계 (2026-06-01 거래소 closed-pnl deterministic 1:1 재구축 — 실제값)
 
-| 그룹 | 건수 | WR | 누적 PnL |
+> 64건 전건 매칭(2건 low_conf: PROVE/ERA, exit 일치). 원본 기록 +$218 ← 실제 **+$2,025**(버그 오염차 +$1,807). 재현 `rebuild_pnl.py`.
+
+| 그룹 | 건수 | WR | 누적 PnL(실제) |
 |------|------|------|------|
-| v5.1 이전 (bot_version 없음) | 31 | 35.5% | -$447 (GRASS2 -$1,798 포함) |
-| **v5.1 (tier cap 이후)** | **14** | **42.9%** | **+$835** 🟢 |
-| **합계** | **45** | **37.8%** | **+$388** 🟢 |
+| pre-v5.1 (bot_version 없음) | 31 | 35.5% | +$1,213 |
+| v5.1 (bot_version 있음) | 33 | 39.4% | +$812 |
+| **합계** | **64** | **37.5%** | **+$2,025** |
 
-> 전체 누적이 ALLO 한 건(+$644, +44%)으로 **플러스 전환**. v5.1만 보면 +$835. **fat-tail 구조의 실증** — 0.5% 리스크 한 건의 jackpot이 자잘한 손실 수십 건을 덮음. 단 14건 표본 작음, ALLO 의존도 큼 — 50건까지 안정성 확인 필요.
+**일별 손익(KST 청산일)** — 잭팟 데이(5/23·5/29·6/01)에 집중, 나머지 +/- 상쇄:
+
+| 날짜 | 건 | PnL | 날짜 | 건 | PnL |
+|---|---|---|---|---|---|
+| 5/21 | 1 | -113 | 5/27 | 3 | +75 |
+| 5/22 | 4 | -460 | 5/28 | 4 | +219 |
+| 5/23 | 10 | **+1904** | 5/29 | 8 | **+625** |
+| 5/24 | 7 | -383 | 5/30 | 9 | -174 |
+| 5/25 | 3 | +274 | 5/31 | 5 | -412 |
+| 5/26 | 7 | -130 | 6/01 | 3 | **+601** |
+
+> ★ **냉철히**: 누적 +$2,025는 흑자이나 **거의 전부가 잭팟 데이(5/23·5/29·6/01)에서 나옴.** 나머지 날은 자잘한 +/-가 상쇄. PF 1.54(승합 +$5,776/패합 -$3,750). fat-tail winner는 **전부 TrailSL**(BEAT+895·NEAR+719·PORTAL+649·ALLO+624·BSB+541·HYPE+373). 최대 손실 -$148(SOL)로 catastrophic 부재. **edge는 잭팟 빈도/크기에 전적 의존 — 안정성 단정 불가, 표본 계속 축적.**
+> - ⚠️ 데모 계정이라 closedPnl도 시뮬레이션값(실거래 슬리피지 별개).
 
 ### 5.2 청산 유형 분포
 
-(43건 실집계, exit_reason 기준)
+(64건, exit_reason 기준)
 
 | 유형 | 건수 | 비고 |
 |---|---|---|
-| SL | 23 | 손실 주류. GRASS2 catastrophic -30.1% 포함 |
-| TrailSL | 15 | winner 견인 (BSB +24%, XLM +4.75% 등) |
-| BE 보호 | 3 | NEAR2/LIT3 보호 ✓ (HYPE1은 v5 결함) |
-| Timeout | 2 | PROVE +14.2% 등 |
+| SL | 35 | 손실 주류. 대부분 hold 0~3봉 즉시 반전 |
+| TrailSL | 23 | winner 견인 (BEAT/NEAR/PORTAL/ALLO/BSB/HYPE 등 잭팟 전부) |
+| BE 보호 | 4 | NEAR/LIT 등 보호 ✓ |
+| Timeout | 2 | PROVE/ERA 등 |
 
-### 5.3 패턴 인사이트
+### 5.3 패턴 인사이트 (corrected 64건)
 
-- **Hold 0~3봉 (즉시 반전)**: 거의 100% 손실. 신호 직후 trend reversal — 전략 자체 한계.
-- **Hold 7~38봉 (모멘텀 형성)**: trailing이 큰 winner 견인 (BSB +24%, +50%).
-- **누적 수익은 6~7건의 jackpot에 의존**: BSB(x2), BEAT1, NEAR1, PROVE, IN2 등.
-- **v5.1 trailing 정상 작동 검증**: BSB(38h) +24%, GRASS(22h) +4% — 1m 폴링이 trailing edge 확보.
-- **즉시 반전 SL 비율 (v5.1)**: 4/6 = 67% — 전략 약점 지속 (§8.1/§8.5).
+- **winner = 길게 trailing**: hold median ~11봉, avg MFE +19.7%, 전부 TrailSL/Timeout. **loser = 빨리 SL**: hold median 2봉, **loser의 57.5%가 MFE<0.5%**(진입 직후 역행), winner는 0% = adverse selection(§8.5+).
+- **같은 코인 양털림 빈번**: ID(5/30 long·short 둘다 SL), WLD(5/31 long 2회 즉시 SL) — 변동성만 크고 방향 없는 코인에서 양쪽 다 손실.
+- **잭팟 의존**: 누적 대부분이 6~7건 trailing 대박(§5.1).
 
 ---
 
@@ -203,13 +217,10 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 - 신호 직후 1~2분 가격 행동 확인 후 지연 진입 (백테스트 필요)
 - pullback 진입 재검토 (v4 실패 이유 재분석 후)
 
-### 8.2 Catastrophic Slip
-**문제**: Tier Cap으로 손실 1/6 한정 가능 (검증됨). 그러나 근본 원인(저유동성 코인의 호가창 잠식)은 해결 못 함.
-**후보 대응**:
-- min_volume_usdt $20M → $50M~100M (universe 축소)
-- 진입 직후 -10% 도달 시 강제 reduce-only market order (이중 가드)
-- Bybit native trailingStop 사용 (거래소가 1초 단위 처리)
-- ESPORTS 같은 고변동성 코인 별도 blacklist (1.5 ATR이 entry의 10%+ 인 코인)
+### 8.2 Catastrophic Slip — ⚠️ 무효 (2026-05-29 철회)
+**철회 사유**: 이 항목의 유일한 근거 GRASS2 -$1,798은 **PnL 기록 버그**였음. 거래소 closed-pnl 실제 -$105.08 (exit 0.40264 오기록 ← 실제 0.56438, 직전 거래값 혼입). 재구축 47건 **최대 손실 -$135로 catastrophic loss 부재.** 저유동성 호가창 잠식 문제는 데이터상 존재한 적 없음. → **Tier Cap(§2.3)의 동기 소멸** → 별도 재검토 필요(현재 ALLO/NEAR 등 위너 사이즈를 불필요하게 깎고 있을 수 있음).
+**단, 데모 계정 한계**: closedPnl은 시뮬레이션값. 실거래 전환 시 저유동성 슬리피지는 별도 검증 필요 — 아래는 그때 참고용 후보로만 보존(현재 미적용):
+- min_volume_usdt $20M → $50M~100M / 진입 직후 -10% 강제 reduce-only / Bybit native trailingStop / 고변동성 blacklist
 
 ### 8.3 Smart Position Sizing (현재 미적용)
 **가능성**: 코인별 historical 슬리피지 데이터 누적 후 tier cap을 더 정밀하게 (예: median slip > 0.5% 코인은 추가 축소).
@@ -223,6 +234,8 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 **우선순위**: 지금 4/51(~8%)은 치명적 아님. **표본 50건+ 쌓은 뒤** universe 축소($20M→$50M, 51→~30개)로 scan 부하를 줄여 누락 해소 검토. 그 외 후보: 심볼 sleep 0.7→1.0, scan 정각+30초 분산, incremental cache 강화.
 
 ### 8.5 신호 연구 — D-소급 변별신호 (5/28, 핵심 발견)
+
+> ⚠️ **2026-05-29 재검토 필요**: 이 절의 손익·손실규모는 PnL 버그로 오염된 데이터 기반(GRASS·ESPORTS 등 손실 과대계상). exit-price 오염은 47건 중 4건이나 pnl은 광범위. MFE/MAE는 캔들 기반이라 "82% 즉시 역행" 방향성은 유지 가능성 있으나, **corrected 데이터 재계산 전까지 결론 잠정.** ALLO(실 +$624)·ESPORTS(실 -$84) 대조는 유효.
 
 **손실 원인 확정** (473건 분석): 패자의 **82%가 진입 직후 역행(MFE<0.5%)** = 구조적 **adverse selection**(신호가 단기 극점을 잡음). **진입 시점 변수(신호세기·변동성·BTC방향·꼬리·거래량)로는 winner/loser 변별 불가** — §5.4의 8% threshold도 단일 필터론 weak winner(NEAR/PROVE) 죽임.
 
@@ -244,6 +257,21 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 - ⚠️ 극단 표본 2건(ALLO/ESPORTS) — 가설. ALLO만 기억하는 selection bias 경계.
 
 **경로**: 로깅(현재) → 표본 50건+ → **극단 신호 진입을 OI 부호로 쪼개 OI↑ 그룹이 체계적으로 이기는지 검증**(8:2면 interaction 실재, 5:5면 ALLO는 운). 단일 필드 필터 적용 금지(weak/극단 winner 죽임). 상세는 메모리 `project_signal_research`.
+
+### 8.5+ 재계산 결과 (2026-06-01 corrected 64건, deterministic 1:1)
+
+위 §8.5 5/28 원문·"재검토 필요" 박스는 **PnL 버그 오염 라벨 기반**. 거래소 closed-pnl 재구축으로 갱신(64건):
+- **WR 37.5%, 누적 +$2,025, PF 1.54**(승합 +$5,776/패합 -$3,750). 잭팟 의존 — §5.1.
+- winner: 100% TrailSL/Timeout, hold median ~11봉, avg MFE +19.7%. loser: SL 위주, hold median 2봉.
+- ★ **adverse selection 확인(약화 아님)**: loser 중 MFE<0.5% = **57.5%**, winner MFE<0.5% = **0%**. 즉시역행이 손실 주 메커니즘. winner는 예외없이 초반 유리하게 감.
+- **OI 단순 부호로는 변별 불가 (확정)**: ctx 25건 — oi+ 15건 WR40%/+$95, **oi- 10건 WR30%/+$545**. OI 음수 그룹이 총액 오히려 큼(ALLO·PORTAL 잭팟 포함). "OI↑=좋다" 단일 필터 **틀림.** §8.5 가설은 "막차 AND oi↓" 조합이지 단순 부호 아님.
+- ★★ **"극단 막차(ret24>50%)"는 위험 편향이나 잭팟 예외 존재**: ret24>50 진입 4건 = **ALLO(+624, ret24=108, 최대급 잭팟!)** · ID(-88) · HEI(-131) · PORTAL(-119) → **1승 3패이나 합계 +$286**(ALLO가 3패 덮음). → 막차는 손실 편향이지만 ALLO 같은 폭발이 섞여 **단순 ret24 상한 필터는 그 잭팟을 죽인다** = 단일 필드 필터 금지 재확인. n=4 소표본.
+- ⚠️ 데모 계정 closedPnl(시뮬레이션값). 스크립트 `rebuild_pnl.py`·`analyze_signal_corrected.py`.
+
+### 8.6 Tier Cap 재검토 (2026-05-29)
+- 도입 근거 GRASS2 catastrophic(-$1,798)이 버그였음(실 -$105) → **원래 동기 무효.**
+- corrected 분석: 캡은 저유동성 ~$1,000 tier4 거래 ~7건에 binding, **양 꼬리 모두 클립**(손실 ~-$194 방지 + 소액 winner 절단). counterfactual은 필터별로 불안정해 순효과 단정 불가.
+- **결정: 캡 제거 안 함**(실거래 저유동성 슬리피지 대비 합리적 가드). 단 fat-tail 우측꼬리 절단 비용 실재 → **live 실슬리피지 데이터 후 tier4 $1,000→$2,000 완화 또는 universe min_vol 상향($20M→$50M) 재검토.** 현재 config 미변경.
 
 ---
 
@@ -294,3 +322,6 @@ python -m vwap_trader.momentum_bot
 | 2026-05-29 | v5.1 통계 양전환 확인 — 12건 WR 41.7% +$214 (전체 43건 -$233) |
 | 2026-05-29 | **ALLO +44.47% (+$644) 최대 winner 실현** — ret_12=73·DOWN_HIGH 역추세, 모든 위험 플래그 red인데 대박. 전체 누적 +$388 전환 |
 | 2026-05-29 | **interaction 가설**: 신호는 더해지지 않고 곱해짐. 막차+OI↑=폭발 / 막차+OI↓(ESPORTS)=붕괴. 단일 필드 필터 실패의 근본 원인 → 비선형 룰 필요 (§8.5) |
+| 2026-05-29 | **PnL 기록 버그 발견** — `_get_closed_pnl_price`가 청산 직후 race 시 직전 무관 거래의 exit를 기록(side만으로 fallback). 47건 중 4건 exit 오염(GRASS 치명) |
+| 2026-05-29 | **버그 수정**: closed-pnl 강한매칭(side+entry±1%+qty±1%)+retry 5×0.6s, 엉뚱레코드/ticker fallback 제거, 거래소 실 closedPnl 직접 기록(`pnl_source` 필드 추가). 봇 재가동 |
+| 2026-05-29 | **거래소 재구축**(deterministic 1:1, 47건 전건 매칭, 2회 run 동일 해시): 기록 +$202 → 실제 **+$2,010**. **GRASS2 -$1,798=가짜(-$105)** → catastrophic slip/Tier Cap 동기 무효(§8.2/§8.6). v5.1기 +$97 breakeven, adverse selection 확인(loser MFE<0.5%=55%) (§8.5+). `trades_momentum_corrected.jsonl` 생성, 메모리 기록 |

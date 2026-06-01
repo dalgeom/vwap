@@ -593,13 +593,18 @@ class MomentumBot:
             if p in self._pending_orders:
                 self._pending_orders.remove(p)
 
-    def _close_position(self, pos: OpenPosition, reason: str) -> float | None:
-        """Close a position. Returns exit price or None."""
+    def _close_position(self, pos: OpenPosition, reason: str) -> dict | None:
+        """Close a position at market.
+
+        Returns the matching closed-PnL record (dict) on success, an empty dict
+        if the close order succeeded but the record was not found in time, or
+        None if the close order itself failed (position likely still open).
+        """
         side = "Sell" if pos.direction == "long" else "Buy"
 
         if self.dry_run:
             logger.info("[DRY_RUN] CLOSE %s %s reason=%s", pos.symbol, pos.direction, reason)
-            return pos.entry_price  # mock
+            return {}  # mock success
 
         try:
             pos_idx = 1 if pos.direction == "long" else 2
@@ -613,21 +618,10 @@ class MomentumBot:
                 positionIdx=pos_idx,
             )
             if resp.get("retCode") == 0:
-                order_id = resp["result"].get("orderId", "")
-                # Wait for fill, then get exit price from closed PnL
+                # Wait for fill, then fetch the actual closed-PnL record
                 time.sleep(1.0)
-                exit_price = self._get_closed_pnl_price(pos)
-                if exit_price > 0 and exit_price != pos.entry_price:
-                    return exit_price
-                # Fallback: get current mark price
-                try:
-                    ticker = self.public_session.get_tickers(
-                        category="linear", symbol=pos.symbol)
-                    if ticker.get("retCode") == 0:
-                        return float(ticker["result"]["list"][0]["lastPrice"])
-                except Exception:
-                    pass
-                return pos.entry_price
+                rec = self._get_closed_pnl_record(pos)
+                return rec if rec is not None else {}
             else:
                 logger.error("Close failed %s: %s", pos.symbol, resp)
                 return None
@@ -635,39 +629,53 @@ class MomentumBot:
             logger.error("Close exception %s: %s", pos.symbol, e)
             return None
 
-    def _get_closed_pnl_price(self, pos: OpenPosition) -> float:
-        """Get actual exit price from closed PnL records."""
-        try:
-            resp = self.session.get_closed_pnl(
-                category="linear", symbol=pos.symbol, limit=10)
-            if resp.get("retCode") == 0:
-                for record in resp["result"]["list"]:
-                    exit_p = float(record.get("avgExitPrice", 0))
-                    entry_p = float(record.get("avgEntryPrice", 0))
-                    # Match by entry price (more reliable than side)
-                    if exit_p > 0 and abs(entry_p - pos.entry_price) / pos.entry_price < 0.01:
-                        logger.info("Closed PnL found for %s: entry=%.4f exit=%.4f",
-                                    pos.symbol, entry_p, exit_p)
-                        return exit_p
-                # If no match by entry price, take the most recent with exit price
-                for record in resp["result"]["list"]:
-                    exit_p = float(record.get("avgExitPrice", 0))
-                    if exit_p > 0:
-                        logger.info("Closed PnL (recent) for %s: exit=%.4f", pos.symbol, exit_p)
-                        return exit_p
-        except Exception as e:
-            logger.warning("Closed PnL fetch error %s: %s", pos.symbol, e)
-        # Fallback: get last traded price
-        try:
-            ticker = self.public_session.get_tickers(category="linear", symbol=pos.symbol)
-            if ticker.get("retCode") == 0:
-                last = float(ticker["result"]["list"][0]["lastPrice"])
-                logger.warning("Using lastPrice for %s exit: %.4f", pos.symbol, last)
-                return last
-        except Exception:
-            pass
-        logger.warning("Could not get exit price for %s, using entry price", pos.symbol)
-        return pos.entry_price
+    def _get_closed_pnl_record(self, pos: OpenPosition,
+                               retries: int = 5, delay: float = 0.6) -> dict | None:
+        """Fetch the closed-PnL record that matches THIS position.
+
+        Matches strictly by side + entry price + qty, then picks the most recent
+        match. Retries to absorb exchange record-propagation lag (the record may
+        not yet exist in the instant after an SL fill). Returns the record dict,
+        or None — never an unrelated trade's record. The previous implementation
+        fell back to "most recent record with an exit price", which silently
+        grabbed the *previous* trade's exit on the same symbol (PnL corruption).
+        """
+        want_side = "Sell" if pos.direction == "long" else "Buy"
+        for attempt in range(retries):
+            try:
+                resp = self.session.get_closed_pnl(
+                    category="linear", symbol=pos.symbol, limit=20)
+                if resp.get("retCode") == 0:
+                    matches = []
+                    for r in resp["result"]["list"]:
+                        if r.get("side") != want_side:
+                            continue
+                        exit_p = float(r.get("avgExitPrice", 0) or 0)
+                        entry_p = float(r.get("avgEntryPrice", 0) or 0)
+                        qty = float(r.get("qty", 0) or 0)
+                        if exit_p <= 0 or entry_p <= 0:
+                            continue
+                        entry_ok = abs(entry_p - pos.entry_price) / pos.entry_price < 0.01
+                        qty_ok = pos.qty <= 0 or abs(qty - pos.qty) / pos.qty < 0.01
+                        if entry_ok and qty_ok:
+                            matches.append((int(r.get("createdTime", 0) or 0), r))
+                    if matches:
+                        matches.sort(key=lambda x: x[0])
+                        rec = matches[-1][1]
+                        logger.info(
+                            "Closed PnL matched %s: entry=%.6f exit=%.6f pnl=%s (try %d)",
+                            pos.symbol, float(rec["avgEntryPrice"]),
+                            float(rec["avgExitPrice"]), rec.get("closedPnl"), attempt + 1)
+                        return rec
+            except Exception as e:
+                logger.warning("Closed PnL fetch error %s: %s", pos.symbol, e)
+            if attempt < retries - 1:
+                time.sleep(delay)
+        logger.error(
+            "Closed PnL record NOT found for %s after %d tries "
+            "(entry=%.6f qty=%.4f) — exit/pnl will be ESTIMATED",
+            pos.symbol, retries, pos.entry_price, pos.qty)
+        return None
 
     def _get_position_from_exchange(self, symbol: str, direction: str) -> float:
         """Check if position still exists on exchange. Returns size."""
@@ -684,14 +692,21 @@ class MomentumBot:
             return -1
 
     # ── Trade Logging ────────────────────────────────────
-    def _log_trade(self, pos: OpenPosition, exit_price: float, reason: str):
+    def _log_trade(self, pos: OpenPosition, exit_price: float, reason: str,
+                   closed_pnl_usd: float | None = None):
         if pos.direction == "long":
             pnl_pct = (exit_price - pos.entry_price) / pos.entry_price * 100
         else:
             pnl_pct = (pos.entry_price - exit_price) / pos.entry_price * 100
 
-        fee_pct = 0.055 * 2  # round trip taker
-        pnl_usd = pnl_pct / 100 * pos.position_size_usd - (fee_pct / 100 * pos.position_size_usd)
+        if closed_pnl_usd is not None:
+            # Authoritative: exchange-reported realized PnL (already net of fees)
+            pnl_usd = closed_pnl_usd
+            pnl_source = "exchange"
+        else:
+            fee_pct = 0.055 * 2  # round trip taker
+            pnl_usd = pnl_pct / 100 * pos.position_size_usd - (fee_pct / 100 * pos.position_size_usd)
+            pnl_source = "estimated"
         hold_bars = self.bar_counter - pos.entry_bar
 
         now = datetime.now(timezone.utc)
@@ -718,6 +733,7 @@ class MomentumBot:
             "exit_reason": reason,
             "pnl_usd": round(pnl_usd, 4),
             "pnl_pct": round(pnl_pct, 4),
+            "pnl_source": pnl_source,
             "atr_at_entry": round(pos.atr_at_entry, 8),
             "hold_time_bars": hold_bars,
             "max_favorable_excursion": round(mfe_pct, 4),
@@ -1214,8 +1230,16 @@ class MomentumBot:
             size = self._get_position_from_exchange(pos.symbol, pos.direction)
 
             if size == 0:
-                # SL or TP was hit by exchange — get actual exit price from closed PnL
-                exit_price = self._get_closed_pnl_price(pos)
+                # SL or TP hit by exchange — get actual exit price + realized PnL
+                # from the matching closed-PnL record (retries for propagation lag).
+                rec = self._get_closed_pnl_record(pos)
+                if rec is not None:
+                    exit_price = float(rec["avgExitPrice"])
+                    closed_pnl = float(rec.get("closedPnl", 0) or 0)
+                else:
+                    # Record never appeared: best estimate is the stop that fired.
+                    exit_price = pos.sl
+                    closed_pnl = None
                 reason = self._classify_exit_reason(pos, exit_price)
                 # Final MFE/MAE update with exit price
                 if pos.direction == "long":
@@ -1227,9 +1251,10 @@ class MomentumBot:
                 if -final_exc > pos.mae:
                     pos.mae = -final_exc
 
-                logger.info("Position %s closed by exchange (%s) exit=%.4f",
-                            pos.symbol, reason, exit_price)
-                self._log_trade(pos, exit_price, reason)
+                logger.info("Position %s closed by exchange (%s) exit=%.4f pnl=%s",
+                            pos.symbol, reason, exit_price,
+                            f"{closed_pnl:.2f}" if closed_pnl is not None else "est")
+                self._log_trade(pos, exit_price, reason, closed_pnl)
                 closed.append(pos)
                 continue
 
@@ -1241,18 +1266,28 @@ class MomentumBot:
             # Check timeout
             if self.strategy.hold_expired(pos.entry_bar, self.bar_counter):
                 logger.info("Position %s timeout — closing", pos.symbol)
-                exit_price = self._close_position(pos, "timeout")
-                if exit_price:
-                    # Final MFE/MAE update
-                    if pos.direction == "long":
-                        final_exc = exit_price - pos.entry_price
-                    else:
-                        final_exc = pos.entry_price - exit_price
-                    if final_exc > pos.mfe:
-                        pos.mfe = final_exc
-                    if -final_exc > pos.mae:
-                        pos.mae = -final_exc
-                    self._log_trade(pos, exit_price, "Timeout")
+                result = self._close_position(pos, "timeout")
+                if result is None:
+                    # Close order failed — leave position tracked, retry next minute.
+                    logger.error("Timeout close order FAILED for %s — will retry", pos.symbol)
+                    continue
+                if result:  # non-empty record matched
+                    exit_price = float(result["avgExitPrice"])
+                    closed_pnl = float(result.get("closedPnl", 0) or 0)
+                else:
+                    # Order succeeded but record not found — estimate with last price.
+                    exit_price = price_map.get(pos.symbol, pos.entry_price)
+                    closed_pnl = None
+                # Final MFE/MAE update
+                if pos.direction == "long":
+                    final_exc = exit_price - pos.entry_price
+                else:
+                    final_exc = pos.entry_price - exit_price
+                if final_exc > pos.mfe:
+                    pos.mfe = final_exc
+                if -final_exc > pos.mae:
+                    pos.mae = -final_exc
+                self._log_trade(pos, exit_price, "Timeout", closed_pnl)
                 closed.append(pos)
 
         for pos in closed:
