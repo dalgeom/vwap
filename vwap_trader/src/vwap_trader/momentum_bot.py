@@ -449,6 +449,27 @@ class MomentumBot:
             logger.error("Order exception %s: %s", symbol, e)
             return None
 
+    def _fetch_actual_entry(self, symbol: str, side: str) -> float:
+        """시장가 체결 후 거래소 실제 평단(avgPrice) 조회.
+
+        Bybit market order는 비동기 체결이라 place_order 응답에 체결가가 없다.
+        짧게 대기 후 get_positions로 avgPrice를 읽는다.
+        실패 시 0 반환 → 호출부에서 신호가로 fallback."""
+        if self.dry_run:
+            return 0.0
+        pos_idx = 1 if side == "Buy" else 2
+        try:
+            time.sleep(0.4)
+            resp = self.session.get_positions(category="linear", symbol=symbol)
+            for p in resp["result"]["list"]:
+                if int(p.get("positionIdx", -1)) == pos_idx:
+                    avg = float(p.get("avgPrice", 0) or 0)
+                    if avg > 0:
+                        return avg
+        except Exception as e:
+            logger.error("Actual entry fetch error %s: %s", symbol, e)
+        return 0.0
+
     def _place_limit_order(self, symbol: str, side: str, qty: float,
                            price: float, sl: float, tp: float) -> dict | None:
         """Place a limit order with SL/TP. Returns result dict or None."""
@@ -1552,9 +1573,10 @@ class MomentumBot:
                     shadow_list.append((signal, direction_str, "order_failed"))
                     continue
 
-                fill_price = float(result.get("avgPrice", 0)) or signal.close_price
+                actual = self._fetch_actual_entry(symbol, side)
+                fill_price = actual if actual > 0 else signal.close_price
                 self._log_slippage(symbol, direction_str, signal.close_price, fill_price)
-                entry_price = fill_price if fill_price > 0 else signal.close_price
+                entry_price = fill_price
 
                 sig_ctx = self._compute_signal_context(symbol, signal.direction)
 
