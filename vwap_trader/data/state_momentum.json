@@ -32,7 +32,7 @@
       "direction": "short",
       "entry_price": 483.04,
       "qty": 4.54,
-      "sl": 426.02000000000004,
+      "sl": 408.62000000000006,
       "tp": 0.0,
       "entry_time": "2026-06-04T22:00:59.563222+00:00",
       "entry_bar": 346,
@@ -44,9 +44,9 @@
       "btc_price_at_entry": 63191.8,
       "btc_1h_change_pct": -0.0838,
       "position_size_usd": 2183.5584,
-      "mfe": 92.03000000000003,
+      "mfe": 109.43,
       "mae": 1.8599999999999568,
-      "best_price": 391.01,
+      "best_price": 373.61,
       "be_triggered": true,
       "signal_ret_6": 12.7003,
       "signal_ret_12": 10.3122,
@@ -71,9 +71,9 @@
       "btc_price_at_entry": 63357.1,
       "btc_1h_change_pct": 0.0259,
       "position_size_usd": 998.6684,
-      "mfe": 16.50999999999999,
+      "mfe": 21.029999999999973,
       "mae": 0.060000000000002274,
-      "best_price": 329.27,
+      "best_price": 324.75,
       "be_triggered": true,
       "signal_ret_6": 5.2222,
       "signal_ret_12": 0.3662,
@@ -82,9 +82,9 @@
       "signal_oi_chg": 1.0186
     }
   ],
-  "bar_counter": 352,
+  "bar_counter": 354,
   "daily_pnl": -2.0624309366212326,
   "daily_trades": 1,
   "slippage_cooldown": {},
-  "last_save": "2026-06-05T04:44:27.683711+00:00"
+  "last_save": "2026-06-05T06:06:07.575024+00:00"
 }

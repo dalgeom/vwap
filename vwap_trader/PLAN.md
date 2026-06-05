@@ -3,6 +3,8 @@
 > 최종 업데이트: 2026-06-05
 > 이전 펀딩 역추세 봇 PLAN은 [PLAN_funding_legacy.md](PLAN_funding_legacy.md) 참조 (폐기됨)
 >
+> 📌 **분석 답변 규칙 (사용자 명시 요청 2026-06-05, 모든 세션 기본값)**: 이 프로젝트의 데이터/포지션 분석을 요청받으면, 정확한 수치·근거(표·통계)는 유지하되 **반드시 비전문가도 이해할 쉬운 풀이(일상어·비유)를 함께** 제공한다. 전문용어·영어단어는 최소화하고 쓸 땐 즉시 우리말로 푼다. 따로 요청 없어도 기본. 구조: ①정확한 데이터 → ②"쉬운 설명" 비유. (상세: prom.txt §7)
+>
 > ⚠️ **PnL 기록 버그 3종(연쇄) — 전부 수정 완료.** 분석은 항상 거래소 closed-pnl 재구축 정본(`rebuild_pnl.py` → `data/trades_momentum_corrected.jsonl`) 사용. 원본 jsonl은 과거분 오염 잔존, unmatched는 §8.7 직접보정. ① (05-29) `_get_closed_pnl_price`가 race 시 직전거래 exit 오기록 → GRASS2 -$1,798=가짜(실 -$105), §8.2/§8.6 무효. ② (06-04) `place_order` 응답에 avgPrice 없어 entry가 신호가 fallback → `_fetch_actual_entry` 수정(§8.7). ③ **(06-05) closed-pnl 옛레코드 오매칭 — loose 1% 매칭+전파지연이 같은심볼 옛거래값 반환(STG +249→-72 오기록). freshness 게이트 수정(§8.8).** 실제 누적·통계 §5.4, 6월 분석 §5.5, 신호결론 §8.5+, 메모리 `project_pnl_recording_bug`.
 
 ---
@@ -362,6 +364,8 @@ python -m vwap_trader.momentum_bot
 | 2026-06-05 | **과거 데이터 복구**: rebuild_pnl.py 재실행 → STG +321 자동정정, HUSDT unmatched +611→+568 수동보정. corrected 정본 106건 **+$1,389.11**(WR 36.8%, EV +$13.1, PF 1.23) |
 | 2026-06-05 | **6월 분석**(§5.3, corrected 41건): 6월 실현 **−$798**(WR 34.1%, PF 0.64) 적자. H1(즉사)·sigret 극단=손해 재확증(극단 6건 WR0/6 전멸). 단 방향·regime은 5월과 뒤집힘(6월 long·FLAT_HIGH 최악) = 표본 노이즈, 200건 전 게이팅 금지 재확인 |
 | 2026-06-05 | **PC 핸드오프**: bar 352, 106 closed, 3 positions(전부 short: ZEC·XMR·ZRO, 미실현 +$436, ZEC가 +$382 잭팟후보). totalEquity ~$24,050. 변경 없이 표본 축적 지속 |
+| 2026-06-05 | **6월 심층분석 + §11 갱신**: 6월 손실 본질 = long against-btc 11건 −$747(short는 본전~흑자). **`short_cap`=3이 하락장 short신호 47건 중 23%만 통과시켜 올바른 방향 차단 = 신규발견**. consec0 고립스파이크 17건 −$766 최악. 트레일링·BE는 정상작동(BE트리거 1.5ATR 도달 3건 본전), 손실 다수는 즉시역행(MFE<0.5% 15/27건)=출구 아닌 입구 문제. **H14(cap 비대칭)·H15(consec) Primary 신규등록**. 6월 단독근거라 즉시 게이팅 금지, 200건 일괄검정 |
+| 2026-06-05 | **PC 핸드오프(인계)**: bar 354, 106 closed, 3 positions(전부 short: ZEC·XMR·ZRO, ZEC best 373.61=잭팟후보·be잠금, XMR be잠금, ZRO 미잠금). STOP_MOMENTUM으로 graceful 종료 후 push. 코드 무변경, 표본 축적 지속. 분석 답변=쉬운 설명 규칙 신설(상단 📌·prom.txt §7·메모리) |
 
 ---
 
@@ -383,6 +387,8 @@ python -m vwap_trader.momentum_bot
 | H3 | regime 비대칭: side×regime EV 차 (예: UP_HIGH long > DOWN long) | regime·side | §7.2 등재 |
 | H4 | 군집 노이즈: 동일봉 동시신호 수↑ → EV↓ | timestamp 군집크기 | 미탐색 |
 | H5 | 배치내 순위: 동일봉 최강 signal_strength 진입 EV↑ | signal_strength | shadow와 직결 |
+| **H14** | ★cap 방향 비대칭: 추세장(특히 DOWN_HIGH)서 `short_cap`(=3)이 올바른 방향(추세순행) 진입을 막아 long-against-trend 과진입 유발 → EV↓ | shadow cap-reason × side, side×btc방향 EV | **6월 신규발견: short 신호 47건 중 23%(11건)만 진입, 36건이 short_cap(30)/rank(6) 차단. long against-btc 11건 −$747 = 6월 손실 전부(long with-btc는 본전). ⚠️막힌 short forward 성과는 klines 소급 필요(H13 연계)** |
+| **H15** | 연속성: `signal_consec=0`(직전 추세 없는 고립 단발 스파이크)=가짜 모멘텀, EV ≪ consec≥3 | signal_consec | **6월 강력: consec0 17건 −$766(EV−43, WR29%) vs consec3+ 4건 +$577. §8.5 consec 가설 Primary 승격** |
 | **H0** | **(NULL·기각 목표)** 어떤 진입시점 변수도 EV를 노이즈 이상 분리 못 함 | 전 진입필드 | 단일필드 전패 → 현 baseline |
 
 ### Secondary — exploratory (검정력 부족, 가설생성 전용)
