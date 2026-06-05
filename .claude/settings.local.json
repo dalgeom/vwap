@@ -118,7 +118,23 @@
       "PowerShell($c = Get-Command claude -ErrorAction SilentlyContinue; if \\($c\\) { $c.Source; & claude --version } else { \"claude not on PATH\" })",
       "Bash(ls -la ~/.claude/ 2>&1 | head -40; echo \"---PLUGINS DIR---\"; ls -la ~/.claude/plugins/ 2>&1 | head -40)",
       "Read(//c/Users/PC/.claude/**)",
-      "Read(//c/Users/PC/.claude/plugins/**)"
+      "Read(//c/Users/PC/.claude/plugins/**)",
+      "Bash(git commit -m 'v5.1+: entry_price 버그수정 + 93건 통계분해 + I6 백테스트부결 + PC인계 *)",
+      "Bash(cd \"/c/Users/PC/Desktop/현진/code\" && wc -l vwap_trader/PLAN.md)",
+      "Read(//c/c/Users/PC/Desktop/현진/code/vwap_trader/**)",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; cd \"c:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\"; .\\\\venv\\\\Scripts\\\\python.exe rebuild_pnl.py)",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe /tmp/introspect.py)",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\_tmp_today.py\")",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\_tmp_pos.py\")",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\rebuild_pnl.py\")",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\_tmp_unmatched.py\")",
+      "Bash(rm -f _tmp_unmatched.py)",
+      "Bash(\"/c/Users/PC/Desktop/현진/code/vwap_trader/venv/Scripts/python.exe\" -c \"import json; rows=[json.loads\\(l\\) for l in open\\('data/trades_momentum_corrected.jsonl',encoding='utf-8'\\) if l.strip\\(\\)]; t=sum\\(r.get\\('pnl_usd',0\\) or 0 for r in rows\\); w=sum\\(1 for r in rows if \\(r.get\\('pnl_usd',0\\) or 0\\)>0\\); print\\(f'corrected {len\\(rows\\)}건 | 누적 \\\\${t:+.2f} | WR {w}/{len\\(rows\\)}={w/len\\(rows\\)*100:.1f}% | EV \\\\${t/len\\(rows\\):+.2f}/건'\\); su=[r for r in rows if r.get\\('pnl_source'\\) not in \\('exchange','exchange_rebuilt'\\)]; print\\('비-exchange source:', [\\(r['symbol'],r.get\\('pnl_source'\\)\\) for r in su]\\)\")",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\_tmp_june.py\")",
+      "Bash(cd \"/c/Users/PC/Desktop/현진/code/vwap_trader\" && rm -f _tmp_june.py)"
+    ],
+    "additionalDirectories": [
+      "c:\\c\\Users\\PC\\Desktop\\현진\\code\\vwap_trader"
     ]
   }
 }

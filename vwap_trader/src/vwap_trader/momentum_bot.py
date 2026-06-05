@@ -662,6 +662,14 @@ class MomentumBot:
         grabbed the *previous* trade's exit on the same symbol (PnL corruption).
         """
         want_side = "Sell" if pos.direction == "long" else "Buy"
+        # Freshness gate: a close record for THIS position must have been created
+        # at/after entry. Without this, a prior trade on the same symbol with a
+        # near-identical entry/qty (within the 1% tolerance below) can be matched
+        # before the fresh record propagates, corrupting PnL (see STG 2026-06-04).
+        try:
+            entry_ms = int(datetime.fromisoformat(pos.entry_time).timestamp() * 1000)
+        except Exception:
+            entry_ms = 0
         for attempt in range(retries):
             try:
                 resp = self.session.get_closed_pnl(
@@ -671,6 +679,8 @@ class MomentumBot:
                     for r in resp["result"]["list"]:
                         if r.get("side") != want_side:
                             continue
+                        if entry_ms and int(r.get("createdTime", 0) or 0) < entry_ms:
+                            continue  # stale record from an earlier trade
                         exit_p = float(r.get("avgExitPrice", 0) or 0)
                         entry_p = float(r.get("avgEntryPrice", 0) or 0)
                         qty = float(r.get("qty", 0) or 0)

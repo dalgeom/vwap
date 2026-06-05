@@ -1,9 +1,9 @@
 # Momentum Bot — 전략 계획서 (v5.1+)
 
-> 최종 업데이트: 2026-06-04
+> 최종 업데이트: 2026-06-05
 > 이전 펀딩 역추세 봇 PLAN은 [PLAN_funding_legacy.md](PLAN_funding_legacy.md) 참조 (폐기됨)
 >
-> ⚠️ **2026-05-29 PnL 기록 버그 발견·수정 완료.** `_get_closed_pnl_price`가 청산 직후 race 시 **직전 무관 거래의 exit price**를 오기록 → 과거 손익 광범위 오염. 거래소 closed-pnl로 deterministic 1:1 재구축(`rebuild_pnl.py` → `data/trades_momentum_corrected.jsonl`, 전건 매칭). **GRASS2 -$1,798은 가짜(실제 -$105)** → §8.2 catastrophic slip / Tier Cap 전제 무효(§8.6). 버그 수정으로 신규 거래는 `pnl_source:exchange`로 정확. **분석은 항상 corrected 사용**(원본 jsonl 과거분 오염 잔존). 실제 누적·통계 §5.1, 신호결론 §8.5+, 메모리 `project_pnl_recording_bug`.
+> ⚠️ **PnL 기록 버그 3종(연쇄) — 전부 수정 완료.** 분석은 항상 거래소 closed-pnl 재구축 정본(`rebuild_pnl.py` → `data/trades_momentum_corrected.jsonl`) 사용. 원본 jsonl은 과거분 오염 잔존, unmatched는 §8.7 직접보정. ① (05-29) `_get_closed_pnl_price`가 race 시 직전거래 exit 오기록 → GRASS2 -$1,798=가짜(실 -$105), §8.2/§8.6 무효. ② (06-04) `place_order` 응답에 avgPrice 없어 entry가 신호가 fallback → `_fetch_actual_entry` 수정(§8.7). ③ **(06-05) closed-pnl 옛레코드 오매칭 — loose 1% 매칭+전파지연이 같은심볼 옛거래값 반환(STG +249→-72 오기록). freshness 게이트 수정(§8.8).** 실제 누적·통계 §5.4, 6월 분석 §5.5, 신호결론 §8.5+, 메모리 `project_pnl_recording_bug`.
 
 ---
 
@@ -12,8 +12,8 @@
 Bybit USDT 무기한 선물 데모 계좌에서 **모멘텀 추종(Big Move Follow-Through)** 전략 자동 운영.
 P99.5 percentile 이상 1h 봉 수익률 → 모멘텀 방향으로 진입 → BE+Trailing Stop 청산.
 
-- **현재 단계**: v5.1+ 운영, 데이터 수집 중 (**95 trades / corrected 93 분석 누적 ~+$1,900**, EV +$20/건, PF 1.38, 잭팟 의존 §5.1/§5.4). 신호연구 병행 — 변별신호 로깅 + shadow log(36건).
-- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 95**
+- **현재 단계**: v5.1+ 운영, 데이터 수집 중 (**106 trades / corrected 106 누적 +$1,389**, WR 36.8%, EV +$13.1/건, PF 1.23, 잭팟 의존 §5.4). 신호연구 병행 — 변별신호 로깅 + shadow log(~65줄).
+- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 106**
 
 ---
 
@@ -76,6 +76,7 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 | **v5.1+** | **2026-05-28~29** | **신호 컨텍스트 5필드 로깅 + Shadow Log (걸린 신호 기록)** | **운영 중, 거래로직 무변경** |
 | **v5.1+** | **2026-06-01** | **Trailing SL spike-retrace 버그 수정** (best_price 봉고점 되밀림 시 무효 SL 거부→BE floor 재확정) | **운영 중** |
 | **v5.1+** | **2026-06-04** | **entry_price 버그 수정** (`place_order` 응답에 avgPrice 없어 신호가 fallback → `_fetch_actual_entry`로 실체결가 기록) | **운영 중, bar265+ 0.00% 검증** |
+| **v5.1+** | **2026-06-05** | **closed-pnl 옛레코드 오매칭 수정** (loose 1% 매칭+전파지연이 같은심볼 옛거래값 반환 → `createdTime>=진입시각` freshness 게이트) | **운영 중, §8.8** |
 
 ---
 
@@ -113,77 +114,60 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 
 ---
 
-## 5. 운영 현황 스냅샷 (2026-06-01 기준, 64 trades — 봇 가동 중이라 변동, 최신은 rebuild_pnl.py 재실행)
+## 5. 운영 현황 스냅샷 (2026-06-05 기준, 106 trades — 봇 가동 중이라 변동, 최신은 rebuild_pnl.py 재실행)
 
-> 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조. **분석은 항상 corrected**([data/trades_momentum_corrected.jsonl](data/trades_momentum_corrected.jsonl), `rebuild_pnl.py`로 재생성). 원본 jsonl은 v5.1+ 신규분만 정확(`pnl_source:exchange`), 과거 47건은 버그 오염 잔존.
+> 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조. **분석은 항상 corrected**([data/trades_momentum_corrected.jsonl](data/trades_momentum_corrected.jsonl), `rebuild_pnl.py`로 재생성). 원본 jsonl은 v5.1+ 신규분만 정확(`pnl_source:exchange`), 과거분·일부 신규분(§8.8 STG 등)은 버그 오염 잔존.
 
-### 5.0 계좌 레벨 (2026-06-01 거래소 조회, cumRealisedPnl 항등식)
-- **데모 초기 지급 = $40,000.00 확정** (walletBalance $24,165.24 + cumRealisedPnl −$15,834.76 = 정확히 $40,000 → 추가입금·보너스 없는 단일 지급).
-- **현재 totalEquity $24,434** (미실현 +$298 포함). 계좌 평생 실현 **−$15,835 (−40%)**.
-- ⚠️ 이 −15.8k는 **거의 전부 5분봉 v1~v4 시대(전부 실패) 손실**(≈ −$17.7k 역산). **1h봉 v5/v5.1 시대(65건 corrected) = +$1,912 = 우상향.** 봇 평가는 v5 시대만 유효, 과거 era는 무관.
+### 5.0 계좌 레벨 (cumRealisedPnl 항등식, 2026-06-01 감사 — 1회성)
+- **데모 초기 지급 = $40,000.00 확정** (walletBalance + cumRealisedPnl −$15,834.76 = 정확히 $40,000 → 추가입금·보너스 없는 단일 지급).
+- **현재 totalEquity ~$24,050** (미실현 +$436 포함, 06-05 직접조회). 계좌 평생 실현 ≈ −$16k (−40%).
+- ⚠️ 이 손실은 **거의 전부 5분봉 v1~v4 시대(전부 실패) 손실**(≈ −$17.7k 역산). **1h봉 v5/v5.1 시대(106건 corrected) = +$1,389 = 우상향.** 봇 평가는 v5 시대만 유효, 과거 era는 무관.
 - 데모 API는 transaction log ~1일·closed_pnl 40건만 보관 → 과거 날짜별 조회 불가. v5 완전본은 로컬 corrected jsonl이 유일.
 
-### 5.1 누적 통계 (2026-06-01 거래소 closed-pnl deterministic 1:1 재구축 — 실제값)
+### 5.1 누적 추이 (역사 압축)
+- 데이터셋 성장: 64건(06-01, +$2,025) → 93건(06-04, +$1,900) → **106건(06-05, +$1,389)**. 누적 감소는 6월 적자(§5.3) 반영. 모든 시점 `rebuild_pnl.py` deterministic 1:1 재구축.
+- ★ **냉철히**: 누적 흑자는 **잭팟 소수건에 전적 의존.** fat-tail winner 전부 TrailSL(BEAT+895·NEAR+719·PORTAL+649·ALLO+624·BSB+541·HYPE+373·STG+250). catastrophic 손실은 부재(최대 −$148대). **edge는 잭팟 빈도/크기 의존 — 안정성 단정 불가, 표본 계속 축적.** ⚠️ 데모 closedPnl=시뮬레이션값(실거래 슬리피지 별개).
 
-> 64건 전건 매칭(2건 low_conf: PROVE/ERA, exit 일치). 원본 기록 +$218 ← 실제 **+$2,025**(버그 오염차 +$1,807). 재현 `rebuild_pnl.py`.
+### 5.2 106건 통계 분해 (2026-06-05 corrected, STG·H 보정 후)
 
-| 그룹 | 건수 | WR | 누적 PnL(실제) |
-|------|------|------|------|
-| pre-v5.1 (bot_version 없음) | 31 | 35.5% | +$1,213 |
-| v5.1 (bot_version 있음) | 33 | 39.4% | +$812 |
-| **합계** | **64** | **37.5%** | **+$2,025** |
-
-**일별 손익(KST 청산일)** — 잭팟 데이(5/23·5/29·6/01)에 집중, 나머지 +/- 상쇄:
-
-| 날짜 | 건 | PnL | 날짜 | 건 | PnL |
-|---|---|---|---|---|---|
-| 5/21 | 1 | -113 | 5/27 | 3 | +75 |
-| 5/22 | 4 | -460 | 5/28 | 4 | +219 |
-| 5/23 | 10 | **+1904** | 5/29 | 8 | **+625** |
-| 5/24 | 7 | -383 | 5/30 | 9 | -174 |
-| 5/25 | 3 | +274 | 5/31 | 5 | -412 |
-| 5/26 | 7 | -130 | 6/01 | 3 | **+601** |
-
-> ★ **냉철히**: 누적 +$2,025는 흑자이나 **거의 전부가 잭팟 데이(5/23·5/29·6/01)에서 나옴.** 나머지 날은 자잘한 +/-가 상쇄. PF 1.54(승합 +$5,776/패합 -$3,750). fat-tail winner는 **전부 TrailSL**(BEAT+895·NEAR+719·PORTAL+649·ALLO+624·BSB+541·HYPE+373). 최대 손실 -$148(SOL)로 catastrophic 부재. **edge는 잭팟 빈도/크기에 전적 의존 — 안정성 단정 불가, 표본 계속 축적.**
-> - ⚠️ 데모 계정이라 closedPnl도 시뮬레이션값(실거래 슬리피지 별개).
-
-### 5.2 청산 유형 분포
-
-(64건, exit_reason 기준)
-
-| 유형 | 건수 | 비고 |
-|---|---|---|
-| SL | 35 | 손실 주류. 대부분 hold 0~3봉 즉시 반전 |
-| TrailSL | 23 | winner 견인 (BEAT/NEAR/PORTAL/ALLO/BSB/HYPE 등 잭팟 전부) |
-| BE 보호 | 4 | NEAR/LIT 등 보호 ✓ |
-| Timeout | 2 | PROVE/ERA 등 |
-
-### 5.3 패턴 인사이트 (corrected 64건)
-
-- **winner = 길게 trailing**: hold median ~11봉, avg MFE +19.7%, 전부 TrailSL/Timeout. **loser = 빨리 SL**: hold median 2봉, **loser의 57.5%가 MFE<0.5%**(진입 직후 역행), winner는 0% = adverse selection(§8.5+).
-- **같은 코인 양털림 빈번**: ID(5/30 long·short 둘다 SL), WLD(5/31 long 2회 즉시 SL) — 변동성만 크고 방향 없는 코인에서 양쪽 다 손실.
-- **잭팟 의존**: 누적 대부분이 6~7건 trailing 대박(§5.1).
-
-### 5.4 93건 통계 분해 (2026-06-04 corrected, H unmatched +568 보정)
-
-> 전체: n93, WR 38.7%, 누적 +$1,900, EV +$20.4, PF 1.38. ⚠️ rebuild unmatched(H c7c674b4 +611→실제 +568)는 `get_closed_pnl` 직접 보정(§8.7).
+> 전체: n106, WR 36.8%, 누적 +$1,389.11, EV +$13.1, PF 1.23. ⚠️ rebuild unmatched 잔존 EPICUSDT(−73.58, 값은 거래소와 일치). 보정이력 §8.8.
 
 | 분해축 | 그룹 | n | WR | EV/건 | 비고 |
 |--------|------|---|-----|-------|------|
-| **hold** | ≤2 (즉사권) | 43 | 11.6% | **−$77** | 손실의 원천 = H1 adverse selection 확증 |
-| | ≥3 | 50 | 62.0% | **+$104** | 살아남으면 이김 |
-| **exit** | TrailSL | 32 | 96.9% | +$199 | **전략의 전부**(누적 +$6,357) |
-| | SL | 51 | 0% | −$96 | 누적 −$4,880 |
-| | BE | 7 | — | −$20 | MFE 반납 청산 |
-| **방향** | long | 63 | — | +$27 | long > short |
-| | short | 30 | — | +$6 | 거의 본전 |
-| **regime** | DOWN/FLAT_HIGH | 55 | — | +$40 | PF 1.8~2.1 |
-| | UP_HIGH | 32 | — | +$8 | PF 1.14, 약함 |
-| **\|sigret\|** | <10 | 68 | — | +$8.8 | |
-| | 10–20 | 15 | — | **+$90** | **sweet spot, PF 2.74** |
-| | ≥20 (극단) | 10 | 20% | −$5 | 손해 편향, 단 maxW+$540 잭팟 동반 |
+| **hold** | ≤2 (즉사권) | — | 낮음 | **음(−)** | 손실의 원천 = H1 adverse selection (06-04 n93: ≤2 EV−$77 vs ≥3 +$104) |
+| | ≥3 | — | 높음 | **양(+)** | 살아남으면 이김 |
+| **exit** | TrailSL/Timeout | — | ~95% | 큰 양(+) | **전략의 전부**(잭팟) |
+| | SL | — | 0% | 큰 음(−) | 손실 전부 |
+| | BE | — | — | ~0 | MFE 반납 청산 |
+| **\|sigret\|** | <10 | — | — | 약한 음 | 약신호 |
+| | 10–20 | — | — | **양(+)** | **sweet spot** |
+| | ≥20 (극단) | — | 낮음 | **음(−)** | 손해 편향, 단 잭팟 동반(5월) |
 
-**핵심**: ① 즉사(hold≤2)가 손실 전부 = H1. ② TrailSL 32건이 흑자 전부 = 잭팟 의존 정량확인. ③ sigret 비선형(중간이 최고, 극단은 손해이나 잭팟 섞임) → I6 동기, 단 단순컷 부결(§11).
+> 분해축 절대수치는 06-04 n93 기준이 가장 정밀(§10 이력). 106건에서도 ① 즉사(hold≤2)=손실 전부 ② TrailSL=흑자 전부 ③ sigret 비선형(중간 최고, 극단 손해) **세 결론 모두 유지**. 6월만 떼면 더 선명(§5.3).
+
+**핵심**: ① 즉사가 손실 전부 = H1. ② TrailSL이 흑자 전부 = 잭팟 의존 정량확인. ③ sigret 비선형 → I6 동기, 단 단순컷 부결(§11).
+
+### 5.3 6월 거래 분석 (2026-06-05 corrected 41건 — 깨끗한 데이터)
+
+> **6월 실현 −$798.09, WR 34.1%, EV −$19.47, PF 0.64 → 6월은 적자.** 전체 누적 흑자는 5월 잭팟 덕이고 6월은 갉아먹는 중. 단 risk 건당 통제(대부분 −$100~130대).
+
+| 분해 | 그룹 | n | PnL | EV | 비고 |
+|------|------|---|-----|-----|------|
+| **exit** | TrailSL | 11 | +$1,037 | +$94 | 생명줄 |
+| | Timeout | 2 | +$337 | +$168 | STG+250·EDGE+87 |
+| | SL | 24 | **−$2,179** | **−$91** | WR 0/24, 학살 |
+| **hold** | ≤2 즉사 | 19 | **−$1,040** | **−$54.75** | H1 재확증 |
+| | ≥3 | 22 | +$242 | +$11 | |
+| **\|sigret\|** | ≥20 극단 | 6 | **−$651** | **−$108** | **WR 0/6 전멸**(PORTAL·ALLO·LAB93·US·EPIC·OPN) |
+| | 10–20 | 7 | +$387 | +$55 | sweet spot |
+| | <10 | 28 | −$534 | −$19 | 약신호 |
+| **방향** | long | 30 | **−$726** | −$24 | 6월 학살 주범 |
+| | short | 11 | −$72 | −$6.6 | |
+| **regime** | UP_HIGH | 13 | +$287 | +$22 | 유일 흑자 |
+| | FLAT_HIGH | 14 | **−$652** | −$47 | 최악 |
+| | DOWN_HIGH | 10 | −$173 | −$17 | |
+
+> ★ **H1(즉사)·sigret 극단=손해는 6월에도 견고**(오히려 더 선명: 극단 6건 전멸). 단 **방향·regime은 §5.2(5월 누적)와 뒤집힘** — 6월 long·FLAT_HIGH가 최악(§5.2는 long·DOWN/FLAT 우위였음). 시장이 하락/횡보라 long 막차가 터진 것. **표본 작아 노이즈 가능 → 200건 전 게이팅 금지** 재확인.
 
 ---
 
@@ -307,6 +291,12 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 - **수정**: `_fetch_actual_entry(symbol,side)` — 시장가 직후 0.4s 후 `get_positions` avgPrice. positionIdx Buy=1/Sell=2. 실패 시 신호가 fallback. **bar265+ 진입부터 entry==avgPrice 0.00% 검증.** 과거분 무영향.
 - ⚠️ **corrected 정본도 unmatched는 오염**: H(c7c674b4)가 estimated +$611 유지(`unmatched_keep_recorded`), 거래소 실값 **+$568**. **rebuild 후 unmatched_list는 `get_closed_pnl(symbol)`로 직접 보정 필수.** (수정으로 신규분은 해소.)
 
+### 8.8 closed-pnl 옛레코드 오매칭 버그 (2026-06-05 수정 — PnL 버그 3번째·연쇄)
+- **증상**: STG Timeout 청산(MFE 24.7%, 진짜 **+$249.54**)이 live jsonl에 **−$71.77**(이전 STG SL거래값)로 기록. `pnl_source=exchange`인데도 부호 반대 → 오늘 6건 jsonl합 −$434 vs 거래소 −$112(차 전부 STG 한 건).
+- **근본원인**: `_get_closed_pnl_record`(05-29 첫 수정본)가 side+entry±1%+qty±1% 매칭하는데, 같은 심볼 STG short 2건(06-02 entry 0.31155 vs 06-04 0.3092 = **0.76% 차**, qty도 0.76%)이 **둘 다 1% 허용오차 통과**. 청산 직후 신선 레코드 미전파 상태에서 옛 06-02 레코드만 존재 → matches 비어있지 않아 retry 없이 **즉시 옛 레코드 반환**(exit·pnl 글자그대로 복사). retry는 "matches 빔"만 보고 "stale 매칭 존재"는 못 거름. **loose 1% 매칭 + 거래소 전파지연 조합** = 같은 심볼 entry 1% 이내 2회+ 거래하면 누구나 교차오염.
+- **수정**: `_get_closed_pnl_record`에 **freshness 게이트** — closed-pnl 레코드 `createdTime >= 진입시각(pos.entry_time ms)`인 것만 매칭. 옛거래(타 거래 진입 전 청산) 자동배제, 신선 레코드 미전파 시 matches 비어 retry 정상작동. **실증검증은 미래 동일심볼 반복거래 청산 때** 로그 `Closed PnL matched ...(try N)`로 (라이브 거래소 의존이라 단위테스트 불가).
+- **과거 복구(06-05)**: rebuild_pnl.py 재실행 → STG는 orderId 1:1 할당으로 −71.77→**+249.54 자동정정**(+321). HUSDT unmatched는 거래소 직접조회로 +611.71→**+568.12 수동보정**(corrected 직접패치, `exchange_avg_entry` 추가). EPICUSDT −73.58은 거래소와 일치(라벨만 unmatched). **corrected 최종 106건 +$1,389.11.**
+
 ---
 
 ## 9. 봇 실행
@@ -368,6 +358,10 @@ python -m vwap_trader.momentum_bot
 | 2026-06-04 | **93건 통계 분해**(§5.4): hold≤2 즉사 EV−$77 vs hold≥3 +$104(H1 확증), TrailSL 32건이 흑자 전부, sigret 비선형(10–20 sweet spot/≥20 손해). **I6 등록**(극단 sigret 상한/축소) + **백테스트 부결**(컷 민감=overfitting, 잭팟 컷경계 산재, n93 채택불가) — §11 |
 | 2026-06-04 | **rebuild unmatched 주의**: entry_price 버그로 막차 winner가 entry매칭 실패→corrected가 estimated 유지. H(c7c674b4) +611(오염) vs 거래소 진짜 +568. unmatched_list는 get_closed_pnl 직접보정(§8.7) |
 | 2026-06-04 | **PC 핸드오프**: bar 326, 95 closed, 3 positions(전부 short: EDGE·STG·HOME). 손실 3클러스터(−$591) 후에도 risk 통제(건당 0.5%), 변경 없이 표본 축적 지속 결정 |
+| 2026-06-05 | **closed-pnl 옛레코드 오매칭 버그(3번째 PnL 버그) 발견·수정**: STG Timeout +$249.54가 −$71.77(이전 SL거래값)로 오기록. loose 1% 매칭+전파지연이 같은심볼 옛레코드 반환. `createdTime>=진입시각` freshness 게이트 추가(§8.8). 봇 재시작으로 적용 |
+| 2026-06-05 | **과거 데이터 복구**: rebuild_pnl.py 재실행 → STG +321 자동정정, HUSDT unmatched +611→+568 수동보정. corrected 정본 106건 **+$1,389.11**(WR 36.8%, EV +$13.1, PF 1.23) |
+| 2026-06-05 | **6월 분석**(§5.3, corrected 41건): 6월 실현 **−$798**(WR 34.1%, PF 0.64) 적자. H1(즉사)·sigret 극단=손해 재확증(극단 6건 WR0/6 전멸). 단 방향·regime은 5월과 뒤집힘(6월 long·FLAT_HIGH 최악) = 표본 노이즈, 200건 전 게이팅 금지 재확인 |
+| 2026-06-05 | **PC 핸드오프**: bar 352, 106 closed, 3 positions(전부 short: ZEC·XMR·ZRO, 미실현 +$436, ZEC가 +$382 잭팟후보). totalEquity ~$24,050. 변경 없이 표본 축적 지속 |
 
 ---
 
@@ -384,7 +378,7 @@ python -m vwap_trader.momentum_bot
 ### Primary — confirmatory (~200건 검정력 O)
 | ID | 가설 (방향) | 검정 필드 | 현황 |
 |----|------------|-----------|------|
-| H1 | adverse selection 지속: loser 즉시역행률(MFE<0.5%) ≫ winner | MFE | **93건: hold≤2 EV−$77 vs hold≥3 +$104 (강력 확증)** |
+| H1 | adverse selection 지속: loser 즉시역행률(MFE<0.5%) ≫ winner | MFE | **n93·6월(41) 모두 강력 확증: hold≤2 즉사=손실 전부. 6월 즉사 19건 −$1,040(EV−$55) vs ≥3 +$242** |
 | H2 | 출구 비효율: winner가 peak MFE의 **median >30% 반납** (→ I1/I2 동기) | best_price·exit_price | BSB 79→50%·ALLO 18.5→0%·H 14.7→0%. 단 TrailSL PF830라 "비효율"이지 고장 아님 |
 | H3 | regime 비대칭: side×regime EV 차 (예: UP_HIGH long > DOWN long) | regime·side | §7.2 등재 |
 | H4 | 군집 노이즈: 동일봉 동시신호 수↑ → EV↓ | timestamp 군집크기 | 미탐색 |
@@ -406,5 +400,6 @@ python -m vwap_trader.momentum_bot
 ### v6 개입 후보 (관측데이터로 검정 불가 — backtest/live A-B 필요, 가설 아님)
 - **I1** trail 거리(2ATR) 튜닝 · **I2** 부분익절(scale-out) · **I3** BE 트리거(1.5ATR) 타이밍 · **I4** BTC 1h 급변 시 신규진입 정지(chaos=관망) · **I5** regime 게이팅 진입.
 - **I6** 극단 sigret 상한/축소 (H7 동기): `|signal_return_pct|`이 큰 트리거봉 진입을 제외 또는 사이징 축소. **관측(2026-06-04, 93 closed)**: 최근20건 즉사(hold≤2,손실) sigret 평균 **+17.4** vs 생존/이익 **−0.5**; 93건 구간별 EV `|sigret|<10 +$8.8(PF1.18) / 10–20 +$90(PF2.74) / ≥20 −$5(PF0.94)`. **중간(10–20)이 sweet spot, 극단(≥20)만 EV음수 — 비선형.** ⚠️ 단 `≥20` 구간 maxW **+$540**(잭팟 동반) → 단순 제외 시 잭팟 동반 사망 위험, 절대 단순컷 금지·backtest 필수. **역방향 진입은 별개 대규모 검증 사안**(중간강도 추종이 best라 전면 반전은 오답).
+  - **6월 관측(2026-06-05, n41)**: 극단 `≥20` **6건 전멸 −$651(WR 0/6, EV−$108)**, `10–20` 7건 +$387(EV+$55), `<10` 28건 −$534. 6월엔 극단에 잭팟 미동반 → I6 정황 강화. 단 5월엔 극단에 잭팟 섞여(BSB+540) 단순컷 부결됐음 = 기간에 따라 극단 구간 성격이 달라짐 → 여전히 200건 일괄검정 필요.
   - **backtest 채점 (93건, 2026-06-04, 단순제거 시뮬)**: baseline 누적 +1900. 컷별 → `≥30 제외:+1990 / ≥25:+2334 / ≥20:+1951(EV~0) / ≥15:+648`. **컷 위치에 극도로 민감 = overfitting 경고.** `≥25`가 좋아보이는 건 BSB long(+540,sigret24.4)이 우연히 컷 아래로 생존한 덕; `≥20` 구간 10건 내부 = 잭팟 2건(BSB long+540, BSB short+261=+802) + 손실 8건(−853) = 합 −51(EV≈0, 거를 동기 약함). `≥15`로 내리면 15–20 황금구간(+1251) 침범해 반토막. 절반사이징은 효과 미미(+25). **결론: n93에선 채택 불가(부결), 200건 재검증.** 잭팟이 컷 경계에 산재 = 단순컷 신뢰불가 실증.
 - 적용 조건: H2/H3/H7/H8 등이 신호를 준 **뒤** backtest 검증 통과 시에만. 단독 도입 금지.

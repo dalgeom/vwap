@@ -96,3 +96,14 @@
 {"symbol": "XPLUSDT", "direction": "long", "intended_price": 0.10134, "fill_price": 0.1013, "slippage_pct": 0.0395, "timestamp": "2026-06-03T18:01:00.040874+00:00"}
 {"symbol": "ETHUSDT", "direction": "long", "intended_price": 1848.5, "fill_price": 1847.04, "slippage_pct": 0.079, "timestamp": "2026-06-03T22:01:01.949642+00:00"}
 {"symbol": "SUIUSDT", "direction": "long", "intended_price": 0.8374, "fill_price": 0.8388, "slippage_pct": 0.1672, "timestamp": "2026-06-03T22:01:02.859232+00:00"}
+{"symbol": "BTCUSDT", "direction": "long", "intended_price": 63229.2, "fill_price": 63232.4, "slippage_pct": 0.0051, "timestamp": "2026-06-04T03:00:50.700936+00:00"}
+{"symbol": "ETHUSDT", "direction": "long", "intended_price": 1808.09, "fill_price": 1809.65, "slippage_pct": 0.0863, "timestamp": "2026-06-04T04:00:54.894021+00:00"}
+{"symbol": "XRPUSDT", "direction": "long", "intended_price": 1.2075, "fill_price": 1.2087, "slippage_pct": 0.0994, "timestamp": "2026-06-04T04:00:55.807404+00:00"}
+{"symbol": "HYPEUSDT", "direction": "short", "intended_price": 69.788, "fill_price": 69.79, "slippage_pct": 0.0029, "timestamp": "2026-06-04T07:01:03.460177+00:00"}
+{"symbol": "BTCUSDT", "direction": "long", "intended_price": 63669.8, "fill_price": 63619.1, "slippage_pct": 0.0796, "timestamp": "2026-06-04T13:00:58.359371+00:00"}
+{"symbol": "WLDUSDT", "direction": "long", "intended_price": 0.5933, "fill_price": 0.5918, "slippage_pct": 0.2528, "timestamp": "2026-06-04T16:01:03.442189+00:00"}
+{"symbol": "PUMPFUNUSDT", "direction": "long", "intended_price": 0.0017449, "fill_price": 0.0017447, "slippage_pct": 0.0115, "timestamp": "2026-06-04T16:01:04.358202+00:00"}
+{"symbol": "OPNUSDT", "direction": "long", "intended_price": 0.3052, "fill_price": 0.3077, "slippage_pct": 0.8191, "timestamp": "2026-06-04T21:00:50.323316+00:00"}
+{"symbol": "ZROUSDT", "direction": "short", "intended_price": 1.0616, "fill_price": 1.062, "slippage_pct": 0.0377, "timestamp": "2026-06-04T22:00:58.570220+00:00"}
+{"symbol": "ZECUSDT", "direction": "short", "intended_price": 480.96, "fill_price": 483.04, "slippage_pct": 0.4325, "timestamp": "2026-06-04T22:00:59.482725+00:00"}
+{"symbol": "XMRUSDT", "direction": "short", "intended_price": 345.56, "fill_price": 345.78, "slippage_pct": 0.0637, "timestamp": "2026-06-05T02:00:52.551796+00:00"}
