@@ -90,7 +90,8 @@ class OpenPosition:
                  best_price: float = 0.0, be_triggered: bool = False,
                  signal_ret_6: float = 0.0, signal_ret_12: float = 0.0,
                  signal_ret_24: float = 0.0, signal_consec: int = 0,
-                 signal_oi_chg: float = 0.0):
+                 signal_oi_chg: float = 0.0,
+                 be_trigger_atr: float = 0.0, ab_arm: str = ""):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -118,6 +119,9 @@ class OpenPosition:
         self.signal_ret_24 = signal_ret_24    # 진입 전 24봉
         self.signal_consec = signal_consec    # 진입 전 연속 동방향 봉 수
         self.signal_oi_chg = signal_oi_chg    # 신호봉 직전 OI 변화율(%)
+        # v6 forward A/B: per-position BE trigger (0.0 => use config default = legacy/arm A)
+        self.be_trigger_atr = be_trigger_atr
+        self.ab_arm = ab_arm                  # "A" (control) / "B" (early BE) / "" (legacy)
 
     def to_dict(self) -> dict:
         return vars(self)
@@ -573,10 +577,15 @@ class MomentumBot:
                 self._log_slippage(pend["symbol"], pend["direction"],
                                    pend["signal_price"], fill_price)
 
+                tid = str(uuid.uuid4())[:8]
+                arm, be_trig = self._assign_ab(tid)
                 pos = OpenPosition(
                     symbol=pend["symbol"],
                     direction=pend["direction"],
                     entry_price=fill_price,
+                    trade_id=tid,
+                    be_trigger_atr=be_trig,
+                    ab_arm=arm,
                     qty=pend["qty"],
                     sl=pend["sl"],
                     tp=pend["tp"],
@@ -748,7 +757,7 @@ class MomentumBot:
         mae_pct = (pos.mae / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
 
         record = {
-            "bot_version": "v5.1",
+            "bot_version": "v6",
             "trade_id": pos.trade_id,
             "timestamp_utc": pos.entry_time,
             "exit_timestamp_utc": now.isoformat(),
@@ -761,6 +770,10 @@ class MomentumBot:
             "tp_price": pos.tp,
             "best_price": round(pos.best_price, 8),
             "be_triggered": pos.be_triggered,
+            # v6 forward A/B
+            "ab_arm": getattr(pos, "ab_arm", ""),
+            "be_trigger_atr": getattr(pos, "be_trigger_atr", 0.0) or
+                              self.cfg["strategy"].get("be_trigger_atr", 1.5),
             "exit_reason": reason,
             "pnl_usd": round(pnl_usd, 4),
             "pnl_pct": round(pnl_pct, 4),
@@ -941,6 +954,20 @@ class MomentumBot:
         # Volatility: 4h ATR relative threshold ($200 as rough median)
         vol = "HIGH" if btc_4h_atr > 200 else "LOW"
         return f"{trend}_{vol}"
+
+    def _assign_ab(self, trade_id: str) -> tuple[str, float]:
+        """v6 forward A/B: assign BE-trigger arm by trade_id hex parity (~50/50).
+        Returns (arm, be_trigger_atr). A=control(1.5), B=early BE(0.75)."""
+        strat = self.cfg["strategy"]
+        if not strat.get("ab_test_enabled", False):
+            return "A", strat.get("be_trigger_atr", 1.5)
+        try:
+            is_b = int(trade_id, 16) % 2 == 1
+        except ValueError:
+            is_b = False
+        if is_b:
+            return "B", strat.get("be_trigger_atr_b", 0.75)
+        return "A", strat.get("be_trigger_atr", 1.5)
 
     # ── Heartbeat ────────────────────────────────────────
     def _heartbeat_loop(self):
@@ -1177,7 +1204,9 @@ class MomentumBot:
             return  # no trailing in fixed mode
 
         trail_mult = self.cfg["strategy"].get("trail_atr_mult", 2.0)
-        be_trigger = self.cfg["strategy"].get("be_trigger_atr", 1.5)
+        # v6 A/B: per-position BE trigger (0.0/absent => config default = arm A/legacy)
+        be_trigger = getattr(pos, "be_trigger_atr", 0.0) or \
+            self.cfg["strategy"].get("be_trigger_atr", 1.5)
         trail_dist = trail_mult * pos.atr_at_entry
         be_level = be_trigger * pos.atr_at_entry
 
@@ -1378,7 +1407,7 @@ class MomentumBot:
         sig_ctx = self._compute_signal_context(signal.symbol, signal.direction)
         now = datetime.now(timezone.utc)
         record = {
-            "bot_version": "v5.1",
+            "bot_version": "v6",
             "timestamp_utc": now.isoformat(),
             "symbol": signal.symbol,
             "side": direction_str,
@@ -1474,6 +1503,15 @@ class MomentumBot:
                     continue
                 else:
                     del self._slippage_cooldown[symbol]
+
+            # v6 F1: block counter-trend entries (don't fight BTC 4h trend).
+            # long in DOWN regime or short in UP regime => shadow, no entry.
+            if filters_cfg.get("block_counter_trend", False):
+                trend = self._regime.split("_")[0]  # UP / DOWN / FLAT
+                if (direction_str == "long" and trend == "DOWN") or \
+                   (direction_str == "short" and trend == "UP"):
+                    shadow_list.append((signal, direction_str, "counter_trend"))
+                    continue
 
             candidates.append((signal, direction_str))
 
@@ -1590,10 +1628,16 @@ class MomentumBot:
 
                 sig_ctx = self._compute_signal_context(symbol, signal.direction)
 
+                tid = str(uuid.uuid4())[:8]
+                arm, be_trig = self._assign_ab(tid)
+
                 pos = OpenPosition(
                     symbol=symbol,
                     direction=direction_str,
                     entry_price=entry_price,
+                    trade_id=tid,
+                    be_trigger_atr=be_trig,
+                    ab_arm=arm,
                     qty=size.qty,
                     sl=sl_tp.sl,
                     tp=sl_tp.tp,
@@ -1617,9 +1661,9 @@ class MomentumBot:
                 pos._regime = self._regime
                 self.positions.append(pos)
 
-                logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f",
+                logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f [arm %s be=%.2f]",
                             pos.trade_id, symbol, direction_str, pos.entry_price,
-                            size.qty, sl_tp.sl, sl_tp.tp)
+                            size.qty, sl_tp.sl, sl_tp.tp, arm, be_trig)
                 notify(f"[ENTRY] {symbol} {direction_str} @ {pos.entry_price:.4f} "
                        f"qty={size.qty:.4f} SL={sl_tp.sl:.4f} TP={sl_tp.tp:.4f}")
 

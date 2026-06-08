@@ -1,4 +1,4 @@
-# Momentum Bot Configuration — v5 (1h + BE+Trailing Stop)
+# Momentum Bot Configuration — v6 (1h + BE+Trailing Stop + F1 no-counter-trend + BE A/B)
 
 strategy:
   pctile: 99.5            # top 0.5% return threshold
@@ -12,7 +12,13 @@ strategy:
   # v5: Trailing stop (replaces fixed TP)
   exit_mode: "be_trail"   # "fixed" | "trailing" | "be_trail"
   trail_atr_mult: 2.0     # trailing distance = 2.0 x ATR
-  be_trigger_atr: 1.5     # move SL to breakeven after 1.5 ATR profit
+  be_trigger_atr: 1.5     # move SL to breakeven after 1.5 ATR profit (arm A / control)
+
+  # v6 forward A/B: BE-trigger timing test. Entries split 50/50 by trade_id parity.
+  # arm A = be_trigger_atr (1.5, control), arm B = be_trigger_atr_b (earlier BE).
+  # Compare realized PnL by ab_arm to measure the I3 hypothesis live (backtest infeasible).
+  ab_test_enabled: true
+  be_trigger_atr_b: 0.75  # arm B: protect breakeven earlier
 
 risk:
   risk_pct: 0.005         # 0.5% per trade
@@ -41,6 +47,9 @@ filters:
   max_long_positions: 3
   max_short_positions: 3
   pullback_enabled: false          # v4 실패, 비활성화 유지
+  # v6 F1: block counter-trend entries (long in BTC-down regime, short in BTC-up).
+  # backtest 741->1398 (n124, jackpots 4/5 kept). regime = btc_4h trend (UP/DOWN/FLAT).
+  block_counter_trend: true
 
 universe:
   min_volume_usdt: 20_000_000  # $20M 24h volume

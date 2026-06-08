@@ -1,6 +1,8 @@
-# Momentum Bot — 전략 계획서 (v5.1+)
+# Momentum Bot — 전략 계획서 (v6)
 
-> 최종 업데이트: 2026-06-05
+> 최종 업데이트: 2026-06-07
+>
+> 🆕 **v6 전환 (2026-06-07)**: 처음으로 거래로직 변경. ① **F1 — 역추세 진입 차단**(long in BTC-down regime / short in BTC-up 차단, shadow reason `counter_trend`). 근거: backtest n124 +$741→+$1,398, WR 35→39%, 잭팟 4/5 유지(역추세 ALLO 1건만 상실). 진입결정이라 경로·entry오염 무관해 백테스트 견고. ② **BE forward A/B** — 진입을 trade_id parity로 50/50 분할, arm A=be_trigger 1.5(control)/arm B=0.75(early BE). I3(BE 당김)는 OHLC 백테스트 불가 판정(§8.9)이라 실거래 A/B로만 검증 가능. trade/shadow record에 `bot_version:v6`·`ab_arm`·`be_trigger_atr` 기록. config: `filters.block_counter_trend`, `strategy.ab_test_enabled`/`be_trigger_atr_b`.
 > 이전 펀딩 역추세 봇 PLAN은 [PLAN_funding_legacy.md](PLAN_funding_legacy.md) 참조 (폐기됨)
 >
 > 📌 **분석 답변 규칙 (사용자 명시 요청 2026-06-05, 모든 세션 기본값)**: 이 프로젝트의 데이터/포지션 분석을 요청받으면, 정확한 수치·근거(표·통계)는 유지하되 **반드시 비전문가도 이해할 쉬운 풀이(일상어·비유)를 함께** 제공한다. 전문용어·영어단어는 최소화하고 쓸 땐 즉시 우리말로 푼다. 따로 요청 없어도 기본. 구조: ①정확한 데이터 → ②"쉬운 설명" 비유. (상세: prom.txt §7)
@@ -14,8 +16,8 @@
 Bybit USDT 무기한 선물 데모 계좌에서 **모멘텀 추종(Big Move Follow-Through)** 전략 자동 운영.
 P99.5 percentile 이상 1h 봉 수익률 → 모멘텀 방향으로 진입 → BE+Trailing Stop 청산.
 
-- **현재 단계**: v5.1+ 운영, 데이터 수집 중 (**106 trades / corrected 106 누적 +$1,389**, WR 36.8%, EV +$13.1/건, PF 1.23, 잭팟 의존 §5.4). 신호연구 병행 — 변별신호 로깅 + shadow log(~65줄).
-- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 106**
+- **현재 단계**: **v6 운영(2026-06-07~, 첫 거래로직 변경: F1 역추세차단 + BE A/B)**, 데이터 수집 중 (**126 trades**, corrected 정본 106시점 +$1,389, 이후 거래소 직접검증. 잭팟 의존 §5.4). v6 청산 2건 +$729(BEAT arm A 잭팟+684). 신호연구·track_f1(F1 점수판) 병행.
+- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 126**. v6 데이터 별도 축적 시작.
 
 ---
 
@@ -79,6 +81,7 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 | **v5.1+** | **2026-06-01** | **Trailing SL spike-retrace 버그 수정** (best_price 봉고점 되밀림 시 무효 SL 거부→BE floor 재확정) | **운영 중** |
 | **v5.1+** | **2026-06-04** | **entry_price 버그 수정** (`place_order` 응답에 avgPrice 없어 신호가 fallback → `_fetch_actual_entry`로 실체결가 기록) | **운영 중, bar265+ 0.00% 검증** |
 | **v5.1+** | **2026-06-05** | **closed-pnl 옛레코드 오매칭 수정** (loose 1% 매칭+전파지연이 같은심볼 옛거래값 반환 → `createdTime>=진입시각` freshness 게이트) | **운영 중, §8.8** |
+| **v6** | **2026-06-07** | **첫 거래로직 변경**: F1 역추세 진입 차단(`block_counter_trend`) + BE forward A/B(arm A 1.5 / B 0.75, trade_id parity 50/50) | **적용 완료, 재가동 대기. bot_version=v6** |
 
 ---
 
@@ -298,6 +301,15 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 - **근본원인**: `_get_closed_pnl_record`(05-29 첫 수정본)가 side+entry±1%+qty±1% 매칭하는데, 같은 심볼 STG short 2건(06-02 entry 0.31155 vs 06-04 0.3092 = **0.76% 차**, qty도 0.76%)이 **둘 다 1% 허용오차 통과**. 청산 직후 신선 레코드 미전파 상태에서 옛 06-02 레코드만 존재 → matches 비어있지 않아 retry 없이 **즉시 옛 레코드 반환**(exit·pnl 글자그대로 복사). retry는 "matches 빔"만 보고 "stale 매칭 존재"는 못 거름. **loose 1% 매칭 + 거래소 전파지연 조합** = 같은 심볼 entry 1% 이내 2회+ 거래하면 누구나 교차오염.
 - **수정**: `_get_closed_pnl_record`에 **freshness 게이트** — closed-pnl 레코드 `createdTime >= 진입시각(pos.entry_time ms)`인 것만 매칭. 옛거래(타 거래 진입 전 청산) 자동배제, 신선 레코드 미전파 시 matches 비어 retry 정상작동. **실증검증은 미래 동일심볼 반복거래 청산 때** 로그 `Closed PnL matched ...(try N)`로 (라이브 거래소 의존이라 단위테스트 불가).
 - **과거 복구(06-05)**: rebuild_pnl.py 재실행 → STG는 orderId 1:1 할당으로 −71.77→**+249.54 자동정정**(+321). HUSDT unmatched는 거래소 직접조회로 +611.71→**+568.12 수동보정**(corrected 직접패치, `exchange_avg_entry` 추가). EPICUSDT −73.58은 거래소와 일치(라벨만 unmatched). **corrected 최종 106건 +$1,389.11.**
+- **★ 실증검증 완료(2026-06-05)**: 06-05에 **ZEC가 short→long→short 3회 반복 청산**되며 셋 다 거래소 closed-pnl과 dt 0~1초로 정확 1:1 매칭(+628.75/−121.46/−124.58), 옛값 복사(−71 류) 재발 0건. 같은 심볼 1% 이내 반복거래에서 freshness 게이트가 실거래로 정상작동 확인 → 버그 종결.
+
+### 8.9 BE-trigger(I3) 백테스트 불가 판정 + F1 backtest 채택 (2026-06-07)
+
+- **동기**: 사용자 관찰 "green이던 포지션이 red로 청산" = BE 트리거가 **중앙값 +3.9%(1.5ATR)**로 멀어, 그 전엔 SL이 초기 −1.5ATR(손실선)에 방치 → +2~3% 떠 있어도 무방비. 손익해부: 패자 80건 중 즉시역행(MFE<0.5%) 46건(−$4,799, 출구로 불가) vs **green→red 28건(−$2,211, BE 당기면 구제가능)**.
+- **I3 backtest 시도(1m 경로 replay)**: 봇 stop 로직(초기 1.5ATR→BE시 entry→best∓2ATR trail+spike-retrace 가드)을 1m klines로 재생. **baseline(be=1.5) 검증 실패** — 전체 124건 replay −$286 vs 실제 +$741. cohort 분리하니 원인 확정: **PRE-fix 98건(entry_price 버그 §8.7, 5월 잭팟 전부)은 entry 기준점 오염으로 재현 불가**(PORTAL replay +16 vs 실제 +649), POST-fix 26건만 신뢰(replay −1,495 vs 실제 −1,265, 오차 $20/건).
+- **결론**: 잭팟이 전부 entry오염 구간에 있어 **BE 당김의 핵심 trade-off(잭팟 ejection)를 역사 데이터로 측정 불가**. POST-fix clean 26건(잭팟 없는 drawdown)에선 be 1.5→0.5가 +$258 출혈감소이나 **같은 레벨(be≤1.0)이 잭팟을 ejection**(full-sweep BEAT/ALLO/PORTAL 붕괴, MAE 메커니즘 일치). drought엔 약·잭팟엔 독, 같은 손잡이 → **net 판정 불가, forward A/B만이 유효** → v6 BE A/B 도입.
+- **F1(역추세 제거)은 대조적으로 견고**: 진입 결정이라 intra-trade path·entry오염 무관. n124 backtest +$741→+$1,398(WR 35→39%, EV +6→+14), 잭팟 4/5 유지(역추세 ALLO만 상실, 23건 역추세 합 −$657·WR22%). 이론 정합(추세 거스르지 마라). → v6 즉시 적용 채택. ⚠️ in-sample·regime분류(btc_4h) 5월/6월 flip 위험은 잔존 → forward로 계속 확인.
+- 도구: `backtest_be.py`(1m 경로 replay, POST-fix 거래에선 유효). entry버그 없는 거래가 쌓일수록 신뢰도 상승.
 
 ---
 
@@ -366,12 +378,19 @@ python -m vwap_trader.momentum_bot
 | 2026-06-05 | **PC 핸드오프**: bar 352, 106 closed, 3 positions(전부 short: ZEC·XMR·ZRO, 미실현 +$436, ZEC가 +$382 잭팟후보). totalEquity ~$24,050. 변경 없이 표본 축적 지속 |
 | 2026-06-05 | **6월 심층분석 + §11 갱신**: 6월 손실 본질 = long against-btc 11건 −$747(short는 본전~흑자). **`short_cap`=3이 하락장 short신호 47건 중 23%만 통과시켜 올바른 방향 차단 = 신규발견**. consec0 고립스파이크 17건 −$766 최악. 트레일링·BE는 정상작동(BE트리거 1.5ATR 도달 3건 본전), 손실 다수는 즉시역행(MFE<0.5% 15/27건)=출구 아닌 입구 문제. **H14(cap 비대칭)·H15(consec) Primary 신규등록**. 6월 단독근거라 즉시 게이팅 금지, 200건 일괄검정 |
 | 2026-06-05 | **PC 핸드오프(인계)**: bar 354, 106 closed, 3 positions(전부 short: ZEC·XMR·ZRO, ZEC best 373.61=잭팟후보·be잠금, XMR be잠금, ZRO 미잠금). STOP_MOMENTUM으로 graceful 종료 후 push. 코드 무변경, 표본 축적 지속. 분석 답변=쉬운 설명 규칙 신설(상단 📌·prom.txt §7·메모리) |
+| 2026-06-06 | **신 PC 재가동 + §8.8 freshness 수정 실증검증 완료**: ZEC 3회 반복청산(short+628.75/long−121.46/short−124.58) 전건 거래소 1:1 정확매칭, 옛값오염 재발0 → 버그 종결(§8.8). 06-05 청산 7건(거래소 대조 전건일치) 실현 +$190.48(잭팟 ZEC+628 빼면 −$438, long4건 전멸·short net+547=6월 방향패턴 재현). shadow 06-05 40건: short_cap 26건(25 DOWN_HIGH=추세순행 차단, H14 정황) vs rank_cutoff 14 long(17:00 UP군집). **전부 기존가설 재확인·소표본·forward미확정 → §11 무변경, peeking 금지, 200건 일괄검정 유지** |
+| 2026-06-07 | **심층 자아성찰 분석 + 선별진입 backtest**(n124): 누적 정점 06-01 +$2,025 → 현재 **+$741**(6일 drawdown 실재, 잭팟 가뭄). 손실해부: 패자 80건 중 즉시역행(MFE<0.5%) 46건 −$4,799(출구로 불가) vs green→red 28건 −$2,211(BE로 구제가능). 하드TP 시뮬: 모든 익절선이 +$741→음수(잭팟 절단). **F1(역추세 제거) backtest +$741→+$1,398**(잭팟 4/5 유지)=가장 견고. I3(BE 당김) 1m 경로replay: PRE-fix 잭팟 entry오염(§8.7)으로 **백테스트 불가 판정**(§8.9), POST-fix clean 26건만 신뢰(BE 1.5→0.5 +$258 출혈감소이나 같은레벨이 잭팟 ejection) → forward A/B 필요 |
+| 2026-06-07 | **★ v6 전환 (첫 거래로직 변경, 사용자 지시)**: ① **F1 역추세 진입 차단** 적용(`block_counter_trend:true`, shadow `counter_trend`) ② **BE forward A/B** 가동(trade_id parity 50/50, arm A 1.5/B 0.75, `ab_test_enabled`). bot_version=v6, trade record `ab_arm`/`be_trigger_atr` 추가. 검증: import·직렬화 round-trip·legacy호환·config·50/50 split·F1 로직 전건 통과. 기존 오픈포지션은 legacy(arm A) 처리. 사용자가 직접 종료·재가동. **이후 데이터는 v6로 축적, A/B는 arm별 실현PnL 비교로 검정** |
+| 2026-06-08 | **v6 첫 운영 결과(~16h, bar 420, 126 trades)**: v6 청산 2건 +$729.51 — **BEAT long arm A TrailSL +$684.69**(MFE53.5%/MAE0.23% 잭팟)·MON legacy +$44.82. BEAT=arm A(옛BE)라 **BE변경 검증 아님**, 단 **F1이 추세순행 잭팟은 통과**(백테스트서 죽인 ALLO는 역추세였음). F1 차단 2건(HOME short/WLD long). **★ track_f1.py 신규**(막은 counter_trend의 would-be 결과 R-배수 점수판): 첫판독 HOME 막은 게 **소급 +29%(+2.6R) winner**=F1 약점 라이브(ALLO 동형), WLD 본전. 확정0.0R·HOME포함+2.6R, **n=2라 결론보류**(124건선 역추세 net−$657=장기F1이득 기대). equity $22,994→~$23,900 회복 |
+| 2026-06-08 | **PC 핸드오프(인계)**: bar 420, 126 closed, 2 positions(둘다 legacy: SOL long BE잠금·ALLO short sigret−26.5 극단·BE미잠금). v6 가동중 graceful 종료 후 push. prom.txt v6 갱신. 신 PC서 git pull→재가동. **추가변경 금지, v6 표본(arm A/B·counter_trend) 축적이 1순위** |
 
 ---
 
 ## 11. 사전등록 가설 보드 (pre-registered 2026-06-01, 65 closed)
 
 **목적**: OI 단일 가설 올인 방지. 같은 누적 데이터셋으로 다각도 가설을 **일괄** 검증 + 사후 cherry-pick·데이터마이닝 차단.
+
+> 🆕 **v6 LIVE 검증 전환 (2026-06-07)**: H3/H9·H14(방향×regime) 계열은 더 이상 관측만이 아니라 **F1(역추세 진입 차단)으로 라이브 적용**됨 — 막힌 신호의 forward 성과는 **`track_f1.py`**가 R-배수로 집계(H13/H14 반사실 자동화). I3(BE 당김)은 **BE forward A/B**(arm A 1.5 / B 0.75)로 라이브 측정 중. 즉 H3/H14/I3은 "200건 일괄검정" 대신 **v6 라이브 A/B·점수판**으로 먼저 결판난다. 나머지 H1/H2/H4/H5/H7~H13은 여전히 관측·200건 일괄.
 
 **규율 (pre-registration)**:
 - 주지표 = **EV(평균 PnL/건) + 총 PnL.** WR은 보조 (잭팟 구조라 WR 오도). 방향 **단측 사전지정**, 사후 변경 금지(§10 이력에만 기록).

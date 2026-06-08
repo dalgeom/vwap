@@ -1,4 +1,4 @@
-## 컨텍스트 인계 프롬프트 — Momentum Bot v5.1+ (갱신: 2026-06-05, PC 이전용)
+## 컨텍스트 인계 프롬프트 — Momentum Bot v6 (갱신: 2026-06-08, PC 이전용)
 
 너는 Claude. 사용자가 진행 중인 vwap_trader 모멘텀 봇 작업을 **다른 PC에서 이어받았다.**
 이 프롬프트 + 메모리(`project_pnl_recording_bug`·`project_core_philosophy`) + PLAN.md 만 읽으면 즉시 이어갈 수 있다.
@@ -6,86 +6,83 @@
 ═══════════════════════════════════════════════
 ★★★ PC 이전 — 가장 먼저 읽을 것 ★★★
 ═══════════════════════════════════════════════
-이전 PC에서 봇을 graceful 종료(Ctrl+C)하고 git push 한 상태다. 이 PC에서 재가동 전:
+이전 PC에서 봇을 graceful 종료(STOP_MOMENTUM 또는 Ctrl+C)하고 git push 한 상태다. 이 PC에서 재가동 전:
 
-1. **`git pull` 먼저.** `data/state_momentum.json`에 오픈 포지션·bar_counter·cooldown이 들어 있다. pull 안 하면 포지션 추적이 어긋난다.
+1. **`git pull` 먼저.** `data/state_momentum.json`에 오픈 포지션·bar_counter·cooldown이 들어 있다. pull 안 하면 포지션 추적 어긋남.
 2. **절대 두 PC에서 동시에 돌리지 말 것.** 같은 Bybit 데모 계좌를 둘이 관리하면 주문 중복·SL 충돌로 망가진다. 이전 PC 봇이 완전히 죽었는지 먼저 확인.
-3. 시계 동기화(관리자 PowerShell): `w32tm /resync /force` — PC 재부팅 직후엔 필수(ErrCode 10002 방지).
-4. 재가동: **`cd vwap_trader; .\venv\Scripts\python.exe -m vwap_trader.momentum_bot`** — ★ **`cd vwap_trader` 필수**(venv는 `vwap_trader/venv`, git root는 한 단계 위 `code/`). 경로 앞 `.\` 빠뜨리면 PowerShell이 인식 못 함.
-5. 로그에 `State loaded: N positions, bar=...` 확인. 포지션은 Bybit 서버에 살아있으니 봇 꺼진 동안에도 SL 작동.
-6. **★ 정전/크래시 후 재가동이면 reconcile 확인 필수**: 봇은 기동 시 거래소와 자동 대조를 안 한다. state 포지션 수 ↔ 거래소 실제 오픈 포지션(`get_positions` category=linear, settleCoin=USDT)을 symbol+qty로 대조. 어긋나면 orphan(거래소만)/phantom(state만) 처리. ※ 진입+SL은 atomic(`place_order`에 stopLoss 동봉)이라 orphan도 무방비는 아님.
-7. **★ 분석 전 `rebuild_pnl.py` 재실행**: live jsonl pnl은 버그 오염값. 분석은 항상 `trades_momentum_corrected.jsonl`(거래소 closed-pnl 재구축). **단 §6 unmatched는 직접 보정 필요.**
+3. 시계 동기화(관리자 PowerShell): `w32tm /resync /force` — 재부팅 직후 필수(ErrCode 10002 방지).
+4. 재가동: **`cd vwap_trader; .\venv\Scripts\python.exe -m vwap_trader.momentum_bot`** — ★ **`cd vwap_trader` 필수**(venv는 `vwap_trader/venv`, git root는 한 단계 위 `code/`). 경로 앞 `.\` 빠뜨리면 PowerShell 인식 못 함.
+5. 로그 `State loaded: N positions, bar=...` 확인. 포지션은 Bybit 서버에 살아있어 봇 꺼진 동안에도 SL 작동.
+6. **★ 정전/크래시 후면 reconcile 확인**: 봇은 기동 시 거래소와 자동대조 안 함. state 포지션 ↔ 거래소 실제오픈(`get_positions` category=linear, settleCoin=USDT)을 symbol+qty로 대조. 진입+SL은 atomic(place_order에 stopLoss 동봉)이라 orphan도 무방비 아님.
+7. **★ 분석 전 `rebuild_pnl.py` 재실행**: live jsonl pnl은 과거분 오염. 분석은 항상 `trades_momentum_corrected.jsonl`. 단 §6 unmatched는 직접 보정(§8.7). ⚠️ rebuild는 corrected 전체를 덮어써 HUSDT 수동보정이 되돌아감 → **신규 소수건 분석은 거래소 closed-pnl 직접대조가 더 안전**(이번 세션도 그렇게 함).
 
 ───────────────────────────────────────────────
 
+## ★ v6 전환 (2026-06-07, 첫 거래로직 변경) — 반드시 숙지
+지금까지 v5는 데이터만 쌓고 로직 무변경이었으나, **2026-06-07 처음으로 진입로직을 바꿨다(v6).** 사용자 명시 지시.
+- **① F1 — 역추세 진입 차단** (`filters.block_counter_trend: true`): BTC 4h regime이 DOWN인데 long, UP인데 short 신호는 **진입 안 하고 shadow에 `counter_trend`로 기록.** FLAT은 허용. 근거: backtest n124 **+$741→+$1,398**(WR 35→39%, 잭팟 4/5 유지). 진입결정이라 경로·entry오염 무관해 백테스트 견고(§8.9).
+- **② BE forward A/B** (`strategy.ab_test_enabled: true`): 진입을 trade_id 16진수 parity로 **50/50 분할**. **arm A = be_trigger 1.5(control), arm B = 0.75(early BE, 빨리 본전보호).** I3(BE 당김)는 OHLC 백테스트 불가 판정(§8.9)이라 **실거래 A/B로만 검증.** 포지션별 be_trigger를 `OpenPosition.be_trigger_atr`에 저장→`_update_trailing_sl`이 사용. trade record에 `bot_version:v6`·`ab_arm`·`be_trigger_atr` 기록.
+- **데이터 태깅**: 이후 청산은 `bot_version="v6"`. **v6 진입은 ab_arm="A"/"B", 인계전 v5.1 진입분이 v6에서 청산되면 ab_arm=""(legacy=arm A 취급).**
+- 코드: [momentum_bot.py] `_assign_ab`(arm 배정), F1은 `_scan_universe` phase-1 루프, BE는 `_update_trailing_sl` 1줄. config: `block_counter_trend`/`ab_test_enabled`/`be_trigger_atr_b`.
+
 ## 1. 프로젝트 개요
 - **위치**: `vwap_trader/`, Windows + PowerShell, venv `vwap_trader/venv/`. **git root는 한 단계 위(`code/`)**.
-- **봇**: Bybit USDT 무기한 선물 **데모 계좌**, 모멘텀 추종.
-- **버전 v5.1+**: 1h봉 + BE+Trailing + 1m 폴링 + Tier Cap + Clock Resync + 신호컨텍스트 로깅 + Shadow Log + entry_price 실체결가 기록(06-04) + **closed-pnl freshness 매칭 수정(06-05)**.
-- **핵심 원리**: 1h봉 abs(return)이 과거 500봉 99.5%ile 초과 시 그 방향 진입.
-- **현 단계**: 데이터 수집 + 손실 원인 연구. 검증 임계점 50건(통과)·**200건(Go/No-Go, 현재 106)**.
+- **봇**: Bybit USDT 무기한 선물 **데모 계좌**, 모멘텀 추종. **현 버전 v6**(F1 + BE A/B).
+- **핵심 원리**: 1h봉 abs(return)이 과거 500봉 99.5%ile 초과 시 그 방향 진입 → BE+Trailing 청산.
+- **현 단계**: 데이터 수집 + 손실원인 연구. 검증 임계 **200건(Go/No-Go, 현재 126)**. v6 데이터 별도 축적 시작.
 
 ## 2. 필독 문서 (순서대로)
-1. 메모리 `project_pnl_recording_bug` — PnL/entry/closed-pnl 기록 버그 3종(연쇄)·corrected 정본 원칙.
-2. `PLAN.md` — **단일 정본**. ★ **§11 사전등록 가설 보드**(H1~H13 + I1~I6 개입후보), §5.4 통계, §5.5 6월 분석, §8.5+ 신호연구, §8.8 closed-pnl 버그, §10 이력.
-3. `config/momentum_config.yaml` — 파라미터.
-4. `src/vwap_trader/momentum_bot.py` (~1670줄), `src/vwap_trader/strategy/momentum.py`.
+1. 메모리 `project_pnl_recording_bug` — PnL/entry/closed-pnl 버그 3종(연쇄)·corrected 정본 원칙.
+2. `PLAN.md` — **단일 정본**. ★ **§11 가설보드**(H1~H15 + I1~I6), §8.9(v6 근거·BE백테스트 불가), §10 v6 이력, §8.x 신호연구, §5 통계.
+3. `config/momentum_config.yaml` — 파라미터(v6 키 포함).
+4. `src/vwap_trader/momentum_bot.py` (~1700줄), `src/vwap_trader/strategy/momentum.py`.
 
-## 3. 봇 운영 상태 (2026-06-05, bar 354 기준 — 인계 시점 STOP으로 graceful 종료)
-- **누적 106건 청산. corrected 106건 분석 기준 누적 +$1,389.11, WR 36.8%, EV +$13.1/건, PF 1.23.** (live jsonl pnl은 ⚠️**버그 오염값** — 분석은 항상 corrected/`rebuild_pnl.py`, 단 §6 unmatched 보정 주의.)
-- **계좌**: 데모 시작 $40,000 → totalEquity 현재 **~$24,050**(직접 조회). 평생 −40%지만 거의 전부 5분봉 v1~v4 시대 손실. **v5/v5.1 시대만 보면 우상향(누적 +$1,389).**
-- **오픈 포지션 3개 (전부 short, 전부 평가익)**: ZEC(avg483→mark399, **+$382**, SL426 trailing 잠금=잭팟 후보)·XMR(+$41, SL=진입가 본전)·ZRO(+$12, 미잠금). 미실현 합계 **+$436**.
-- **잭팟 의존 구조 지속**: 누적 흑자 대부분이 TrailSL 대박 소수건. 6월만 봐도 TrailSL 11건 +$1,037 + Timeout 2건 +$337이 SL 24건 −$2,179를 겨우 상쇄(6월 실현 적자). 안정성 단정 불가 — 표본 축적이 답.
+## 3. 봇 운영 상태 (2026-06-08, bar 420 — 인계 시점)
+- **누적 126건 청산.** corrected 정본은 106건 시점 +$1,389, 이후 v6 포함 신규분은 거래소 closed-pnl로 개별검증(전건 일치).
+- **v6 청산 2건 +$729.51**: BEAT long **arm A** TrailSL **+$684.69**(MFE 53.5%·MAE 0.23% 잭팟) + MON legacy +$44.82. ⚠️ BEAT는 arm A=옛 BE로직이라 **BE변경 검증 아님**(F1이 잭팟 안 죽인 증거일 뿐). arm B 청산 아직 0건.
+- **F1 차단 2건**(shadow `counter_trend`): HOME short(UP_HIGH), WLD long(DOWN_HIGH).
+- **오픈 2포지션(둘 다 legacy=arm A)**: SOL long(BE잠금)·ALLO short(sigret −26.5 극단숏, **BE 미잠금** SL=손실선, 되밀리면 마이너스 위험).
+- **totalEquity ~$23,900**(재가동 $22,994 → +$900 회복 중). 평생 −40%는 거의 전부 5분봉 v1~v4 시대.
 
-## 4. 이번 세션(2026-06-05) 핵심
+## 4. 이번 세션(2026-06-07~08) 핵심
+### 4.1 심층 자아성찰 분석 (n124) — 잭팟 의존은 구조다
+- 누적 **06-01 정점 +$2,025 → 06-07 +$741**(6일 drawdown=잭팟 가뭄, BEAT로 일부 회복). 순엣지 얇음(승합 +8,170/패합 −7,429), **top5 winner가 전체 승리 43%**.
+- **사용자 질문 "왜 잭팟의존? steady-up 불가?"에 데이터로 답**: ① 패자 80건 중 **즉시역행(MFE<0.5%) 46건 −$4,799 = 손절튜닝으로 불가**(진입 즉시 틀림) vs green→red 28건 −$2,211=구제가능. ② 하드TP 시뮬: 모든 익절선이 +$741→음수(잭팟 절단). ③ 진입필터로 패자 선별 불가(§8.5 473건). ④ 전면 반전=잭팟이 대참사로. **결론: "조금씩 꾸준히"=mean-reversion(다른 전략, 숨은 파국꼬리). 추세추종은 본질적으로 잭팟형. 출혈은 줄일 수 있어도(F1) 구조는 못 바꿈.**
+- **green→red 메커니즘 규명**: BE 트리거가 **중앙값 +3.9%(1.5ATR)로 멀어** 그 전엔 SL이 초기 −1.5ATR(손실선)에 방치 → +2~3% 떠 있어도 무방비. 사용자가 본 "초록이 빨강으로" = 이것. → I3(BE 당김) 동기.
 
-### 4.1 ★ closed-pnl 옛레코드 오매칭 버그 발견·수정 (코드 변경, 이번 커밋 포함)
-- 증상: STG Timeout 청산(MFE 24.7%, 진짜 **+$249.54**)이 jsonl에 **−$71.77**(이전 STG SL거래값)로 기록. `pnl_source=exchange`인데도 부호 반대.
-- 근본원인: `_get_closed_pnl_record`가 side+entry±1%+qty±1%로 매칭하는데, 같은 심볼 2거래(STG short 06-02 entry 0.31155 vs 06-04 0.3092 = **0.76% 차**)가 **둘 다 1% 허용오차 통과**. 청산 직후 신선 레코드 미전파 상태에서 옛 레코드만 존재 → matches 비어있지 않아 retry 없이 즉시 옛 레코드 반환. **loose 1% 매칭 + 전파지연 조합.** (entry_price 버그를 잡은 첫 수정의 잔여 결함.)
-- 수정([momentum_bot.py `_get_closed_pnl_record`]): **freshness 게이트** — closed-pnl 레코드의 `createdTime >= 진입시각(pos.entry_time ms)`인 것만 매칭. 옛거래(타 거래 진입 전 청산) 자동배제, 신선 레코드 미전파 시 matches 비어 retry 정상작동. **실증검증은 미래 동일심볼 반복거래 청산 때** 로그 `Closed PnL matched ...(try N)`로.
+### 4.2 BE 백테스트 불가 판정 → forward A/B (§8.9)
+- I3(BE 당김) 1m 경로replay: baseline(be=1.5) 검증실패(전체 124건 −$286 vs 실제 +$741). 원인=**PRE-fix 98건 entry_price 오염(§8.7)으로 잭팟 재현불가**(PORTAL replay+16 vs 실제+649). POST-fix clean 26건만 신뢰(오차$20/건). **잭팟이 전부 오염구간이라 BE의 핵심 trade-off(잭팟 ejection) 역사측정 불가** → forward A/B만 유효 → v6 도입.
+- F1은 대조적으로 견고(진입결정, 경로무관) → v6 즉시적용.
 
-### 4.2 ★ 과거 데이터 복구 (corrected 정본 정정)
-- `rebuild_pnl.py` 재실행 → STG는 orderId 1:1 할당으로 −71.77→**+249.54 자동정정**(+321).
-- HUSDT unmatched(entry_price 버그로 ±2% 필터 탈락)는 거래소 직접조회로 +611.71→**+568.12 수동보정**(corrected jsonl 직접패치). EPICUSDT −73.58은 거래소와 일치(라벨만 unmatched).
-- **corrected 최종: 106건 누적 +$1,389.11.**
+### 4.3 v6 첫 운영 결과 + track_f1
+- BEAT +$684(arm A) = **F1이 추세순행 잭팟은 통과시킨다는 첫 실증**(백테스트서 죽인 잭팟 ALLO는 역추세였음).
+- **★ track_f1.py 첫 판독(n=2, 주의)**: F1이 막은 HOME short를 소급하니 **들어갔으면 +29%(+2.6R) winner였음** = F1이 winner 하나 막음(약점 라이브 노출, 백테스트 ALLO와 동형). WLD long은 본전. 확정분만 0.0R(중립)·HOME 포함 +2.6R. **n=2라 결론 아님**(backtest 124건선 역추세 23건 net −$657이라 장기엔 F1 이득 기대). track_f1로 계속 추적.
 
-### 4.3 ★ 6월 거래 분석 (corrected 41건, 깨끗한 데이터)
-- **6월 실현 −$798.09, WR 34.1%, EV −$19.47, PF 0.64 → 6월은 적자.** 전체 누적 흑자는 5월 잭팟 덕, 6월은 갉아먹는 중.
-- **H1 재확증**: hold≤2 즉사 19건 −$1,040(EV−$54.75) vs hold≥3 22건 +$242(EV+$11). 손실의 원천 = 진입 직후 즉사.
-- **|sigret| 비선형 재확인**: 극단 ≥20 **6건 전멸 −$651(WR 0/6)** / 10–20 sweet spot 7건 +$387(EV+$55) / <10 약신호 28건 −$534. (극단: PORTAL·ALLO·LAB(93!)·US·EPIC·OPN 전부 SL.)
-- **방향·regime은 5월 누적과 뒤집힘(표본 노이즈 의심)**: 6월 long 30건 −$726 ≫ short 11건 −$72(시장 하락/횡보로 long 막차 학살). regime FLAT_HIGH 14건 −$652 최악(§5.4는 DOWN/FLAT 우위였음). → 200건 전 게이팅 금지 원칙 유지.
-
-### 4.4 ★ 6월 심층분석 + §11 가설 2개 신규등록 (이번 세션, 코드 무변경)
-- **6월 손실 본질 = long against-btc**: BTC 하락/횡보 중 "오른다(long)" 베팅 11건이 −$747 = 6월 적자 전부. long with-btc는 본전, short는 본전~흑자. 즉 내리막에서 위로 베팅한 게 학살.
-- **★ 신규발견 — short_cap이 올바른 방향을 막음**: 6월 fire 신호 long61/short47인데 short는 47건 중 23%(11건)만 진입(나머지 short_cap 30+rank 6 차단), long은 61건 중 49% 진입. 하락장에 쏟아진 옳은 방향(short)을 cap=3이 막고 역방향 long을 다 받아 손실 키움. long3/short3 대칭 cap이 추세장서 역효과. ⚠️막힌 short forward 성과는 klines 소급 필요(미확정, H13/H14 연계).
-- **consec0 고립 단발 스파이크 최악**: 직전 추세 없이 1봉만 튄 진입 17건 −$766 vs consec≥3 +$577. "갑툭튀=가짜, 연속흐름=진짜."
-- **트레일링·BE는 정상작동**: TrailSL 11건 +$1,037(6월 생명줄). BE트리거(1.5ATR) 도달 3건 전부 본전. 손실 다수(27건중 15건)는 즉시역행(MFE<0.5%)=출구 아닌 **입구 문제**. BE 트리거가 멀어 MFE 2~9% 먹고 반납한 일부만 출구 튜닝 여지(I3 동기, 단 잭팟 트레이드오프).
-- **§11에 H14(cap 방향 비대칭)·H15(consec) Primary 신규등록**(§10 이력). 6월 단독근거라 즉시 게이팅 금지, 200건 일괄검정 원칙 유지.
-- **분석 답변 쉽게 설명 규칙 신설**(§7 마지막 불릿): 데이터/포지션 분석은 정확수치+비유 쉬운풀이 병행이 기본값(사용자 명시, PLAN 상단·메모리에도 박음).
-
-## 5. 미해결/우선순위 (냉철한 순서)
-1. **데이터 축적이 1순위.** 판단 지점 = **극단막차(abs ret24>50) ~20건** 또는 **총 200건**(현재 106) 중 먼저 닿는 쪽. 그 전엔 필터/exit 적용 금지(잭팟·sweet spot 죽임). I6 부결이 그 증거.
-2. **shadow 누적**(현재 ~65줄) — H13/H5는 (a)klines 소급 pnl 인프라 (b)reason별 충분누적 후 가능. 장기.
-3. 검증 후: exit 튜닝(H2/I1·I2·I3, EDGE처럼 고변동 BE 트리거 너무 멂), regime 게이팅(H3/H9), 극단 sigret(I6).
-4. ⚠️ **peeking·다중비교 경계**: corrected에서 그럴듯한 컷 찾기 = 데이터마이닝. 사전등록 가설만, 200건 일괄검정. 라이브 파라미터 임계까지 고정.
+## 5. 미해결 / 우선순위 (냉철한 순서)
+1. **v6 데이터 축적이 1순위.** arm A/B 각 수십 건·counter_trend 차단 수십 건 쌓여야 ① BE A/B 비교 ② F1 net효과(track_f1) 판정 가능. 그 전엔 추가 변경 금지.
+2. **200건 게이트 유지**(현재 126). §11 보드 일괄검정. ⚠️ peeking·데이터마이닝 금지(I6 부결·시간요일 노이즈가 증거).
+3. track_f1.py 주기적 실행 → F1 존속 판단. shadow `counter_trend` forward가 net win이면 F1 재고.
+4. BE A/B: arm별 실현PnL·R 비교(arm B가 green→red 구제 vs 잭팟 ejection 실측).
 
 ## 6. 분석 스크립트 (repo 루트 vwap_trader/)
-- `rebuild_pnl.py` — 거래소 closed-pnl 1:1 재구축 → `trades_momentum_corrected.jsonl`(**분석 정본**). ⚠️ **unmatched_list는 `get_closed_pnl(symbol)` 직접 조회로 보정**(§8.7). 현재 unmatched 잔존: EPICUSDT(값은 정확).
-- `analyze_signal_corrected.py`·`analyze_signal_features.py` — winner/loser 비교. `backtest_earlycut*.py` — 조기컷(무용).
-- ※ 거래소 private 조회: `config/.env` 키로 `pybit HTTP(demo=True)`. 키 출력·커밋 금지. 봇은 정각(분=0) 무거운 scan → 분석 API는 정각 피해서. 임시 조회 스크립트는 쓰고 삭제.
+- `rebuild_pnl.py` — 거래소 closed-pnl 1:1 재구축 → `trades_momentum_corrected.jsonl`. ⚠️ unmatched 직접보정(§8.7), 덮어쓰기 주의(위 ★7).
+- **`backtest_be.py`**(신규) — BE/F1 1m 경로replay. **POST-fix(entry 정확) 거래에만 유효**(PRE-fix 잭팟 재현불가). 캐시 `data/_bt_klines_cache.json`(삭제됨, 재실행시 재생성).
+- **`track_f1.py`**(신규) — F1 막은 counter_trend 신호 would-be 결과 R-배수 점수판. 읽기전용. `python track_f1.py`.
+- `analyze_signal_corrected.py`·`analyze_signal_features.py` — winner/loser 비교.
+- ※ 거래소 private 조회: `config/.env` 키로 `pybit HTTP(demo=True)`. 키 출력·커밋 금지. 봇은 정각(분=0) 무거운 scan → 분석 API는 정각 피해서. 임시 스크립트는 쓰고 삭제.
 
 ## 7. 작업 원칙 (사용자 메모리)
 - **한국어 응답**, 기술용어 영어. **객관·냉철, 맞장구 금지, 데이터 기반. 사용자 유도("~하면 좋지?")에 흔들리지 말고 객관 최선 유지.**
-- **★ 분석 결과는 쉽게 설명 (사용자 명시 요청 2026-06-05, 기본값)**: 데이터/포지션 분석 답변 시 정확한 수치·근거(표·통계)는 유지하되, **반드시 비전문가도 이해할 쉬운 풀이(일상어·비유)를 함께** 제공. 전문용어·영어단어 최소화, 불가피하면 즉시 우리말로 풀이. **사용자가 따로 요청 안 해도 이게 기본.** 권장구조: ①정확한 데이터/표(근거) → ②"쉬운 설명" 섹션에서 비유로 풀이. (예: short=내린다 베팅, long=오른다 베팅, 트레일링=이익 자동보호 손절선, MFE=한때 최대로 났던 이익.)
-- **분석 전 답변 금지** — 파일 끝까지 읽고 로직 추적 후. `rg`·`fd`·`wc -l` 선행. jq 없을 수 있음→python.
+- **★ 분석 결과는 쉽게 설명**(사용자 명시, 기본값): 정확한 수치·표는 유지하되 **반드시 비전문가도 이해할 쉬운 풀이(일상어·비유)를 함께**. 권장구조 ①정확한 데이터/표 → ②"쉬운 설명" 비유. (예: short=내린다 베팅, 트레일링=이익 자동보호 손절선, MFE=한때 최대이익, R=손절1번 손실 대비 배수.)
+- **분석 전 답변 금지** — 관련 파일 끝까지 읽고 로직 추적 후 단 한 번만 답. 중간에 답 바꾸기 금지. `wc -l`·`rg`·`bat` 선행, 500줄 초과 전체로드 금지. jq 없을 수 있음→python.
 - 3+ 파일/복잡 로직은 계획 공유 → 승인 후. **자동 커밋 금지**(명시 요청 시만). rm/force/reset 확인 후.
-- python 콘솔 cp949 → `PYTHONIOENCODING=utf-8` 또는 ascii만 print. 한글경로 here-string 깨짐 → 스크립트 파일로.
-- venv python 호출은 **PowerShell 도구 사용**(bash는 backslash 깨짐). PowerShell 도구 cwd는 git root(`code/`)라 절대경로 권장.
+- python 콘솔 cp949 → `PYTHONIOENCODING=utf-8` 또는 ascii만 print. 한글경로 here-string 깨짐 → 스크립트 파일로. em-dash(—)·한글 print 시 utf-8 필수.
+- venv python 호출은 **PowerShell/Bash 도구**, cwd는 git root(`code/`)라 절대경로 권장.
 
 ## 8. 환경
-- Windows 11 Pro, PowerShell. 경로 `...\code\vwap_trader` (git root `...\code`). git: master, origin https://github.com/dalgeom/vwap.git.
-- 시간대: 봇 로그 KST, trade timestamp/state.json UTC.
+- Windows 11 Pro, PowerShell. 경로 `...\code\vwap_trader`(git root `...\code`). git: master, origin https://github.com/dalgeom/vwap.git.
+- 시간대: 봇 로그 **KST**, trade timestamp/state.json **UTC**(KST=UTC+9).
 
 ## 끝.
-재가동 절차: **git pull → 동시 실행 금지 확인 → (재부팅 시)clock resync → cd vwap_trader → 봇 시작 → State loaded 확인 → 정전후면 reconcile → 분석 전 rebuild_pnl.py.**
-지금 할 일은 새 기능이 아니라 **봇 안정 가동 + 표본 축적.** 200건/극단20건 닿으면 §11 보드로 다각도 일괄검정.
+재가동 절차: **git pull → 동시실행 금지확인 → (재부팅시)clock resync → cd vwap_trader → 봇 시작 → State loaded 확인 → 정전후면 reconcile.**
+지금 할 일은 새 기능이 아니라 **v6 안정가동 + arm A/B·counter_trend 표본 축적.** 충분히 쌓이면 ① track_f1로 F1 net효과 ② arm별 BE 효과 ③ §11 보드(200건) 다각도 검정. **추가 변경은 표본 전 금지.**
