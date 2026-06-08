@@ -29,7 +29,7 @@
 - **위치**: `vwap_trader/`, Windows + PowerShell, venv `vwap_trader/venv/`. **git root는 한 단계 위(`code/`)**.
 - **봇**: Bybit USDT 무기한 선물 **데모 계좌**, 모멘텀 추종. **현 버전 v6**(F1 + BE A/B).
 - **핵심 원리**: 1h봉 abs(return)이 과거 500봉 99.5%ile 초과 시 그 방향 진입 → BE+Trailing 청산.
-- **현 단계**: 데이터 수집 + 손실원인 연구. 검증 임계 **200건(Go/No-Go, 현재 126)**. v6 데이터 별도 축적 시작.
+- **현 단계**: 데이터 수집 + 손실원인 연구. 검증 임계 **200건(Go/No-Go, 현재 128)**. v6 데이터 별도 축적 시작.
 
 ## 2. 필독 문서 (순서대로)
 1. 메모리 `project_pnl_recording_bug` — PnL/entry/closed-pnl 버그 3종(연쇄)·corrected 정본 원칙.
@@ -37,12 +37,13 @@
 3. `config/momentum_config.yaml` — 파라미터(v6 키 포함).
 4. `src/vwap_trader/momentum_bot.py` (~1700줄), `src/vwap_trader/strategy/momentum.py`.
 
-## 3. 봇 운영 상태 (2026-06-08, bar 420 — 인계 시점)
-- **누적 126건 청산.** corrected 정본은 106건 시점 +$1,389, 이후 v6 포함 신규분은 거래소 closed-pnl로 개별검증(전건 일치).
-- **v6 청산 2건 +$729.51**: BEAT long **arm A** TrailSL **+$684.69**(MFE 53.5%·MAE 0.23% 잭팟) + MON legacy +$44.82. ⚠️ BEAT는 arm A=옛 BE로직이라 **BE변경 검증 아님**(F1이 잭팟 안 죽인 증거일 뿐). arm B 청산 아직 0건.
-- **F1 차단 2건**(shadow `counter_trend`): HOME short(UP_HIGH), WLD long(DOWN_HIGH).
-- **오픈 2포지션(둘 다 legacy=arm A)**: SOL long(BE잠금)·ALLO short(sigret −26.5 극단숏, **BE 미잠금** SL=손실선, 되밀리면 마이너스 위험).
-- **totalEquity ~$23,900**(재가동 $22,994 → +$900 회복 중). 평생 −40%는 거의 전부 5분봉 v1~v4 시대.
+## 3. 봇 운영 상태 (2026-06-08 오후, bar 427 — 인계 시점)
+- **누적 128건 청산.** corrected 정본은 106건 시점 +$1,389, 이후 v6 포함 신규분은 거래소 closed-pnl로 개별검증.
+- **v6 청산 누적 4건 +$734.49**: BEAT long arm A TrailSL +$684.69(MFE53.5%/MAE0.23% 잭팟) + MON legacy +$44.82 + **SOL long legacy Timeout +$131.16**(best67.06→65.43 만기) + **ALLO short legacy SL −$126.18**. ⚠️ 전부 arm A/legacy, **arm B 실청산 여전히 0건 = BE변경 검증 미시작.**
+- **★ ALLO green→red 실증(06-08)**: best 0.29144(+13% 이익)→0.41473 SL청산 −$126. arm A BE발동가=entry−1.5ATR=0.262 미도달(be 미잠금)이나 **arm B(0.75ATR)=0.299는 best 통과→본전이었을 반사실**(메모리 `project_be_ab_allo_case`). ⚠️ n=1·반사실, 단정금지(arm B는 잭팟 ejection trade-off).
+- **★ v6 진입감소는 F1 무관 = 신호가뭄**: 06-05 13건→06-07 1건 급감했으나 F1(counter_trend)은 2건만 차단. shadow도 06-07 2건뿐=P99.5 신호 자체 가뭄(변동성↓). cap/rank 대량차단(06-05 short_cap 53)은 v5.1부터의 기존 메커니즘(H14), v6 변경 아님.
+- **오픈 포지션 0개**(SOL·ALLO 둘 다 06-08 청산).
+- **totalEquity ~$23,724**. 평생 −40%는 거의 전부 5분봉 v1~v4 시대.
 
 ## 4. 이번 세션(2026-06-07~08) 핵심
 ### 4.1 심층 자아성찰 분석 (n124) — 잭팟 의존은 구조다

@@ -16,8 +16,8 @@
 Bybit USDT 무기한 선물 데모 계좌에서 **모멘텀 추종(Big Move Follow-Through)** 전략 자동 운영.
 P99.5 percentile 이상 1h 봉 수익률 → 모멘텀 방향으로 진입 → BE+Trailing Stop 청산.
 
-- **현재 단계**: **v6 운영(2026-06-07~, 첫 거래로직 변경: F1 역추세차단 + BE A/B)**, 데이터 수집 중 (**126 trades**, corrected 정본 106시점 +$1,389, 이후 거래소 직접검증. 잭팟 의존 §5.4). v6 청산 2건 +$729(BEAT arm A 잭팟+684). 신호연구·track_f1(F1 점수판) 병행.
-- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 126**. v6 데이터 별도 축적 시작.
+- **현재 단계**: **v6 운영(2026-06-07~, 첫 거래로직 변경: F1 역추세차단 + BE A/B)**, 데이터 수집 중 (**128 trades**, corrected 정본 106시점 +$1,389, 이후 거래소 직접검증. 잭팟 의존 §5.4). v6 청산 4건 +$734(BEAT arm A 잭팟+684 / SOL +131 timeout / ALLO −126 SL green→red / MON +45). arm B 실청산 0건. 신호연구·track_f1(F1 점수판) 병행.
+- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 128**. v6 데이터 별도 축적 시작.
 
 ---
 
@@ -383,6 +383,7 @@ python -m vwap_trader.momentum_bot
 | 2026-06-07 | **★ v6 전환 (첫 거래로직 변경, 사용자 지시)**: ① **F1 역추세 진입 차단** 적용(`block_counter_trend:true`, shadow `counter_trend`) ② **BE forward A/B** 가동(trade_id parity 50/50, arm A 1.5/B 0.75, `ab_test_enabled`). bot_version=v6, trade record `ab_arm`/`be_trigger_atr` 추가. 검증: import·직렬화 round-trip·legacy호환·config·50/50 split·F1 로직 전건 통과. 기존 오픈포지션은 legacy(arm A) 처리. 사용자가 직접 종료·재가동. **이후 데이터는 v6로 축적, A/B는 arm별 실현PnL 비교로 검정** |
 | 2026-06-08 | **v6 첫 운영 결과(~16h, bar 420, 126 trades)**: v6 청산 2건 +$729.51 — **BEAT long arm A TrailSL +$684.69**(MFE53.5%/MAE0.23% 잭팟)·MON legacy +$44.82. BEAT=arm A(옛BE)라 **BE변경 검증 아님**, 단 **F1이 추세순행 잭팟은 통과**(백테스트서 죽인 ALLO는 역추세였음). F1 차단 2건(HOME short/WLD long). **★ track_f1.py 신규**(막은 counter_trend의 would-be 결과 R-배수 점수판): 첫판독 HOME 막은 게 **소급 +29%(+2.6R) winner**=F1 약점 라이브(ALLO 동형), WLD 본전. 확정0.0R·HOME포함+2.6R, **n=2라 결론보류**(124건선 역추세 net−$657=장기F1이득 기대). equity $22,994→~$23,900 회복 |
 | 2026-06-08 | **PC 핸드오프(인계)**: bar 420, 126 closed, 2 positions(둘다 legacy: SOL long BE잠금·ALLO short sigret−26.5 극단·BE미잠금). v6 가동중 graceful 종료 후 push. prom.txt v6 갱신. 신 PC서 git pull→재가동. **추가변경 금지, v6 표본(arm A/B·counter_trend) 축적이 1순위** |
+| 2026-06-08 | **신 PC 재가동 6h 운영(코드 무변경)**: 2포지션 청산 — SOL long Timeout **+$131**(best67.06→65.43 만기)·**ALLO short SL −$126** green→red 실증(best 0.29144=+13%→0.41473). 순≈본전, equity~$23,724, 청산 후 무포지션(128 closed). ★ **ALLO 반사실**: arm A BE발동가 0.262 미도달이나 **arm B(0.75ATR)=0.299는 best 통과→본전이었을 사례**(메모리 `project_be_ab_allo_case`, n=1 단정금지). ★ **v6 진입급감(13→1건)은 F1 무관=신호가뭄**(F1 counter_trend 2건만 차단, 06-07 shadow도 2건뿐). 핸드오프(bar 427, STOP graceful 종료 후 push) |
 
 ---
 
