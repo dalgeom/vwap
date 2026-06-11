@@ -131,10 +131,35 @@
       "Bash(rm -f _tmp_unmatched.py)",
       "Bash(\"/c/Users/PC/Desktop/현진/code/vwap_trader/venv/Scripts/python.exe\" -c \"import json; rows=[json.loads\\(l\\) for l in open\\('data/trades_momentum_corrected.jsonl',encoding='utf-8'\\) if l.strip\\(\\)]; t=sum\\(r.get\\('pnl_usd',0\\) or 0 for r in rows\\); w=sum\\(1 for r in rows if \\(r.get\\('pnl_usd',0\\) or 0\\)>0\\); print\\(f'corrected {len\\(rows\\)}건 | 누적 \\\\${t:+.2f} | WR {w}/{len\\(rows\\)}={w/len\\(rows\\)*100:.1f}% | EV \\\\${t/len\\(rows\\):+.2f}/건'\\); su=[r for r in rows if r.get\\('pnl_source'\\) not in \\('exchange','exchange_rebuilt'\\)]; print\\('비-exchange source:', [\\(r['symbol'],r.get\\('pnl_source'\\)\\) for r in su]\\)\")",
       "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\_tmp_june.py\")",
-      "Bash(cd \"/c/Users/PC/Desktop/현진/code/vwap_trader\" && rm -f _tmp_june.py)"
+      "Bash(cd \"/c/Users/PC/Desktop/현진/code/vwap_trader\" && rm -f _tmp_june.py)",
+      "Bash(./venv/Scripts/python.exe _tmp_verify.py)",
+      "Bash(./venv/Scripts/python.exe _tmp_v2.py)",
+      "Bash(./venv/Scripts/python.exe _tmp_introspect.py)",
+      "Bash(./venv/Scripts/python.exe _tmp_selective.py)",
+      "Bash(./venv/Scripts/python.exe _tmp_be.py)",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe backtest_be_trigger.py)",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe backtest_be.py)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe track_f1.py)",
+      "Bash(git commit -m 'v6 전환: F1 역추세차단 + BE forward A/B + 심층분석/백테스트 + track_f1 + PC인계\\(bar 420\\)' -m '- v6 첫 거래로직 변경: F1\\(block_counter_trend, shadow counter_trend\\) + BE A/B\\(arm A 1.5/B 0.75, trade_id parity\\) *)",
+      "Bash(cat)",
+      "Bash(python _brief_chk.py)",
+      "Bash(rm -f _brief_chk.py)",
+      "Bash(python _sig_chk.py)",
+      "Bash(rm -f _sig_chk.py)",
+      "Bash(python _b.py)",
+      "Bash(rm -f _b.py)",
+      "Bash(cd /c/Users/PC/Desktop/현진/code/vwap_trader; *)",
+      "Bash(python track_f1.py)",
+      "Bash(PYTHONIOENCODING=utf-8 python track_f1.py)",
+      "Bash(awk -F'Scan: ' 'NR>0{print $2}')",
+      "Bash(awk '{d=$1; n=$2; sum[d]+=n} END{for\\(d in sum\\) print d, sum[d]}')",
+      "Bash(PYTHONIOENCODING=utf-8 python _b.py)"
     ],
     "additionalDirectories": [
-      "c:\\c\\Users\\PC\\Desktop\\현진\\code\\vwap_trader"
+      "c:\\c\\Users\\PC\\Desktop\\현진\\code\\vwap_trader",
+      "C:\\Users\\PC\\Desktop\\현진\\code\\vwap_trader"
     ]
   }
 }

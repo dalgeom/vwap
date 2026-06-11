@@ -16,8 +16,8 @@
 Bybit USDT 무기한 선물 데모 계좌에서 **모멘텀 추종(Big Move Follow-Through)** 전략 자동 운영.
 P99.5 percentile 이상 1h 봉 수익률 → 모멘텀 방향으로 진입 → BE+Trailing Stop 청산.
 
-- **현재 단계**: **v6 운영(2026-06-07~, 첫 거래로직 변경: F1 역추세차단 + BE A/B)**, 데이터 수집 중 (**128 trades**, corrected 정본 106시점 +$1,389, 이후 거래소 직접검증. 잭팟 의존 §5.4). v6 청산 4건 +$734(BEAT arm A 잭팟+684 / SOL +131 timeout / ALLO −126 SL green→red / MON +45). arm B 실청산 0건. 신호연구·track_f1(F1 점수판) 병행.
-- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 128**. v6 데이터 별도 축적 시작.
+- **현재 단계**: **v6 운영(2026-06-07~, 첫 거래로직 변경: F1 역추세차단 + BE A/B)**, 데이터 수집 중 (**131 trades**, corrected 정본 106시점 +$1,389, 이후 거래소 직접검증. 잭팟 의존 §5.4·§8.10). **v6 잭팟 3건 전부 arm A: BEAT +$685·H +$648·VELVET +$1,359**(외 MON +45·SOL +131·ESPORTS BE−0·ALLO −126 SL). **arm B 실청산 여전 0건이나 PIPPIN(arm B) BE 첫 발동**(본전잠금, 청산 전 n=1). equity ~$25,766. 신호연구·track_f1(F1 점수판, 현 n=4 net WIN 경고등) 병행.
+- **검증 임계점**: 50건(첫 평가), **200건(Go/No-Go) — 현재 131**. v6 데이터 별도 축적 중(저변동 가뭄으로 진입 느림).
 
 ---
 
@@ -311,6 +311,21 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 - **F1(역추세 제거)은 대조적으로 견고**: 진입 결정이라 intra-trade path·entry오염 무관. n124 backtest +$741→+$1,398(WR 35→39%, EV +6→+14), 잭팟 4/5 유지(역추세 ALLO만 상실, 23건 역추세 합 −$657·WR22%). 이론 정합(추세 거스르지 마라). → v6 즉시 적용 채택. ⚠️ in-sample·regime분류(btc_4h) 5월/6월 flip 위험은 잔존 → forward로 계속 확인.
 - 도구: `backtest_be.py`(1m 경로 replay, POST-fix 거래에선 유효). entry버그 없는 거래가 쌓일수록 신뢰도 상승.
 
+### 8.10 세 팩터 조합분석 (2026-06-11, 85건 — 연속성·돈흐름·파도크기)
+
+사용자 요청으로 신호 시점 3팩터를 이분(good/bad)해 8조합 교차분석. 데이터셋 = corrected 정본 ctx 67 + raw 신규(ctx+exchange) 18 = **85건**(총 +$918, WR 36%). good 정의: **연속성**(`signal_consec≥2`, 직전 2봉+ 동방향) / **돈흐름**(`signal_oi_chg>0`, OI 증가) / **파도크기**(`|signal_return_pct|` 10~20%, sweet spot).
+
+| good 개수 | n | 총손익 | 비고 |
+|---|---|---|---|
+| 0개 | 20 | −$192 | |
+| 1개 | 45 | −$289 | 파도크기만(n6 **+$1,176** WR67%)만 흑자 / 연속성만(n10 −$488)·돈흐름만(n29 −$977) 적자 |
+| 2개 | 20 | **+$1,399** | 흑자 전부 |
+| **3개 다** | **0** | — | 셋 다 good은 85건 중 0건(완벽신호 부재) |
+
+★ **핵심: 잭팟이 "good 칸"에 안 모인다** — BEAT/PORTAL(파도크기만), H +648(파도 **bad**=막차 −35%지만 연속성·돈흐름 good), **ZEC +629(셋 다 bad!)**, ALLO(돈흐름+파도). 두 대박 프로필이 정반대 → "good 신호만 골라 진입"하면 ZEC/H 잭팟을 죽인다 = §8.5 "단일/조합 단순필터 실패, interaction은 코너에서만" **재확인**. ⚠️ 칸당 2~6건 극소(파도크기만 +$1,176도 BEAT+PORTAL 2건 착시), 85건/8칸 통계무의미 = **사후 탐색이지 미래 룰 아님. 200건 게이트·데이터마이닝 금지**(H6/H7/H15 교차 = §11 일괄검정 대상).
+
+**추가 팩터 후보(미적용, 표본 우선)**: ① 이미 기록 중·미분석 = **선행추세(`signal_ret_6/12/24`=진입 전 막차 정도)** 0순위 분석대상, regime·atr절대값·시각/요일·사이즈. ② 미기록 신규후보 = ★**거래량(volume, 진짜모멘텀 vs 얇은호가 가짜)** 1순위 로깅추가 가치(§8.1 기지목), 가격위치·봉모양·funding·시장동반성. ⚠️ 팩터 증식 = 다중비교 데이터마이닝, **표본이 먼저**(85건으론 3팩터도 못 가름).
+
 ---
 
 ## 9. 봇 실행
@@ -334,35 +349,10 @@ python -m vwap_trader.momentum_bot
 | 날짜 | 결정 |
 |------|------|
 | 2026-05-21 | 5분봉 v1~v4.1 전부 실패 → 1h봉 v5 전환 + BE+Trailing |
-| 2026-05-23 | 실전 WR 30% vs 백테스트 98.7% 괴리 진단 시작 |
-| 2026-05-23 | 가설 검증: 인트라바 SL ❌, 유니버스 편향 ❌, 신호 검출 차이 ❌ |
-| 2026-05-23 | **진짜 원인 확정**: BE/Trail 1h 폴링 지연 (HYPE1 케이스) |
-| 2026-05-23 | **v5.1 시작**: 1m 폴링 적용 |
-| 2026-05-24 | BE 보호 첫 검증 (NEAR2, -0.06%) |
-| 2026-05-25 | LIT3 BE 보호 두 번째 검증 (-0.12%) |
-| 2026-05-25 | **GRASS2 catastrophic loss** (-$1,798) → tier cap 필요성 확인 |
-| 2026-05-26 | tier cap 구현 + bot_version 필드 추가 |
-| 2026-05-26 | ErrCode 10002 timestamp drift → 주기적 clock resync (매 정각) 구현 |
-| 2026-05-27 | Tier Cap 실제 발동 검증 (PHA/ESPORTS/GRASS 모두 Tier 4 cap 적용) |
-| 2026-05-27 | signal_ret 임계값 분석 — "weak 신호가 손실 주범", 8% threshold 시 net +$1,246 추정. 표본 작아 즉시 적용 보류 |
-| 2026-05-27 | slippage_cooldown state.json 저장/복원 구현 (봇 재시작 시 cooldown 정보 유지) |
-| 2026-05-27 | Clock resync 매 분 강화 + balance fail 시 즉시 resync (정각만으론 부족) |
-| 2026-05-27 | Rate Limit sleep 완화: 페이지 0.25→0.4, 심볼 0.5→0.7, manage 0.2→0.4 |
-| 2026-05-27 | **BSB v5.1 첫 trailing winner** +23.92% (+$275, hold 38봉) — 1m 폴링 + BE/Trail 정상 작동 검증 |
-| 2026-05-28 | GRASS v5.1 두 번째 trailing winner +3.63% (+$35, hold 22봉) |
-| 2026-05-28 | ETH 즉시 반전 SL (-0.66%, weak signal -2.25%) — 약한 신호 즉시 반전 패턴 재확인 |
-| 2026-05-28 | XPL 신규 진입 (Tier 4 cap $999.94) — 4번째 cap 발동 사례 |
-| 2026-05-28 | Rate Limit 시간대 의존성 확인 (UTC 10/14시 폭주, sleep만으론 한계) |
-| 2026-05-28 | **신호 연구**: 473건 손실분석 → 패자 82% 진입직후 역행 = adverse selection. 조기컷 막다른 길 확정. D-소급 변별신호 가설(ret_12/24·consec·OI, 38건) |
-| 2026-05-28 | **v5.1+ 신호 컨텍스트 5필드 로깅 추가** (signal_ret_6/12/24, consec, oi_chg) — 거래로직 무영향, 가설 검증 데이터 축적용 |
-| 2026-05-29 | Rate limit 재평가: 거래실패는 retry로 회복 = critical 아님. shadow log 우선 결정 |
-| 2026-05-29 | **Shadow Log 구현** (`shadow_momentum.jsonl`, 9종 reason) — 걸린 신호 기록으로 생존편향 깨기. 만석도 scan-only로 신호 포착 |
-| 2026-05-29 | v5.1 통계 양전환 확인 — 12건 WR 41.7% +$214 (전체 43건 -$233) |
-| 2026-05-29 | **ALLO +44.47% (+$644) 최대 winner 실현** — ret_12=73·DOWN_HIGH 역추세, 모든 위험 플래그 red인데 대박. 전체 누적 +$388 전환 |
-| 2026-05-29 | **interaction 가설**: 신호는 더해지지 않고 곱해짐. 막차+OI↑=폭발 / 막차+OI↓(ESPORTS)=붕괴. 단일 필드 필터 실패의 근본 원인 → 비선형 룰 필요 (§8.5) |
-| 2026-05-29 | **PnL 기록 버그 발견** — `_get_closed_pnl_price`가 청산 직후 race 시 직전 무관 거래의 exit를 기록(side만으로 fallback). 47건 중 4건 exit 오염(GRASS 치명) |
-| 2026-05-29 | **버그 수정**: closed-pnl 강한매칭(side+entry±1%+qty±1%)+retry 5×0.6s, 엉뚱레코드/ticker fallback 제거, 거래소 실 closedPnl 직접 기록(`pnl_source` 필드 추가). 봇 재가동 |
-| 2026-05-29 | **거래소 재구축**(deterministic 1:1, 47건 전건 매칭, 2회 run 동일 해시): 기록 +$202 → 실제 **+$2,010**. **GRASS2 -$1,798=가짜(-$105)** → catastrophic slip/Tier Cap 동기 무효(§8.2/§8.6). v5.1기 +$97 breakeven, adverse selection 확인(loser MFE<0.5%=55%) (§8.5+). `trades_momentum_corrected.jsonl` 생성, 메모리 기록 |
+| 2026-05-23 | **실전 WR 30% vs 백테스트 98.7% 괴리 진단**: 인트라바SL·유니버스·신호검출 ❌ 기각 → **진짜 원인 = BE/Trail 1h 폴링지연(HYPE1)** → **v5.1(1m 폴링) 시작** |
+| 2026-05-24~27 | v5.1 운영검증: BE보호(NEAR2/LIT3), trailing winner(BSB +$275), tier cap 발동(GRASS2 −$1,798이 도입계기·후에 버그판명), clock resync·cooldown state·RL sleep 완화 구현. signal_ret 임계분석(weak=손실주범, 8%컷 +$1,246 추정·표본부족 보류) |
+| 2026-05-28 | **신호연구 473건**: 패자 82% 진입직후 역행 = adverse selection, 조기컷 막다른길 확정. 변별가설(ret_12/24·consec·OI). **신호컨텍스트 5필드 로깅 추가**(`signal_ret_6/12/24`·consec·oi_chg, 거래로직 무영향) |
+| 2026-05-29 | **Shadow Log 구현**(`shadow_momentum.jsonl`, 걸린신호 기록=생존편향 깨기). **ALLO +$644 최대winner**(역추세 막차 잭팟). **interaction 가설**(막차+OI↑=폭발/OI↓=붕괴, 단일필터 실패 근본원인). **★ PnL버그 발견·수정**(`_get_closed_pnl` race로 직전거래 exit 오기록, GRASS2 −$1,798=가짜 실−$105) + **거래소 재구축**(47건 1:1, 실제 **+$2,010**, tier cap 동기 무효 §8.2/§8.6, `trades_momentum_corrected.jsonl` 생성) |
 | 2026-06-01 | **trailing SL spike-retrace 버그 수정**: best_price(봉 고점) 되밀림 시 trail SL이 현재가 초과 → Bybit 10001 거부 + 롤백으로 SL 초기값 묶임. 가드 추가(trail이 현재가 침범 시 entry/BE floor 재확정). H 0.5121→0.5440 복구 검증 |
 | 2026-06-01 | **사전등록 가설 보드(§11) 등록** (65 closed 시점) — 진입선별 1렌즈 편중 교정. Primary 6 / Secondary 8 / Null 1 + v6 개입후보 5 분리. OI 가설 검정력 한계 명시(Secondary 강등) |
 | 2026-06-01 | **계좌 감사**(§5.0): 데모 시작 **$40,000 확정**(cumRealised 항등식). 평생 −$15,835(5분봉 시대 ≈−$17.7k가 지배), **v5/v5.1 시대 +$1,912=우상향**. 데모 API 단기보관으로 과거 날짜조회 불가 |
@@ -384,6 +374,9 @@ python -m vwap_trader.momentum_bot
 | 2026-06-08 | **v6 첫 운영 결과(~16h, bar 420, 126 trades)**: v6 청산 2건 +$729.51 — **BEAT long arm A TrailSL +$684.69**(MFE53.5%/MAE0.23% 잭팟)·MON legacy +$44.82. BEAT=arm A(옛BE)라 **BE변경 검증 아님**, 단 **F1이 추세순행 잭팟은 통과**(백테스트서 죽인 ALLO는 역추세였음). F1 차단 2건(HOME short/WLD long). **★ track_f1.py 신규**(막은 counter_trend의 would-be 결과 R-배수 점수판): 첫판독 HOME 막은 게 **소급 +29%(+2.6R) winner**=F1 약점 라이브(ALLO 동형), WLD 본전. 확정0.0R·HOME포함+2.6R, **n=2라 결론보류**(124건선 역추세 net−$657=장기F1이득 기대). equity $22,994→~$23,900 회복 |
 | 2026-06-08 | **PC 핸드오프(인계)**: bar 420, 126 closed, 2 positions(둘다 legacy: SOL long BE잠금·ALLO short sigret−26.5 극단·BE미잠금). v6 가동중 graceful 종료 후 push. prom.txt v6 갱신. 신 PC서 git pull→재가동. **추가변경 금지, v6 표본(arm A/B·counter_trend) 축적이 1순위** |
 | 2026-06-08 | **신 PC 재가동 6h 운영(코드 무변경)**: 2포지션 청산 — SOL long Timeout **+$131**(best67.06→65.43 만기)·**ALLO short SL −$126** green→red 실증(best 0.29144=+13%→0.41473). 순≈본전, equity~$23,724, 청산 후 무포지션(128 closed). ★ **ALLO 반사실**: arm A BE발동가 0.262 미도달이나 **arm B(0.75ATR)=0.299는 best 통과→본전이었을 사례**(메모리 `project_be_ab_allo_case`, n=1 단정금지). ★ **v6 진입급감(13→1건)은 F1 무관=신호가뭄**(F1 counter_trend 2건만 차단, 06-07 shadow도 2건뿐). 핸드오프(bar 427, STOP graceful 종료 후 push) |
+| 2026-06-09 | **신 PC 운영 지속(코드 무변경)**: HUSDT short **TrailSL +$648.08(+66.8%, arm A, v6 잭팟)** 청산(어제 미실현 정점 +$819 → 트레일링 되돌림 −$171 허용하고 확정, 청산가 0.13378). **★ v6 코드 무죄 3중검증**(사용자 "하루아침에 진입 마름" 의심 대응): ① F1은 신호 탐지 *후* 차단하며 **반드시 shadow 기록** → 06-08~09 shadow 0건 = F1이 막은 것도 0 = `feed_candle` 탐지단계서 이미 0. ② 봇로그 scan 정상(`38/40 scanned, 0 candidates`, Traceback 無, ERROR는 전부 10006 rate-limit retry회복). ③ **봇코드 완전우회 독립 klines P99.5 계산**: BTC/ETH/SOL/DOGE/XRP/BNB 최근24봉 신호 **0**(마지막봉 0.5~1.4% vs 임계 2~3%), **HUSDT만 5건**(탐지로직 정상 반증) → 진입가뭄=코드무관, 100% 시장 저변동. **거시배경(웹검색)**: Fed 금리인하 기대소멸(2026 0회 68.8%·신의장 Warsh 매파·10yr 4.45%) + 비트코인 ETF 사상최대 주간유출 $3.4B + 고래매도 + 미-이란 긴장 → 6월초 BTC −12%($72.8k→$64.1k, 봇기록 entry BTC $63.4k와 정합) 급락 후 **유동성 고갈 횡보**(여름까지 지속 전망). 모멘텀봇에 구조적 불리(큰파도 부재), 단 개별알트 폭락(H)은 산발. **★ 첫 arm B 실진입: PIPPINUSDT short**(be_trigger 0.75ATR) — 한때 +6.4%(+$51) 이익에도 **BE 미발동**(best가 0.75ATR 문턱 미도달 = 변동성 큰 잔챙이알트는 ATR이 커서 0.75ATR도 멀다, **첫 관찰**), 이후 green→red(+$51→−$22) 진행. **arm B 첫 표본 생성(n=1 오픈, 결론보류)** — 청산 결과(특히 BE 끝까지 미발동 여부) 기록가치. ★ **트레일링 한계 정리(사용자 문답)**: 100% 완벽 트레일링 불가능(타이트=green→red막으나 잭팟 ejection / 느슨=잭팟 살되 반납, 같은 다이얼 trade-off). green 절대 red금지=가능하나 잭팟 증발(§8.9 실증). **손실 대부분은 즉시역행 46건 −$4,799=트레일링으론 불가(입구문제), green→red 28건 −$2,211만 BE로 일부구제** → 레버는 ATR배수뿐 아니라 입구(F1)·부분익절(I2)·사이징. 무변경, 표본축적 지속 |
+| 2026-06-10 | **track_f1 중간판독 n=4 (이전 n=2 → 확대)**: F1이 차단한 counter_trend 4건 would-be 결과 **전부 winner, 손실 0** — HOME short(+3.51R Timeout)·WLD long(+1.13R TrailSL)·BEAT long(+2.01R TrailSL)·VELVET long(+2.51R OPEN*). resolved 3건 **+6.66R(~+$766)**, OPEN포함 +9.17R. 스크립트 판정 *"F1 net NEGATIVE, reconsider"*. **★ 그러나 F1 변경 보류 — 4가지 이유**: ① n=4(확정 3, peeking·데이터마이닝 위험). ② **backtest n124와 정면충돌**(§8.9: 역추세 23건 net −$657·WR22% = 역사적으론 역추세 분명히 손해) → 라이브는 아직 "역추세 패자" 미출현 단계일 뿐. ③ **결정적: 막힌 4건 전부 극단막차**(sigret −25.6/21.7/19.3) = selection. 가뭄기 역추세 신호가 하필 다 강한 막차였고 극단막차는 잭팟 동반경향(ALLO +624 동형) → F1이 "역추세"를 막으려다 마침 "역추세+잭팟형 막차"만 집중차단 = backtest서 F1이 죽인 유일 잭팟(ALLO 역추세)의 알려진 비용이 라이브서 도드라진 구간. ④ track_f1 path 단일경로·entry≈signal_price 근사(방향성만), VELVET OPEN은 미실현 paper(peeking). **결론: 경고등 ON(무시 금지)이나 n=4로 F1 끄면 데이터마이닝.** 감시 핵심 = 역추세 신호 중 **실제 폭락 패자 출현 여부**(n 15~20+서도 net WIN 유지 시 F1 재고가 데이터기반 결정). 200건 게이트·peeking금지 유지, 무변경 |
+| 2026-06-11 | **★ VELVET long TrailSL 잭팟 +$1,359**(거래소 실값, 봇 est +$1,385.67·arm A) 청산 — 진입 0.36469→best 0.91465(MFE **+150.8%**/MAE 0.47%, hold 5bars), 청산 ~0.864. **밤새 봇 가동 중 트레일링이 폭등 추격**(SL 로그: 00:00 BE발동 0.36→ 02:00 0.46→ 08:17 0.84→ 09:00 0.87), 08시경 급등을 SL이 따라올라 이익 잠금 = **"봇 켜둠"의 가치 실증**(꺼졌으면 SL 0.46 묶여 절반↓). BEAT·H에 이은 **3번째 잭팟, 또 arm A**(arm B 잭팟 여전 0). ESPORTS BE 본전 −$0.46 동반청산. ⚠️ VELVET pnl **ESTIMATED**(청산 직후 거래소 정산 전파지연, "Closed PnL NOT found 5 tries" → 봇이 SL가 0.8718로 추정 +1385.67, 거래소 실값 +1359.23, §8.7 동형) → **재가동 후 `rebuild_pnl.py`로 거래소 실값 정정 필요**. **★ PIPPIN(arm B) BE 첫 발동**: 변동성 큰 잔챙이라 0.75ATR 문턱(≈7.6%) 멀어 며칠 걸렸으나 best 0.01928 도달로 발동, SL=entry(0.02163) 본전잠금 — **arm B 빠른BE 첫 실증**(단 청산 전, n=1). 봇 reconcile 정상(VELVET 청산 3분 지연 자체해소, phantom 아님). **핸드오프(잠깐 재부팅)**: bar 486, **131 closed**, 포지션 3개 전부 short(PIPPIN arm B BE잠금 +$57 / SIREN arm A −$1 / POWER arm A −$5), state=거래소 일치, equity **$25,766**. 재가동: clock resync→cd vwap_trader→봇시작→State loaded 3 positions bar=486 확인. 무변경, 표본축적 지속(사용자 "표본수집 우선" 결정) |
 
 ---
 
