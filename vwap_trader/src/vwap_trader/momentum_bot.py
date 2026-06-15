@@ -1684,6 +1684,29 @@ class MomentumBot:
                      len(self.positions), cached_coins)
 
 
+# ── v7 pure helpers ──────────────────────────────────────
+def cap_admits(direction: str, count: int, consec: int,
+               base: int, mx: int, priority_on: bool) -> bool:
+    """방향별 조건부 정원. count=현재 해당방향 보유수. True=진입허용.
+    기본 base자리는 무조건, 확장자리(base<=count<mx)는 연속성 조건:
+    short 확장=꾸준(consec>=1), long 확장=단발(consec==0)."""
+    if count >= mx:
+        return False
+    if not priority_on or count < base:
+        return True
+    if direction == "short":
+        return consec >= 1
+    return consec == 0
+
+
+def compute_vol_ratio(vols: list, lookback: int = 20) -> float:
+    """신호봉 거래량 / 직전 lookback봉 평균. 데이터부족·평균0이면 0.0."""
+    if len(vols) < lookback + 1:
+        return 0.0
+    avg = sum(vols[-lookback - 1:-1]) / lookback
+    return round(vols[-1] / avg, 3) if avg > 0 else 0.0
+
+
 # ── Notify helper ────────────────────────────────────────
 def notify(msg: str):
     """Send notification via notifier module."""
