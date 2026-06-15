@@ -1368,10 +1368,26 @@ class MomentumBot:
 
         return price_map
 
+    def _quick_consec(self, symbol: str, direction: int) -> int:
+        """cap 우선순위용 연속 동방향봉 수 (캐시 기반, OI 호출 없음)."""
+        cache = self._candle_cache.get(symbol, [])
+        if len(cache) < 3:
+            return 0
+        closes = [c[4] for c in cache]
+        opens = [c[1] for c in cache]
+        cc = 0
+        for i in range(len(closes) - 2, -1, -1):
+            if (closes[i] - opens[i]) * direction > 0:
+                cc += 1
+            else:
+                break
+        return cc
+
     def _compute_signal_context(self, symbol: str, direction: int) -> dict:
         """v5.1+: D-소급 검증된 변별 신호 계산 (로깅 전용, 거래 결정엔 영향 없음).
         선행추세(ret_6/12/24, 방향 반영), 연속 동방향봉, OI 변화율(%)."""
-        ctx = {"ret_6": 0.0, "ret_12": 0.0, "ret_24": 0.0, "consec": 0, "oi_chg": 0.0}
+        ctx = {"ret_6": 0.0, "ret_12": 0.0, "ret_24": 0.0, "consec": 0,
+               "oi_chg": 0.0, "vol_ratio": 0.0}
         cache = self._candle_cache.get(symbol, [])
         if len(cache) > 25:
             closes = [c[4] for c in cache]
@@ -1387,6 +1403,8 @@ class MomentumBot:
                 else:
                     break
             ctx["consec"] = cc
+            if cache and len(cache[-1]) > 5:
+                ctx["vol_ratio"] = compute_vol_ratio([c[5] for c in cache], 20)
         try:
             resp = self.public_session.get_open_interest(
                 category="linear", symbol=symbol, intervalTime="1h", limit=2)
