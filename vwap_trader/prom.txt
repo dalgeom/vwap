@@ -18,6 +18,12 @@
 
 ───────────────────────────────────────────────
 
+## ★ v7 전환 (2026-06-15, 두 번째 거래로직 변경) — 최신, 반드시 숙지
+v6 위에 두 가지 변경(사용자 지시). **코드 커밋됨, 봇 재시작해야 발효.**
+- **① 방향별 조건부 정원확장** (`filters.cap_consec_priority: true`): `max_short 3→5`·`max_long 3→4`. 기본 3자리는 무조건, **늘린 자리만 연속성 조건** — short 확장자리=꾸준(consec≥1), long 확장자리=단발(consec0). 근거: `short_cap`/`long_cap` 소급검증(중복제거: short 41건 +97R=꾸준이 +92R / long 22건 +23R=단발이 +22R, **방향별 정반대**, §10·§11 H14). 순수함수 `cap_admits`(모듈) + `self._quick_consec`(L~1373), cap체크는 `_scan_universe`. **롤백: `cap_consec_priority: false` 또는 max를 3/3.** ⚠️ in-sample(forward 0)·동시손실위험(최악24h −$2,183, 단발제외로 완화) → 200건 잠정, peeking 금지.
+- **② 거래량 로깅** (`signal_vol_ratio` = 신호봉 거래량/직전20봉평균): 캐시튜플에 volume(인덱스5) 복원 → `compute_vol_ratio`. **기록전용, 거래 무영향.** 신규 진입/shadow부터 축적(과거 소급 안됨). 결론 없음=이제 기록 개시(4번째 진입팩터).
+- forward 추적: **`track_cap.py`**(short/long_cap 점수판, 읽기전용, `PYTHONIOENCODING=utf-8 python track_cap.py`). bot_version=v7. 계획서: `docs/superpowers/plans/2026-06-15-v7-cap-volume.md`.
+
 ## ★ v6 전환 (2026-06-07, 첫 거래로직 변경) — 반드시 숙지
 v5는 데이터만 쌓고 로직 무변경이었으나, **2026-06-07 처음으로 진입로직을 바꿨다(v6).** 사용자 명시 지시.
 - **① F1 — 역추세 진입 차단** (`filters.block_counter_trend: true`): BTC 4h regime이 DOWN인데 long, UP인데 short 신호는 **진입 안 하고 shadow에 `counter_trend`로 기록.** FLAT 허용. 근거: backtest n124 +$741→+$1,398. 진입결정이라 경로·entry오염 무관해 백테스트 견고(§8.9).
