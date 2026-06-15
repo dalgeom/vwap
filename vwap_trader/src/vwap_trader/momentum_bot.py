@@ -90,7 +90,7 @@ class OpenPosition:
                  best_price: float = 0.0, be_triggered: bool = False,
                  signal_ret_6: float = 0.0, signal_ret_12: float = 0.0,
                  signal_ret_24: float = 0.0, signal_consec: int = 0,
-                 signal_oi_chg: float = 0.0,
+                 signal_oi_chg: float = 0.0, signal_vol_ratio: float = 0.0,
                  be_trigger_atr: float = 0.0, ab_arm: str = ""):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
@@ -119,6 +119,7 @@ class OpenPosition:
         self.signal_ret_24 = signal_ret_24    # 진입 전 24봉
         self.signal_consec = signal_consec    # 진입 전 연속 동방향 봉 수
         self.signal_oi_chg = signal_oi_chg    # 신호봉 직전 OI 변화율(%)
+        self.signal_vol_ratio = signal_vol_ratio  # 신호봉 거래량/직전20봉평균
         # v6 forward A/B: per-position BE trigger (0.0 => use config default = legacy/arm A)
         self.be_trigger_atr = be_trigger_atr
         self.ab_arm = ab_arm                  # "A" (control) / "B" (early BE) / "" (legacy)
@@ -798,6 +799,7 @@ class MomentumBot:
             "signal_ret_24": round(getattr(pos, "signal_ret_24", 0.0), 4),
             "signal_consec": getattr(pos, "signal_consec", 0),
             "signal_oi_chg": round(getattr(pos, "signal_oi_chg", 0.0), 4),
+            "signal_vol_ratio": round(getattr(pos, "signal_vol_ratio", 0.0), 3),
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -1446,6 +1448,7 @@ class MomentumBot:
             "signal_ret_24": sig_ctx["ret_24"],
             "signal_consec": sig_ctx["consec"],
             "signal_oi_chg": sig_ctx["oi_chg"],
+            "signal_vol_ratio": sig_ctx["vol_ratio"],
         }
         with open(self._shadow_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -1673,6 +1676,7 @@ class MomentumBot:
                     signal_ret_24=sig_ctx["ret_24"],
                     signal_consec=sig_ctx["consec"],
                     signal_oi_chg=sig_ctx["oi_chg"],
+                    signal_vol_ratio=sig_ctx["vol_ratio"],
                 )
                 pos._btc_4h_return = self._btc_4h_return
                 pos._btc_4h_atr = self._btc_4h_atr
