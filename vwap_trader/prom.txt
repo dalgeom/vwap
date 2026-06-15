@@ -41,12 +41,12 @@ v5는 데이터만 쌓고 로직 무변경이었으나, **2026-06-07 처음으�
 2. `PLAN.md` — **단일 정본**. ★ **§11 가설보드**(H1~H15 + I1~I6), **§8.10 세 팩터 조합분석(신규)**, §8.9(v6 근거), §10 의사결정 이력, §5 통계.
 3. `config/momentum_config.yaml`(v6 키 포함), `src/vwap_trader/momentum_bot.py`(~1700줄).
 
-## 3. 봇 운영 상태 (2026-06-11, bar 486 — 인계 시점)
-- **누적 131건 청산.** corrected 정본 106건 시점 +$1,389, 이후 v6 신규분은 거래소 closed-pnl 개별검증.
-- **v6 잭팟 3건 전부 arm A**: BEAT +$685 · H +$648 · **VELVET +$1,359**(0.365→0.864 폭등, 밤새 트레일링이 추격해 이익잠금=봇 켜둠 가치 실증). 외 MON +45·SOL +131·ESPORTS BE−0·ALLO −126 SL. **arm B 실청산 여전 0건.**
-- **★ PIPPIN(arm B) BE 첫 발동(06-11)**: 변동성 큰 잔챙이라 0.75ATR 문턱(≈7.6%) 멀어 며칠 걸렸으나 발동, SL=entry 본전잠금. **arm B 빠른BE 첫 실증**(단 청산 전 n=1).
-- **오픈 포지션 3개**(전부 short): PIPPIN(arm B, BE잠금) · SIREN(arm A) · POWER(arm A). SIREN/POWER는 연속성0 약신호(즉시역행 경향).
-- **totalEquity ~$25,766**. 평생 −40%는 거의 전부 5분봉 v1~v4 시대.
+## 3. 봇 운영 상태 (2026-06-15, bar 584 — 인계 시점)
+- **누적 155건 청산.** WR 35.1%·**+$3,113**·EV+$20·PF1.36 (정본106 +$1,389 + v6신규49 +$1,724). 흑자=top5 잭팟 **139% 의존**(상위5 빼면 나머지 150건 −$1,220 적자). 분석=corrected+신규, 일부 estimated. 상세 §5.6.
+- **이 세션(131→155) 큰 청산**: VELVET long TrailSL **+$1,359**(MFE+150%, 밤샘 트레일링 추격)·SIREN short **+$281**·VELVET short **+$272**. **★ arm B 첫 실청산 다수 생성**: PIPPIN Timeout+44·HMSTR(SL−88→재진입 TrailSL+97)·TAO(TrailSL+95→재진입 SL−122)·XRP/XMR/CRV BE본전·DOGE×2/TRUMP SL−140. arm B net 부진하나 **잭팟 0건이라 판정불가**(arm A가 잭팟 전부 보유). 빠른BE는 일부 손실 본전사수(XRP−6·XMR−1) vs 즉시역행은 못구제(DOGE·TRUMP).
+- **★★ v7 코드 적용·push 완료, 단 봇은 v6로 돌았음 = v7 라이브 0건.** 다른 PC에서 `git pull`로 v7 코드 받고 재가동 시 **v7 첫 발효**(정원 short5/long4 조건부 + vol_ratio 로깅). 상단 ## ★ v7 전환 참조.
+- **오픈 포지션 3개**: OPG short(arm A, **+$199·+20%**, BE미잠금) · SIREN long(arm B, +$10) · ZKC short(arm B, +$20). 미실현 합 **+$230**.
+- **totalEquity ~$25,476**. 평생 −40%는 거의 전부 5분봉 v1~v4 시대.
 
 ## 4. 이번 세션(2026-06-09~11) 핵심
 ### 4.1 v6 코드 무죄 3중검증 — 진입가뭄은 시장 탓 (코드 정상)
@@ -83,5 +83,5 @@ F1 차단 4건 would-be 전부 winner(+6.66R). 스크립트 "F1 net NEGATIVE". *
 - 시간대: 봇 로그 **KST**, trade timestamp/state.json **UTC**(KST=UTC+9).
 
 ## 끝.
-재가동: **git pull → 동시실행 금지확인 → (재부팅시)clock resync → cd vwap_trader → 봇 시작 → State loaded 확인 → (선택)rebuild_pnl로 VELVET 정정.**
-지금 할 일은 새 기능이 아니라 **v6 안정가동 + arm A/B·counter_trend 표본 축적**(사용자 "표본수집 우선" 결정). 충분히 쌓이면 ① track_f1로 F1 net ② arm별 BE 효과 ③ §11 보드(200건) 다각도 검정. **추가 변경은 표본 전 금지.**
+재가동(타 PC): **git pull(★v7 코드 수신) → 동시실행 금지확인(현 PC 봇 죽었는지) → (재부팅시)clock resync → cd vwap_trader → 봇 시작 → State loaded 확인.** 첫 진입 후 `data/trades_momentum.jsonl` 마지막 줄에 `bot_version:v7`·`signal_vol_ratio` 찍히면 v7 발효 확인. short 보유가 꾸준한신호 한정 4·5개까지 늘 수 있음(동시손실 주시). **롤백: config `cap_consec_priority:false` 또는 max를 3/3 → 재시작.** (VELVET est pnl 정정은 선택, rebuild는 corrected 덮어쓰니 신규는 거래소 직접대조 권장 §8.7.)
+지금 할 일은 **v7 안정가동 + 표본 축적**(사용자 "표본수집 우선" 결정). 충분히 쌓이면 ① `track_cap.py`로 v7 정원처방 검증(short=consec≥1·long=consec0 그룹 (+) 유지?) ② track_f1로 F1 net ③ arm별 BE 효과 ④ 거래량(vol_ratio) 진입팩터 분석 ⑤ §11 보드(200건) 다각도 검정. **추가 변경은 표본 전 금지(v7도 in-sample·forward 0이라 잠정).**

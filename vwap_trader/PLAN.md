@@ -82,6 +82,7 @@ risk_pct로 계산된 사이즈가 cap을 넘으면 qty 비례 축소 (lot_size 
 | **v5.1+** | **2026-06-04** | **entry_price 버그 수정** (`place_order` 응답에 avgPrice 없어 신호가 fallback → `_fetch_actual_entry`로 실체결가 기록) | **운영 중, bar265+ 0.00% 검증** |
 | **v5.1+** | **2026-06-05** | **closed-pnl 옛레코드 오매칭 수정** (loose 1% 매칭+전파지연이 같은심볼 옛거래값 반환 → `createdTime>=진입시각` freshness 게이트) | **운영 중, §8.8** |
 | **v6** | **2026-06-07** | **첫 거래로직 변경**: F1 역추세 진입 차단(`block_counter_trend`) + BE forward A/B(arm A 1.5 / B 0.75, trade_id parity 50/50) | **적용 완료, 재가동 대기. bot_version=v6** |
+| **v7** | **2026-06-15** | **둘째 거래로직 변경**: 방향별 조건부 정원확장(`max_short 3→5`/`max_long 3→4`, 확장자리만 연속성조건; `cap_consec_priority`) + 거래량 로깅(`signal_vol_ratio`, 기록전용) | **코드 커밋·push 완료, 봇 재시작해야 발효(라이브 0건). bot_version=v7. 근거 §5.6·§10·§11 H14** |
 
 ---
 
@@ -119,7 +120,7 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 
 ---
 
-## 5. 운영 현황 스냅샷 (2026-06-05 기준, 106 trades — 봇 가동 중이라 변동, 최신은 rebuild_pnl.py 재실행)
+## 5. 운영 현황 스냅샷 (§5.0~5.3은 2026-06-05/106 trades 시점, **최신 누적은 §5.6 — 155건**)
 
 > 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조. **분석은 항상 corrected**([data/trades_momentum_corrected.jsonl](data/trades_momentum_corrected.jsonl), `rebuild_pnl.py`로 재생성). 원본 jsonl은 v5.1+ 신규분만 정확(`pnl_source:exchange`), 과거분·일부 신규분(§8.8 STG 등)은 버그 오염 잔존.
 
@@ -173,6 +174,19 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 | | DOWN_HIGH | 10 | −$173 | −$17 | |
 
 > ★ **H1(즉사)·sigret 극단=손해는 6월에도 견고**(오히려 더 선명: 극단 6건 전멸). 단 **방향·regime은 §5.2(5월 누적)와 뒤집힘** — 6월 long·FLAT_HIGH가 최악(§5.2는 long·DOWN/FLAT 우위였음). 시장이 하락/횡보라 long 막차가 터진 것. **표본 작아 노이즈 가능 → 200건 전 게이팅 금지** 재확인.
+
+### 5.6 155건 중간점검 (2026-06-15, corrected106 + 신규49 결합)
+
+> **전체 155건: WR 35.1%, 누적 +$3,113, EV +$20.2, PF 1.36.** (정본106 +$1,389/EV+13 + v6신규49 +$1,724/EV+36/PF1.62 — v6 구간이 더 나아 보이나 잭팟 의존이라 단정 금물.) ⚠️ 신규분 일부 `estimated`(거래소 정산 전 봇 추정, VELVET +1385 등 ±2%, 거래소 실값 미정정 잔존 §8.7).
+
+이번 세션(131→155, +24청산) 분석. **106건 결론 전부 불변·강화**:
+- ★ **잭팟 의존 정량화**: top5 winner 합 **+$4,333 = 누적의 139%**. 상위5(VELVET long·BEAT·NEAR·BEAT·PORTAL) 빼면 **나머지 150건 −$1,220 적자.** 흑자=fat-tail 소수 전적 의존(모멘텀 추종의 설계특성, 버그 아님). 평가핵심=잭팟이 충분히 자주 터지나.
+- **exit 분해**: TrailSL 46건 +$10,196(WR93%)·Timeout 9건 +$1,624(WR100%) = **흑자 전부** / SL 86건 −$8,495(WR0%) = **손실 전부** / BE 13건 −$211.
+- **H1 즉시역행 재확인**: hold≤2(즉사) 59건 −$4,830(EV−82·WR8%) vs ≥3 95건 +$7,943(EV+84·WR52%). 손실 뿌리=출구 아닌 **입구**(adverse selection).
+- **방향**: short 55건 EV+$28(WR44%) > long 99건 EV+$16(WR30%). short이 더 효율(v7 정원확장 동기와 정합).
+- **arm A/B 판정 불가**: arm A 15건 +$2,608(잭팟 VELVET·BEAT·H 전부) vs arm B 12건 −$286(잭팟 0건). **잭팟 우연몰림이 결과 지배** → 빠른BE 효과 아직 안 보임, 표본 더 필요. "arm B 나쁘다"는 오판.
+- **이 세션 큰 청산**: VELVET long TrailSL **+$1,359**(MFE+150%, 밤샘 트레일링 추격)·SIREN short Timeout **+$281**·VELVET short Timeout **+$272**. **arm B 첫 실청산 표본**: PIPPIN Timeout +44·HMSTR(SL−88→재진입 TrailSL+97)·TAO(TrailSL+95→재진입 SL−122)·XRP/XMR BE 본전·CRV BE·DOGE×2 SL·TRUMP SL−140 — arm B net 부진하나 빠른BE가 일부 손실 거의 본전사수(XRP−6·XMR−1) vs 즉시역행은 못 구제(DOGE·TRUMP).
+- **★ short_cap/long_cap 소급검증 → v7 처방 도출**(§10·§11 H14 상세): 막힌 short 41건(중복제거) **+97R**(꾸준 consec≥1이 +92R·단발 본전)·long 22건 **+23R**(단발 consec0이 +22R·꾸준 본전) = **방향별 "좋은신호" 정반대**. 동시손실 위험(최악24h −$2,183)이라 전면해제 대신 **조건부 정원확장(v7)**. forward는 `track_cap.py` 추적, in-sample이라 200건까지 잠정.
 
 ---
 
