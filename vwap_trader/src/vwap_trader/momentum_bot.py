@@ -758,7 +758,7 @@ class MomentumBot:
         mae_pct = (pos.mae / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
 
         record = {
-            "bot_version": "v6",
+            "bot_version": "v7",
             "trade_id": pos.trade_id,
             "timestamp_utc": pos.entry_time,
             "exit_timestamp_utc": now.isoformat(),
@@ -1427,7 +1427,7 @@ class MomentumBot:
         sig_ctx = self._compute_signal_context(signal.symbol, signal.direction)
         now = datetime.now(timezone.utc)
         record = {
-            "bot_version": "v6",
+            "bot_version": "v7",
             "timestamp_utc": now.isoformat(),
             "symbol": signal.symbol,
             "side": direction_str,
