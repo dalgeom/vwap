@@ -1465,6 +1465,9 @@ class MomentumBot:
         max_entries = filters_cfg.get("max_entries_per_bar", 2)
         max_long = filters_cfg.get("max_long_positions", 3)
         max_short = filters_cfg.get("max_short_positions", 3)
+        base_long = filters_cfg.get("base_long_positions", max_long)
+        base_short = filters_cfg.get("base_short_positions", max_short)
+        cap_priority = filters_cfg.get("cap_consec_priority", False)
         pullback_enabled = filters_cfg.get("pullback_enabled", False)
         pullback_atr_mult = filters_cfg.get("pullback_atr_mult", 0.3)
 
@@ -1561,14 +1564,16 @@ class MomentumBot:
                     shadow_list.append((sig, d, "max_pos_full"))
                 break
 
-            # Direction cap
-            if direction_str == "long" and long_count >= max_long:
-                logger.debug("FILTER long cap reached (%d)", long_count)
-                shadow_list.append((signal, direction_str, "long_cap"))
-                continue
-            if direction_str == "short" and short_count >= max_short:
-                logger.debug("FILTER short cap reached (%d)", short_count)
-                shadow_list.append((signal, direction_str, "short_cap"))
+            # v7: 방향별 조건부 정원 (확장자리는 연속성 조건; cap_admits)
+            cnt = long_count if direction_str == "long" else short_count
+            base = base_long if direction_str == "long" else base_short
+            mx = max_long if direction_str == "long" else max_short
+            consec_now = self._quick_consec(signal.symbol, signal.direction)
+            if not cap_admits(direction_str, cnt, consec_now, base, mx, cap_priority):
+                reason = "long_cap" if direction_str == "long" else "short_cap"
+                logger.debug("FILTER %s (cnt=%d consec=%d base=%d mx=%d)",
+                             reason, cnt, consec_now, base, mx)
+                shadow_list.append((signal, direction_str, reason))
                 continue
 
             symbol = signal.symbol

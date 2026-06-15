@@ -44,8 +44,11 @@ filters:
   slippage_cooldown_hours: 48
   slippage_cooldown_threshold: 1.0
   max_entries_per_bar: 2          # max new entries in same 1h bar
-  max_long_positions: 3
-  max_short_positions: 3
+  max_long_positions: 4           # v7: 3->4 (확장 1자리=단발 long 전용)
+  max_short_positions: 5          # v7: 3->5 (확장 2자리=꾸준한 short 전용)
+  base_long_positions: 3          # v7: 이 이상은 연속성 조건자리
+  base_short_positions: 3
+  cap_consec_priority: true       # v7: 확장자리 연속성 조건 on/off (false=단순cap, 롤백은 max를 3/3)
   pullback_enabled: false          # v4 실패, 비활성화 유지
   # v6 F1: block counter-trend entries (long in BTC-down regime, short in BTC-up).
   # backtest 741->1398 (n124, jackpots 4/5 kept). regime = btc_4h trend (UP/DOWN/FLAT).
