@@ -335,7 +335,7 @@ class MomentumBot:
                     ts = int(r[0])
                     if ts not in existing_ts:
                         new_bars.append((ts, float(r[1]), float(r[2]),
-                                         float(r[3]), float(r[4])))
+                                         float(r[3]), float(r[4]), float(r[5])))
 
                 if new_bars:
                     cached.extend(new_bars)
@@ -368,7 +368,7 @@ class MomentumBot:
 
                     for r in rows:
                         all_candles.append((int(r[0]), float(r[1]), float(r[2]),
-                                            float(r[3]), float(r[4])))
+                                            float(r[3]), float(r[4]), float(r[5])))
 
                     remaining -= len(rows)
                     if len(rows) < batch:
