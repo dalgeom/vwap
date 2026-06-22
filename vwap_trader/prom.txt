@@ -1,87 +1,77 @@
-## 컨텍스트 인계 프롬프트 — Momentum Bot v6 (갱신: 2026-06-11, PC 이전용)
+## 컨텍스트 인계 프롬프트 — Momentum Bot v7 (갱신: 2026-06-22, PC 이전용)
 
 너는 Claude. 사용자가 진행 중인 vwap_trader 모멘텀 봇 작업을 **다른 PC에서 이어받았다.**
-이 프롬프트 + 메모리(`project_pnl_recording_bug`·`project_core_philosophy`·`feedback_plain_language_strict`) + PLAN.md 만 읽으면 즉시 이어갈 수 있다.
+이 프롬프트 + 메모리(`project_pnl_recording_bug`·`project_core_philosophy`·`project_v7_cap_volume`·`feedback_plain_language_strict`·`feedback_briefing_include_live_pnl`) + PLAN.md(특히 ★§1.1 방법론 철학·§5.7·§10·§11) 만 읽으면 즉시 이어갈 수 있다.
 
 ═══════════════════════════════════════════════
 ★★★ PC 이전 — 가장 먼저 읽을 것 ★★★
 ═══════════════════════════════════════════════
-이전 PC에서 봇을 graceful 종료(STOP_MOMENTUM 또는 Ctrl+C)하고 git push 한 상태다. 이 PC에서 재가동 전:
+이전 PC에서 봇을 graceful 종료(STOP_MOMENTUM)하고 git push 한 상태다. **인계 시점 무포지션**(들고 있는 거 없음)이라 인계가 깔끔하다. 이 PC에서 재가동 전:
 
-1. **`git pull` 먼저.** `data/state_momentum.json`에 오픈 포지션·bar_counter·cooldown이 들어 있다. pull 안 하면 포지션 추적 어긋남.
-2. **절대 두 PC에서 동시에 돌리지 말 것.** 같은 Bybit 데모 계좌를 둘이 관리하면 주문 중복·SL 충돌로 망가진다. 이전 PC 봇이 완전히 죽었는지 먼저 확인.
+1. **`git pull` 먼저.** `data/state_momentum.json`에 bar_counter·cooldown이 들어 있다(현재 포지션 0). pull 안 하면 추적 어긋남.
+2. **절대 두 PC에서 동시에 돌리지 말 것.** 같은 Bybit 데모 계좌를 둘이 관리하면 주문 중복·SL 충돌로 망가진다. 이전 PC 봇이 완전히 죽었는지(`Get-Process python`) 먼저 확인. **STOP_MOMENTUM 파일이 남아 있으면 지워야** 봇이 뜬다(`rm data/STOP_MOMENTUM`).
 3. 시계 동기화(관리자 PowerShell): `w32tm /resync /force` — 재부팅 직후 필수(ErrCode 10002 방지).
 4. 재가동: **`cd vwap_trader; .\venv\Scripts\python.exe -m vwap_trader.momentum_bot`** — ★ **`cd vwap_trader` 필수**(venv는 `vwap_trader/venv`, git root는 한 단계 위 `code/`).
-5. 로그 `State loaded: 3 positions, bar≈486` 확인(인계 시점 기준, 그 사이 변동 가능). 포지션은 Bybit 서버에 살아있어 봇 꺼진 동안에도 SL 작동.
-6. **★ 정전/크래시 후면 reconcile 확인**: state 포지션 ↔ 거래소 실제오픈(`get_positions` category=linear, settleCoin=USDT)을 symbol+qty로 대조. 진입+SL은 atomic이라 orphan 무방비 아님. (06-11 VELVET 청산 3분 지연도 봇이 자체해소함=정상.)
-7. **★ 분석 전 `rebuild_pnl.py` 재실행**: live jsonl pnl은 과거분 오염. 분석은 항상 `trades_momentum_corrected.jsonl`. **⚠️ 인계 직전 VELVET 청산 pnl이 ESTIMATED(+$1,386)로 기록됨**(거래소 정산 전파지연, 실값 +$1,359) → rebuild로 정정 필요. 단 rebuild는 corrected 전체 덮어써 수동보정(§8.7 HUSDT)이 되돌아감 → 신규 소수건은 거래소 closed-pnl 직접대조가 더 안전.
+5. 로그 `State loaded: 0 positions, bar≈749` 확인(인계 시점 기준, 그 사이 변동 가능).
+6. **★ 정전/크래시 후면 reconcile 확인**: state 포지션 ↔ 거래소 실제오픈(`get_positions` category=linear, settleCoin=USDT)을 symbol+qty로 대조. 진입+SL은 atomic이라 orphan 무방비 아님.
+7. **★ 분석 정본 주의**: 분석은 **정본 기준 누적**(corrected106 + 신규). ⚠️ **live `trades_momentum.jsonl` 원본 합은 과거 PnL버그로 오염**(예: GRASS2 가짜 −$1,798) → raw 누적 쓰지 말 것. 신규분 다수 `estimated`(거래소 정산 전 봇 추정) → `rebuild_pnl.py`로 정정 가능(단 corrected 전체 덮어써 수동보정 되돌아감, 신규 소수건은 거래소 closed-pnl 직접대조가 안전).
+8. **★ 이번 PC는 Bash/PowerShell 권한 자동허용 설정됨**(`.claude/settings.local.json`의 allow에 tool-only `"Bash"`·`"PowerShell"`). 새 PC에서도 묻지 않고 실행되길 원하면 거기에 같은 두 줄 추가.
 
 ───────────────────────────────────────────────
 
-## ★ v7 전환 (2026-06-15, 두 번째 거래로직 변경) — 최신, 반드시 숙지
-v6 위에 두 가지 변경(사용자 지시). **코드 커밋됨, 봇 재시작해야 발효.**
-- **① 방향별 조건부 정원확장** (`filters.cap_consec_priority: true`): `max_short 3→5`·`max_long 3→4`. 기본 3자리는 무조건, **늘린 자리만 연속성 조건** — short 확장자리=꾸준(consec≥1), long 확장자리=단발(consec0). 근거: `short_cap`/`long_cap` 소급검증(중복제거: short 41건 +97R=꾸준이 +92R / long 22건 +23R=단발이 +22R, **방향별 정반대**, §10·§11 H14). 순수함수 `cap_admits`(모듈) + `self._quick_consec`(L~1373), cap체크는 `_scan_universe`. **롤백: `cap_consec_priority: false` 또는 max를 3/3.** ⚠️ in-sample(forward 0)·동시손실위험(최악24h −$2,183, 단발제외로 완화) → 200건 잠정, peeking 금지.
-- **② 거래량 로깅** (`signal_vol_ratio` = 신호봉 거래량/직전20봉평균): 캐시튜플에 volume(인덱스5) 복원 → `compute_vol_ratio`. **기록전용, 거래 무영향.** 신규 진입/shadow부터 축적(과거 소급 안됨). 결론 없음=이제 기록 개시(4번째 진입팩터).
-- forward 추적: **`track_cap.py`**(short/long_cap 점수판, 읽기전용, `PYTHONIOENCODING=utf-8 python track_cap.py`). bot_version=v7. 계획서: `docs/superpowers/plans/2026-06-15-v7-cap-volume.md`.
-
-## ★ v6 전환 (2026-06-07, 첫 거래로직 변경) — 반드시 숙지
-v5는 데이터만 쌓고 로직 무변경이었으나, **2026-06-07 처음으로 진입로직을 바꿨다(v6).** 사용자 명시 지시.
-- **① F1 — 역추세 진입 차단** (`filters.block_counter_trend: true`): BTC 4h regime이 DOWN인데 long, UP인데 short 신호는 **진입 안 하고 shadow에 `counter_trend`로 기록.** FLAT 허용. 근거: backtest n124 +$741→+$1,398. 진입결정이라 경로·entry오염 무관해 백테스트 견고(§8.9).
-- **② BE forward A/B** (`strategy.ab_test_enabled: true`): 진입을 trade_id 16진수 parity로 **50/50 분할**. **arm A = be_trigger 1.5(control), arm B = 0.75(early BE).** I3(BE 당김)는 OHLC 백테스트 불가(§8.9)라 실거래 A/B로만 검증. `OpenPosition.be_trigger_atr`에 저장→`_update_trailing_sl`이 사용. record에 `bot_version:v6`·`ab_arm`·`be_trigger_atr` 기록.
-- 코드: [momentum_bot.py] `_assign_ab`(L958), F1은 `_scan_universe` L1509, BE는 `_update_trailing_sl` 1줄.
+## ★ v7 (2026-06-15 발효, 현재 버전) — 반드시 숙지
+v6(F1 역추세차단 + BE A/B) 위에 두 변경. **2026-06-15 재시작으로 발효됨, 라이브 진행 중.**
+- **① 방향별 조건부 정원확장** (`filters.cap_consec_priority: true`): `max_short 3→5`·`max_long 3→4`. 기본 3자리 무조건 + **늘린 자리만 연속성 조건**(short 확장=꾸준 consec≥1 / long 확장=단발 consec0). 근거: short_cap 41건 +97R(꾸준이 +92R)·long_cap 22건 +23R(단발이 +22R)=방향별 정반대(§11 H14). 순수함수 `cap_admits`+`_quick_consec`, cap체크 `_scan_universe`. **롤백: `cap_consec_priority: false` 또는 max 3/3.** ⚠️ in-sample·동시손실위험 → 200건까지 잠정, peeking 금지.
+  - **★★ 핵심: 정원확장은 발효 후 아직 한 번도 발동 안 함**(저변동 가뭄에 기본 3자리도 잘 안 차 4·5번째 미도달) = **v7 핵심기능 사실상 미검증.** 변동성 돌아와 신호 쏟아져야 첫 시험.
+- **② 거래량 로깅** (`signal_vol_ratio`=신호봉/직전20봉 평균): **기록전용·거래 무영향.** 신규부터 축적. **★ 첫 데이터 양면**: BEAT 7.5배 폭발→즉사 손절 / ESPORTS 4.87배→+$283 잭팟. **단독신호 아님 재확인**(다른 조건과 조합돼야).
+- forward 추적: **`track_cap.py`**(읽기전용, `PYTHONIOENCODING=utf-8 python track_cap.py`). bot_version=v7. 계획서 `docs/superpowers/plans/2026-06-15-v7-cap-volume.md`.
+- v6 잔존: **F1 역추세차단**(`block_counter_trend:true`, shadow `counter_trend`)·**BE A/B**(`ab_test_enabled`, arm A=be 1.5 / arm B=0.75, trade_id parity 50/50).
 
 ## 1. 프로젝트 개요
 - **위치**: `vwap_trader/`, Windows + PowerShell, venv `vwap_trader/venv/`. **git root는 한 단계 위(`code/`)**.
-- **봇**: Bybit USDT 무기한 선물 **데모 계좌**, 모멘텀 추종. **현 버전 v6**(F1 + BE A/B).
+- **봇**: Bybit USDT 무기한 선물 **데모 계좌**, 모멘텀 추종. **현 버전 v7**.
 - **핵심 원리**: 1h봉 abs(return)이 과거 500봉 99.5%ile 초과 시 그 방향 진입 → BE+Trailing 청산.
-- **현 단계**: 데이터 수집 + 손실원인 연구. 검증 임계 **200건(Go/No-Go, 현재 131)**.
+- **현 단계**: 데이터 수집 + 손실원인 연구. 검증 임계 **200건(Go/No-Go, 현재 180)**.
+- **★ Goal(철학, PLAN §1.1 필독)**: 수많은 factor 조합에서 우상향 edge를 찾는 것이나 **진짜 제약은 factor 부족이 아니라 표본 부족**(과최적화 함정). 정공법=가설 먼저→사전등록(§11)→200건 일괄검정→살아남은 것만 채택. **현 단계 미덕=조급히 factor 늘리지 말고 표본 채울 때까지 참기.** 척도는 "손절 건수↓"가 아니라 "건당 기대값↑".
 
 ## 2. 필독 문서 (순서대로)
-1. 메모리 `project_pnl_recording_bug`(PnL 버그 3종·corrected 정본), `feedback_plain_language_strict`(★쉬운설명 규칙).
-2. `PLAN.md` — **단일 정본**. ★ **§11 가설보드**(H1~H15 + I1~I6), **§8.10 세 팩터 조합분석(신규)**, §8.9(v6 근거), §10 의사결정 이력, §5 통계.
-3. `config/momentum_config.yaml`(v6 키 포함), `src/vwap_trader/momentum_bot.py`(~1700줄).
+1. 메모리: `project_pnl_recording_bug`(PnL 버그 3종·corrected 정본), `feedback_plain_language_strict`(★쉬운설명 규칙), `project_core_philosophy`(★방법론 철학), `feedback_briefing_include_live_pnl`(브리핑 시 거래소 실시간 미실현 손익 포함).
+2. `PLAN.md` — **단일 정본**. ★ **§1.1 방법론 철학**, **§5.7 163~180건 중간점검**(손절분해·v7 라이브현황), §11 가설보드(H1~H15·I1~I6), §10 의사결정 이력, §8.9(v6 근거).
+3. `config/momentum_config.yaml`(v7 키), `src/vwap_trader/momentum_bot.py`(~1700줄).
 
-## 3. 봇 운영 상태 (2026-06-15, bar 584 — 인계 시점)
-- **누적 155건 청산.** WR 35.1%·**+$3,113**·EV+$20·PF1.36 (정본106 +$1,389 + v6신규49 +$1,724). 흑자=top5 잭팟 **139% 의존**(상위5 빼면 나머지 150건 −$1,220 적자). 분석=corrected+신규, 일부 estimated. 상세 §5.6.
-- **이 세션(131→155) 큰 청산**: VELVET long TrailSL **+$1,359**(MFE+150%, 밤샘 트레일링 추격)·SIREN short **+$281**·VELVET short **+$272**. **★ arm B 첫 실청산 다수 생성**: PIPPIN Timeout+44·HMSTR(SL−88→재진입 TrailSL+97)·TAO(TrailSL+95→재진입 SL−122)·XRP/XMR/CRV BE본전·DOGE×2/TRUMP SL−140. arm B net 부진하나 **잭팟 0건이라 판정불가**(arm A가 잭팟 전부 보유). 빠른BE는 일부 손실 본전사수(XRP−6·XMR−1) vs 즉시역행은 못구제(DOGE·TRUMP).
-- **★★ v7 코드 적용·push 완료, 단 봇은 v6로 돌았음 = v7 라이브 0건.** 다른 PC에서 `git pull`로 v7 코드 받고 재가동 시 **v7 첫 발효**(정원 short5/long4 조건부 + vol_ratio 로깅). 상단 ## ★ v7 전환 참조.
-- **오픈 포지션 3개**: OPG short(arm A, **+$199·+20%**, BE미잠금) · SIREN long(arm B, +$10) · ZKC short(arm B, +$20). 미실현 합 **+$230**.
-- **totalEquity ~$25,476**. 평생 −40%는 거의 전부 5분봉 v1~v4 시대.
+## 3. 봇 운영 상태 (2026-06-22, bar 749 — 인계 시점, 봇 일시중단됨)
+- **누적 180건 청산. 정본기반 누적 ≈ +$3,4xx**(corrected106 +$1,389 + 신규). 흑자=소수 잭팟 전적 의존(top5 빼면 나머지 적자=모멘텀 설계특성). 상세 §5.7.
+- **현재 무포지션**(들고 있는 거 없음). **totalEquity ~$25,686.** 평생 −40%는 거의 전부 5분봉 v1~v4 시대(무관).
+- **★ v7 직접진입분(재시작 후 진입)만 떼면 마이너스**(잭팟 0이라 당연·표본 극소). 지금 흑자 착시는 v6 시절 진입한 OPG(+$409)·ZKC(+$81) 잭팟이 v7 기간에 청산된 덕. **"v7이 나쁘다"는 오판** — 핵심기능(정원확장) 발동조차 안 했고 12~17건은 사실상 v6 동일로직.
+- **시장 상황**: 6-18~19 변동성 잠깐 복귀(잭팟 ESPORTS·BSB·ASTER 다발) 후 다시 잠잠. 인계 시점 신호 가뭄(매시간 34코인 scan, 0 candidates, shadow도 0=막힌 게 아니라 큰 파도 자체 부재).
 
-## 4. 이번 세션(2026-06-09~11) 핵심
-### 4.1 v6 코드 무죄 3중검증 — 진입가뭄은 시장 탓 (코드 정상)
-사용자가 "하루아침에 진입 마름, 코드 문제 아니냐" 의심. 정량 분해로 결론: **신호 원천이 06-06 하루 95건 → 06-07~10 0~2건/일로 붕괴.** F1이 막은 건 v6 전체 **5건뿐**(껐어도 가뭄). 검증: ① F1은 차단해도 shadow 기록→shadow 0=탐지단계서 0 ② 봇로그 scan 정상(Traceback無) ③ 봇코드 우회 독립 klines P99.5 계산: 메이저 6코인 신호 0, H만 5건(탐지정상 반증). **원인=거시 저변동**(웹검색: Fed 긴축·BTC ETF 주간 −$3.4B 유출·미-이란 긴장 → 6월초 −12% 급락 후 유동성 고갈 횡보, 여름까지 지속 전망).
-### 4.2 세 팩터 조합분석 (§8.10, 85건) — 사용자 요청
-연속성/돈흐름/파도크기 good 이분 8조합. **파도크기(sigret 10~20%)만 단일 흑자, 연속성만·돈흐름만은 적자, 셋 다 good은 0건.** ★ 잭팟이 good 칸에 안 모임(ZEC 셋다bad +629, H 파도bad +648) → 단순 필터 실패 재확인. 칸당 2~6건 극소=사후 탐색, 200건 게이트·데이터마이닝 금지.
-### 4.3 track_f1 n=4 — F1 경고등 ON(보류)
-F1 차단 4건 would-be 전부 winner(+6.66R). 스크립트 "F1 net NEGATIVE". **단 보류**: n=4·backtest 124건(역추세 net −$657)과 충돌·막힌 4건 전부 극단막차(selection)·path 근사. 역추세 패자 출현 감시, 무변경.
-### 4.4 추가 팩터 후보 (미적용)
-①당장 분석가능(이미 기록): **선행추세(ret_6/12/24=막차정도)** 0순위. ②신규 로깅 후보: ★**거래량(volume)** 1순위. ⚠️ 팩터 증식=데이터마이닝, 표본 먼저.
+## 4. 이번 세션(2026-06-17~22) 핵심 발견
+- **★ arm B(빠른 본전잠금 0.75) 첫 잭팟 = ESPORTS short +$283**(거래량 4.87배·−73% 폭락·Timeout). 지금껏 큰 한 방은 전부 arm A였고 "arm B 잭팟 0건이라 판정불가"였는데(§5.6) **그게 깨짐** → "빠른 본전잠금이 대박을 일찍 잘라먹는다"는 우려의 첫 반례. 단 n=1, 단정 금지.
+- **손절 89건 분해(정량)**: 즉시역행(MFE<0.5%, 진입 직후 반대) **52건 −$7,033 = 손절손실의 67%** = 입구에서 변별 불가(잭팟과 생김새 동일). 떴다꺾인 37건만 출구개선(BE)으로 일부 구제. → **목표는 "손절 건수↓"가 아니라 "건당 EV↑"**(§5.7·§1.1).
+- **단발(consec0) short 잭팟 누적**: OPG +$409·ZKC +$81·BEAT +$125 = v7 short 처방("확장자리=꾸준만")의 **forward 반례 3건**(H14, track_cap 관찰 중·n소·peeking 금지).
+- **★ 데이터 손실 사고·복구(2026-06-19)**: 사용자가 IDE에서 `trades_momentum.jsonl` 일부 삭제·저장(봇 무관). 거래소 closed-pnl ↔ 대화기록 ↔ 봇로그로 **6건 완전 복구**(SPX는 `_recovered` 플래그). 백업: `data/trades_momentum.jsonl.bak_20260619`. 교훈: **봇은 trades에 append만 하므로, 봇 켠 채 파일 편집하면 중간데이터 영구손실 위험.**
+- v7 라이브·정원확장·거래량 결론은 전부 "표본 부족, 200건까지 잠정"으로 수렴. **무변경·축적 지속이 정답.**
 
 ## 5. 미해결 / 우선순위 (냉철한 순서)
-1. **v6 데이터 축적이 1순위.** arm A/B 각 수십 건·counter_trend 차단 수십 건 쌓여야 ① BE A/B 비교 ② F1 net효과(track_f1) 판정 가능. 사용자도 "표본수집 우선" 결정. **그 전엔 추가 변경 금지.**
-2. **200건 게이트 유지**(현재 131). §11 보드 일괄검정. ⚠️ peeking·데이터마이닝 금지.
-3. track_f1.py 주기 실행 → F1 존속 판단(현 n=4 net WIN이나 보류).
-4. BE A/B: arm B 청산 표본 대기(PIPPIN이 첫 후보).
+1. **v7 표본 축적이 1순위**(현재 180/200). 사용자 "표본수집 우선" 결정. **그 전엔 추가 변경 금지**(v7도 in-sample·forward 0이라 잠정). 가뭄이라 느림.
+2. **200건 게이트**에서 §11 보드 일괄검정. ⚠️ peeking·데이터마이닝·factor 난사 금지(§1.1 과최적화 함정).
+3. 충분히 쌓이면: ① `track_cap.py`로 정원처방 검증(단발 short 잭팟 반례 추적) ② track_f1로 F1 net ③ arm별 BE 효과(arm B 잭팟 1건 생겼으니 재검토) ④ 거래량(vol_ratio) 진입팩터 ⑤ §11 보드 다각도 검정.
 
 ## 6. 분석 스크립트 (repo 루트 vwap_trader/)
 - `rebuild_pnl.py` — 거래소 closed-pnl 1:1 재구축 → `trades_momentum_corrected.jsonl`. ⚠️ unmatched 직접보정(§8.7), 덮어쓰기 주의(위 ★7).
-- `backtest_be.py` — BE/F1 1m 경로replay(POST-fix 거래만 유효).
-- `track_f1.py` — F1 막은 counter_trend의 would-be R-배수 점수판. 읽기전용. **★ cp949 콘솔서 `PYTHONIOENCODING=utf-8 python track_f1.py`로 실행**(em-dash 깨짐).
-- `analyze_signal_corrected.py`·`analyze_signal_features.py` — winner/loser 비교.
-- ※ 거래소 private 조회: `config/.env` 키로 `pybit HTTP(demo=True)`. 키 출력·커밋 금지. 봇은 정각(분=0) 무거운 scan → 분석 API는 정각 피해서. f-string 백슬래시 이스케이프 주의(heredoc), 한글 print는 utf-8. 임시 스크립트는 쓰고 삭제.
+- `track_cap.py` — v7 정원처방 forward 점수판(읽기전용, `PYTHONIOENCODING=utf-8`). `track_f1.py` — F1 막은 counter_trend would-be R점수판. `backtest_be.py` — BE/F1 1m 경로replay(POST-fix만 유효).
+- ※ 거래소 private 조회: `config/.env`(BYBIT_API_KEY/SECRET) 키로 `pybit HTTP(demo=True)`. 키 출력·커밋 금지. 봇은 정각(분=0) 무거운 scan → 분석 API는 정각 피해서. 한글 print는 PYTHONIOENCODING=utf-8. **임시 스크립트(`_tmp_*.py`)는 쓰고 삭제.**
 
 ## 7. 작업 원칙 (사용자 메모리 — 반드시)
 - **한국어 응답**, 기술용어 영어. **객관·냉철, 맞장구 금지, 데이터 기반. 사용자 유도에 흔들리지 말고 객관 최선.**
-- **★★ 쉬운 설명 — 사용자가 반복·강하게 항의**(메모리 `feedback_plain_language_strict`): 분석 설명에서 **영어 약자(consec·OI·sigret·MFE·R 등) 나열 절대 금지.** 우리말로만: consec→"연속성(꾸준한 흐름이냐 단발이냐)", oi_chg→"돈 흐름(새 돈 +/빠짐 −)", sigret→"파도 크기(그 1시간 변동%)", percentile→"요즘 기준 큰 움직임이냐", R→"손절 한 번 손실 대비 배수", MFE→"한때 최대이익". 정확한 수치·표는 유지하되 비유로 풀이.
-- **분석 전 답변 금지** — 관련 파일 끝까지 읽고 로직 추적 후 단 한 번만 답. 중간에 답 바꾸기 금지. `wc -l`·`rg`·`bat` 선행.
-- 3+ 파일/복잡 로직은 계획 공유 → 승인 후. **자동 커밋 금지**(명시 요청 시만). rm/force/reset 확인 후.
-- venv python 호출은 PowerShell/Bash 도구, cwd는 git root(`code/`)라 절대경로 권장.
+- **★★ 쉬운 설명 — 사용자가 반복·강하게 항의**(메모리 `feedback_plain_language_strict`): 분석 설명에서 **영어 약자(consec·OI·sigret·MFE·R·arm 등) 나열 절대 금지.** 우리말로만: consec→"연속성(꾸준한 흐름이냐 단발이냐)", oi_chg→"돈 흐름(새 돈+/빠짐−)", sigret→"파도 크기(그 1시간 변동%)", MFE→"한때 최대이익", arm A/B→"본전잠금 느린/빠른 그룹", vol_ratio→"거래량 비율(평소 대비 활발도)". 정확한 수치·표는 유지하되 비유로 풀이. **브리핑 시 보유 포지션마다 거래소 실시간 미실현 손익 포함**(`feedback_briefing_include_live_pnl`).
+- **분석 전 답변 금지** — 관련 파일 끝까지 읽고 로직 추적 후 단 한 번만 답. 중간에 답 바꾸기 금지.
+- 3+ 파일/복잡 로직은 계획 공유 → 승인 후. **자동 커밋 금지**(명시 요청 시만). rm/force/reset은 권한 열렸어도 실행 전 확인.
 
 ## 8. 환경
-- Windows 11 Pro, PowerShell. 경로 `...\code\vwap_trader`(git root `...\code`). git: master, origin https://github.com/dalgeom/vwap.git.
-- 시간대: 봇 로그 **KST**, trade timestamp/state.json **UTC**(KST=UTC+9).
+- Windows 11 Pro, PowerShell(Bash 도구도 가능). 경로 `...\code\vwap_trader`(git root `...\code`). git: master, origin https://github.com/dalgeom/vwap.git.
+- 시간대: 봇 로그 **KST**, trade timestamp/state.json/거래소 closed-pnl **UTC**(KST=UTC+9).
 
 ## 끝.
-재가동(타 PC): **git pull(★v7 코드 수신) → 동시실행 금지확인(현 PC 봇 죽었는지) → (재부팅시)clock resync → cd vwap_trader → 봇 시작 → State loaded 확인.** 첫 진입 후 `data/trades_momentum.jsonl` 마지막 줄에 `bot_version:v7`·`signal_vol_ratio` 찍히면 v7 발효 확인. short 보유가 꾸준한신호 한정 4·5개까지 늘 수 있음(동시손실 주시). **롤백: config `cap_consec_priority:false` 또는 max를 3/3 → 재시작.** (VELVET est pnl 정정은 선택, rebuild는 corrected 덮어쓰니 신규는 거래소 직접대조 권장 §8.7.)
-지금 할 일은 **v7 안정가동 + 표본 축적**(사용자 "표본수집 우선" 결정). 충분히 쌓이면 ① `track_cap.py`로 v7 정원처방 검증(short=consec≥1·long=consec0 그룹 (+) 유지?) ② track_f1로 F1 net ③ arm별 BE 효과 ④ 거래량(vol_ratio) 진입팩터 분석 ⑤ §11 보드(200건) 다각도 검정. **추가 변경은 표본 전 금지(v7도 in-sample·forward 0이라 잠정).**
+재가동(타 PC): **git pull → 동시실행 금지확인(현 PC 봇 죽었는지 + STOP_MOMENTUM 삭제) → (재부팅시)clock resync → cd vwap_trader → 봇 시작 → State loaded 0 positions 확인.** 진입 시 `trades_momentum.jsonl` 마지막 줄에 `bot_version:v7`·`signal_vol_ratio` 찍힘. short 보유가 꾸준한신호 한정 4·5개까지 늘 수 있음(정원확장 첫 발동 주시·동시손실 감시). **롤백: config `cap_consec_priority:false` 또는 max 3/3 → 재시작.**
+지금 할 일은 **v7 안정가동 + 표본 축적**(무변경, 200건까지). 충분히 쌓이면 §11 보드 일괄검정. **factor·로직 추가는 표본 전 금지**(과최적화 함정, §1.1).
