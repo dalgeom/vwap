@@ -1,8 +1,10 @@
 {
   "positions": [],
-  "bar_counter": 749,
+  "bar_counter": 889,
   "daily_pnl": 0.0,
   "daily_trades": 0,
-  "slippage_cooldown": {},
-  "last_save": "2026-06-22T00:16:03.466196+00:00"
+  "slippage_cooldown": {
+    "AGLDUSDT": "2026-06-29T03:06:06.089299+00:00"
+  },
+  "last_save": "2026-06-29T00:07:05.455926+00:00"
 }

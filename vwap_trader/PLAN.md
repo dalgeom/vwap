@@ -134,11 +134,8 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 
 > 실시간 데이터는 [data/trades_momentum.jsonl](data/trades_momentum.jsonl), [data/state_momentum.json](data/state_momentum.json) 직접 참조. **분석은 항상 corrected**([data/trades_momentum_corrected.jsonl](data/trades_momentum_corrected.jsonl), `rebuild_pnl.py`로 재생성). 원본 jsonl은 v5.1+ 신규분만 정확(`pnl_source:exchange`), 과거분·일부 신규분(§8.8 STG 등)은 버그 오염 잔존.
 
-### 5.0 계좌 레벨 (cumRealisedPnl 항등식, 2026-06-01 감사 — 1회성)
-- **데모 초기 지급 = $40,000.00 확정** (walletBalance + cumRealisedPnl −$15,834.76 = 정확히 $40,000 → 추가입금·보너스 없는 단일 지급).
-- **현재 totalEquity ~$24,050** (미실현 +$436 포함, 06-05 직접조회). 계좌 평생 실현 ≈ −$16k (−40%).
-- ⚠️ 이 손실은 **거의 전부 5분봉 v1~v4 시대(전부 실패) 손실**(≈ −$17.7k 역산). **1h봉 v5/v5.1 시대(106건 corrected) = +$1,389 = 우상향.** 봇 평가는 v5 시대만 유효, 과거 era는 무관.
-- 데모 API는 transaction log ~1일·closed_pnl 40건만 보관 → 과거 날짜별 조회 불가. v5 완전본은 로컬 corrected jsonl이 유일.
+### 5.0 계좌 레벨 (2026-06-01 감사 — 1회성, 압축)
+- 데모 초기 지급 **$40,000 확정**(cumRealised 항등식). 평생 실현 ≈ −$16k(−40%)는 **거의 전부 5분봉 v1~v4 시대 손실**(≈−$17.7k 역산) — 1h봉 v5+ 시대(106건 corrected +$1,389)는 우상향이라 **봇 평가는 v5 시대만 유효**, 과거 era 무관. 데모 API 단기보관(closed_pnl 40건·~7일)이라 과거 날짜조회 불가, v5 완전본은 로컬 corrected jsonl이 유일.
 
 ### 5.1 누적 추이 (역사 압축)
 - 데이터셋 성장: 64건(06-01, +$2,025) → 93건(06-04, +$1,900) → **106건(06-05, +$1,389)**. 누적 감소는 6월 적자(§5.3) 반영. 모든 시점 `rebuild_pnl.py` deterministic 1:1 재구축.
@@ -186,6 +183,18 @@ v5 백테스트 WR 98.7% vs 실전 30% 괴리의 원인은 **BE/Trail 폴링 지
 - **단발(consec0) short 잭팟 누적 3건**: OPG +$409·ZKC +$81·BEAT +$125(2nd) = v7 short 처방(확장자리=꾸준 consec≥1만)의 **forward 반례**(H14, `track_cap.py` 관찰 중·n소·peeking 금지).
 - **★ v7 직접진입분만 떼면 마이너스 지속**(잭팟 0·표본극소·정원확장 0발동=핵심기능 미검증). 흑자착시=v6 시절 진입 OPG/ZKC 잭팟이 v7 기간 청산된 덕. **"v7 나쁘다"는 오판** — 12~17건은 사실상 v6 동일로직. 무변경·축적이 정답.
 - **★ 데이터 손실 사고·복구(2026-06-19)**: 사용자가 IDE에서 `trades_momentum.jsonl` 일부 삭제·저장(봇 무관). 거래소 closed-pnl ↔ 대화기록 ↔ 봇로그로 **6건 완전 복구**(SPX는 `_recovered` 플래그). 백업 `data/trades_momentum.jsonl.bak_20260619`. **교훈: 봇은 trades에 append-only라, 봇 켠 채 파일 편집하면 중간데이터 영구손실 위험.**
+
+### 5.9 196건 인계 점검 (2026-06-29, PC 이전) — 거래량 폭발 ≠ 신호 확정 + 무결성 사고 재발
+
+> 180→196건(+16). 정본기반 누적 ≈ +$3,xxx. 인계 시점 **무포지션·equity ~$25,133·봇 graceful 종료**. 이번 세션(06-22~29) 약 **−$584**(손절 다발이 BTC 잭팟 +$198 압도 = 잭팟 가뭄). 06-22~23 극심한 가뭄(매시간 scan 0 candidates·shadow 0) → 06-25 14시 변동성 폭발(rank_cutoff 다발=신호 동시다발) → 이후 산발.
+
+- **★ 거래량(`signal_vol_ratio`) 폭발 = 좋은 신호 아님 확정**: BTC short **17.5배** 폭발→즉시역행 −$114 / SLX long 8.8배→한때 +8.3% 떴다 본전(−$19) / (§5.8 BEAT 7.5배 즉사·ESPORTS 4.87배 잭팟). 큰 거래량=큰 파도라 **양방향 다 가능, 단독 변별력 없음** = §8.5 "interaction은 코너에서만, 단일필터 실패" 재확인. 거래량은 진입팩터 후보지만 단독 아닌 조합으로만.
+- **★ BTC 같은 코인·같은 방향(short) 이틀 차 +$198(06-24)/−$114(06-25) 정반대** = 모멘텀 추종 본질 실증(방향 적중=잭팟, 빗나감=손절, 손절은 작게 끊는 비용 §1.1). 06-24 BTC는 **단발(consec0) short** 만기형 잭팟 = H14 forward 반례 4건째(OPG/ZKC/BEAT/BTC).
+- **★ slippage cooldown 첫 실발동: AGLDUSDT**(06-27 long SL −$113, 슬립 1%p 초과→48h 진입금지, state에 06-29 03:06Z까지 잔존). 이전 세션 내내 cooldown 0이었음 = **§6 안전장치 실작동 첫 사례**(저유동성 미끄러짐 실재, §8.2 데모 슬리피지 관측 표본).
+- **★ arm B(빠른 본전잠금)가 큰 이익 못 지킨 사례**: SLX long arm B 한때 +8.3%(MFE 8.28)→본전선 끌려와 BE −$18.79. "빠른BE가 잭팟 일찍 자름" 우려 정황(§5.8 ESPORTS arm B 잭팟 반례와 **양립** — arm별 BE 효과 양방향 표본 누적 중, 200건서 일괄검정).
+- **★★ 데이터 무결성 사고 재발(2회째)**: 06-22 세션서 정정한 ESPORTS/MET pnl(estimated→exchange)이 **06-29에 estimated로 롤백**된 것 발견 → 재정정. 원인=06-19과 동일(**봇 켠 채 IDE에서 `trades_momentum.jsonl` 저장** → 옛 버퍼가 그 사이 정정·append를 덮어씀). 06-25 정정(SOLAYER/BTC)·06-28(PUMPFUN)은 무사. **교훈 강화: 봇 가동 중 그 파일 IDE 저장 절대 금지, 정정 전 `.bak` 백업 필수**(prom §9, 백업 `.bak_20260629`).
+- **estimated 정정 루틴 확립**: 이번 세션 신규 청산분 5건(ESPORTS/MET/SOLAYER/BTC/PUMPFUN) 거래소 `get_closed_pnl` 풀정밀도(`closedPnl`·`avgExitPrice`)로 직접패치(`pnl_pct`=가격변화율 재계산, `pnl_source→exchange`). raw 잔존 estimated **27건은 전부 06-20 이전** = 데모 API 7일 보관 초과로 재조회 불가(§8.7 한계, 분석은 corrected 정본).
+- **★ 196/200 — Go/No-Go 게이트 4건 앞.** 다음 PC에서 곧 도달 → §11 보드 일괄검정 임박. 무변경·축적 지속.
 
 ---
 
@@ -393,6 +402,7 @@ python -m vwap_trader.momentum_bot
 | 2026-06-15 | **★ v7 전환 (사용자 지시, 두 번째 거래로직 변경)** — `short_cap`/`long_cap` 소급검증(중복제거): **short 41건 +97R(꾸준 consec≥1이 +92R·단발은 본전) / long 22건 +23R(단발 consec0이 +22R·꾸준은 본전)** = 방향별 "좋은신호" **정반대**. → **방향별 조건부 정원확장**: `max_short 3→5`·`max_long 3→4`, 기본 3자리 무조건 + 확장자리만 연속성조건(short확장=꾸준 consec≥1 / long확장=단발 consec0). 순수함수 `cap_admits`+`_quick_consec`, config 토글 `cap_consec_priority`(=false 또는 max 3/3으로 즉시 롤백). **+ 거래량 로깅** `signal_vol_ratio`(신호봉/직전20봉평균, 캐시튜플 volume 복원, **기록전용·거래 무영향**). bot_version=v7. forward추적 `track_cap.py`. 검증: pytest 5(순수함수)·import·config·round-trip 통과. ⚠️ in-sample 소급근거(**forward 0**)·동시손실위험(최악24h −$2,183, 단발제외로 완화)·long표본 6/16건 → 200건 일괄검정 전 **잠정**, peeking 금지. 거래량은 결론 없음(이제 기록 개시) |
 | 2026-06-17 | **★ 타 PC 재가동·v7 첫 라이브 + 163건 중간점검**: git pull→재시작(bar586)으로 v7 발효. **손절 89건 분해: 즉시역행(MFE<0.5%) 52건 −$7,033 = 손절손실의 67% = 입구 변별 불가, 떴다꺾인 37건만 출구로 구제 가능**(§5.7) → 목표는 "손절 건수↓"가 아니라 "EV↑". **정본누적 +$3,417**(raw jsonl $1,352는 과거버그 오염, 쓰지 말 것). **v7 라이브 5건 net −$144·정원확장 0발동(가뭄)=미검증**. OPG/ZKC 단발(consec0) short 만기 잭팟(+$409/+$81, v6 진입)=H14 short 처방 forward 반례 2건. **방법론 재정립(사용자)**: factor 조합으로 우상향 edge 탐색이 목표이나 진짜 제약=표본 부족(과최적화 함정), 163건에 factor 남발 금지 → §11 사전등록·200건 게이트가 정공법. 무변경, 표본 축적 지속 |
 | 2026-06-22 | **PC 인계(180건, 무포지션, 봇 일시중단)**: ★ **arm B(빠른BE) 첫 잭팟 ESPORTS short +$283**(거래량 4.87배·−73%)→§5.6 "arm B 잭팟0 판정불가" 깨짐(§5.8). 거래량 양면(BEAT 7.5배 즉사 / ESPORTS 4.87배 잭팟)=단독신호 아님. 단발 short 잭팟 3건째(OPG/ZKC/BEAT)=H14 forward 반례. **06-19 데이터손실 사고**(사용자 IDE 삭제)→거래소+대화+로그로 6건 복구(백업 .bak_20260619). v7 정원확장 여전 0발동=핵심기능 미검증. PLAN §1.1 방법론 철학 신설·§5.2/5.3 옛표 축약. Bash/PowerShell 권한 자동허용 설정. equity ~$25,686. 무변경·표본축적 지속(180/200) |
+| 2026-06-26~29 | **PC 인계(196건, 무포지션, graceful 종료)**: ★**거래량 폭발=좋은신호 아님 확정**(BTC short 17.5배→즉시역행 −$114 / SLX long 8.8배→본전 −$19). ★**BTC 같은코인 short 이틀차 +$198(06-24 단발)/−$114(06-25)**=모멘텀 본질·H14 반례 4건째. ★**slippage cooldown 첫 실발동**(AGLD 06-27 long, 슬립1%p초과→48h금지, §6 실작동). ★arm B가 큰이익 못지킴(SLX +8.3%→BE −$19, §5.8 ESPORTS 반례와 양립). ★★**무결성 사고 재발**: 06-22 정정(ESPORTS/MET)이 06-29 estimated 롤백 발견→재정정(봇 켠 채 IDE 저장 원인, 06-19 동형). estimated 정정 5건·raw 27건은 7일보관초과(§8.7). 이번 세션 −$584(잭팟 가뭄). equity ~$25,133. §5.9 신설·§5.0 축약. 무변경·축적(196/200, 게이트 임박) |
 
 ---
 
@@ -416,7 +426,7 @@ python -m vwap_trader.momentum_bot
 | H3 | regime 비대칭: side×regime EV 차 (예: UP_HIGH long > DOWN long) | regime·side | §7.2 등재 |
 | H4 | 군집 노이즈: 동일봉 동시신호 수↑ → EV↓ | timestamp 군집크기 | 미탐색 |
 | H5 | 배치내 순위: 동일봉 최강 signal_strength 진입 EV↑ | signal_strength | shadow와 직결 |
-| **H14** | ★cap 방향 비대칭: 추세장(특히 DOWN_HIGH)서 `short_cap`(=3)이 올바른 방향(추세순행) 진입을 막아 long-against-trend 과진입 유발 → EV↓ | shadow cap-reason × side, side×btc방향 EV | **6월 신규발견: short 신호 47건 중 23%(11건)만 진입, 36건이 short_cap(30)/rank(6) 차단. long against-btc 11건 −$747 = 6월 손실 전부(long with-btc는 본전).** ★**2026-06-15 소급검증 완료(중복제거): short_cap 41건 +97R(꾸준 consec≥1이 +92R, 단발은 본전)·long_cap 22건 +23R(단발 consec0이 +22R, 꾸준은 본전) = 방향별 정반대 → v7 처방 적용**(short3→5·long3→4 확장자리 연속성조건, §10). forward는 `track_cap.py` 추적. ⚠️ in-sample(forward 0)·동시손실위험이라 200건까지 잠정. **★ 2026-06-17 forward 개시: OPG/ZKC 단발(consec0) short가 만기 잭팟(+$409/+$81, v6 진입분)=확장자리 "consec≥1 꾸준만" 처방의 반례 2건. track_cap 누적 중, n 소.** |
+| **H14** | ★cap 방향 비대칭: 추세장(특히 DOWN_HIGH)서 `short_cap`(=3)이 올바른 방향(추세순행) 진입을 막아 long-against-trend 과진입 유발 → EV↓ | shadow cap-reason × side, side×btc방향 EV | **6월 신규발견: short 신호 47건 중 23%(11건)만 진입, 36건이 short_cap(30)/rank(6) 차단. long against-btc 11건 −$747 = 6월 손실 전부(long with-btc는 본전).** ★**2026-06-15 소급검증 완료(중복제거): short_cap 41건 +97R(꾸준 consec≥1이 +92R, 단발은 본전)·long_cap 22건 +23R(단발 consec0이 +22R, 꾸준은 본전) = 방향별 정반대 → v7 처방 적용**(short3→5·long3→4 확장자리 연속성조건, §10). forward는 `track_cap.py` 추적. ⚠️ in-sample(forward 0)·동시손실위험이라 200건까지 잠정. **★ 2026-06-17 forward 개시: OPG/ZKC 단발(consec0) short가 만기 잭팟(+$409/+$81, v6 진입분)=확장자리 "consec≥1 꾸준만" 처방의 반례 2건. **★ 2026-06-22 BEAT +$125·06-24 BTC short +$198(둘 다 단발)=반례 4건째**(OPG/ZKC/BEAT/BTC, 누계 +$813). track_cap 누적 중, n 소.** |
 | **H15** | 연속성: `signal_consec=0`(직전 추세 없는 고립 단발 스파이크)=가짜 모멘텀, EV ≪ consec≥3 | signal_consec | **6월 강력: consec0 17건 −$766(EV−43, WR29%) vs consec3+ 4건 +$577. §8.5 consec 가설 Primary 승격** |
 | **H0** | **(NULL·기각 목표)** 어떤 진입시점 변수도 EV를 노이즈 이상 분리 못 함 | 전 진입필드 | 단일필드 전패 → 현 baseline |
 
