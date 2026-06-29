@@ -20,12 +20,16 @@ def compute_position_size(
     sl_price: float,
     lot_size: float,
     risk_pct: float = BASE_RISK_PCT,
+    fixed_notional: float | None = None,
 ) -> PositionSizeResult:
     """거래당 리스크 기반 수량 계산 (부록 I.2).
 
     Args:
         risk_pct: BASE_RISK_PCT * risk_manager.get_position_size_pct()
                   단독=0.02, 동시 2포지션=0.015
+        fixed_notional: v9 잭팟사이징 — 값이 있으면 ATR기반 대신 고정 notional($)로
+                  qty 계산(잭팟=고변동에 ATR사이징이 거꾸로 작게베팅하는 문제 교정).
+                  이후 tier_cap·leverage·lot floor는 동일 적용.
     """
     sl_distance = abs(entry_price - sl_price)
     if sl_distance <= 0:
@@ -34,8 +38,11 @@ def compute_position_size(
             leverage_setting=0, valid=False, reason="sl_distance_zero",
         )
 
-    max_loss = balance * risk_pct
-    raw_qty = max_loss / sl_distance
+    if fixed_notional is not None and fixed_notional > 0:
+        raw_qty = fixed_notional / entry_price
+    else:
+        max_loss = balance * risk_pct
+        raw_qty = max_loss / sl_distance
 
     max_qty_by_leverage = (balance * MAX_LEVERAGE_REAL) / entry_price
     clamped_qty = min(raw_qty, max_qty_by_leverage)

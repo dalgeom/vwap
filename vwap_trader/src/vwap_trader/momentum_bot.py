@@ -758,7 +758,7 @@ class MomentumBot:
         mae_pct = (pos.mae / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
 
         record = {
-            "bot_version": "v7",
+            "bot_version": "v10",
             "trade_id": pos.trade_id,
             "timestamp_utc": pos.entry_time,
             "exit_timestamp_utc": now.isoformat(),
@@ -1427,7 +1427,7 @@ class MomentumBot:
         sig_ctx = self._compute_signal_context(signal.symbol, signal.direction)
         now = datetime.now(timezone.utc)
         record = {
-            "bot_version": "v7",
+            "bot_version": "v10",
             "timestamp_utc": now.isoformat(),
             "symbol": signal.symbol,
             "side": direction_str,
@@ -1537,6 +1537,16 @@ class MomentumBot:
                     shadow_list.append((signal, direction_str, "counter_trend"))
                     continue
 
+            # v8 변동성 게이트: 잭팟 없는 칸 차단 (저변동코인=가짜모멘텀 / BTC초고변동=동조휩쏘)
+            if filters_cfg.get("vol_gate_enabled", False):
+                atr_pct = (signal.atr / signal.close_price * 100) if signal.close_price else 0.0
+                if atr_pct < filters_cfg.get("min_atr_pct", 0.0):
+                    shadow_list.append((signal, direction_str, "low_vol_coin"))
+                    continue
+                if self._btc_4h_atr > filters_cfg.get("max_btc_4h_atr", 1e12):
+                    shadow_list.append((signal, direction_str, "btc_chaos"))
+                    continue
+
             candidates.append((signal, direction_str))
 
         # Sort by signal_strength descending, take top max_entries
@@ -1580,12 +1590,16 @@ class MomentumBot:
             sl_tp = self.strategy.calc_sl_tp(
                 signal.close_price, signal.direction, signal.atr)
             lot_size = self._get_lot_size(symbol)
+            risk_cfg = self.cfg["risk"]
+            fixed_notional = (risk_cfg.get("fixed_notional_usd")
+                              if risk_cfg.get("sizing_mode") == "fixed" else None)
             size = compute_position_size(
                 balance=balance,
                 entry_price=signal.close_price,
                 sl_price=sl_tp.sl,
                 lot_size=lot_size,
-                risk_pct=self.cfg["risk"]["risk_pct"],
+                risk_pct=risk_cfg["risk_pct"],
+                fixed_notional=fixed_notional,
             )
             if not size.valid:
                 shadow_list.append((signal, direction_str, "size_invalid"))

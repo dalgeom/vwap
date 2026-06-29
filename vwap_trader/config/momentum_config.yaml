@@ -21,22 +21,32 @@ strategy:
   be_trigger_atr_b: 0.75  # arm B: protect breakeven earlier
 
 risk:
-  risk_pct: 0.005         # 0.5% per trade
+  risk_pct: 0.005         # 0.5% per trade (sizing_mode=atr 일 때만 사용)
+  # v9 잭팟사이징 (196건감사): 현 ATR사이징이 잭팟(고변동코인)에 거꾸로 작게 베팅
+  #  (VELVET +1386인데 $997 / HYPE +373인데 $7693). 고정금액 균등이 이를 교정.
+  #  백테스트: 고정$2000 → 누적 +3020→+7919(2.6배), 수익/위험비 1.54→2.67(레버업 아닌 배분효율).
+  #  ⚠️ 낙폭 1.5배↑·실거래 소형알트 슬리피지 미검증. cap(tier)·lot floor는 그대로 통과.
+  #  롤백: sizing_mode: atr. 공격: fixed_notional_usd↑ 또는 변동성비례(추후).
+  sizing_mode: "fixed"    # "atr" | "fixed"
+  fixed_notional_usd: 2000
   max_positions: 10       # max concurrent positions
   max_leverage: 3.0       # effective leverage cap
 
   # v5.1: Liquidity-tiered position caps (catastrophic slippage 방지)
   # 24h turnover 기준 tier 분류 → tier별 position notional cap
   # 이 값을 넘으면 qty를 비례 축소 (entry/SL/신호 조건은 동일)
+  # v7.1 (196건감사 H11): 대형 사이즈(>5k)가 EV−$42·WR18%로 적자, 잭팟은 작은알트에만.
+  # tier1/tier2/hard_cap 10000·5000→4000 하향(대형코인 베팅 축소). tier3/4 유지(잭팟원천 무손상).
+  # 백테스트 누적 +3020→+3653(+633, clip방식 결정론). 롤백: 아래 값 복원.
   tier_caps:
     tier1_min_volume_usdt: 500_000_000   # > $500M (BTC/ETH/SOL 급)
-    tier1_max_position_usd: 10000
+    tier1_max_position_usd: 4000         # v7.1: 10000→4000
     tier2_min_volume_usdt: 100_000_000   # > $100M
-    tier2_max_position_usd: 5000
+    tier2_max_position_usd: 4000         # v7.1: 5000→4000
     tier3_min_volume_usdt: 50_000_000    # > $50M
     tier3_max_position_usd: 2000
     tier4_max_position_usd: 1000         # < $50M
-    hard_cap_usd: 10000                  # 절대 max (모든 tier 통합)
+    hard_cap_usd: 4000                   # v7.1: 10000→4000 (절대 max)
 
 filters:
   short_only_btc_down: false
@@ -53,9 +63,19 @@ filters:
   # v6 F1: block counter-trend entries (long in BTC-down regime, short in BTC-up).
   # backtest 741->1398 (n124, jackpots 4/5 kept). regime = btc_4h trend (UP/DOWN/FLAT).
   block_counter_trend: true
+  # v8 변동성 게이트 (196건감사): '잭팟 없는 칸' 진입차단 = 안전한 빼기(F1/필터와 달리 잭팟 무손상).
+  #  ① 저변동코인(atr%<min)=가짜모멘텀(EV-34·WR22%·잭팟2) ② BTC초고변동(>max)=동조휩쏘(EV-38).
+  #  백테스트(보수): 누적 +3020->+4887(+1867), 잭팟 STG 1건만 희생. shadow=low_vol_coin/btc_chaos.
+  #  공격조정: min_atr_pct↑(1.3~1.7)·max_btc_4h_atr↓(1500~1272). 롤백: vol_gate_enabled:false.
+  vol_gate_enabled: true
+  min_atr_pct: 1.0              # 코인 atr%(=atr/price*100) 이 미만이면 진입금지
+  max_btc_4h_atr: 1600         # BTC 4h ATR 이 초과면 진입금지
 
 universe:
-  min_volume_usdt: 20_000_000  # $20M 24h volume
+  # v10 유니버스 확대 (196건감사): 소형코인일수록 잭팟밀도↑(고변동 18% vs 대형 5%, EV+48 vs −28).
+  #  20M→10M로 +22개 소형코인 추가(잭팟원천 확대). ⚠️과거 미스캔이라 백테스트 불가=forward만 검증.
+  #  슬리피지: 10-20M=tier4 cap $1000 + slippage_cooldown이 방어(5M이하는 안 넣음). 롤백: 20_000_000.
+  min_volume_usdt: 10_000_000  # v10: 20M→10M
   refresh_interval_hours: 24
   blacklist:
     - XAUTUSDT
