@@ -194,3 +194,5 @@
 {"symbol": "XPLUSDT", "direction": "short", "intended_price": 0.10024, "fill_price": 0.10041, "slippage_pct": 0.1696, "timestamp": "2026-06-26T18:00:53.112782+00:00"}
 {"symbol": "AGLDUSDT", "direction": "long", "intended_price": 0.2465, "fill_price": 0.24493, "slippage_pct": 0.6369, "timestamp": "2026-06-27T01:00:52.544140+00:00"}
 {"symbol": "PUMPFUNUSDT", "direction": "long", "intended_price": 0.0015062, "fill_price": 0.0015036, "slippage_pct": 0.1726, "timestamp": "2026-06-28T08:00:31.717321+00:00"}
+{"symbol": "RAVEUSDT", "direction": "long", "intended_price": 0.46528, "fill_price": 0.46598, "slippage_pct": 0.1504, "timestamp": "2026-06-29T06:00:51.376705+00:00"}
+{"symbol": "ACTUSDT", "direction": "long", "intended_price": 0.013089, "fill_price": 0.012972, "slippage_pct": 0.8939, "timestamp": "2026-06-29T06:00:52.296427+00:00"}

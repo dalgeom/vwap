@@ -1,10 +1,39 @@
 {
-  "positions": [],
-  "bar_counter": 889,
+  "positions": [
+    {
+      "symbol": "ACTUSDT",
+      "direction": "long",
+      "entry_price": 0.012972,
+      "qty": 152800.0,
+      "sl": 0.01112025,
+      "tp": 0.0,
+      "entry_time": "2026-06-29T06:00:52.378487+00:00",
+      "entry_bar": 891,
+      "intended_price": 0.013089,
+      "trade_id": "e674d010",
+      "atr_at_entry": 0.0013124999999999996,
+      "signal_strength": 99.4,
+      "signal_return_pct": 12.739,
+      "btc_price_at_entry": 60086.3,
+      "btc_1h_change_pct": 0.0122,
+      "position_size_usd": 1999.9992,
+      "mfe": 0.0015040000000000001,
+      "mae": 0.00016099999999999969,
+      "best_price": 0.014476,
+      "be_triggered": false,
+      "signal_ret_6": 12.6614,
+      "signal_ret_12": 9.6507,
+      "signal_ret_24": 39.5118,
+      "signal_consec": 2,
+      "signal_oi_chg": -1.5083,
+      "signal_vol_ratio": 0.002,
+      "be_trigger_atr": 1.5,
+      "ab_arm": "A"
+    }
+  ],
+  "bar_counter": 893,
   "daily_pnl": 0.0,
-  "daily_trades": 0,
-  "slippage_cooldown": {
-    "AGLDUSDT": "2026-06-29T03:06:06.089299+00:00"
-  },
-  "last_save": "2026-06-29T00:07:05.455926+00:00"
+  "daily_trades": 1,
+  "slippage_cooldown": {},
+  "last_save": "2026-06-29T08:52:06.040534+00:00"
 }
