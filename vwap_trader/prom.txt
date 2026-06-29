@@ -6,13 +6,13 @@
 ═══════════════════════════════════════════════
 ★★★ PC 이전 — 가장 먼저 읽을 것 ★★★
 ═══════════════════════════════════════════════
-이전 PC에서 봇을 graceful 종료(STOP_MOMENTUM)하고 git push 한 상태다. **인계 시점 무포지션**(들고 있는 거 없음)이라 인계가 깔끔하다. 이 PC에서 재가동 전:
+이전 PC에서 봇을 graceful 종료(STOP_MOMENTUM)하고 git push 한 상태다. **인계 시점 무포지션**(들고 있는 거 없음)이라 인계가 깔끔하다. **★ 2026-06-29 v10 대규모 업그레이드 적용됨(거래로직 4개, §5.10) — `git pull` 받으면 자동 발효.** 이 PC에서 재가동 전:
 
 1. **`git pull` 먼저.** `data/state_momentum.json`에 bar_counter·cooldown이 들어 있다(현재 포지션 0). pull 안 하면 추적 어긋남.
 2. **절대 두 PC에서 동시에 돌리지 말 것.** 같은 Bybit 데모 계좌를 둘이 관리하면 주문 중복·SL 충돌로 망가진다. 이전 PC 봇이 완전히 죽었는지(`Get-Process python`) 먼저 확인. **STOP_MOMENTUM 파일이 남아 있으면 지워야** 봇이 뜬다(`rm data/STOP_MOMENTUM`).
 3. 시계 동기화(관리자 PowerShell): `w32tm /resync /force` — 재부팅 직후 필수(ErrCode 10002 방지).
 4. 재가동: **`cd vwap_trader; .\venv\Scripts\python.exe -m vwap_trader.momentum_bot`** — ★ **`cd vwap_trader` 필수**(venv는 `vwap_trader/venv`, git root는 한 단계 위 `code/`).
-5. 로그 `State loaded: 0 positions, bar≈889` 확인(인계 시점 기준, 그 사이 변동 가능). ⚠️ state에 `slippage_cooldown: AGLDUSDT`(2026-06-29T03:06Z까지) 남아 있음 — 복원되어 그때까지 AGLD 진입금지 유지(정상, §6 안전장치).
+5. 로그 `State loaded: 0 positions, bar≈889` 확인(인계 시점 기준, 그 사이 변동 가능). slippage_cooldown AGLD(06-29T03:06Z)는 이미 만료(지났으면 자동해제). **★★ v10 발효 확인(첫 진입 시): ①신규 사이즈 ≈$2000 균등(고변동도 안 작음=v9) ②shadow에 `low_vol_coin`/`btc_chaos` 출현(v8 게이트) ③10-20M 소형코인 진입 등장(v10) ④`bot_version:v10` 기록.** 안 보이면 config 발효 안 된 것(재시작 확인).
 6. **★ 정전/크래시 후면 reconcile 확인**: state 포지션 ↔ 거래소 실제오픈(`get_positions` category=linear, settleCoin=USDT)을 symbol+qty로 대조. 진입+SL은 atomic이라 orphan 무방비 아님.
 7. **★ 분석 정본 주의**: 분석은 **정본 기준 누적**(corrected106 + 신규). ⚠️ **live `trades_momentum.jsonl` 원본 합은 과거 PnL버그로 오염**(예: GRASS2 가짜 −$1,798) → raw 누적 쓰지 말 것. 신규분 다수 `estimated`(거래소 정산 전 봇 추정) → `rebuild_pnl.py`로 정정 가능(단 corrected 전체 덮어써 수동보정 되돌아감, 신규 소수건은 거래소 closed-pnl 직접대조가 안전). **★ estimated 직접정정 정석(이번 세션 5건 확립)**: 거래소 `get_closed_pnl(symbol)` 풀정밀도 `closedPnl`·`avgExitPrice`로 trades의 `exit_price`·`pnl_usd`·`pnl_pct`(가격변화율 재계산)·`pnl_source→exchange` 패치. **데모 API는 7일만 보관** → 그 이전 estimated는 재조회 불가(현재 raw 27건 잔존, 전부 06-20 이전 = §8.7 한계).
 8. **★ 이번 PC는 Bash/PowerShell 권한 자동허용 설정됨**(`.claude/settings.local.json`의 allow에 tool-only `"Bash"`·`"PowerShell"`). 새 PC에서도 묻지 않고 실행되길 원하면 거기에 같은 두 줄 추가.
