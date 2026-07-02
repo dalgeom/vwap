@@ -196,3 +196,15 @@
 {"symbol": "PUMPFUNUSDT", "direction": "long", "intended_price": 0.0015062, "fill_price": 0.0015036, "slippage_pct": 0.1726, "timestamp": "2026-06-28T08:00:31.717321+00:00"}
 {"symbol": "RAVEUSDT", "direction": "long", "intended_price": 0.46528, "fill_price": 0.46598, "slippage_pct": 0.1504, "timestamp": "2026-06-29T06:00:51.376705+00:00"}
 {"symbol": "ACTUSDT", "direction": "long", "intended_price": 0.013089, "fill_price": 0.012972, "slippage_pct": 0.8939, "timestamp": "2026-06-29T06:00:52.296427+00:00"}
+{"symbol": "SNDKUSDT", "direction": "short", "intended_price": 1927.31, "fill_price": 1928.25, "slippage_pct": 0.0488, "timestamp": "2026-06-29T14:00:58.621427+00:00"}
+{"symbol": "MUUSDT", "direction": "short", "intended_price": 1061.04, "fill_price": 1062.32, "slippage_pct": 0.1206, "timestamp": "2026-06-29T14:00:59.542077+00:00"}
+{"symbol": "GWEIUSDT", "direction": "short", "intended_price": 0.17519, "fill_price": 0.17501, "slippage_pct": 0.1027, "timestamp": "2026-06-29T16:00:54.440385+00:00"}
+{"symbol": "UBUSDT", "direction": "short", "intended_price": 0.10414, "fill_price": 0.10427, "slippage_pct": 0.1248, "timestamp": "2026-06-30T03:01:03.157438+00:00"}
+{"symbol": "DYDXUSDT", "direction": "long", "intended_price": 0.20992, "fill_price": 0.21124, "slippage_pct": 0.6288, "timestamp": "2026-07-01T04:01:16.709444+00:00"}
+{"symbol": "TAIKOUSDT", "direction": "long", "intended_price": 0.08644, "fill_price": 0.08655, "slippage_pct": 0.1273, "timestamp": "2026-07-01T05:01:06.058702+00:00"}
+{"symbol": "DYDXUSDT", "direction": "short", "intended_price": 0.18817, "fill_price": 0.18838, "slippage_pct": 0.1116, "timestamp": "2026-07-01T08:01:11.173640+00:00"}
+{"symbol": "TAIKOUSDT", "direction": "long", "intended_price": 0.10445, "fill_price": 0.10475, "slippage_pct": 0.2872, "timestamp": "2026-07-01T10:01:15.615573+00:00"}
+{"symbol": "LITUSDT", "direction": "long", "intended_price": 1.8816, "fill_price": 1.8871, "slippage_pct": 0.2923, "timestamp": "2026-07-01T18:01:10.210817+00:00"}
+{"symbol": "DYDXUSDT", "direction": "short", "intended_price": 0.15501, "fill_price": 0.15682, "slippage_pct": 1.1677, "timestamp": "2026-07-01T19:01:05.734479+00:00"}
+{"symbol": "LITUSDT", "direction": "long", "intended_price": 1.9871, "fill_price": 1.9807, "slippage_pct": 0.3221, "timestamp": "2026-07-01T20:01:12.702215+00:00"}
+{"symbol": "TAIKOUSDT", "direction": "long", "intended_price": 0.1915, "fill_price": 0.19666, "slippage_pct": 2.6945, "timestamp": "2026-07-01T22:01:09.739456+00:00"}

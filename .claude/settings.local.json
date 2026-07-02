@@ -203,7 +203,8 @@
       "Skill(update-config)",
       "Skill(update-config:*)",
       "Bash(cd \"c:/Users/PC/Desktop/현진/code/vwap_trader\" && echo \"stop requested $\\(date '+%Y-%m-%d %H:%M:%S'\\)\" > data/STOP_MOMENTUM && echo \"STOP_MOMENTUM 생성됨 — 다음 분에 봇 graceful 종료\" && echo \"현재 프로세스:\" && cat data/heartbeat_momentum)",
-      "PowerShell(Write-Output \"NOW\\(KST\\): $\\(Get-Date -Format 'HH:mm:ss'\\)\"; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{N='CPU';E={[math]::Round\\($_.CPU,1\\)}} | Format-Table -AutoSize; Write-Output \"heartbeat: $\\(Get-Content 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\heartbeat_momentum'\\)\"; Write-Output \"STOP 파일 존재: $\\(Test-Path 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\STOP_MOMENTUM'\\)\")"
+      "PowerShell(Write-Output \"NOW\\(KST\\): $\\(Get-Date -Format 'HH:mm:ss'\\)\"; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{N='CPU';E={[math]::Round\\($_.CPU,1\\)}} | Format-Table -AutoSize; Write-Output \"heartbeat: $\\(Get-Content 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\heartbeat_momentum'\\)\"; Write-Output \"STOP 파일 존재: $\\(Test-Path 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\STOP_MOMENTUM'\\)\")",
+      "PowerShell(Write-Output \"NOW\\(KST\\): $\\(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'\\)\"; Write-Output \"=== python 프로세스 ===\"; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime | Format-Table -AutoSize; Write-Output \"heartbeat: $\\(Get-Content 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\heartbeat_momentum' -ErrorAction SilentlyContinue\\)\"; Write-Output \"STOP 존재: $\\(Test-Path 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\STOP_MOMENTUM'\\)\")"
     ],
     "additionalDirectories": [
       "c:\\c\\Users\\PC\\Desktop\\현진\\code\\vwap_trader",
