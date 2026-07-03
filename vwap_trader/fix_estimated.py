@@ -64,3 +64,61 @@ def match_closed_pnl(trade: dict, records: list):
     matches.sort(key=lambda x: x[0])
     rec = matches[-1][1]
     return float(rec["closedPnl"]), float(rec["avgExitPrice"])
+
+
+def recompute_pnl_pct(side: str, entry_price: float, exit_price: float) -> float:
+    if side == "long":
+        return round((exit_price - entry_price) / entry_price * 100, 4)
+    return round((entry_price - exit_price) / entry_price * 100, 4)
+
+
+def _build_client():
+    from dotenv import load_dotenv
+    from pybit.unified_trading import HTTP
+    load_dotenv(ROOT / "config" / ".env")
+    return HTTP(testnet=False, demo=True,
+                api_key=os.environ.get("BYBIT_API_KEY", ""),
+                api_secret=os.environ.get("BYBIT_API_SECRET", ""))
+
+
+def run(client=None):
+    from corrections import read_corrections, append_correction
+    if client is None:
+        client = _build_client()
+    trades = load_trades()
+    corrections = read_corrections()
+    targets = find_estimated_targets(trades, corrections)
+    now = datetime.now(timezone.utc)
+    fixed = matched_none = 0
+    imminent = 0  # 시한 임박(≤2일) 미매칭
+    for t in targets:
+        resp = client.get_closed_pnl(category="linear", symbol=t["symbol"], limit=50)
+        records = resp.get("result", {}).get("list", []) if isinstance(resp, dict) else []
+        m = match_closed_pnl(t, records)
+        if m is None:
+            matched_none += 1
+            days_left = 7 - (now - datetime.fromisoformat(t["exit_timestamp_utc"])).days
+            if days_left <= 2:
+                imminent += 1
+            continue
+        pnl_usd, exit_price = m
+        append_correction({
+            "trade_id": t["trade_id"], "symbol": t["symbol"],
+            "pnl_usd": pnl_usd, "exit_price": exit_price,
+            "pnl_pct": recompute_pnl_pct(t["side"], t["entry_price"], exit_price),
+            "src": "exchange", "fixed_at": now.isoformat(),
+            "prev_estimated": t.get("pnl_usd"),
+        })
+        fixed += 1
+    lost = sum(1 for t in trades
+               if t.get("pnl_source") == "estimated"
+               and t.get("trade_id") not in corrections
+               and t.get("exit_timestamp_utc")
+               and (now - datetime.fromisoformat(t["exit_timestamp_utc"])).days > 7)
+    print(f"[fix_estimated] 정정 {fixed}건 / 매칭실패 {matched_none}건"
+          f"(시한임박 {imminent}) / 시한초과 유실 {lost}건")
+    return {"fixed": fixed, "matched_none": matched_none, "imminent": imminent, "lost": lost}
+
+
+if __name__ == "__main__":
+    run()

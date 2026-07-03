@@ -55,3 +55,37 @@ def test_match_none_when_no_fresh_match():
     trade = {"symbol": "X", "side": "short", "entry_price": 1.0,
              "timestamp_utc": "2026-07-01T10:00:00+00:00"}
     assert match_closed_pnl(trade, []) is None
+
+
+from fix_estimated import recompute_pnl_pct
+
+
+def test_recompute_pnl_pct_long_and_short():
+    # long: (exit-entry)/entry*100
+    assert abs(recompute_pnl_pct("long", 0.10475, 0.15393) - 46.9499) < 1e-3
+    # short: (entry-exit)/entry*100
+    assert abs(recompute_pnl_pct("short", 0.30375, 0.28045) - 7.6707) < 1e-3
+
+
+def test_run_writes_corrections(tmp_path, monkeypatch):
+    import fix_estimated as fe, corrections as co
+    trades = [{"trade_id": "a", "symbol": "X", "side": "long", "entry_price": 1.0,
+               "pnl_usd": 9.0, "timestamp_utc": "2026-07-01T10:00:00+00:00",
+               "exit_timestamp_utc": (datetime.now(timezone.utc)).isoformat(),
+               "pnl_source": "estimated"}]
+    monkeypatch.setattr(fe, "load_trades", lambda *a, **k: trades)
+    corr_file = tmp_path / "corr.jsonl"
+    monkeypatch.setattr(co, "CORRECTIONS_FILE", corr_file)
+
+    entry_ms = int(datetime(2026, 7, 1, 10, tzinfo=timezone.utc).timestamp() * 1000)
+
+    class FakeClient:
+        def get_closed_pnl(self, **kw):
+            return {"result": {"list": [
+                {"side": "Sell", "createdTime": str(entry_ms + 1000),
+                 "avgEntryPrice": "1.0", "avgExitPrice": "1.1", "closedPnl": "10.0"}]}}
+
+    res = fe.run(client=FakeClient())
+    assert res["fixed"] == 1
+    d = co.read_corrections(path=corr_file)
+    assert d["a"]["pnl_usd"] == 10.0 and d["a"]["src"] == "exchange"

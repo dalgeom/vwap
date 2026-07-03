@@ -5,8 +5,9 @@ from pathlib import Path
 CORRECTIONS_FILE = Path(__file__).resolve().parent / "data" / "pnl_corrections.jsonl"
 
 
-def read_corrections(path=CORRECTIONS_FILE) -> dict:
+def read_corrections(path=None) -> dict:
     """trade_id -> correction dict. 파일 없으면 빈 dict."""
+    path = path or CORRECTIONS_FILE
     out = {}
     p = Path(path)
     if not p.exists():
@@ -20,8 +21,9 @@ def read_corrections(path=CORRECTIONS_FILE) -> dict:
     return out
 
 
-def append_correction(rec: dict, path=CORRECTIONS_FILE):
+def append_correction(rec: dict, path=None):
     """corrections 파일에 1줄 append (원본 trades 무관)."""
+    path = path or CORRECTIONS_FILE
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8") as f:
