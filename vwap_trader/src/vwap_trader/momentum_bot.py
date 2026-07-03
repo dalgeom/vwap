@@ -25,6 +25,7 @@ from vwap_trader.strategy.momentum import MomentumStrategy, MomentumSignal
 from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
+from .integrity import backup_trades, count_lines, check_integrity
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
@@ -182,6 +183,8 @@ class MomentumBot:
             "shadow_file", "shadow_momentum.jsonl")
         self._heartbeat_file = DATA_DIR / "heartbeat_momentum"
         self._stop_file = DATA_DIR / "STOP_MOMENTUM"
+        self._trades_lines_at_start = 0
+        self._trades_appended = 0
 
         self._lot_size_cache: dict[str, float] = {}
         # Candle cache: {symbol: [(ts, o, h, l, c), ...]} sorted by ts
@@ -803,6 +806,7 @@ class MomentumBot:
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
+        self._trades_appended += 1
 
         # ── Slippage cooldown: SL/TrailSL/BE exit with excessive slippage → cooldown ──
         if reason in ("SL", "TrailSL", "BE"):
@@ -988,6 +992,14 @@ class MomentumBot:
 
         self._load_state()
 
+        try:
+            bak = backup_trades(self._trades_file)
+            self._trades_lines_at_start = count_lines(self._trades_file)
+            logger.info("Trades backup: %s (start lines=%d)",
+                        bak.name, self._trades_lines_at_start)
+        except Exception as e:
+            logger.warning("Trades backup failed (non-fatal): %s", e)
+
         # Heartbeat thread
         hb = threading.Thread(target=self._heartbeat_loop, daemon=True)
         hb.start()
@@ -1027,6 +1039,15 @@ class MomentumBot:
             notify(f"[Momentum Bot] CRASH: {e}")
         finally:
             self._save_state()
+            try:
+                actual = count_lines(self._trades_file)
+                warn = check_integrity(self._trades_lines_at_start,
+                                       self._trades_appended, actual)
+                if warn:
+                    logger.error(warn)
+                    notify(f"[Momentum Bot] {warn}")
+            except Exception as e:
+                logger.warning("Integrity check failed (non-fatal): %s", e)
             notify("[Momentum Bot] Stopped")
 
     def _main_loop(self):
