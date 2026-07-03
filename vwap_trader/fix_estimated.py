@@ -34,3 +34,33 @@ def find_estimated_targets(trades: list, corrections: dict,
             continue
         out.append(t)
     return out
+
+
+def match_closed_pnl(trade: dict, records: list):
+    """거래소 closed-pnl 레코드 목록에서 이 trade에 맞는 것을 골라
+    (closedPnl, avgExitPrice) 반환. 없으면 None.
+    봇 _get_closed_pnl_record와 동형: side + freshness + entry 1%, 최신 선택."""
+    want_side = "Sell" if trade["side"] == "long" else "Buy"
+    try:
+        entry_ms = int(datetime.fromisoformat(trade["timestamp_utc"]).timestamp() * 1000)
+    except Exception:
+        entry_ms = 0
+    entry_price = trade["entry_price"]
+    matches = []
+    for r in records:
+        if r.get("side") != want_side:
+            continue
+        if entry_ms and int(r.get("createdTime", 0) or 0) < entry_ms:
+            continue  # 옛 레코드 배제(freshness)
+        exit_p = float(r.get("avgExitPrice", 0) or 0)
+        entry_p = float(r.get("avgEntryPrice", 0) or 0)
+        if exit_p <= 0 or entry_p <= 0:
+            continue
+        if abs(entry_p - entry_price) / entry_price >= 0.01:
+            continue
+        matches.append((int(r.get("createdTime", 0) or 0), r))
+    if not matches:
+        return None
+    matches.sort(key=lambda x: x[0])
+    rec = matches[-1][1]
+    return float(rec["closedPnl"]), float(rec["avgExitPrice"])

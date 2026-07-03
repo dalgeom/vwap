@@ -25,3 +25,33 @@ def test_only_estimated_within_7d_not_already_corrected():
     targets = find_estimated_targets(trades, corrections={"c": {}}, now=NOW, within_days=7)
     ids = [t["trade_id"] for t in targets]
     assert ids == ["a"]
+
+
+from fix_estimated import match_closed_pnl
+
+
+def test_match_uses_freshness_and_side_and_entry():
+    trade = {"symbol": "TAIKOUSDT", "side": "long", "entry_price": 0.10475,
+             "timestamp_utc": "2026-07-01T10:00:00+00:00"}
+    entry_ms = int(datetime(2026, 7, 1, 10, tzinfo=timezone.utc).timestamp() * 1000)
+    records = [
+        # 옛 레코드(진입 전 생성) → freshness로 배제
+        {"side": "Sell", "createdTime": str(entry_ms - 100000),
+         "avgEntryPrice": "0.10475", "avgExitPrice": "0.9", "closedPnl": "999"},
+        # 방향 불일치(long 청산은 Sell) → 배제
+        {"side": "Buy", "createdTime": str(entry_ms + 1000),
+         "avgEntryPrice": "0.10475", "avgExitPrice": "0.15", "closedPnl": "10"},
+        # 정답
+        {"side": "Sell", "createdTime": str(entry_ms + 2000),
+         "avgEntryPrice": "0.10475", "avgExitPrice": "0.15393", "closedPnl": "469.48"},
+    ]
+    got = match_closed_pnl(trade, records)
+    assert got is not None
+    assert abs(got[0] - 469.48) < 1e-6   # closedPnl
+    assert abs(got[1] - 0.15393) < 1e-9  # avgExitPrice
+
+
+def test_match_none_when_no_fresh_match():
+    trade = {"symbol": "X", "side": "short", "entry_price": 1.0,
+             "timestamp_utc": "2026-07-01T10:00:00+00:00"}
+    assert match_closed_pnl(trade, []) is None
