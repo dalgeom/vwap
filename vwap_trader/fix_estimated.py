@@ -50,8 +50,8 @@ def match_closed_pnl(trade: dict, records: list):
     for r in records:
         if r.get("side") != want_side:
             continue
-        if entry_ms and int(r.get("createdTime", 0) or 0) < entry_ms:
-            continue  # 옛 레코드 배제(freshness)
+        if entry_ms and int(r.get("createdTime", 0) or 0) < entry_ms - 60_000:
+            continue  # 옛 거래 레코드 배제(freshness). 60s 여유=자기 레코드(createdTime≈진입시각) 통과
         exit_p = float(r.get("avgExitPrice", 0) or 0)
         entry_p = float(r.get("avgEntryPrice", 0) or 0)
         if exit_p <= 0 or entry_p <= 0:

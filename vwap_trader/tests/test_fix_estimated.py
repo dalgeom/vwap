@@ -89,3 +89,25 @@ def test_run_writes_corrections(tmp_path, monkeypatch):
     assert res["fixed"] == 1
     d = co.read_corrections(path=corr_file)
     assert d["a"]["pnl_usd"] == 10.0 and d["a"]["src"] == "exchange"
+
+
+def test_match_tolerates_created_slightly_before_entry():
+    # createdTime이 진입시각보다 0.4초 이르면(=거래소 체결이 봇기록보다 먼저) 자기 레코드 → 매칭돼야
+    trade = {"symbol": "TLMUSDT", "side": "long", "entry_price": 0.00166,
+             "timestamp_utc": "2026-07-02T12:01:14+00:00"}
+    entry_ms = int(datetime(2026, 7, 2, 12, 1, 14, tzinfo=timezone.utc).timestamp() * 1000)
+    records = [{"side": "Sell", "createdTime": str(entry_ms - 400),
+                "avgEntryPrice": "0.00166", "avgExitPrice": "0.0018", "closedPnl": "11.04"}]
+    got = match_closed_pnl(trade, records)
+    assert got is not None
+    assert abs(got[0] - 11.04) < 1e-6
+
+
+def test_match_still_excludes_old_same_symbol_trade():
+    # 옛 거래(진입 하루 전 createdTime)는 tolerance로도 여전히 배제
+    trade = {"symbol": "X", "side": "long", "entry_price": 1.0,
+             "timestamp_utc": "2026-07-02T12:00:00+00:00"}
+    entry_ms = int(datetime(2026, 7, 2, 12, tzinfo=timezone.utc).timestamp() * 1000)
+    records = [{"side": "Sell", "createdTime": str(entry_ms - 86_400_000),
+                "avgEntryPrice": "1.0", "avgExitPrice": "1.1", "closedPnl": "10"}]
+    assert match_closed_pnl(trade, records) is None

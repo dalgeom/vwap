@@ -1,0 +1,3 @@
+{"trade_id": "0caea0ea", "symbol": "RAVEUSDT", "pnl_usd": -0.95609498, "exit_price": 0.46897, "pnl_pct": 0.6417, "src": "exchange", "fixed_at": "2026-07-03T06:08:58.886863+00:00", "prev_estimated": -1.0999}
+{"trade_id": "b1b4b8bd", "symbol": "UNIUSDT", "pnl_usd": 46.41755953, "exit_price": 3.186, "pnl_pct": 4.7682, "src": "exchange", "fixed_at": "2026-07-03T06:08:58.886863+00:00", "prev_estimated": 46.7757}
+{"trade_id": "8e69d6fb", "symbol": "TLMUSDT", "pnl_usd": 11.04375073, "exit_price": 0.0016633, "pnl_pct": 0.1988, "src": "exchange", "fixed_at": "2026-07-03T06:08:58.886863+00:00", "prev_estimated": -1.1}

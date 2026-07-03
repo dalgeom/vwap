@@ -692,8 +692,8 @@ class MomentumBot:
                     for r in resp["result"]["list"]:
                         if r.get("side") != want_side:
                             continue
-                        if entry_ms and int(r.get("createdTime", 0) or 0) < entry_ms:
-                            continue  # stale record from an earlier trade
+                        if entry_ms and int(r.get("createdTime", 0) or 0) < entry_ms - 60_000:
+                            continue  # stale earlier-trade record. 60s tolerance: Bybit createdTime≈entry, own record can be a few ms early
                         exit_p = float(r.get("avgExitPrice", 0) or 0)
                         entry_p = float(r.get("avgEntryPrice", 0) or 0)
                         qty = float(r.get("qty", 0) or 0)
