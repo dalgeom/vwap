@@ -10,7 +10,7 @@
 
 ═══ ★★★ 이번 인계는 특수 — 반드시 인지 ═══
 직전(이전) PC가 **메인 봇 가동 PC**다. 지금 인계받는 이 PC는 **잠깐 몇 시간만 봇 가동 + 개발하고 다시 메인 PC로 돌려줄 임시 PC**다. 따라서:
-- **윈도 작업 스케줄러(일일 리포트 자동화) 등록 불필요.** 메인 PC에 이미 등록돼 있다(작업명 `vwap_daily_report`, 매일 12:30). 여긴 봇만 잠깐 돌리고 개발만. 리포트 필요하면 `daily_report.py` **수동 실행**만 하면 된다.
+- **윈도 작업 스케줄러(일일 리포트 자동화) 등록 불필요.** 메인 PC에 이미 등록돼 있다(작업명 `vwap_daily_report`, 매일 00:30(밤)). 여긴 봇만 잠깐 돌리고 개발만. 리포트 필요하면 `daily_report.py` **수동 실행**만 하면 된다.
 - 작업 끝나면 **graceful 종료(STOP_MOMENTUM) → git push → 메인 PC가 pull로 이어받음.** 오래 안 돎.
 
 ★ **직전 세션(07-03~06) 성과 = A-2/3/4 데이터안전 인프라 완성**(거래로직 무관, §4 상세). 이 PC에서 재가동 전:
@@ -61,7 +61,7 @@
 - **A-2 estimated 자동정정** `fix_estimated.py`: estimated→거래소 실값을 `data/pnl_corrections.jsonl`에 append(원본 trades **절대 무수정**, 멱등, 7일 시한). 분석은 `corrections.apply_corrections(trades)` 오버레이.
 - **A-3 무결성 가드** `src/vwap_trader/integrity.py`(순수함수) + 봇 `run()` 훅: 시작 자동백업(.bak_*, keep10) + 종료 라인수 비교. IDE저장 사고 감지.
 - **★ freshness 버그 수정(중요)**: 거래소 `createdTime`이 청산시각 아닌 **진입시각**이라, 봇/스크립트가 자기 레코드를 0.4초 차로 배제해 estimated를 양산하던 버그 → **60초 tolerance**로 수정(봇 `_get_closed_pnl_record` + fix_estimated 둘 다). 실증: RAVE/UNI/TLM 정정(TLM 봇추정 −$1.1 ↔ 거래소 실값 **+$11.04** 부호반대). estimated 발생 자체 감소.
-- **A-4 일일 리포트** `daily_report.py`: 하나의 배치(estimated 정정→corrections 반영→`reports/YYYY-MM-DD.md`). 순수함수 4개+테스트. **메인 PC 매일 12:30 스케줄러 등록**(임시 PC는 불필요, 위 ★★★).
+- **A-4 일일 리포트** `daily_report.py`: 하나의 배치(estimated 정정→corrections 반영→`reports/YYYY-MM-DD.md`). 순수함수 4개+테스트. **메인 PC 매일 00:30(밤) 스케줄러 등록**(임시 PC는 불필요, 위 ★★★).
 - 원칙 확립: **equity(거래소)=진짜 누적 / trades⊕corrections=통계**(과거 오염은 각주). 테스트 29 passed.
 - **남은 인프라**: A-1(정본 자동병합 — apply_corrections로 핵심 대체됨)·A-5(watchdog 알림). **측정도구 B-1**(차단신호 소급채점, 정원 rank_cutoff 81%에 잭팟 숨었나)·**B-2**(지연진입 백테스트, 즉시역행 50건 정면공략=목적3)는 다음 유력 후보.
 
