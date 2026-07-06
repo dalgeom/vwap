@@ -76,3 +76,38 @@ def replay(entry, atr, side, bars, e_ms):
                 if n < sl:
                     sl = n
         return (entry - bars[-1][3]) / entry * 100, "OPEN"
+
+
+def key_of(s: dict) -> str:
+    """shadow 레코드 조합키(고유 id 부재 — timestamp는 마이크로초 포함이라 실질 유일)."""
+    return f"{s['timestamp_utc']}|{s['symbol']}|{s['side']}"
+
+
+def needs_rescore(prev: dict | None) -> bool:
+    """신규(None)·OPEN·NO_DATA만 재채점, 확정(SL/TrailSL/Timeout)은 스킵."""
+    return prev is None or prev.get("exit_reason") not in FINAL_REASONS
+
+
+def make_score(s: dict, outcome_pct, exit_reason: str, scored_at: str) -> dict:
+    """shadow 1건 → 점수 레코드. NO_DATA면 outcome/R = None."""
+    entry = s["signal_price"]
+    atr = s["atr_at_entry"]
+    sl_dist_pct = SL_MULT * atr / entry * 100 if entry else 0
+    r_mult = (outcome_pct / sl_dist_pct) if (outcome_pct is not None and sl_dist_pct) else None
+    return {
+        "key": key_of(s),
+        "timestamp_utc": s["timestamp_utc"], "symbol": s["symbol"], "side": s["side"],
+        "shadow_reason": s.get("shadow_reason"),
+        "entry": entry, "atr_at_entry": atr,
+        "outcome_pct": outcome_pct, "R": r_mult, "exit_reason": exit_reason,
+        "scored_at": scored_at,
+        "signal_return_pct": s.get("signal_return_pct"),
+        "signal_consec": s.get("signal_consec"), "regime": s.get("regime"),
+    }
+
+
+def load_jsonl(path) -> list:
+    p = Path(path)
+    if not p.exists():
+        return []
+    return [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()]
