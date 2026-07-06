@@ -59,3 +59,41 @@ def test_shadow_reason_counts_by_day():
     ]
     out = shadow_reason_counts(shadow, date(2026, 7, 6))
     assert out == {"counter_trend": 2, "rank_cutoff": 1}
+
+
+from daily_report import render_report
+
+
+def test_render_report_contains_key_fields():
+    ctx = {
+        "day": date(2026, 7, 6),
+        "equity": 29241.13,
+        "bar": 1041,
+        "hb_age_min": 0.5,
+        "positions": [{"symbol": "EPICUSDT", "side": "Sell", "avgPrice": "0.4278",
+                       "markPrice": "0.4208", "unrealisedPnl": "16.30", "stopLoss": "0.4758"}],
+        "todays": [{"symbol": "VANRYUSDT", "side": "long", "exit_reason": "SL", "pnl_usd": -120.88}],
+        "stats": build_stats([{"pnl_usd": 100, "bot_version": "v10"}]),
+        "shadow_counts": {"counter_trend": 2},
+        "infra": {"estimated": 27, "imminent": 0, "lost": 27, "cooldowns": [], "corrections": 3},
+        "warnings": [],
+    }
+    md = render_report(ctx)
+    assert "2026-07-06" in md
+    assert "29,241" in md or "29241" in md
+    assert "EPICUSDT" in md and "+16.30" in md
+    assert "VANRYUSDT" in md
+    assert "counter_trend" in md
+
+
+def test_render_report_shows_warnings_and_no_positions():
+    ctx = {
+        "day": date(2026, 7, 6), "equity": None, "bar": 1000, "hb_age_min": 42.0,
+        "positions": [], "todays": [], "stats": build_stats([]),
+        "shadow_counts": {}, "infra": {"estimated": 0, "imminent": 0, "lost": 0,
+                                       "cooldowns": [], "corrections": 0},
+        "warnings": ["⚠ heartbeat 42분 정체 — 봇 다운 의심"],
+    }
+    md = render_report(ctx)
+    assert "⚠" in md
+    assert "없음" in md  # 무포지션 표기
