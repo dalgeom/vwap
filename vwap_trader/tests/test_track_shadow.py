@@ -118,6 +118,26 @@ def test_dedup_waves_symbol_side_isolated():
     assert len(dedup_waves(rows)) == 3  # 심볼·방향 다르면 병합 안 됨
 
 
+def test_dedup_waves_chain_extension():
+    """연쇄 확장 변별: 간격 각 40h(<48h)지만 첫 신호로부턴 80h — 연쇄 병합이면 파도 1개."""
+    t0 = "2026-06-01T00:00:00+00:00"
+    t1 = "2026-06-02T16:00:00+00:00"  # t0+40h
+    t2 = "2026-06-04T08:00:00+00:00"  # t1+40h (t0+80h)
+    rows = [_score(t0, "AUSDT", "long", 1.0), _score(t1, "AUSDT", "long", 2.0),
+            _score(t2, "AUSDT", "long", 3.0)]
+    waves = dedup_waves(rows)
+    assert [w["timestamp_utc"] for w in waves] == [t0]
+
+
+def test_dedup_waves_exact_48h_gap_merges():
+    """정확히 48h 간격은 '이내' — 병합(> WAVE_MS일 때만 새 파도)."""
+    t0 = "2026-06-01T00:00:00+00:00"
+    t1 = "2026-06-03T00:00:00+00:00"  # 정확히 t0+48h
+    rows = [_score(t0, "AUSDT", "long", 1.0), _score(t1, "AUSDT", "long", 2.0)]
+    waves = dedup_waves(rows)
+    assert [w["timestamp_utc"] for w in waves] == [t0]
+
+
 def test_aggregate_by_reason():
     t = "2026-06-01T00:00:00+00:00"
     rows = [_score(t, "AUSDT", "long", 2.0),
