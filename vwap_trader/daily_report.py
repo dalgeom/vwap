@@ -1,5 +1,5 @@
 """A-4: 일일 리포트 생성 (daily_report.py).
-매일 1회 실행: estimated 정정 → corrections 반영 → reports/YYYY-MM-DD.md.
+매일 1회 실행: estimated 정정 → 정본 로드(A-1 load_canonical) → reports/YYYY-MM-DD.md.
 사용: PYTHONIOENCODING=utf-8 python daily_report.py
 """
 import os
@@ -31,7 +31,7 @@ def _agg(rows: list) -> dict:
 
 
 def build_stats(trades: list) -> dict:
-    """전체 및 v10 구간 통계. trades는 apply_corrections 반영된 리스트."""
+    """전체 및 v10 구간 통계. trades는 load_canonical() 정본 리스트."""
     return {"all": _agg(trades),
             "v10": _agg([r for r in trades if r.get("bot_version") == "v10"])}
 
@@ -107,8 +107,8 @@ def render_report(ctx: dict) -> str:
              f"| PF {_fmt_pf(a['pf'])} | 누적 ${a['total']:+.2f}")
     L.append(f"- v10 {v['n']}건 | 승률 {v['wr']:.1f}% | EV ${v['ev']:+.2f} "
              f"| PF {_fmt_pf(v['pf'])} | 누적 ${v['total']:+.2f}")
-    L.append("- ※ 누적/통계는 raw trades⊕corrections 기준(과거분 PnL버그 오염 가능). "
-             "정밀 누적은 rebuild_pnl 정본. 자산 지표는 위 equity.")
+    L.append("- ※ 누적/통계는 정본 기준(corrected+raw 유니온 ⊕ corrections, A-1 load_canonical). "
+             "자산 지표는 위 equity.")
     L.append("")
 
     L.append("## shadow(거른 신호)")
@@ -170,9 +170,20 @@ def main():
     except Exception:
         pass
 
-    # 4. estimated 잔존(전체) 계산
-    est_left = sum(1 for t in fe.load_trades()
-                   if t.get("pnl_source") == "estimated" and t.get("trade_id") not in corr)
+    # 4. estimated 잔존(정본 기준) — 시한임박/시한초과도 canonical에서 파생(기준 혼용 방지)
+    est_left = est_imminent = est_lost = 0
+    for t in trades:
+        if t.get("pnl_source") != "estimated":
+            continue
+        est_left += 1
+        exit_ts = t.get("exit_timestamp_utc")
+        if not exit_ts:
+            continue
+        age_days = (now - datetime.fromisoformat(exit_ts)).days
+        if age_days > 7:
+            est_lost += 1
+        elif age_days >= 5:  # days_left <= 2, fix_estimated와 동일 기준
+            est_imminent += 1
 
     hb_age = _heartbeat_age_min(now)
     warnings = []
@@ -187,8 +198,8 @@ def main():
         "todays": todays_closes(trades, day),
         "stats": build_stats(trades),
         "shadow_counts": shadow_reason_counts(shadow, day),
-        "infra": {"estimated": est_left, "imminent": fix.get("imminent", 0),
-                  "lost": fix.get("lost", 0), "cooldowns": list(state.get("slippage_cooldown", {}).keys()),
+        "infra": {"estimated": est_left, "imminent": est_imminent,
+                  "lost": est_lost, "cooldowns": list(state.get("slippage_cooldown", {}).keys()),
                   "corrections": len(corr)},
         "warnings": warnings,
     }
