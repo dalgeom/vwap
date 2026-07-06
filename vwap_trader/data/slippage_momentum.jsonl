@@ -221,3 +221,5 @@
 {"symbol": "VANRYUSDT", "direction": "long", "intended_price": 0.005181, "fill_price": 0.005149, "slippage_pct": 0.6176, "timestamp": "2026-07-05T04:00:56.548243+00:00"}
 {"symbol": "EPICUSDT", "direction": "short", "intended_price": 0.4292, "fill_price": 0.4278, "slippage_pct": 0.3262, "timestamp": "2026-07-05T10:00:56.320660+00:00"}
 {"symbol": "VANRYUSDT", "direction": "long", "intended_price": 0.005609, "fill_price": 0.00568, "slippage_pct": 1.2658, "timestamp": "2026-07-05T12:01:01.155775+00:00"}
+{"symbol": "EPICUSDT", "direction": "short", "intended_price": 0.3329, "fill_price": 0.333, "slippage_pct": 0.03, "timestamp": "2026-07-06T07:00:55.976106+00:00"}
+{"symbol": "HMSTRUSDT", "direction": "short", "intended_price": 0.0002666, "fill_price": 0.000264, "slippage_pct": 0.9752, "timestamp": "2026-07-06T08:00:57.521238+00:00"}
