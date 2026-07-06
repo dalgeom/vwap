@@ -34,3 +34,15 @@ def test_build_stats_version_split():
 def test_build_stats_pf_infinite_when_no_losses():
     s = build_stats([_tr(10), _tr(20)])["all"]
     assert s["pf"] == float("inf")
+
+
+def test_todays_closes_filters_by_utc_date():
+    from daily_report import todays_closes
+    trades = [
+        {"exit_timestamp_utc": "2026-07-06T01:00:00+00:00", "symbol": "A"},
+        {"exit_timestamp_utc": "2026-07-05T23:00:00+00:00", "symbol": "B"},
+        {"exit_timestamp_utc": "2026-07-06T23:59:00+00:00", "symbol": "C"},
+        {"symbol": "D"},  # exit 없음 → 제외
+    ]
+    out = todays_closes(trades, date(2026, 7, 6))
+    assert [t["symbol"] for t in out] == ["A", "C"]

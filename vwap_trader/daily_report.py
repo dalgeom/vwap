@@ -34,3 +34,15 @@ def build_stats(trades: list) -> dict:
     """전체 및 v10 구간 통계. trades는 apply_corrections 반영된 리스트."""
     return {"all": _agg(trades),
             "v10": _agg([r for r in trades if r.get("bot_version") == "v10"])}
+
+
+def todays_closes(trades: list, day: date) -> list:
+    """exit_timestamp_utc가 day(UTC)인 청산만."""
+    out = []
+    for r in trades:
+        ts = r.get("exit_timestamp_utc")
+        if not ts:
+            continue
+        if datetime.fromisoformat(ts).astimezone(timezone.utc).date() == day:
+            out.append(r)
+    return out
