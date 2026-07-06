@@ -46,3 +46,15 @@ def todays_closes(trades: list, day: date) -> list:
         if datetime.fromisoformat(ts).astimezone(timezone.utc).date() == day:
             out.append(r)
     return out
+
+
+def shadow_reason_counts(shadow: list, day: date) -> dict:
+    """당일 shadow reason 카운트."""
+    c = Counter()
+    for r in shadow:
+        ts = r.get("timestamp_utc")
+        if not ts:
+            continue
+        if datetime.fromisoformat(ts).astimezone(timezone.utc).date() == day:
+            c[r.get("shadow_reason", "?")] += 1
+    return dict(c)

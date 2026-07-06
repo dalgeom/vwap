@@ -46,3 +46,16 @@ def test_todays_closes_filters_by_utc_date():
     ]
     out = todays_closes(trades, date(2026, 7, 6))
     assert [t["symbol"] for t in out] == ["A", "C"]
+
+
+def test_shadow_reason_counts_by_day():
+    from daily_report import shadow_reason_counts
+
+    shadow = [
+        {"timestamp_utc": "2026-07-06T01:00:00+00:00", "shadow_reason": "counter_trend"},
+        {"timestamp_utc": "2026-07-06T02:00:00+00:00", "shadow_reason": "rank_cutoff"},
+        {"timestamp_utc": "2026-07-06T03:00:00+00:00", "shadow_reason": "counter_trend"},
+        {"timestamp_utc": "2026-07-05T09:00:00+00:00", "shadow_reason": "rank_cutoff"},  # 어제 제외
+    ]
+    out = shadow_reason_counts(shadow, date(2026, 7, 6))
+    assert out == {"counter_trend": 2, "rank_cutoff": 1}
