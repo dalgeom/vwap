@@ -1,7 +1,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import pytest
-from track_shadow import replay, MAX_HOLD_MS, key_of, needs_rescore, make_score
+from track_shadow import replay, MAX_HOLD_MS, key_of, needs_rescore, make_score, dedup_waves, aggregate
 
 # bars = [(ts_ms, high, low, close), ...] / entry=100, atr=2 → 초기SL거리 3%(=1R)
 
@@ -92,3 +92,42 @@ def test_long_be_floor_holds_at_entry():
     pct, reason = replay(100.0, 2.0, "long", bars, 0)
     assert reason == "TrailSL"
     assert pct == pytest.approx(0.0)
+
+
+def _score(ts, sym, side, R, reason="TrailSL", shadow_reason="rank_cutoff"):
+    return {"key": f"{ts}|{sym}|{side}", "timestamp_utc": ts, "symbol": sym, "side": side,
+            "shadow_reason": shadow_reason, "R": R, "outcome_pct": R * 3.0 if R is not None else None,
+            "exit_reason": reason}
+
+
+def test_dedup_waves_chains_within_48h():
+    """같은 symbol+side: t0, t0+1h(병합), t0+50h(t0+1h로부터 49h>48h → 새 파도)."""
+    t0 = "2026-06-01T00:00:00+00:00"
+    t1 = "2026-06-01T01:00:00+00:00"
+    t2 = "2026-06-03T02:00:00+00:00"
+    rows = [_score(t0, "AUSDT", "long", 1.0), _score(t1, "AUSDT", "long", 2.0),
+            _score(t2, "AUSDT", "long", 3.0)]
+    waves = dedup_waves(rows)
+    assert [w["timestamp_utc"] for w in waves] == [t0, t2]  # 각 파도의 첫 신호만
+
+
+def test_dedup_waves_symbol_side_isolated():
+    t0 = "2026-06-01T00:00:00+00:00"
+    rows = [_score(t0, "AUSDT", "long", 1.0), _score(t0, "BUSDT", "long", 1.0),
+            _score(t0, "AUSDT", "short", 1.0)]
+    assert len(dedup_waves(rows)) == 3  # 심볼·방향 다르면 병합 안 됨
+
+
+def test_aggregate_by_reason():
+    t = "2026-06-01T00:00:00+00:00"
+    rows = [_score(t, "AUSDT", "long", 2.0),
+            _score(t, "BUSDT", "long", -1.0, reason="SL"),
+            _score(t, "CUSDT", "long", 0.0, reason="Timeout"),
+            _score(t, "DUSDT", "long", None, reason="NO_DATA"),
+            _score(t, "EUSDT", "long", 0.5, reason="OPEN", shadow_reason="short_cap")]
+    agg = aggregate(rows)
+    rc = agg["rank_cutoff"]
+    assert rc["n"] == 4 and rc["wins"] == 1 and rc["losses"] == 1 and rc["breakeven"] == 1
+    assert rc["no_data"] == 1 and rc["sum_R"] == pytest.approx(1.0)
+    sc = agg["short_cap"]
+    assert sc["n"] == 1 and sc["open"] == 1 and sc["sum_R"] == pytest.approx(0.5)

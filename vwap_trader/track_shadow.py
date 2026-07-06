@@ -111,3 +111,44 @@ def load_jsonl(path) -> list:
     if not p.exists():
         return []
     return [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def dedup_waves(scores: list) -> list:
+    """같은 symbol+side 신호를 시간순 연쇄 병합(그룹 마지막 신호 +48h 이내 재발 = 같은 파도).
+    각 파도의 첫 신호 레코드만 반환 — rank_cutoff 같은-파도 중복 과대평가 방지."""
+    by_group = defaultdict(list)
+    for r in sorted(scores, key=lambda x: x["timestamp_utc"]):
+        by_group[(r["symbol"], r["side"])].append(r)
+    out = []
+    for rows in by_group.values():
+        last_ms = None
+        for r in rows:
+            ms = iso_ms(r["timestamp_utc"])
+            if last_ms is None or ms - last_ms > WAVE_MS:
+                out.append(r)  # 새 파도의 첫 신호
+            last_ms = ms  # 연쇄: 파도 내 재발도 창을 연장
+    return sorted(out, key=lambda x: x["timestamp_utc"])
+
+
+def aggregate(scores: list) -> dict:
+    """사유별 통계. wins R>+0.05 / losses R<-0.05 / breakeven 그 사이 / OPEN·NO_DATA 별도."""
+    agg = {}
+    for r in scores:
+        a = agg.setdefault(r.get("shadow_reason") or "?", {
+            "n": 0, "wins": 0, "losses": 0, "breakeven": 0,
+            "open": 0, "no_data": 0, "sum_R": 0.0})
+        a["n"] += 1
+        if r["exit_reason"] == "NO_DATA":
+            a["no_data"] += 1
+            continue
+        if r["exit_reason"] == "OPEN":
+            a["open"] += 1
+        R = r["R"] or 0.0
+        a["sum_R"] += R
+        if R > 0.05:
+            a["wins"] += 1
+        elif R < -0.05:
+            a["losses"] += 1
+        else:
+            a["breakeven"] += 1
+    return agg
