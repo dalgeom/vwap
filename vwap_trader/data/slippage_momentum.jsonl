@@ -208,3 +208,16 @@
 {"symbol": "DYDXUSDT", "direction": "short", "intended_price": 0.15501, "fill_price": 0.15682, "slippage_pct": 1.1677, "timestamp": "2026-07-01T19:01:05.734479+00:00"}
 {"symbol": "LITUSDT", "direction": "long", "intended_price": 1.9871, "fill_price": 1.9807, "slippage_pct": 0.3221, "timestamp": "2026-07-01T20:01:12.702215+00:00"}
 {"symbol": "TAIKOUSDT", "direction": "long", "intended_price": 0.1915, "fill_price": 0.19666, "slippage_pct": 2.6945, "timestamp": "2026-07-01T22:01:09.739456+00:00"}
+{"symbol": "BASEDUSDT", "direction": "short", "intended_price": 0.10793, "fill_price": 0.10849, "slippage_pct": 0.5189, "timestamp": "2026-07-02T07:01:15.057732+00:00"}
+{"symbol": "TAIKOUSDT", "direction": "short", "intended_price": 0.30122, "fill_price": 0.30375, "slippage_pct": 0.8399, "timestamp": "2026-07-02T07:01:15.965859+00:00"}
+{"symbol": "TLMUSDT", "direction": "long", "intended_price": 0.0016647, "fill_price": 0.00166, "slippage_pct": 0.2823, "timestamp": "2026-07-02T12:01:14.642606+00:00"}
+{"symbol": "UNIUSDT", "direction": "long", "intended_price": 3.043, "fill_price": 3.041, "slippage_pct": 0.0657, "timestamp": "2026-07-02T12:01:15.557491+00:00"}
+{"symbol": "GRASSUSDT", "direction": "long", "intended_price": 0.55833, "fill_price": 0.55833, "slippage_pct": 0.0, "timestamp": "2026-07-03T11:01:12.513060+00:00"}
+{"symbol": "MAGMAUSDT", "direction": "long", "intended_price": 0.69272, "fill_price": 0.69417, "slippage_pct": 0.2093, "timestamp": "2026-07-03T17:01:08.213176+00:00"}
+{"symbol": "TLMUSDT", "direction": "long", "intended_price": 0.0028292, "fill_price": 0.0028883, "slippage_pct": 2.0889, "timestamp": "2026-07-03T20:01:12.841443+00:00"}
+{"symbol": "LABUSDT", "direction": "long", "intended_price": 6.863, "fill_price": 6.76, "slippage_pct": 1.5008, "timestamp": "2026-07-04T03:01:01.794760+00:00"}
+{"symbol": "HMSTRUSDT", "direction": "long", "intended_price": 0.0004198, "fill_price": 0.0004209, "slippage_pct": 0.262, "timestamp": "2026-07-04T12:01:20.415068+00:00"}
+{"symbol": "LABUSDT", "direction": "long", "intended_price": 15.887, "fill_price": 15.901, "slippage_pct": 0.0881, "timestamp": "2026-07-04T18:01:06.021144+00:00"}
+{"symbol": "VANRYUSDT", "direction": "long", "intended_price": 0.005181, "fill_price": 0.005149, "slippage_pct": 0.6176, "timestamp": "2026-07-05T04:00:56.548243+00:00"}
+{"symbol": "EPICUSDT", "direction": "short", "intended_price": 0.4292, "fill_price": 0.4278, "slippage_pct": 0.3262, "timestamp": "2026-07-05T10:00:56.320660+00:00"}
+{"symbol": "VANRYUSDT", "direction": "long", "intended_price": 0.005609, "fill_price": 0.00568, "slippage_pct": 1.2658, "timestamp": "2026-07-05T12:01:01.155775+00:00"}

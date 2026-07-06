@@ -204,12 +204,36 @@
       "Skill(update-config:*)",
       "Bash(cd \"c:/Users/PC/Desktop/현진/code/vwap_trader\" && echo \"stop requested $\\(date '+%Y-%m-%d %H:%M:%S'\\)\" > data/STOP_MOMENTUM && echo \"STOP_MOMENTUM 생성됨 — 다음 분에 봇 graceful 종료\" && echo \"현재 프로세스:\" && cat data/heartbeat_momentum)",
       "PowerShell(Write-Output \"NOW\\(KST\\): $\\(Get-Date -Format 'HH:mm:ss'\\)\"; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{N='CPU';E={[math]::Round\\($_.CPU,1\\)}} | Format-Table -AutoSize; Write-Output \"heartbeat: $\\(Get-Content 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\heartbeat_momentum'\\)\"; Write-Output \"STOP 파일 존재: $\\(Test-Path 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\STOP_MOMENTUM'\\)\")",
-      "PowerShell(Write-Output \"NOW\\(KST\\): $\\(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'\\)\"; Write-Output \"=== python 프로세스 ===\"; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime | Format-Table -AutoSize; Write-Output \"heartbeat: $\\(Get-Content 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\heartbeat_momentum' -ErrorAction SilentlyContinue\\)\"; Write-Output \"STOP 존재: $\\(Test-Path 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\STOP_MOMENTUM'\\)\")"
+      "PowerShell(Write-Output \"NOW\\(KST\\): $\\(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'\\)\"; Write-Output \"=== python 프로세스 ===\"; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime | Format-Table -AutoSize; Write-Output \"heartbeat: $\\(Get-Content 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\heartbeat_momentum' -ErrorAction SilentlyContinue\\)\"; Write-Output \"STOP 존재: $\\(Test-Path 'C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\\\\data\\\\STOP_MOMENTUM'\\)\")",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe _tmp_brief.py)",
+      "Bash(./venv/Scripts/python.exe -m pytest tests/test_integrity.py -v)",
+      "Bash(./venv/Scripts/python.exe -c \"import sys; sys.path.insert\\(0,'src'\\); import vwap_trader.momentum_bot; print\\('import OK'\\)\")",
+      "Bash(./venv/Scripts/python.exe -m pytest tests/ -v)",
+      "Bash(git --no-pager show 3e7e4e5 -U2 -- vwap_trader/src/vwap_trader/momentum_bot.py)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\PC\\\\Desktop\\\\현진\\\\code\\\\vwap_trader\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(./venv/Scripts/python.exe -m pytest tests/test_corrections.py -v)",
+      "Bash(./venv/Scripts/python.exe -m pytest tests/test_fix_estimated.py -v)",
+      "Bash(./venv/Scripts/python.exe -c \"print\\(\\(0.15393-0.10475\\)/0.10475*100\\); print\\(\\(0.30375-0.28045\\)/0.30375*100\\)\")",
+      "Bash(git --no-pager log --oneline -7)",
+      "Bash(./venv/Scripts/python.exe -c \"print\\(sum\\(1 for _ in open\\('data/trades_momentum.jsonl','rb'\\)\\)\\)\")",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe fix_estimated.py)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('.claude/settings.local.json',encoding='utf-8'\\)\\); print\\('JSON OK'\\); print\\('defaultMode:', d['permissions'].get\\('defaultMode'\\)\\); print\\('skipDangerousModePermissionPrompt:', d.get\\('skipDangerousModePermissionPrompt'\\)\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('keys:', list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(git --no-pager log --oneline -1)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe -m pytest tests/test_daily_report.py -v)",
+      "Bash(./venv/Scripts/python.exe -m pytest tests/test_daily_report.py -v)",
+      "Bash(./venv/Scripts/python.exe -c \"import sys; sys.path.insert\\(0,'.'\\); import daily_report; print\\('import OK'\\)\")",
+      "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe daily_report.py)",
+      "Bash(cd \"c:/Users/PC/Desktop/현진/code/vwap_trader\" && echo \"=== reports/ 내용 \\(mtime 중요\\) ===\" && ls -la reports/ 2>/dev/null && echo \"=== 오늘 리포트 mtime \\(11:34면 스케줄러 성공, 11:26이면 Task5 그대로\\) ===\" && stat -c '%y %n' reports/2026-07-06.md 2>/dev/null && echo \"=== logs/daily_report.log 크기/내용 ===\" && ls -la logs/daily_report.log 2>/dev/null && echo \"--- 내용 ---\" && cat logs/daily_report.log 2>/dev/null | head -20 || echo \"\\(로그 파일 없음 or 빈파일\\)\")",
+      "Read(//c/Users/PC/Desktop/현진/code/**)"
     ],
+    "defaultMode": "bypassPermissions",
     "additionalDirectories": [
       "c:\\c\\Users\\PC\\Desktop\\현진\\code\\vwap_trader",
       "C:\\Users\\PC\\Desktop\\현진\\code\\vwap_trader",
       "c:\\Users\\PC\\Desktop\\현진\\code\\vwap_trader\\data"
     ]
-  }
+  },
+  "skipDangerousModePermissionPrompt": true
 }
