@@ -22,8 +22,13 @@ def _load_jsonl(path) -> list:
 
 
 def merge_trades(raw: list, corrected: list) -> list:
-    """corrected 값 우선 필드유니온 + raw-only 통과 + canonical_src 표식."""
+    """corrected 값 우선 필드유니온 + raw-only 통과 + canonical_src 표식 + 청산시각 정렬.
+    입력 내부 trade_id 중복 시 즉시 예외(조용한 오염 금지)."""
     raw_by_id = {t["trade_id"]: t for t in raw}
+    if len(raw_by_id) != len(raw):
+        raise ValueError("raw trades 내 trade_id 중복 — 정본 생성 중단")
+    if len({c["trade_id"] for c in corrected}) != len(corrected):
+        raise ValueError("corrected 내 trade_id 중복 — 정본 생성 중단")
     out, seen = [], set()
     for c in corrected:
         tid = c["trade_id"]
@@ -32,4 +37,5 @@ def merge_trades(raw: list, corrected: list) -> list:
     for t in raw:
         if t["trade_id"] not in seen:
             out.append({**t, "canonical_src": "raw"})
+    out.sort(key=lambda t: t.get("exit_timestamp_utc") or t.get("timestamp_utc") or "")
     return out

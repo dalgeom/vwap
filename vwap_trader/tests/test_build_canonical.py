@@ -31,3 +31,27 @@ def test_merge_counts():
     out = merge_trades(raw, corrected)
     assert len(out) == 2
     assert {t["trade_id"] for t in out} == {"a", "b"}
+
+
+def test_duplicate_trade_id_in_raw_raises():
+    """raw 내부 중복(롤백 사고 등) → 조용한 붕괴 대신 즉시 예외."""
+    raw = [{"trade_id": "a", "pnl_usd": 1.0}, {"trade_id": "a", "pnl_usd": 1.0}]
+    with pytest.raises(ValueError):
+        merge_trades(raw, [])
+
+
+def test_duplicate_trade_id_in_corrected_raises():
+    corrected = [{"trade_id": "a", "pnl_usd": 1.0}, {"trade_id": "a", "pnl_usd": 2.0}]
+    with pytest.raises(ValueError):
+        merge_trades([], corrected)
+
+
+def test_sorted_by_exit_timestamp():
+    """exit_timestamp_utc 오름차순, 없으면 timestamp_utc 폴백."""
+    raw = [
+        {"trade_id": "late", "exit_timestamp_utc": "2026-07-05T10:00:00+00:00"},
+        {"trade_id": "early", "exit_timestamp_utc": "2026-05-21T06:00:00+00:00"},
+        {"trade_id": "mid_fallback", "timestamp_utc": "2026-06-01T00:00:00+00:00"},
+    ]
+    out = merge_trades(raw, [])
+    assert [t["trade_id"] for t in out] == ["early", "mid_fallback", "late"]
