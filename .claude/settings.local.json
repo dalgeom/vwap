@@ -226,7 +226,9 @@
       "Bash(./venv/Scripts/python.exe -c \"import sys; sys.path.insert\\(0,'.'\\); import daily_report; print\\('import OK'\\)\")",
       "Bash(PYTHONIOENCODING=utf-8 ./venv/Scripts/python.exe daily_report.py)",
       "Bash(cd \"c:/Users/PC/Desktop/현진/code/vwap_trader\" && echo \"=== reports/ 내용 \\(mtime 중요\\) ===\" && ls -la reports/ 2>/dev/null && echo \"=== 오늘 리포트 mtime \\(11:34면 스케줄러 성공, 11:26이면 Task5 그대로\\) ===\" && stat -c '%y %n' reports/2026-07-06.md 2>/dev/null && echo \"=== logs/daily_report.log 크기/내용 ===\" && ls -la logs/daily_report.log 2>/dev/null && echo \"--- 내용 ---\" && cat logs/daily_report.log 2>/dev/null | head -20 || echo \"\\(로그 파일 없음 or 빈파일\\)\")",
-      "Read(//c/Users/PC/Desktop/현진/code/**)"
+      "Read(//c/Users/PC/Desktop/현진/code/**)",
+      "Bash(ls -la .gitignore vwap_trader/.gitignore)",
+      "Bash(tail -8 .gitignore)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
