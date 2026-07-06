@@ -22,5 +22,8 @@ vwap_trader/logs/
 # 데이터 백업 (로컬 전용 — A-3 무결성 가드가 봇 시작 시 생성, 로컬 복구용)
 vwap_trader/data/*.bak_*
 
+# 정본 스냅샷 (파생물 — build_canonical.py로 언제든 재생성)
+vwap_trader/data/trades_canonical.jsonl
+
 # Claude Code 로컬 설정 (머신별 권한 목록 — PC마다 자동 수정되어 pull 충돌 유발)
 .claude/settings.local.json

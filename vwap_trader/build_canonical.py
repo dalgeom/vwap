@@ -51,3 +51,20 @@ def load_canonical(raw_path=RAW, corrected_path=CORRECTED, corrections=None) -> 
     if not corrected:
         print(f"⚠ corrected 파일 없음/비어있음 — raw+corrections만으로 정본 생성: {corrected_path}")
     return apply_corrections(merge_trades(raw, corrected), corrections)
+
+
+def main():
+    from collections import Counter
+    trades = load_canonical()
+    with open(OUT, "w", encoding="utf-8") as f:
+        for t in trades:
+            f.write(json.dumps(t, ensure_ascii=False) + "\n")
+    total = sum(t.get("pnl_usd") or 0 for t in trades)
+    print(f"정본 {len(trades)}건 → {OUT}")
+    print(f"누적 PnL: ${total:,.2f}")
+    print(f"canonical_src: {dict(Counter(t['canonical_src'] for t in trades))}")
+    print(f"pnl_source: {dict(Counter(t.get('pnl_source') for t in trades))}")
+
+
+if __name__ == "__main__":
+    main()
