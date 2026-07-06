@@ -199,11 +199,13 @@ def render(scores: list):
     print(f"\n=== SHADOW SCOREBOARD — 원신호 {len(scores)}건 / 파도 {len(wave_scores)}개 ===")
     for label, agg in (("원신호", raw_agg), ("파도 dedup", wave_agg)):
         print(f"\n--- {label} 기준 ---")
-        print(f"{'사유':18} {'n':>4} {'승':>4} {'패':>4} {'본전':>4} {'OPEN':>5} {'NO_DATA':>7} {'sumR':>8} {'~$':>8}")
+        print(f"{'사유':18} {'n':>4} {'승':>4} {'패':>4} {'본전':>4} {'OPEN':>5} {'NO_DATA':>7} {'sumR':>8} {'avgR':>7} {'~$':>8}")
         for reason, a in sorted(agg.items(), key=lambda kv: -kv[1]['n']):
+            scored_n = a['n'] - a['no_data']
+            avg = a['sum_R'] / scored_n if scored_n else 0.0
             print(f"{reason:18} {a['n']:>4} {a['wins']:>4} {a['losses']:>4} {a['breakeven']:>4} "
-                  f"{a['open']:>5} {a['no_data']:>7} {a['sum_R']:>+8.2f} {a['sum_R']*RISK_USD:>+8.0f}")
-    print("\n=== VERDICT (파도 dedup 기준) ===")
+                  f"{a['open']:>5} {a['no_data']:>7} {a['sum_R']:>+8.2f} {avg:>+7.2f} {a['sum_R']*RISK_USD:>+8.0f}")
+    print("\n=== VERDICT (파도 dedup 기준, 선두 R은 OPEN 잠정 포함) ===")
     final_agg = aggregate([r for r in wave_scores if r["exit_reason"] != "OPEN"])
     for reason, a in sorted(wave_agg.items(), key=lambda kv: -kv[1]['n']):
         ref = a["sum_R"]  # OPEN 잠정 포함
@@ -234,7 +236,11 @@ def main():
             out.append(prev[k])
             continue
         e_ms = iso_ms(s["timestamp_utc"])
-        bars = fetch_1m(client, s["symbol"], e_ms, min(e_ms + MAX_HOLD_MS + 3600_000, now_ms))
+        try:
+            bars = fetch_1m(client, s["symbol"], e_ms, min(e_ms + MAX_HOLD_MS + 3600_000, now_ms))
+        except Exception as ex:
+            print(f"  ⚠ {s['symbol']} klines 조회 실패({type(ex).__name__}) → NO_DATA로 기록, 다음 실행 때 재시도")
+            bars = []
         if not bars:
             out.append(make_score(s, None, "NO_DATA", scored_at))
         else:
