@@ -141,7 +141,8 @@ def _heartbeat_age_min(now: datetime):
 
 def main():
     import fix_estimated as fe
-    from corrections import read_corrections, apply_corrections
+    from corrections import read_corrections
+    from build_canonical import load_canonical
 
     now = datetime.now(timezone.utc)
     day = now.date()
@@ -153,9 +154,9 @@ def main():
     except Exception as e:
         fix = {"fixed": 0, "matched_none": 0, "imminent": 0, "lost": 0, "error": str(e)}
 
-    # 2. trades + corrections
+    # 2. 정본 로드 (corrected+raw 유니온 + corrections 오버레이, A-1)
     corr = read_corrections()
-    trades = apply_corrections(fe.load_trades(), corr)
+    trades = load_canonical()
     shadow = _load_jsonl(SHADOW)
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
 
