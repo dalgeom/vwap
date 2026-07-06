@@ -1,7 +1,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import pytest
-from build_canonical import merge_trades
+from build_canonical import merge_trades, load_canonical
 
 
 def test_union_corrected_wins_and_raw_backfills():
@@ -55,3 +55,38 @@ def test_sorted_by_exit_timestamp():
     ]
     out = merge_trades(raw, [])
     assert [t["trade_id"] for t in out] == ["early", "mid_fallback", "late"]
+
+
+import json
+
+
+def _write_jsonl(path, rows):
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+
+
+def test_load_canonical_applies_corrections(tmp_path):
+    """병합 결과 위에 corrections 오버레이(pnl_usd/exit_price/pnl_pct/pnl_source 교체)."""
+    raw_f = tmp_path / "raw.jsonl"
+    cor_f = tmp_path / "corrected.jsonl"
+    _write_jsonl(raw_f, [{"trade_id": "x", "pnl_usd": 100.0, "pnl_source": "estimated",
+                          "exit_price": 1.0, "pnl_pct": 10.0}])
+    _write_jsonl(cor_f, [])
+    corr = {"x": {"pnl_usd": 95.5, "exit_price": 1.1, "pnl_pct": 9.5, "src": "exchange"}}
+    out = load_canonical(raw_path=raw_f, corrected_path=cor_f, corrections=corr)
+    assert out[0]["pnl_usd"] == 95.5
+    assert out[0]["pnl_source"] == "exchange"
+
+
+def test_load_canonical_missing_corrected_falls_back(tmp_path):
+    """corrected 부재 → raw+corrections만으로 동작(경고만)."""
+    raw_f = tmp_path / "raw.jsonl"
+    _write_jsonl(raw_f, [{"trade_id": "y", "pnl_usd": 1.0}])
+    out = load_canonical(raw_path=raw_f, corrected_path=tmp_path / "nope.jsonl", corrections={})
+    assert len(out) == 1
+    assert out[0]["canonical_src"] == "raw"
+
+
+def test_load_canonical_missing_raw_raises(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        load_canonical(raw_path=tmp_path / "nope.jsonl",
+                       corrected_path=tmp_path / "also_nope.jsonl", corrections={})

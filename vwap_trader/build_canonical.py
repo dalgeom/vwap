@@ -39,3 +39,15 @@ def merge_trades(raw: list, corrected: list) -> list:
             out.append({**t, "canonical_src": "raw"})
     out.sort(key=lambda t: t.get("exit_timestamp_utc") or t.get("timestamp_utc") or "")
     return out
+
+
+def load_canonical(raw_path=RAW, corrected_path=CORRECTED, corrections=None) -> list:
+    """정본 로드: corrected+raw 필드유니온 → corrections 오버레이 → 정렬된 list 반환.
+    corrections=None이면 data/pnl_corrections.jsonl 자동 사용(corrections.py 기본값)."""
+    if not Path(raw_path).exists():
+        raise FileNotFoundError(f"raw trades 없음: {raw_path}")
+    raw = _load_jsonl(raw_path)
+    corrected = _load_jsonl(corrected_path)
+    if not corrected:
+        print(f"⚠ corrected 파일 없음/비어있음 — raw+corrections만으로 정본 생성: {corrected_path}")
+    return apply_corrections(merge_trades(raw, corrected), corrections)
