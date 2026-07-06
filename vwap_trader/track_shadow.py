@@ -152,3 +152,104 @@ def aggregate(scores: list) -> dict:
         else:
             a["breakeven"] += 1
     return agg
+
+
+def build_client():
+    from dotenv import load_dotenv
+    from pybit.unified_trading import HTTP
+    load_dotenv(ROOT / "config" / ".env")
+    key = os.environ.get("BYBIT_API_KEY", "")
+    if not key:
+        raise RuntimeError("BYBIT_API_KEY 없음 — config/.env 확인")
+    return HTTP(testnet=False, demo=True, api_key=key,
+                api_secret=os.environ.get("BYBIT_API_SECRET", ""))
+
+
+def fetch_1m(client, sym, a, b):
+    """1m klines [a,b) — 1000봉 페이지네이션, (ts, high, low, close) 오름차순. (track_f1 계승)"""
+    out, cur = [], a
+    while cur < b:
+        r = client.get_kline(category="linear", symbol=sym, interval="1",
+                             start=cur, end=b, limit=1000)
+        if r.get("retCode") != 0:
+            break
+        lst = sorted(r["result"]["list"], key=lambda x: int(x[0]))
+        if not lst:
+            break
+        out += lst
+        last = int(lst[-1][0])
+        if last <= cur or len(lst) < 1000:
+            break
+        cur = last + 1
+        time.sleep(0.1)
+    seen, u = set(), []
+    for k in out:
+        t = int(k[0])
+        if t in seen:
+            continue
+        seen.add(t)
+        u.append((t, float(k[2]), float(k[3]), float(k[4])))
+    return sorted(u)
+
+
+def render(scores: list):
+    raw_agg = aggregate(scores)
+    wave_scores = dedup_waves(scores)
+    wave_agg = aggregate(wave_scores)
+    print(f"\n=== SHADOW SCOREBOARD — 원신호 {len(scores)}건 / 파도 {len(wave_scores)}개 ===")
+    for label, agg in (("원신호", raw_agg), ("파도 dedup", wave_agg)):
+        print(f"\n--- {label} 기준 ---")
+        print(f"{'사유':18} {'n':>4} {'승':>4} {'패':>4} {'본전':>4} {'OPEN':>5} {'NO_DATA':>7} {'sumR':>8} {'~$':>8}")
+        for reason, a in sorted(agg.items(), key=lambda kv: -kv[1]['n']):
+            print(f"{reason:18} {a['n']:>4} {a['wins']:>4} {a['losses']:>4} {a['breakeven']:>4} "
+                  f"{a['open']:>5} {a['no_data']:>7} {a['sum_R']:>+8.2f} {a['sum_R']*RISK_USD:>+8.0f}")
+    print("\n=== VERDICT (파도 dedup 기준) ===")
+    final_agg = aggregate([r for r in wave_scores if r["exit_reason"] != "OPEN"])
+    for reason, a in sorted(wave_agg.items(), key=lambda kv: -kv[1]['n']):
+        ref = a["sum_R"]  # OPEN 잠정 포함
+        ref_final = final_agg.get(reason, {}).get("sum_R", 0.0)  # 확정분만
+        if ref > 0.3:
+            v = "차단이 승자를 걸렀다 → 규칙 재검토 후보"
+        elif ref < -0.3:
+            v = "차단이 손실을 막았다 → 규칙 유지"
+        else:
+            v = "판정 불가(근소/표본 부족)"
+        print(f"  {reason:18} {ref:+8.2f}R (확정만 {ref_final:+.2f}R)  {v}")
+    print("\n⚠ 단일경로 소급은 과대평가 경향(F1 실증) — 1차 스크리닝. "
+          "유망 사유는 1m 정밀재생 2차 검증 필요. 진입가=signal_price 근사, demo klines.")
+
+
+def main():
+    if not SHADOW.exists():
+        raise FileNotFoundError(f"shadow 없음: {SHADOW}")
+    shadow = load_jsonl(SHADOW)
+    prev = {r["key"]: r for r in load_jsonl(SCORES)}
+    client = build_client()
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    scored_at = datetime.now(timezone.utc).isoformat()
+    out, rescored = [], 0
+    for i, s in enumerate(shadow, 1):
+        k = key_of(s)
+        if not needs_rescore(prev.get(k)):
+            out.append(prev[k])
+            continue
+        e_ms = iso_ms(s["timestamp_utc"])
+        bars = fetch_1m(client, s["symbol"], e_ms, min(e_ms + MAX_HOLD_MS + 3600_000, now_ms))
+        if not bars:
+            out.append(make_score(s, None, "NO_DATA", scored_at))
+        else:
+            pct, reason = replay(s["signal_price"], s["atr_at_entry"], s["side"], bars, e_ms)
+            out.append(make_score(s, pct, reason, scored_at))
+        rescored += 1
+        if rescored % 20 == 0:
+            print(f"  ...{rescored}건 채점 (전체 {i}/{len(shadow)})")
+        time.sleep(0.15)
+    with open(SCORES, "w", encoding="utf-8") as f:
+        for r in out:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    print(f"\n채점 완료: 재채점 {rescored}건 / 스킵(확정) {len(out)-rescored}건 → {SCORES.name}")
+    render(out)
+
+
+if __name__ == "__main__":
+    main()
