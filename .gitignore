@@ -18,3 +18,6 @@ vwap_trader/data/heartbeat
 vwap_trader/data/heartbeat_momentum
 vwap_trader/data/slippage.jsonl
 vwap_trader/logs/
+
+# 데이터 백업 (로컬 전용 — A-3 무결성 가드가 봇 시작 시 생성, 로컬 복구용)
+vwap_trader/data/*.bak_*
