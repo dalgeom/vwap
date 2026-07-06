@@ -121,3 +121,84 @@ def render_report(ctx: dict) -> str:
              f"| corrections {inf['corrections']}건 | slippage_cooldown {len(inf['cooldowns'])}개")
     L.append("")
     return "\n".join(L)
+
+
+def _load_jsonl(path: Path) -> list:
+    if not path.exists():
+        return []
+    return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def _heartbeat_age_min(now: datetime):
+    if not HEARTBEAT.exists():
+        return None
+    try:
+        hb = datetime.fromisoformat(HEARTBEAT.read_text(encoding="utf-8").strip())
+        return (now - hb.astimezone(timezone.utc)).total_seconds() / 60.0
+    except Exception:
+        return None
+
+
+def main():
+    import fix_estimated as fe
+    from corrections import read_corrections, apply_corrections
+
+    now = datetime.now(timezone.utc)
+    day = now.date()
+    client = fe._build_client()
+
+    # 1. estimated 정정 먼저 (실패해도 리포트는 계속)
+    try:
+        fix = fe.run(client=client)
+    except Exception as e:
+        fix = {"fixed": 0, "matched_none": 0, "imminent": 0, "lost": 0, "error": str(e)}
+
+    # 2. trades + corrections
+    corr = read_corrections()
+    trades = apply_corrections(fe.load_trades(), corr)
+    shadow = _load_jsonl(SHADOW)
+    state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
+
+    # 3. 거래소 (실패 시 degrade)
+    equity, positions = None, []
+    try:
+        w = client.get_wallet_balance(accountType="UNIFIED")["result"]["list"][0]
+        equity = float(w["totalEquity"])
+        r = client.get_positions(category="linear", settleCoin="USDT")
+        positions = [p for p in r["result"]["list"] if float(p.get("size", 0) or 0) != 0]
+    except Exception:
+        pass
+
+    # 4. estimated 잔존(전체) 계산
+    est_left = sum(1 for t in fe.load_trades()
+                   if t.get("pnl_source") == "estimated" and t.get("trade_id") not in corr)
+
+    hb_age = _heartbeat_age_min(now)
+    warnings = []
+    if hb_age is not None and hb_age > 10:
+        warnings.append(f"⚠ heartbeat {hb_age:.0f}분 정체 — 봇 다운 의심")
+    if fix.get("imminent", 0) > 0:
+        warnings.append(f"⚠ estimated 시한임박 {fix['imminent']}건 — 곧 정정 불가")
+
+    ctx = {
+        "day": day, "equity": equity, "bar": state.get("bar_counter", 0),
+        "hb_age_min": hb_age, "positions": positions,
+        "todays": todays_closes(trades, day),
+        "stats": build_stats(trades),
+        "shadow_counts": shadow_reason_counts(shadow, day),
+        "infra": {"estimated": est_left, "imminent": fix.get("imminent", 0),
+                  "lost": fix.get("lost", 0), "cooldowns": list(state.get("slippage_cooldown", {}).keys()),
+                  "corrections": len(corr)},
+        "warnings": warnings,
+    }
+    md = render_report(ctx)
+    REPORTS.mkdir(parents=True, exist_ok=True)
+    out = REPORTS / f"{day.isoformat()}.md"
+    out.write_text(md, encoding="utf-8")
+    print(md)
+    print(f"\n[daily_report] saved: {out}")
+    return out
+
+
+if __name__ == "__main__":
+    main()
