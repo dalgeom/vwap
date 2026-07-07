@@ -155,21 +155,24 @@ def build_client():
 
 
 def fetch_1m(client, sym, a, b):
-    """1m klines [a,b) — 1000봉 페이지네이션, (ts, high, low, close) 오름차순."""
+    """1m klines [a,b) — 앞에서부터 채우는 페이지네이션, (ts, high, low, close) 오름차순.
+    Bybit는 start+end 범위에서 end에 가까운 최근 limit봉을 반환하므로, 페이지 창을
+    1000봉(=1000분) 이하로 잘라야 진입 시점부터 빠짐없이 커버된다.
+    """
+    PAGE_MS = 1000 * 60000  # 1000봉 = 1000분
     out, cur = [], a
     while cur < b:
+        page_end = min(cur + PAGE_MS, b)
         r = client.get_kline(category="linear", symbol=sym, interval="1",
-                             start=cur, end=b, limit=1000)
+                             start=cur, end=page_end, limit=1000)
         if r.get("retCode") != 0:
             break
         lst = sorted(r["result"]["list"], key=lambda x: int(x[0]))
-        if not lst:
-            break
-        out += lst
-        last = int(lst[-1][0])
-        if last <= cur or len(lst) < 1000:
-            break
-        cur = last + 1
+        if lst:
+            out += lst
+            cur = max(int(lst[-1][0]) + 60000, page_end)  # 진행 보장(빈 창도 건너뜀)
+        else:
+            cur = page_end
         time.sleep(0.1)
     seen, u = set(), []
     for k in out:
