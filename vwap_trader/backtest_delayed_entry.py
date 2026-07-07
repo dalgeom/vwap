@@ -45,3 +45,55 @@ def confirm(bars, e_ms, entry_price, side, n):
     if not favorable:
         return ("skip", cp, None, None)
     return ("enter", cp, conf[0] + 60000, after[n:])
+
+
+def replay(entry, atr, side, bars, start_ms, be_trigger=BE_TRIGGER):
+    """진입가 entry(시각 start_ms)부터 봇 스탑로직 1분봉 재생.
+    bars = (ts, high, low, close) 오름차순, start_ms 이후만. 반환 (exit_price, reason).
+    로직: 초기 SL 1.5ATR → 본전잠금(이익 be_trigger*ATR) → 추적 2ATR + spike guard
+          → 48h Timeout → 소진 시 EndWindow.
+    """
+    if not bars:
+        return None, "nodata"
+    be_level = be_trigger * atr
+    trail_dist = TRAIL_MULT * atr
+    best = entry
+    be = False
+    if side == "long":
+        sl = entry - SL_MULT * atr
+        for ts, hi, lo, cl in bars:
+            if lo <= sl:
+                return sl, ("TrailSL" if be else "SL")
+            if ts - start_ms >= MAX_HOLD_MS:
+                return cl, "Timeout"
+            if hi > best:
+                best = hi
+            if not be and best >= entry + be_level:
+                be = True
+                sl = max(sl, entry)
+            if be:
+                nsl = best - trail_dist
+                if nsl >= cl:  # spike-retrace guard
+                    nsl = entry if entry < cl else sl
+                if nsl > sl:
+                    sl = nsl
+        return bars[-1][3], "EndWindow"
+    else:
+        sl = entry + SL_MULT * atr
+        for ts, hi, lo, cl in bars:
+            if hi >= sl:
+                return sl, ("TrailSL" if be else "SL")
+            if ts - start_ms >= MAX_HOLD_MS:
+                return cl, "Timeout"
+            if lo < best:
+                best = lo
+            if not be and best <= entry - be_level:
+                be = True
+                sl = min(sl, entry)
+            if be:
+                nsl = best + trail_dist
+                if nsl <= cl:  # spike-retrace guard (mirror)
+                    nsl = entry if entry > cl else sl
+                if nsl < sl:
+                    sl = nsl
+        return bars[-1][3], "EndWindow"

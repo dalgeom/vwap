@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from backtest_delayed_entry import iso_ms, pnl_of, confirm
+from backtest_delayed_entry import iso_ms, pnl_of, confirm, replay, MAX_HOLD_MS
 
 
 def test_iso_ms_utc_millis():
@@ -46,3 +46,36 @@ def test_confirm_nodata_when_window_short():
     bars = _bars([100, 101])  # N=5인데 봉 2개뿐
     status, cp, start_ms, rbars = confirm(bars, 0, 100.0, "long", 5)
     assert status == "nodata"
+
+
+def test_replay_long_immediate_sl():
+    # entry=100, atr=10 → 초기 SL=100-15=85. 첫 봉 저가 80 → SL 히트.
+    bars = [(0, 100, 80, 90)]
+    xp, reason = replay(100.0, 10.0, "long", bars, 0)
+    assert reason == "SL" and xp == 85.0
+
+
+def test_replay_long_be_then_trailsl():
+    # entry=100, atr=10. BE 트리거= +1.5*10=+15 → best>=115 시 SL=entry(100).
+    # 추적 = best-2*10. best=140이면 trail=120. 이후 저가 118 히트 → TrailSL exit=120.
+    bars = [
+        (0, 116, 100, 115),
+        (60000, 140, 120, 135),
+        (120000, 130, 118, 122),
+    ]
+    xp, reason = replay(100.0, 10.0, "long", bars, 0)
+    assert reason == "TrailSL" and xp == 120.0
+
+
+def test_replay_timeout_returns_close():
+    # 48h 경과봉에서 Timeout, 종가 반환. SL/BE 미발동.
+    bars = [(0, 101, 100, 100), (MAX_HOLD_MS, 102, 100, 101)]
+    xp, reason = replay(100.0, 10.0, "long", bars, 0)
+    assert reason == "Timeout" and xp == 101.0
+
+
+def test_replay_short_immediate_sl():
+    # 숏 entry=100, atr=10 → SL=100+15=115. 첫 봉 고가 120 → SL 히트.
+    bars = [(0, 120, 100, 110)]
+    xp, reason = replay(100.0, 10.0, "short", bars, 0)
+    assert reason == "SL" and xp == 115.0
