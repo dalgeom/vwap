@@ -141,3 +141,71 @@ def simulate(trades, klines, n, top_ids):
         if is_jp:
             res["jackpot_kept"].append((sym, round(p, 1)))
     return res
+
+
+def build_client():
+    from dotenv import load_dotenv
+    from pybit.unified_trading import HTTP
+    load_dotenv(ROOT / "config" / ".env")
+    key = os.environ.get("BYBIT_API_KEY", "")
+    if not key:
+        raise RuntimeError("BYBIT_API_KEY 없음 — config/.env 확인")
+    return HTTP(testnet=False, demo=True, api_key=key,
+                api_secret=os.environ.get("BYBIT_API_SECRET", ""))
+
+
+def fetch_1m(client, sym, a, b):
+    """1m klines [a,b) — 1000봉 페이지네이션, (ts, high, low, close) 오름차순."""
+    out, cur = [], a
+    while cur < b:
+        r = client.get_kline(category="linear", symbol=sym, interval="1",
+                             start=cur, end=b, limit=1000)
+        if r.get("retCode") != 0:
+            break
+        lst = sorted(r["result"]["list"], key=lambda x: int(x[0]))
+        if not lst:
+            break
+        out += lst
+        last = int(lst[-1][0])
+        if last <= cur or len(lst) < 1000:
+            break
+        cur = last + 1
+        time.sleep(0.1)
+    seen, u = set(), []
+    for k in out:
+        ts = int(k[0])
+        if ts in seen:
+            continue
+        seen.add(ts)
+        u.append((ts, float(k[2]), float(k[3]), float(k[4])))
+    return sorted(u)
+
+
+def load_trades():
+    """정본 거래 중 진입/청산/필수필드 갖춘 것만."""
+    from build_canonical import load_canonical
+    req = ("trade_id", "timestamp_utc", "entry_price", "atr_at_entry", "side",
+           "position_size_usd")
+    out = []
+    for t in load_canonical():
+        if all(t.get(k) not in (None, "") for k in req) and t.get("exit_timestamp_utc"):
+            out.append(t)
+    return out
+
+
+def load_klines(client, trades):
+    """전용 캐시 우선, 없는 trade_id만 [진입, 진입+48h] 조회 후 캐시. 반환 {trade_id: bars}."""
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    kl = {}
+    if CACHE.exists():
+        kl = {k: [tuple(b) for b in v] for k, v in json.load(open(CACHE)).items()}
+    miss = [t for t in trades if t["trade_id"] not in kl]
+    for i, t in enumerate(miss, 1):
+        e = iso_ms(t["timestamp_utc"])
+        kl[t["trade_id"]] = fetch_1m(client, t["symbol"], e, min(e + MAX_HOLD_MS, now_ms))
+        if i % 25 == 0:
+            print(f"  klines {i}/{len(miss)}")
+        time.sleep(0.06)
+    if miss:
+        json.dump(kl, open(CACHE, "w"))
+    return kl
