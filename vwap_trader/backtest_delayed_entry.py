@@ -209,3 +209,48 @@ def load_klines(client, trades):
     if miss:
         json.dump(kl, open(CACHE, "w"))
     return kl
+
+
+FIX_MS = iso_ms("2026-06-04T00:00:00+00:00")
+
+
+def _fmt_res(r, label):
+    wr = r["wins"] / r["entered"] * 100 if r["entered"] else 0.0
+    print(f"[{label}] 진입 {r['entered']} / 스킵 {r['skipped']} / 제외 {r['nodata']} "
+          f"| 순PnL {r['total_pnl']:>+9.0f} | 승률 {wr:>4.0f}% "
+          f"| 피한손실 {r['avoided_loss']:>+8.0f}({r['avoided_cnt']}건) "
+          f"| 잭팟 지킴 {len(r['jackpot_kept'])}/놓침 {len(r['jackpot_missed'])}")
+
+
+def render(trades, klines, top_ids, cohort_label):
+    base = simulate(trades, klines, 0, top_ids)
+    actual_tot = sum(t["pnl_usd"] for t in trades)
+    print(f"\n=== [{cohort_label}] 기준선 재현검증 (n={len(trades)}) ===")
+    if actual_tot:
+        print(f"  기준선(즉시진입) 재생 순PnL {base['total_pnl']:+.0f} | 실제 합계 {actual_tot:+.0f} "
+              f"| 재현율 {base['total_pnl']/actual_tot*100:.0f}%")
+    else:
+        print("  (실제합계 0)")
+    print("  ※ 재현율이 크게 어긋나면 아래 지연 결과는 신뢰 불가 — 판정 보류.")
+    print(f"\n=== [{cohort_label}] 지연 스윕 ===")
+    _fmt_res(base, "N=0 기준")
+    for n in DELAYS:
+        _fmt_res(simulate(trades, klines, n, top_ids), f"N={n}분")
+
+
+def main():
+    client = build_client()
+    trades = load_trades()
+    print(f"정본 거래 {len(trades)}건 로드. 1분봉 준비 중...")
+    klines = load_klines(client, trades)
+    top_ids = {t["trade_id"] for t in sorted(trades, key=lambda x: -x["pnl_usd"])[:5]}
+    post = [t for t in trades if iso_ms(t["timestamp_utc"]) >= FIX_MS]
+    render(trades, klines, top_ids, "전체 228")
+    render(post, klines, {t["trade_id"] for t in sorted(post, key=lambda x: -x["pnl_usd"])[:5]},
+           "수정후 신뢰코호트")
+    print("\n⚠ 진입가 변경 시 출구경로도 바뀌어 완전 재현 불가(§8.9). 방향성 스크리닝 — "
+          "유망 시 v11 forward A/B로만 확정, 이 숫자로 규칙 직접 변경 금지.")
+
+
+if __name__ == "__main__":
+    main()
