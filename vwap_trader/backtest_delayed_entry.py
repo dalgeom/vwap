@@ -26,3 +26,22 @@ def pnl_of(entry: float, exit_price: float, side: str, size_usd: float) -> float
     qty = size_usd / entry
     gross = qty * (exit_price - entry) if side == "long" else qty * (entry - exit_price)
     return gross - size_usd * FEE
+
+
+def confirm(bars, e_ms, entry_price, side, n):
+    """N번째 1분봉 종가로 방향 확인.
+    반환: (status, conf_price, start_ms, replay_bars)
+      - "enter":  conf_price에 진입, start_ms부터 replay_bars 재생
+      - "skip":   반대 방향 → 진입 안 함 (start_ms, replay_bars=None)
+      - "nodata": 창에 N번째 봉 없음
+    """
+    e_floor = (e_ms // 60000) * 60000
+    after = [b for b in bars if b[0] >= e_floor]
+    if len(after) < n:
+        return ("nodata", None, None, None)
+    conf = after[n - 1]
+    cp = conf[3]  # 종가
+    favorable = cp > entry_price if side == "long" else cp < entry_price
+    if not favorable:
+        return ("skip", cp, None, None)
+    return ("enter", cp, conf[0] + 60000, after[n:])
