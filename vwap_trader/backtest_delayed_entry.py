@@ -97,3 +97,47 @@ def replay(entry, atr, side, bars, start_ms, be_trigger=BE_TRIGGER):
                 if nsl < sl:
                     sl = nsl
         return bars[-1][3], "EndWindow"
+
+
+def simulate(trades, klines, n, top_ids):
+    """N분 지연 진입 시뮬. n=0이면 즉시 진입(기준선). 반환 집계 dict."""
+    res = {"n": n, "entered": 0, "skipped": 0, "nodata": 0,
+           "total_pnl": 0.0, "wins": 0,
+           "avoided_loss": 0.0, "avoided_cnt": 0,
+           "jackpot_kept": [], "jackpot_missed": []}
+    for t in trades:
+        bars = klines.get(t["trade_id"]) or []
+        if not bars:
+            res["nodata"] += 1
+            continue
+        e_ms = iso_ms(t["timestamp_utc"])
+        entry, atr, side = t["entry_price"], t["atr_at_entry"], t["side"]
+        size, actual = t["position_size_usd"], t["pnl_usd"]
+        sym = t["symbol"].replace("USDT", "")
+        is_jp = t["trade_id"] in top_ids
+        if n == 0:
+            e_floor = (e_ms // 60000) * 60000
+            status, cp, start_ms = "enter", entry, e_ms
+            rbars = [b for b in bars if b[0] >= e_floor]
+        else:
+            status, cp, start_ms, rbars = confirm(bars, e_ms, entry, side, n)
+        if status == "nodata":
+            res["nodata"] += 1
+            continue
+        if status == "skip":
+            res["skipped"] += 1
+            if actual < 0:
+                res["avoided_loss"] += actual
+                res["avoided_cnt"] += 1
+            if is_jp:
+                res["jackpot_missed"].append((sym, actual))
+            continue
+        xp, reason = replay(cp, atr, side, rbars, start_ms)
+        p = actual if xp is None else pnl_of(cp, xp, side, size)
+        res["entered"] += 1
+        res["total_pnl"] += p
+        if p > 0:
+            res["wins"] += 1
+        if is_jp:
+            res["jackpot_kept"].append((sym, round(p, 1)))
+    return res

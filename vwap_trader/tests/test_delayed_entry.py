@@ -1,6 +1,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from backtest_delayed_entry import iso_ms, pnl_of, confirm, replay, MAX_HOLD_MS
+from backtest_delayed_entry import iso_ms, pnl_of, confirm, replay, simulate, MAX_HOLD_MS
+from datetime import datetime, timezone
 
 
 def test_iso_ms_utc_millis():
@@ -79,3 +80,40 @@ def test_replay_short_immediate_sl():
     bars = [(0, 120, 100, 110)]
     xp, reason = replay(100.0, 10.0, "short", bars, 0)
     assert reason == "SL" and xp == 115.0
+
+
+def _iso(ms):
+    return datetime.fromtimestamp(ms / 1000, timezone.utc).isoformat()
+
+
+def _trade(tid, side, entry, atr, size, pnl, ts_ms):
+    return {"trade_id": tid, "side": side, "entry_price": entry,
+            "atr_at_entry": atr, "position_size_usd": size,
+            "pnl_usd": pnl, "timestamp_utc": _iso(ts_ms), "symbol": tid + "USDT"}
+
+
+def test_simulate_skip_counts_avoided_loss_and_missed_jackpot():
+    # 둘 다 지연 후 반대로 가 스킵. T1 실제 손실(-100)=피한손실, T2 실제 잭팟(+500,top5)=놓친 잭팟.
+    trades = [_trade("T1", "long", 100, 10, 1000, -100, 0),
+              _trade("T2", "long", 100, 10, 1000, 500, 0)]
+    klines = {"T1": [(0, 99, 99, 99), (60000, 98, 98, 98)],
+              "T2": [(0, 99, 99, 99), (60000, 98, 98, 98)]}
+    res = simulate(trades, klines, n=1, top_ids={"T2"})
+    assert res["entered"] == 0 and res["skipped"] == 2
+    assert res["avoided_cnt"] == 1 and abs(res["avoided_loss"] - (-100)) < 1e-9
+    assert res["jackpot_missed"] == [("T2", 500)]
+
+
+def test_simulate_enter_replays_and_tallies():
+    # 1번째봉 종가 105 > 100 → enter@105. 이후 저가 90 히트 → SL.
+    trades = [_trade("A", "long", 100, 10, 1000, 0, 0)]
+    klines = {"A": [(0, 105, 105, 105), (60000, 106, 80, 100)]}
+    res = simulate(trades, klines, n=1, top_ids=set())
+    assert res["entered"] == 1 and res["skipped"] == 0
+    assert res["total_pnl"] < 0  # enter=105, exit=90 → 손실
+
+
+def test_simulate_nodata_excluded():
+    trades = [_trade("Z", "long", 100, 10, 1000, 0, 0)]
+    res = simulate(trades, {"Z": []}, n=1, top_ids=set())
+    assert res["nodata"] == 1 and res["entered"] == 0 and res["skipped"] == 0
