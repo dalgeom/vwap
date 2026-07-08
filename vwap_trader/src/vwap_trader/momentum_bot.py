@@ -1331,6 +1331,22 @@ class MomentumBot:
             else:
                 pos.sl = old_sl  # rollback on failure
 
+        # ── Step2 be_counterfactual: 그림자(반대 arm) 갱신 — 기록 전용, 거래소 미접촉 ──
+        if self._be_cf_enabled and getattr(pos, "shadow_arm", "") and pos.shadow_exit_price is None:
+            try:
+                cur = price_map.get(pos.symbol)
+                st = {"best": pos.shadow_best_price, "be": pos.shadow_be_triggered, "sl": pos.shadow_sl}
+                exited, xp, rsn = update_shadow(
+                    pos.direction, pos.entry_price, pos.atr_at_entry,
+                    pos.shadow_be_trigger, trail_mult, st, bar_high, bar_low, cur)
+                pos.shadow_best_price, pos.shadow_be_triggered, pos.shadow_sl = st["best"], st["be"], st["sl"]
+                if exited:
+                    pos.shadow_exit_price = xp
+                    pos.shadow_exit_reason = rsn
+                    pos.shadow_exit_ms = int(time.time() * 1000)
+            except Exception as e:
+                logger.warning("be_cf shadow update failed %s: %s", pos.symbol, e)
+
     def _manage_positions(self) -> dict[str, float]:
         """Check existing positions: SL/TP hit or timeout. Update MFE/MAE.
         Returns price_map for reuse by _scan_universe."""
