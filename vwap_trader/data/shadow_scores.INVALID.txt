@@ -1,0 +1,2 @@
+⚠ shadow_scores.jsonl 신뢰 불가 (오염) — B-1(track_shadow.py) 채점 결과·해석 전부 무효.
+원인: ① fetch_1m 창 버그(48h 창에서 진입 +몇시간 뒤 1분봉만 조회) ② 1분봉 되감기가 봇(1시간봉 추적익절)을 재현 못함(재현율 5~9%, 잭팟 뭉갬). 2026-07-08 backtest_delayed_entry.py 재현검증에서 발각. track_shadow.py는 미수정 방치. 되감기 백테스트로 잭팟 손익 판단 금지.
