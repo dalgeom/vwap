@@ -5,7 +5,7 @@
 import os
 import json
 from collections import Counter
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -14,6 +14,8 @@ SHADOW = ROOT / "data" / "shadow_momentum.jsonl"
 STATE = ROOT / "data" / "state_momentum.json"
 HEARTBEAT = ROOT / "data" / "heartbeat_momentum"
 REPORTS = ROOT / "reports"
+BE_CF = ROOT / "data" / "be_counterfactual.jsonl"
+KST = timezone(timedelta(hours=9))
 
 
 def _agg(rows: list) -> dict:
@@ -37,13 +39,13 @@ def build_stats(trades: list) -> dict:
 
 
 def todays_closes(trades: list, day: date) -> list:
-    """exit_timestamp_utc가 day(UTC)인 청산만."""
+    """exit_timestamp_utc가 day(KST)인 청산만."""
     out = []
     for r in trades:
         ts = r.get("exit_timestamp_utc")
         if not ts:
             continue
-        if datetime.fromisoformat(ts).astimezone(timezone.utc).date() == day:
+        if datetime.fromisoformat(ts).astimezone(KST).date() == day:
             out.append(r)
     return out
 
@@ -55,7 +57,7 @@ def shadow_reason_counts(shadow: list, day: date) -> dict:
         ts = r.get("timestamp_utc")
         if not ts:
             continue
-        if datetime.fromisoformat(ts).astimezone(timezone.utc).date() == day:
+        if datetime.fromisoformat(ts).astimezone(KST).date() == day:
             c[r.get("shadow_reason", "?")] += 1
     return dict(c)
 
@@ -64,61 +66,122 @@ def _fmt_pf(pf: float) -> str:
     return "∞" if pf == float("inf") else f"{pf:.2f}"
 
 
+def be_cf_summary(rows: list, day: date) -> dict:
+    """BE A/B 반사실 쌍 → arm별 손익 집계(오늘/누적, top5 제외 병행).
+    각 쌍은 실제 arm + 반대 arm(shadow) 결과를 담으므로, 쌍마다 A·B 둘 다 기여."""
+    def arm_pnls(pairs):
+        a = b = 0.0
+        for r in pairs:
+            rp = r.get("real_pnl", 0) or 0
+            sp = r.get("shadow_pnl", 0) or 0
+            if r.get("real_arm") == "A":
+                a += rp; b += sp
+            else:
+                b += rp; a += sp
+        return a, b
+
+    today = [r for r in rows if r.get("real_exit_ms") and
+             datetime.fromtimestamp(r["real_exit_ms"] / 1000, KST).date() == day]
+    top5 = {r.get("trade_id") for r in sorted(rows, key=lambda x: -(x.get("real_pnl", 0) or 0))[:5]}
+    ex = [r for r in rows if r.get("trade_id") not in top5]
+    a_t, b_t = arm_pnls(today)
+    a_all, b_all = arm_pnls(rows)
+    a_ex, b_ex = arm_pnls(ex)
+    return {"n_today": len(today), "n_all": len(rows),
+            "a_today": a_t, "b_today": b_t, "a_all": a_all, "b_all": b_all,
+            "a_ex": a_ex, "b_ex": b_ex}
+
+
 def render_report(ctx: dict) -> str:
     day = ctx["day"]
     eq = ctx["equity"]
     L = []
-    L.append(f"# 일일 리포트 {day.isoformat()}")
+    L.append(f"# 📋 오늘의 운영 보고 — {day.isoformat()}")
     L.append("")
     eq_s = f"${eq:,.2f}" if eq is not None else "(거래소 조회 실패)"
     hb = ctx["hb_age_min"]
     hb_s = f"{hb:.1f}분 전" if hb is not None else "?"
-    L.append(f"- equity: **{eq_s}** | bar {ctx['bar']} | heartbeat {hb_s}")
+    L.append(f"사장님, 오늘 운영 결과를 보고드립니다. 현재 자산은 **{eq_s}** 입니다 "
+             f"(bar {ctx['bar']}, 심장박동 {hb_s}).")
     for w in ctx["warnings"]:
         L.append(f"- {w}")
     L.append("")
 
-    L.append("## 보유 포지션")
+    L.append("## 지금 들고 있는 포지션")
     if ctx["positions"]:
+        L.append(f"현재 {len(ctx['positions'])}개 들고 있습니다.")
+        L.append("")
         L.append("| 코인 | 방향 | 진입 | 현재 | 미실현 | 손절선 |")
         L.append("|---|---|---|---|---|---|")
         for p in ctx["positions"]:
             up = float(p.get("unrealisedPnl", 0) or 0)
+            mark = "🟢" if up >= 0 else "🔴"
             L.append(f"| {p['symbol']} | {p['side']} | {p['avgPrice']} | {p['markPrice']} "
-                     f"| {up:+.2f} | {p.get('stopLoss')} |")
+                     f"| {mark} {up:+.2f} | {p.get('stopLoss')} |")
     else:
-        L.append("없음")
+        L.append("지금은 들고 있는 포지션이 없습니다.")
     L.append("")
 
-    L.append("## 당일 청산")
+    L.append("## 오늘 청산한 거래")
     if ctx["todays"]:
-        tot = sum((t.get("pnl_usd", 0) or 0) for t in ctx["todays"])
+        wins = sum((t.get("pnl_usd", 0) or 0) for t in ctx["todays"] if (t.get("pnl_usd", 0) or 0) > 0)
+        losses = sum((t.get("pnl_usd", 0) or 0) for t in ctx["todays"] if (t.get("pnl_usd", 0) or 0) < 0)
+        net = wins + losses
         for t in ctx["todays"]:
-            L.append(f"- {t['symbol']} {t.get('side')} {t.get('exit_reason')} "
-                     f"${(t.get('pnl_usd', 0) or 0):+.2f}")
-        L.append(f"- **합계: ${tot:+.2f}**")
+            p = t.get("pnl_usd", 0) or 0
+            mark = "🟢" if p >= 0 else "🔴"
+            L.append(f"- {mark} {t['symbol']} {t.get('side')} {t.get('exit_reason')} "
+                     f"${p:+.2f}")
+        L.append("")
+        L.append(f"오늘 총 **{len(ctx['todays'])}건** 청산했습니다. "
+                 f"벌어들인 건 **+${wins:,.2f}**, 잃은 건 **−${abs(losses):,.2f}**, "
+                 f"합쳐서 순 **${net:+,.2f}** 입니다.")
     else:
-        L.append("없음")
+        L.append("오늘은 청산한 거래가 없습니다.")
+    L.append("")
+
+    L.append("## 계측기 — 빠른잠금 A/B 반사실")
+    cf = ctx.get("be_cf")
+    if not cf or cf["n_all"] == 0:
+        L.append("아직 계측 데이터가 없습니다. 계측기를 넣은 뒤 새로 진입한 거래가 청산되면 "
+                 "여기에 실제 arm과 반대 arm(그림자)의 결과가 쌍으로 쌓입니다.")
+    else:
+        L.append(f"오늘 {cf['n_today']}쌍, 누적 {cf['n_all']}쌍을 채집했습니다.")
+        L.append(f"- 누적 손익: 기본잠금(A, 1.5) **${cf['a_all']:+,.0f}** vs "
+                 f"빠른잠금(B, 0.75) **${cf['b_all']:+,.0f}**")
+        L.append(f"- 잭팟 top5 제외: A ${cf['a_ex']:+,.0f} vs B ${cf['b_ex']:+,.0f} "
+                 f"(잭팟 암기 방지 규율)")
+        L.append("- ※ 이건 **계기판**입니다(판정 아님). 표본이 쌓이면 사전등록 기준으로 판정합니다.")
+    L.append("")
+
+    L.append("## 오늘 걸러낸 신호")
+    sc = ctx["shadow_counts"]
+    if sc:
+        L.append("오늘 이런 이유로 신호를 걸렀습니다: "
+                 + ", ".join(f"{k} {v2}건" for k, v2 in sc.items()) + ".")
+        L.append("- ※ 이 신호들이 좋았는지 나빴는지는 아직 판정하지 않습니다. "
+                 "되감기 백테스트를 폐기해서(신뢰 불가), 사실만 적습니다.")
+    else:
+        L.append("오늘은 걸러낸 신호가 없습니다.")
     L.append("")
 
     a, v = ctx["stats"]["all"], ctx["stats"]["v10"]
-    L.append("## 성적 요약")
+    L.append("## 누적 성적")
     L.append(f"- 전체 {a['n']}건 | 승률 {a['wr']:.1f}% | EV ${a['ev']:+.2f} "
              f"| PF {_fmt_pf(a['pf'])} | 누적 ${a['total']:+.2f}")
     L.append(f"- v10 {v['n']}건 | 승률 {v['wr']:.1f}% | EV ${v['ev']:+.2f} "
              f"| PF {_fmt_pf(v['pf'])} | 누적 ${v['total']:+.2f}")
-    L.append("- ※ 누적/통계는 정본 기준(corrected+raw 유니온 ⊕ corrections, A-1 load_canonical). "
-             "자산 지표는 위 equity.")
-    L.append("")
-
-    L.append("## shadow(거른 신호)")
-    L.append("  ".join(f"{k}:{v2}" for k, v2 in ctx["shadow_counts"].items()) or "없음")
+    L.append("- ※ 누적/통계는 정본 기준(A-1 load_canonical). 자산 지표는 위 현재 자산.")
     L.append("")
 
     inf = ctx["infra"]
-    L.append("## 인프라")
+    L.append("## 인프라 상태")
     L.append(f"- estimated 잔존 {inf['estimated']}건(시한임박 {inf['imminent']}, 시한초과 {inf['lost']}) "
              f"| corrections {inf['corrections']}건 | slippage_cooldown {len(inf['cooldowns'])}개")
+    L.append("")
+
+    L.append("## 오늘의 자아성찰")
+    L.append("_오늘의 자아성찰은 매일 AI가 직접 작성합니다 (Claude Code CLI 로그인 후 자동 활성)._")
     L.append("")
     return "\n".join(L)
 
@@ -145,7 +208,7 @@ def main():
     from build_canonical import load_canonical
 
     now = datetime.now(timezone.utc)
-    day = now.date()
+    day = (now.astimezone(KST) - timedelta(days=1)).date()  # 00:30 실행 → 방금 끝난 어제(KST) 하루 전체를 정산
     client = fe._build_client()
 
     # 1. estimated 정정 먼저 (실패해도 리포트는 계속)
@@ -198,6 +261,7 @@ def main():
         "todays": todays_closes(trades, day),
         "stats": build_stats(trades),
         "shadow_counts": shadow_reason_counts(shadow, day),
+        "be_cf": be_cf_summary(_load_jsonl(BE_CF), day),
         "infra": {"estimated": est_left, "imminent": est_imminent,
                   "lost": est_lost, "cooldowns": list(state.get("slippage_cooldown", {}).keys()),
                   "corrections": len(corr)},

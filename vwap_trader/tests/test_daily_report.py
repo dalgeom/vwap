@@ -36,16 +36,18 @@ def test_build_stats_pf_infinite_when_no_losses():
     assert s["pf"] == float("inf")
 
 
-def test_todays_closes_filters_by_utc_date():
+def test_todays_closes_filters_by_kst_date():
     from daily_report import todays_closes
+    # day = 2026-07-06 KST == UTC 구간 [2026-07-05 15:00, 2026-07-06 15:00)
     trades = [
-        {"exit_timestamp_utc": "2026-07-06T01:00:00+00:00", "symbol": "A"},
-        {"exit_timestamp_utc": "2026-07-05T23:00:00+00:00", "symbol": "B"},
-        {"exit_timestamp_utc": "2026-07-06T23:59:00+00:00", "symbol": "C"},
-        {"symbol": "D"},  # exit 없음 → 제외
+        {"exit_timestamp_utc": "2026-07-05T15:00:00+00:00", "symbol": "A"},  # KST 07-06 00:00 → 포함(시작경계)
+        {"exit_timestamp_utc": "2026-07-06T14:59:00+00:00", "symbol": "B"},  # KST 07-06 23:59 → 포함(끝경계)
+        {"exit_timestamp_utc": "2026-07-05T14:59:00+00:00", "symbol": "C"},  # KST 07-05 23:59 → 제외(어제)
+        {"exit_timestamp_utc": "2026-07-06T15:00:00+00:00", "symbol": "D"},  # KST 07-07 00:00 → 제외(내일)
+        {"symbol": "E"},  # exit 없음 → 제외
     ]
     out = todays_closes(trades, date(2026, 7, 6))
-    assert [t["symbol"] for t in out] == ["A", "C"]
+    assert [t["symbol"] for t in out] == ["A", "B"]
 
 
 def test_shadow_reason_counts_by_day():
@@ -59,6 +61,28 @@ def test_shadow_reason_counts_by_day():
     ]
     out = shadow_reason_counts(shadow, date(2026, 7, 6))
     assert out == {"counter_trend": 2, "rank_cutoff": 1}
+
+
+from daily_report import build_stats, be_cf_summary
+
+
+def test_be_cf_summary_arm_attribution_and_today():
+    # real=A → real_pnl은 A, shadow_pnl은 B. real=B면 반대.
+    from datetime import datetime, timezone
+    ms_0706 = int(datetime(2026, 7, 6, 6, 0, 0, tzinfo=timezone.utc).timestamp() * 1000)  # 07-06 15:00 KST
+    rows = [
+        {"trade_id": "a", "real_arm": "A", "real_pnl": 100.0, "shadow_pnl": 50.0, "real_exit_ms": ms_0706},
+        {"trade_id": "b", "real_arm": "B", "real_pnl": 30.0, "shadow_pnl": 80.0, "real_exit_ms": ms_0706},
+    ]
+    s = be_cf_summary(rows, date(2026, 7, 6))
+    # A = a.real(100) + b.shadow(80) = 180 ; B = a.shadow(50) + b.real(30) = 80
+    assert abs(s["a_all"] - 180.0) < 1e-9 and abs(s["b_all"] - 80.0) < 1e-9
+    assert s["n_all"] == 2 and s["n_today"] == 2
+
+
+def test_be_cf_summary_empty():
+    s = be_cf_summary([], date(2026, 7, 6))
+    assert s["n_all"] == 0 and s["a_all"] == 0.0
 
 
 from daily_report import render_report
@@ -96,4 +120,4 @@ def test_render_report_shows_warnings_and_no_positions():
     }
     md = render_report(ctx)
     assert "⚠" in md
-    assert "없음" in md  # 무포지션 표기
+    assert "포지션이 없습니다" in md  # 무포지션 표기(1인칭 개편)
