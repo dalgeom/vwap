@@ -26,6 +26,7 @@ from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
 from .integrity import backup_trades, count_lines, check_integrity
+from .be_counterfactual import update_shadow, build_pair_record, append_pair
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
@@ -196,6 +197,9 @@ class MomentumBot:
             "shadow_file", "shadow_momentum.jsonl")
         self._heartbeat_file = DATA_DIR / "heartbeat_momentum"
         self._stop_file = DATA_DIR / "STOP_MOMENTUM"
+        # Step2: BE A/B 반사실 계측기 (기록 전용, 실매매 무관)
+        self._be_cf_file = DATA_DIR / "be_counterfactual.jsonl"
+        self._be_cf_enabled = self.cfg["strategy"].get("be_counterfactual_enabled", True)
         self._trades_lines_at_start = 0
         self._trades_appended = 0
 
@@ -620,6 +624,18 @@ class MomentumBot:
                 pos._btc_4h_return = pend["btc_4h_return"]
                 pos._btc_4h_atr = pend["btc_4h_atr"]
                 pos._regime = pend["regime"]
+                # Step2: 그림자(반대 arm) 초기화 — 기록 전용
+                if self._be_cf_enabled:
+                    strat = self.cfg["strategy"]
+                    if arm == "A":
+                        pos.shadow_arm = "B"
+                        pos.shadow_be_trigger = strat.get("be_trigger_atr_b", 0.75)
+                    else:
+                        pos.shadow_arm = "A"
+                        pos.shadow_be_trigger = strat.get("be_trigger_atr", 1.5)
+                    pos.shadow_best_price = pos.entry_price
+                    pos.shadow_be_triggered = False
+                    pos.shadow_sl = pos.sl  # 초기 SL은 두 arm 동일
                 self.positions.append(pos)
 
                 logger.info("PULLBACK FILLED [%s] %s %s @ %.4f (signal=%.4f)",
