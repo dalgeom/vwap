@@ -1,16 +1,28 @@
 ﻿# A-4 일일 리포트 실행 래퍼 (윈도 작업 스케줄러용)
 # 1) daily_report.py 사실 보고서 생성  2) claude -p(구독=무과금) 자아성찰로 슬롯 채움
+# -Day YYYY-MM-DD 지정 시 그 날짜 재생성(미지정=KST 어제, 스케줄 기본).
+param([string]$Day = "")
 $ErrorActionPreference = "Continue"
 $env:PYTHONIOENCODING = "utf-8"
+# 한글 프롬프트를 claude(native)로 파이프할 때 ?로 깨지지 않게 UTF-8 강제
+$OutputEncoding = New-Object System.Text.UTF8Encoding $false
+try {
+    [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
+    [Console]::InputEncoding = New-Object System.Text.UTF8Encoding $false
+} catch {}
 Set-Location "C:\Users\PC\Desktop\현진\code\vwap_trader"
 $log = "logs\daily_report.log"
 $claude = "$env:APPDATA\npm\claude.cmd"
 
 # 1. 사실 리포트 생성 (기존 동작 — 모든 스트림 로그로)
-& ".\venv\Scripts\python.exe" "daily_report.py" *>> $log
-
-# 2. 오늘 리포트 파일 = KST 어제 (daily_report의 day 로직과 동일: UTC now +9h -1일)
-$day = (Get-Date).ToUniversalTime().AddHours(9).AddDays(-1).ToString('yyyy-MM-dd')
+if ($Day) {
+    & ".\venv\Scripts\python.exe" "daily_report.py" $Day *>> $log
+    $day = $Day
+} else {
+    & ".\venv\Scripts\python.exe" "daily_report.py" *>> $log
+    # KST 어제 (daily_report의 day 로직과 동일: UTC now +9h -1일)
+    $day = (Get-Date).ToUniversalTime().AddHours(9).AddDays(-1).ToString('yyyy-MM-dd')
+}
 $report = "reports\$day.md"
 
 # 3. 자아성찰 (claude -p headless, 구독 인증=무과금. 실패해도 리포트는 유지)
@@ -31,7 +43,16 @@ if ((Test-Path $report) -and (Test-Path $claude)) {
 --- 오늘 보고서 ---
 $facts
 "@
-        $reflection = ($prompt | & $claude -p --output-format text 2>> $log | Out-String).Trim()
+        # 콘솔 인코딩 불안정 회피: 프롬프트를 UTF-8 파일로 쓰고 cmd < > 리다이렉션(바이트 그대로)
+        $u8 = New-Object System.Text.UTF8Encoding $false
+        $pf = Join-Path (Get-Location).Path "logs\_reflect_prompt.txt"
+        $of = Join-Path (Get-Location).Path "logs\_reflect_out.txt"
+        [System.IO.File]::WriteAllText($pf, $prompt, $u8)
+        if (Test-Path $of) { Remove-Item $of -Force }
+        cmd /c "`"$claude`" -p --output-format text < `"$pf`" > `"$of`" 2>> `"$log`""
+        $reflection = ""
+        if (Test-Path $of) { $reflection = (Get-Content -Raw -Encoding utf8 $of).Trim() }
+        Remove-Item $pf, $of -Force -ErrorAction SilentlyContinue
         if ($reflection) {
             $placeholder = '_오늘의 자아성찰은 매일 AI가 직접 작성합니다 (Claude Code CLI 로그인 후 자동 활성)._'
             $content = (Get-Content -Raw -Encoding utf8 $report).Replace($placeholder, $reflection)

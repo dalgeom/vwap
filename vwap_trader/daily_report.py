@@ -209,6 +209,9 @@ def main():
 
     now = datetime.now(timezone.utc)
     day = (now.astimezone(KST) - timedelta(days=1)).date()  # 00:30 실행 → 방금 끝난 어제(KST) 하루 전체를 정산
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1].strip():
+        day = date.fromisoformat(sys.argv[1].strip())  # 특정일 재생성용(예: python daily_report.py 2026-07-06)
     client = fe._build_client()
 
     # 1. estimated 정정 먼저 (실패해도 리포트는 계속)
