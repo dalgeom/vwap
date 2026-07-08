@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-from vwap_trader.be_counterfactual import pnl_of, update_shadow
+from vwap_trader.be_counterfactual import pnl_of, update_shadow, build_pair_record, append_pair
 
 
 def test_pnl_of_long_minus_fee():
@@ -49,3 +49,23 @@ def test_shadow_breach_takes_priority_no_lookahead():
     st = {"best": 100.0, "be": False, "sl": 85.0}
     exited, xp, rsn = update_shadow("long", 100.0, 10.0, 0.75, 2.0, st, 200.0, 80.0, 150.0)
     assert exited and st["best"] == 100.0
+
+
+def test_build_pair_record_computes_both_pnl():
+    rec = build_pair_record(
+        trade_id="t1", symbol="XUSDT", direction="long", entry=100.0, atr=10.0, size_usd=1000.0,
+        real_arm="A", real_be=1.5, real_exit=110.0, real_reason="TrailSL", real_exchange_pnl=97.5, real_exit_ms=1000,
+        shadow_arm="B", shadow_be=0.75, shadow_exit=100.0, shadow_reason="SL", shadow_exit_ms=900)
+    assert rec["trade_id"] == "t1"
+    assert abs(rec["real_pnl"] - 98.9) < 1e-6      # 100→110
+    assert abs(rec["shadow_pnl"] - (-1.1)) < 1e-6  # 100→100, fee만 -1.1
+    assert rec["real_exchange_pnl"] == 97.5
+
+
+def test_append_pair_writes_jsonl(tmp_path):
+    import json
+    p = tmp_path / "pairs.jsonl"
+    append_pair(p, {"trade_id": "t1", "real_pnl": 1.0})
+    append_pair(p, {"trade_id": "t2", "real_pnl": 2.0})
+    lines = p.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2 and json.loads(lines[1])["trade_id"] == "t2"

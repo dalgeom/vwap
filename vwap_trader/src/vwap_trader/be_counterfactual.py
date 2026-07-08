@@ -54,3 +54,25 @@ def update_shadow(direction, entry, atr, be_trigger, trail_mult, st, bar_high, b
         if nsl < st["sl"]:
             st["sl"] = nsl
     return False, None, None
+
+
+def build_pair_record(*, trade_id, symbol, direction, entry, atr, size_usd,
+                      real_arm, real_be, real_exit, real_reason, real_exchange_pnl, real_exit_ms,
+                      shadow_arm, shadow_be, shadow_exit, shadow_reason, shadow_exit_ms):
+    return {
+        "trade_id": trade_id, "symbol": symbol, "direction": direction,
+        "entry_price": entry, "atr_at_entry": atr, "position_size_usd": round(size_usd, 2),
+        "real_arm": real_arm, "real_be_trigger": real_be,
+        "real_exit_price": real_exit, "real_exit_reason": real_reason,
+        "real_pnl": round(pnl_of(entry, real_exit, direction, size_usd), 4),
+        "shadow_arm": shadow_arm, "shadow_be_trigger": shadow_be,
+        "shadow_exit_price": shadow_exit, "shadow_exit_reason": shadow_reason,
+        "shadow_pnl": round(pnl_of(entry, shadow_exit, direction, size_usd), 4),
+        "real_exchange_pnl": real_exchange_pnl,
+        "real_exit_ms": real_exit_ms, "shadow_exit_ms": shadow_exit_ms,
+    }
+
+
+def append_pair(path, record):
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
