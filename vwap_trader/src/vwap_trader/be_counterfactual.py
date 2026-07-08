@@ -7,6 +7,17 @@ import json
 FEE = 0.00055 * 2  # 왕복 taker
 
 
+def shadow_init_fields(real_arm, entry_price, sl, be_trigger_a=1.5, be_trigger_b=0.75):
+    """새 포지션의 반대 arm(그림자) 초기 상태 dict.
+    실제 A(1.5) → 그림자 B(0.75), 실제 B(0.75) → 그림자 A(1.5). 초기 SL은 두 arm 동일."""
+    if real_arm == "A":
+        s_arm, s_be = "B", be_trigger_b
+    else:
+        s_arm, s_be = "A", be_trigger_a
+    return {"shadow_arm": s_arm, "shadow_be_trigger": s_be,
+            "shadow_best_price": entry_price, "shadow_be_triggered": False, "shadow_sl": sl}
+
+
 def pnl_of(entry, exit_price, direction, size_usd):
     qty = size_usd / entry
     gross = qty * (exit_price - entry) if direction == "long" else qty * (entry - exit_price)

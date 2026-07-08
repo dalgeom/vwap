@@ -1,6 +1,14 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-from vwap_trader.be_counterfactual import pnl_of, update_shadow, build_pair_record, append_pair
+from vwap_trader.be_counterfactual import pnl_of, update_shadow, build_pair_record, append_pair, shadow_init_fields
+
+
+def test_shadow_init_fields_A_and_B():
+    a = shadow_init_fields("A", 100.0, 85.0)
+    assert a["shadow_arm"] == "B" and a["shadow_be_trigger"] == 0.75
+    assert a["shadow_best_price"] == 100.0 and a["shadow_sl"] == 85.0 and a["shadow_be_triggered"] is False
+    b = shadow_init_fields("B", 50.0, 55.0)
+    assert b["shadow_arm"] == "A" and b["shadow_be_trigger"] == 1.5
 
 
 def test_pnl_of_long_minus_fee():

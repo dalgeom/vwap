@@ -26,7 +26,7 @@ from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
 from .integrity import backup_trades, count_lines, check_integrity
-from .be_counterfactual import update_shadow, build_pair_record, append_pair
+from .be_counterfactual import update_shadow, build_pair_record, append_pair, shadow_init_fields
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
@@ -624,18 +624,7 @@ class MomentumBot:
                 pos._btc_4h_return = pend["btc_4h_return"]
                 pos._btc_4h_atr = pend["btc_4h_atr"]
                 pos._regime = pend["regime"]
-                # Step2: 그림자(반대 arm) 초기화 — 기록 전용
-                if self._be_cf_enabled:
-                    strat = self.cfg["strategy"]
-                    if arm == "A":
-                        pos.shadow_arm = "B"
-                        pos.shadow_be_trigger = strat.get("be_trigger_atr_b", 0.75)
-                    else:
-                        pos.shadow_arm = "A"
-                        pos.shadow_be_trigger = strat.get("be_trigger_atr", 1.5)
-                    pos.shadow_best_price = pos.entry_price
-                    pos.shadow_be_triggered = False
-                    pos.shadow_sl = pos.sl  # 초기 SL은 두 arm 동일
+                self._init_shadow(pos, arm)  # Step2: 그림자(반대 arm) 초기화 — 두 진입경로 공용
                 self.positions.append(pos)
 
                 logger.info("PULLBACK FILLED [%s] %s %s @ %.4f (signal=%.4f)",
@@ -881,6 +870,16 @@ class MomentumBot:
         logger.info("TRADE [%s] %s %s pnl=%.2f%% $%.2f reason=%s hold=%dbars MFE=%.2f%% MAE=%.2f%%",
                      pos.trade_id, pos.symbol, pos.direction, pnl_pct, pnl_usd,
                      reason, hold_bars, mfe_pct, mae_pct)
+
+    def _init_shadow(self, pos: OpenPosition, arm: str):
+        """새 포지션 그림자(반대 arm) 초기화 — 두 진입 경로 공용(기록 전용, 실매매 무관)."""
+        if not self._be_cf_enabled:
+            return
+        strat = self.cfg["strategy"]
+        for k, v in shadow_init_fields(arm, pos.entry_price, pos.sl,
+                                       strat.get("be_trigger_atr", 1.5),
+                                       strat.get("be_trigger_atr_b", 0.75)).items():
+            setattr(pos, k, v)
 
     def _log_slippage(self, symbol: str, direction: str,
                       intended: float, fill: float):
@@ -1788,6 +1787,7 @@ class MomentumBot:
                 pos._btc_4h_return = self._btc_4h_return
                 pos._btc_4h_atr = self._btc_4h_atr
                 pos._regime = self._regime
+                self._init_shadow(pos, arm)  # Step2: 그림자 초기화 (실제 진입 경로 — 버그 수정 2026-07-09)
                 self.positions.append(pos)
 
                 logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f [arm %s be=%.2f]",
