@@ -92,7 +92,11 @@ class OpenPosition:
                  signal_ret_6: float = 0.0, signal_ret_12: float = 0.0,
                  signal_ret_24: float = 0.0, signal_consec: int = 0,
                  signal_oi_chg: float = 0.0, signal_vol_ratio: float = 0.0,
-                 be_trigger_atr: float = 0.0, ab_arm: str = ""):
+                 be_trigger_atr: float = 0.0, ab_arm: str = "",
+                 shadow_arm: str = "", shadow_be_trigger: float = 0.0,
+                 shadow_best_price: float = 0.0, shadow_be_triggered: bool = False,
+                 shadow_sl: float = 0.0, shadow_exit_price: float | None = None,
+                 shadow_exit_reason: str | None = None, shadow_exit_ms: int | None = None):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -124,6 +128,15 @@ class OpenPosition:
         # v6 forward A/B: per-position BE trigger (0.0 => use config default = legacy/arm A)
         self.be_trigger_atr = be_trigger_atr
         self.ab_arm = ab_arm                  # "A" (control) / "B" (early BE) / "" (legacy)
+        # Step2: BE A/B 반사실 계측기 그림자 상태 (기록 전용, 실매매 무관)
+        self.shadow_arm = shadow_arm
+        self.shadow_be_trigger = shadow_be_trigger
+        self.shadow_best_price = shadow_best_price
+        self.shadow_be_triggered = shadow_be_triggered
+        self.shadow_sl = shadow_sl
+        self.shadow_exit_price = shadow_exit_price
+        self.shadow_exit_reason = shadow_exit_reason
+        self.shadow_exit_ms = shadow_exit_ms
 
     def to_dict(self) -> dict:
         return vars(self)

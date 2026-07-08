@@ -69,3 +69,20 @@ def test_append_pair_writes_jsonl(tmp_path):
     append_pair(p, {"trade_id": "t2", "real_pnl": 2.0})
     lines = p.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2 and json.loads(lines[1])["trade_id"] == "t2"
+
+
+def test_openposition_shadow_roundtrip_and_legacy():
+    from vwap_trader.momentum_bot import OpenPosition
+    # 신규: shadow 필드 지정 → to_dict/from_dict 왕복
+    p = OpenPosition(symbol="XUSDT", direction="long", entry_price=100.0, qty=1.0, sl=85.0,
+                     tp=0.0, entry_time="2026-07-08T00:00:00+00:00", entry_bar=1, intended_price=100.0,
+                     shadow_arm="B", shadow_be_trigger=0.75, shadow_sl=85.0)
+    d = p.to_dict()
+    assert d["shadow_arm"] == "B" and d["shadow_be_trigger"] == 0.75
+    p2 = OpenPosition.from_dict(d)
+    assert p2.shadow_arm == "B" and p2.shadow_sl == 85.0 and p2.shadow_exit_price is None
+    # 레거시: shadow 키 없는 dict → 기본값(비활성)으로 로드
+    legacy = {"symbol": "Y", "direction": "short", "entry_price": 1.0, "qty": 1.0, "sl": 1.1,
+              "tp": 0.0, "entry_time": "2026-07-08T00:00:00+00:00", "entry_bar": 1, "intended_price": 1.0}
+    p3 = OpenPosition.from_dict(legacy)
+    assert p3.shadow_arm == "" and p3.shadow_exit_price is None
