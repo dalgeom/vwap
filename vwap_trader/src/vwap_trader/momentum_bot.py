@@ -837,6 +837,28 @@ class MomentumBot:
             f.write(json.dumps(record) + "\n")
         self._trades_appended += 1
 
+        # ── Step2 be_counterfactual: 쌍 기록 (실매매 무관) ──
+        if self._be_cf_enabled and getattr(pos, "shadow_arm", ""):
+            try:
+                real_ms = int(now.timestamp() * 1000)
+                if pos.shadow_exit_price is None:
+                    # 그림자 미청산 → 실제 청산가로 마감
+                    pos.shadow_exit_price = exit_price
+                    pos.shadow_exit_reason = "REAL_EXIT"
+                    pos.shadow_exit_ms = real_ms
+                rec = build_pair_record(
+                    trade_id=pos.trade_id, symbol=pos.symbol, direction=pos.direction,
+                    entry=pos.entry_price, atr=pos.atr_at_entry, size_usd=pos.position_size_usd,
+                    real_arm=getattr(pos, "ab_arm", ""), real_be=getattr(pos, "be_trigger_atr", 0.0),
+                    real_exit=exit_price, real_reason=reason,
+                    real_exchange_pnl=closed_pnl_usd, real_exit_ms=real_ms,
+                    shadow_arm=pos.shadow_arm, shadow_be=pos.shadow_be_trigger,
+                    shadow_exit=pos.shadow_exit_price, shadow_reason=pos.shadow_exit_reason,
+                    shadow_exit_ms=pos.shadow_exit_ms)
+                append_pair(self._be_cf_file, rec)
+            except Exception as e:
+                logger.warning("be_cf pair record failed %s: %s", pos.symbol, e)
+
         # ── Slippage cooldown: SL/TrailSL/BE exit with excessive slippage → cooldown ──
         if reason in ("SL", "TrailSL", "BE"):
             if pos.direction == "long":
