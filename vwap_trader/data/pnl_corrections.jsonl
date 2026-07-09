@@ -3,3 +3,6 @@
 {"trade_id": "8e69d6fb", "symbol": "TLMUSDT", "pnl_usd": 11.04375073, "exit_price": 0.0016633, "pnl_pct": 0.1988, "src": "exchange", "fixed_at": "2026-07-03T06:08:58.886863+00:00", "prev_estimated": -1.1}
 {"trade_id": "3e5fd435", "symbol": "DYDXUSDT", "pnl_usd": 163.55904926, "exit_price": 0.1313, "pnl_pct": 16.2734, "src": "exchange", "fixed_at": "2026-07-06T02:26:29.168131+00:00", "prev_estimated": 161.5682}
 {"trade_id": "f83a15cc", "symbol": "TAIKOUSDT", "pnl_usd": 1031.95479743, "exit_price": 0.12114, "pnl_pct": 60.1185, "src": "exchange", "fixed_at": "2026-07-06T02:26:29.168131+00:00", "prev_estimated": 1201.2779}
+{"trade_id": "d3202a96", "symbol": "TRIAUSDT", "pnl_usd": 24.52641217, "exit_price": 0.027452, "pnl_pct": 2.6628, "src": "exchange", "fixed_at": "2026-07-07T15:30:03.296607+00:00", "prev_estimated": 29.8999}
+{"trade_id": "efc2afbf", "symbol": "BLURUSDT", "pnl_usd": -38.53595839, "exit_price": 0.022351, "pnl_pct": -6.3558, "src": "exchange", "fixed_at": "2026-07-08T06:27:12.111449+00:00", "prev_estimated": -63.3912}
+{"trade_id": "3200a6d3", "symbol": "ZECUSDT", "pnl_usd": -2.47889532, "exit_price": 495.52, "pnl_pct": -0.0141, "src": "exchange", "fixed_at": "2026-07-08T06:27:12.111449+00:00", "prev_estimated": -2.197}
