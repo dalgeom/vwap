@@ -78,6 +78,17 @@ def test_be_cf_summary_arm_attribution_and_today():
     # A = a.real(100) + b.shadow(80) = 180 ; B = a.shadow(50) + b.real(30) = 80
     assert abs(s["a_all"] - 180.0) < 1e-9 and abs(s["b_all"] - 80.0) < 1e-9
     assert s["n_all"] == 2 and s["n_today"] == 2
+    assert s["n_div"] == 2 and s["last_ms"] == ms_0706  # 두 쌍 다 손익 다름=분기
+
+
+def test_be_cf_summary_divergence_counts_only_differing_pairs():
+    # 동률 쌍(real==shadow)은 분기 아님
+    rows = [
+        {"trade_id": "t", "real_arm": "A", "real_pnl": 10.0, "shadow_pnl": 10.0, "real_exit_ms": 1},
+        {"trade_id": "d", "real_arm": "A", "real_pnl": 10.0, "shadow_pnl": -5.0, "real_exit_ms": 2},
+    ]
+    s = be_cf_summary(rows, date(2026, 7, 6))
+    assert s["n_all"] == 2 and s["n_div"] == 1
 
 
 def test_be_cf_summary_empty():

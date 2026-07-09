@@ -87,7 +87,11 @@ def be_cf_summary(rows: list, day: date) -> dict:
     a_t, b_t = arm_pnls(today)
     a_all, b_all = arm_pnls(rows)
     a_ex, b_ex = arm_pnls(ex)
-    return {"n_today": len(today), "n_all": len(rows),
+    # 생존 카운터(§11.1 outcome-blind): 분기 쌍 수(두 arm 손익 다름) + 마지막 쌍 시각
+    n_div = sum(1 for r in rows
+                if round(r.get("real_pnl", 0) or 0, 2) != round(r.get("shadow_pnl", 0) or 0, 2))
+    last_ms = max((r.get("real_exit_ms", 0) or 0 for r in rows), default=0)
+    return {"n_today": len(today), "n_all": len(rows), "n_div": n_div, "last_ms": last_ms,
             "a_today": a_t, "b_today": b_t, "a_all": a_all, "b_all": b_all,
             "a_ex": a_ex, "b_ex": b_ex}
 
@@ -140,18 +144,17 @@ def render_report(ctx: dict) -> str:
         L.append("오늘은 청산한 거래가 없습니다.")
     L.append("")
 
-    L.append("## 계측기 — 빠른잠금 A/B 반사실")
+    L.append("## 계측기 — 빠른잠금 A/B 반사실 (생존 카운터)")
     cf = ctx.get("be_cf")
     if not cf or cf["n_all"] == 0:
-        L.append("아직 계측 데이터가 없습니다. 계측기를 넣은 뒤 새로 진입한 거래가 청산되면 "
-                 "여기에 실제 arm과 반대 arm(그림자)의 결과가 쌍으로 쌓입니다.")
+        L.append("아직 계측 쌍이 없습니다 (새 진입이 청산되면 쌓입니다). 계측기는 켜져 있습니다.")
+        L.append("- 생존: **총 0쌍 / 분기 0쌍** — 판정 게이트 = 분기 30쌍(§11.1)")
     else:
-        L.append(f"오늘 {cf['n_today']}쌍, 누적 {cf['n_all']}쌍을 채집했습니다.")
-        L.append(f"- 누적 손익: 기본잠금(A, 1.5) **${cf['a_all']:+,.0f}** vs "
-                 f"빠른잠금(B, 0.75) **${cf['b_all']:+,.0f}**")
-        L.append(f"- 잭팟 top5 제외: A ${cf['a_ex']:+,.0f} vs B ${cf['b_ex']:+,.0f} "
-                 f"(잭팟 암기 방지 규율)")
-        L.append("- ※ 이건 **계기판**입니다(판정 아님). 표본이 쌓이면 사전등록 기준으로 판정합니다.")
+        last = datetime.fromtimestamp(cf["last_ms"] / 1000, KST).strftime("%m-%d %H:%M") \
+            if cf.get("last_ms") else "-"
+        L.append(f"- 생존: 총 **{cf['n_all']}쌍** / 분기 **{cf['n_div']}쌍** "
+                 f"(판정 게이트 = 분기 30) | 오늘 {cf['n_today']}쌍 | 마지막 쌍 {last} KST")
+        L.append("- ※ 판정용 A vs B 손익은 게이트 도달 전까지 **비공개** — 사전등록 peeking 금지(§11.1).")
     L.append("")
 
     L.append("## 오늘 걸러낸 신호")
