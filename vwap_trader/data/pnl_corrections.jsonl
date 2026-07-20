@@ -6,3 +6,6 @@
 {"trade_id": "d3202a96", "symbol": "TRIAUSDT", "pnl_usd": 24.52641217, "exit_price": 0.027452, "pnl_pct": 2.6628, "src": "exchange", "fixed_at": "2026-07-07T15:30:03.296607+00:00", "prev_estimated": 29.8999}
 {"trade_id": "efc2afbf", "symbol": "BLURUSDT", "pnl_usd": -38.53595839, "exit_price": 0.022351, "pnl_pct": -6.3558, "src": "exchange", "fixed_at": "2026-07-08T06:27:12.111449+00:00", "prev_estimated": -63.3912}
 {"trade_id": "3200a6d3", "symbol": "ZECUSDT", "pnl_usd": -2.47889532, "exit_price": 495.52, "pnl_pct": -0.0141, "src": "exchange", "fixed_at": "2026-07-08T06:27:12.111449+00:00", "prev_estimated": -2.197}
+{"trade_id": "799f6bf7", "symbol": "BSBUSDT", "pnl_usd": -6.40372201, "exit_price": 0.1402, "pnl_pct": -0.4298, "src": "exchange", "fixed_at": "2026-07-16T15:30:02.862750+00:00", "prev_estimated": -1.1}
+{"trade_id": "16020e20", "symbol": "ESPORTSUSDT", "pnl_usd": 596.0395542, "exit_price": 0.031329, "pnl_pct": 30.212, "src": "exchange", "fixed_at": "2026-07-18T15:30:03.506487+00:00", "prev_estimated": 614.4241}
+{"trade_id": "6d732ac0", "symbol": "ESPORTSUSDT", "pnl_usd": 264.43122638, "exit_price": 0.029869, "pnl_pct": 13.9255, "src": "exchange", "fixed_at": "2026-07-19T15:30:03.696680+00:00", "prev_estimated": 302.1747}
