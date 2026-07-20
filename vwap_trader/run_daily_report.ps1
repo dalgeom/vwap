@@ -29,6 +29,9 @@ $report = "reports\$day.md"
 if ((Test-Path $report) -and (Test-Path $claude)) {
     try {
         $facts = Get-Content -Raw -Encoding utf8 $report
+        $ctxFile = "reports\_reflection_context.md"
+        $fixedCtx = ""
+        if (Test-Path $ctxFile) { $fixedCtx = Get-Content -Raw -Encoding utf8 $ctxFile }
         $prompt = @"
 너는 자동매매 봇이고 사장님께 매일 보고서를 쓴다. 아래 오늘 보고서를 읽고, 맨 끝 '오늘의 자아성찰' 자리에 그대로 들어갈 성찰 문단을 써라.
 
@@ -39,6 +42,10 @@ if ((Test-Path $report) -and (Test-Path $claude)) {
 - 5단계 보고·메타설명 금지.
 - 우리말, 과장·단정 금지(잭팟은 소수표본=계기판).
 - 내용: 오늘 배운 점 1~2개 + 앞으로 해볼 구체 제안 1개.
+- 마지막 문장은 반드시 '제안:'으로 시작하는 구체적 실행 1개로 끝내라(아래 고정 사실과 충돌 금지).
+
+--- 고정 사실 (제안 전 필독) ---
+$fixedCtx
 
 --- 오늘 보고서 ---
 $facts
@@ -58,6 +65,18 @@ $facts
             $content = (Get-Content -Raw -Encoding utf8 $report).Replace($placeholder, $reflection)
             [System.IO.File]::WriteAllText((Resolve-Path $report).Path, $content, (New-Object System.Text.UTF8Encoding($false)))
             "reflection written to $report" | Out-File -Append -Encoding utf8 $log
+            # 성찰 제안 → 백로그 승격 (제안 소멸 방지, PLAN §5.12 C)
+            $blog = "reports\backlog.md"
+            if (-not (Test-Path $blog)) {
+                "# 성찰 제안 백로그 (daily_report 자동 누적)" | Out-File -Encoding utf8 $blog
+            }
+            $m = [regex]::Match($reflection, '제안\s*[::]\s*(.+)')
+            if ($m.Success) {
+                $prop = ($m.Groups[1].Value.Trim() -replace "\s+", ' ')
+                "- [ ] $day — $prop" | Out-File -Append -Encoding utf8 $blog
+            } else {
+                "- [ ] $day — (제안 표식 없음, 성찰 전문은 reports\$day.md 참조)" | Out-File -Append -Encoding utf8 $blog
+            }
         } else {
             "reflection empty - placeholder kept" | Out-File -Append -Encoding utf8 $log
         }
