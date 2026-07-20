@@ -274,3 +274,5 @@
 {"symbol": "USUSDT", "direction": "long", "intended_price": 0.046477, "fill_price": 0.046658, "slippage_pct": 0.3894, "timestamp": "2026-07-19T07:00:38.474879+00:00"}
 {"symbol": "ESPORTSUSDT", "direction": "short", "intended_price": 0.026757, "fill_price": 0.027155, "slippage_pct": 1.4875, "timestamp": "2026-07-19T14:00:37.774436+00:00"}
 {"symbol": "TRUMPUSDT", "direction": "short", "intended_price": 1.558, "fill_price": 1.558, "slippage_pct": 0.0, "timestamp": "2026-07-19T22:00:35.270978+00:00"}
+{"symbol": "ZEREBROUSDT", "direction": "short", "intended_price": 0.038152, "fill_price": 0.038152, "slippage_pct": 0.0, "timestamp": "2026-07-20T05:00:42.305900+00:00"}
+{"symbol": "AVAAIUSDT", "direction": "short", "intended_price": 0.01008, "fill_price": 0.010042, "slippage_pct": 0.377, "timestamp": "2026-07-20T07:00:42.552706+00:00"}

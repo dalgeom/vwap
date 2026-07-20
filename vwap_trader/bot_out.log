@@ -1,0 +1,12 @@
+2026-07-20 11:30:42,276 [momentum_bot] INFO ==================================================
+2026-07-20 11:30:42,278 [momentum_bot] INFO Momentum Bot starting (dry_run=False)
+2026-07-20 11:30:42,286 [momentum_bot] INFO State loaded: 1 positions, 0 ghosts, bar=1366, slip_cooldowns=0
+2026-07-20 11:30:42,289 [momentum_bot] INFO Trades backup: trades_momentum.jsonl.bak_20260720_023042 (start lines=275)
+2026-07-20 11:30:42,657 [momentum_bot] INFO Hedge mode confirmed
+2026-07-20 11:30:42,744 [momentum_bot] INFO Balance: $30879.47
+2026-07-20 11:30:42,745 [momentum_bot] INFO Refreshing universe...
+2026-07-20 11:30:43,062 [momentum_bot] INFO Universe: 47 coins (min vol $10M)
+2026-07-20 11:30:43,064 [momentum_bot] INFO Universe: 47 coins
+2026-07-20 11:30:43,065 [vwap_trader.notifier] INFO ALERT: [Momentum Bot] Started | balance=$30879 | coins=47 | dry_run=False
+2026-07-20 11:33:06,282 [momentum_bot] INFO Clock offset updated: 7984ms → 7511ms
+2026-07-20 11:34:05,334 [momentum_bot] INFO Clock offset updated: 7511ms → 7984ms
