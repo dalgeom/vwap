@@ -66,9 +66,41 @@ def _fmt_pf(pf: float) -> str:
     return "∞" if pf == float("inf") else f"{pf:.2f}"
 
 
+def order_fail_details(shadow: list, day: date) -> list:
+    """당일 order_failed의 상세 사유(fail_detail) 목록."""
+    out = []
+    for r in shadow:
+        if r.get("shadow_reason") != "order_failed":
+            continue
+        ts = r.get("timestamp_utc")
+        if not ts or datetime.fromisoformat(ts).astimezone(KST).date() != day:
+            continue
+        out.append(f"{r.get('symbol')} — {r.get('fail_detail') or '(사유 미기록)'}")
+    return out
+
+
+CF_DIV_RATE = 0.119  # §11.1 실측 분기창 비율 — 계측기 건강 점검 전용(판정기준 아님)
+
+
+def cf_health_warning(n_pairs: int, n_div: int, div_rate: float = CF_DIV_RATE):
+    """분기 0쌍이 통계적으로 비정상이면 경고문(§5.12 침묵고장 재발 방지).
+    P(분기 0 | n쌍) = (1-div_rate)^n < 5% → 계측기 의심. outcome-blind(쌍 수만 사용)."""
+    if n_pairs == 0 or n_div > 0:
+        return None
+    p0 = (1 - div_rate) ** n_pairs
+    if p0 < 0.05:
+        return (f"⚠ 계측기 점검 필요: {n_pairs}쌍 동안 분기 0 — 기대 분기율 11.9% 기준 "
+                f"이럴 확률 {p0 * 100:.1f}%. 침묵고장 의심(§5.12 전례).")
+    return None
+
+
 def be_cf_summary(rows: list, day: date) -> dict:
     """BE A/B 반사실 쌍 → arm별 손익 집계(오늘/누적, top5 제외 병행).
-    각 쌍은 실제 arm + 반대 arm(shadow) 결과를 담으므로, 쌍마다 A·B 둘 다 기여."""
+    각 쌍은 실제 arm + 반대 arm(shadow) 결과를 담으므로, 쌍마다 A·B 둘 다 기여.
+    ★ 수리(2026-07-20) 후 재수집분(cf_version=2)만 집계 — 구계측 잔재는 n_legacy로만 표기."""
+    n_legacy = sum(1 for r in rows if r.get("cf_version") != 2)
+    rows = [r for r in rows if r.get("cf_version") == 2]
+
     def arm_pnls(pairs):
         a = b = 0.0
         for r in pairs:
@@ -92,6 +124,7 @@ def be_cf_summary(rows: list, day: date) -> dict:
                 if round(r.get("real_pnl", 0) or 0, 2) != round(r.get("shadow_pnl", 0) or 0, 2))
     last_ms = max((r.get("real_exit_ms", 0) or 0 for r in rows), default=0)
     return {"n_today": len(today), "n_all": len(rows), "n_div": n_div, "last_ms": last_ms,
+            "n_legacy": n_legacy,
             "a_today": a_t, "b_today": b_t, "a_all": a_all, "b_all": b_all,
             "a_ex": a_ex, "b_ex": b_ex}
 
@@ -149,12 +182,22 @@ def render_report(ctx: dict) -> str:
     if not cf or cf["n_all"] == 0:
         L.append("아직 계측 쌍이 없습니다 (새 진입이 청산되면 쌓입니다). 계측기는 켜져 있습니다.")
         L.append("- 생존: **총 0쌍 / 분기 0쌍** — 판정 게이트 = 분기 30쌍(§11.1)")
+        if cf and cf.get("n_legacy"):
+            L.append(f"- ※ 수리 전 구계측 잔재 {cf['n_legacy']}쌍은 카운터에서 제외(§11.1 재수집).")
     else:
         last = datetime.fromtimestamp(cf["last_ms"] / 1000, KST).strftime("%m-%d %H:%M") \
             if cf.get("last_ms") else "-"
         L.append(f"- 생존: 총 **{cf['n_all']}쌍** / 분기 **{cf['n_div']}쌍** "
                  f"(판정 게이트 = 분기 30) | 오늘 {cf['n_today']}쌍 | 마지막 쌍 {last} KST")
         L.append("- ※ 판정용 A vs B 손익은 게이트 도달 전까지 **비공개** — 사전등록 peeking 금지(§11.1).")
+        hw = cf_health_warning(cf["n_all"], cf["n_div"])
+        if hw:
+            L.append(f"- {hw}")
+        if cf.get("n_legacy"):
+            L.append(f"- ※ 수리 전 구계측 잔재 {cf['n_legacy']}쌍은 카운터에서 제외(§11.1 재수집).")
+    gp = ctx.get("ghosts_pending", 0)
+    if gp:
+        L.append(f"- 추적 중 유령(청산 후 그림자) {gp}개 — 자체 스탑 도달 시 쌍 확정.")
     L.append("")
 
     L.append("## 오늘 걸러낸 신호")
@@ -162,6 +205,8 @@ def render_report(ctx: dict) -> str:
     if sc:
         L.append("오늘 이런 이유로 신호를 걸렀습니다: "
                  + ", ".join(f"{k} {v2}건" for k, v2 in sc.items()) + ".")
+        for od in ctx.get("order_fails", []):
+            L.append(f"  - 주문실패 상세: {od}")
         L.append("- ※ 이 신호들이 좋았는지 나빴는지는 아직 판정하지 않습니다. "
                  "되감기 백테스트를 폐기해서(신뢰 불가), 사실만 적습니다.")
     else:
@@ -181,6 +226,9 @@ def render_report(ctx: dict) -> str:
     L.append("## 인프라 상태")
     L.append(f"- estimated 잔존 {inf['estimated']}건(시한임박 {inf['imminent']}, 시한초과 {inf['lost']}) "
              f"| corrections {inf['corrections']}건 | slippage_cooldown {len(inf['cooldowns'])}개")
+    if inf["lost"]:
+        L.append(f"- ※ 시한초과 {inf['lost']}건은 데모 API 보관(7일) 초과로 **영구 정정 불가** — "
+                 "거래소 대조 제안은 무의미합니다.")
     L.append("")
 
     L.append("## 오늘의 자아성찰")
@@ -267,7 +315,9 @@ def main():
         "todays": todays_closes(trades, day),
         "stats": build_stats(trades),
         "shadow_counts": shadow_reason_counts(shadow, day),
+        "order_fails": order_fail_details(shadow, day),
         "be_cf": be_cf_summary(_load_jsonl(BE_CF), day),
+        "ghosts_pending": len(state.get("ghosts", [])),
         "infra": {"estimated": est_left, "imminent": est_imminent,
                   "lost": est_lost, "cooldowns": list(state.get("slippage_cooldown", {}).keys()),
                   "corrections": len(corr)},
