@@ -60,14 +60,17 @@ def precompute(klines_1h):
     return pre
 
 
-def run_combo(cfg, pre, btc_atr_by_ts, client, m1_cache, mom_trade_days, momentum_daily):
-    """한 조합 실행 → 채점 dict. 신호는 precompute 조회, 1m은 on-demand 공유캐시."""
+def run_combo(cfg, pre, btc_atr_by_ts, mom_trade_days, momentum_daily):
+    """한 조합 실행 → 채점 dict. 신호는 precompute 조회, 청산은 1h봉 슬라이스(네트워크 0).
+    1h 해상도 = 경로독립 되돌림에 충분 + 동봉 손절우선이라 EV 하한(보수). 6~12h=6~12봉."""
     trades = []
     zkey = cfg["n"]
+    max_hold = cfg["max_hold_h"]
     for sym, p in pre.items():
         bars, closes = p["bars"], p["closes"]
         zser, apser, trser = p["z"][zkey], p["atr_pct"], p["trend"]
-        for i in range(len(bars)):
+        nbars = len(bars)
+        for i in range(nbars):
             z = zser[i]
             if z is None:
                 continue
@@ -82,16 +85,15 @@ def run_combo(cfg, pre, btc_atr_by_ts, client, m1_cache, mom_trade_days, momentu
             ma = float(np.mean(window))
             sigma = float(np.std(window, ddof=1))
             entry = closes[i]
-            e_ms = bars[i][0] + 3600000                 # 신호봉 종가 확정 후 다음 봉
-            end_ms = e_ms + cfg["max_hold_h"] * 3600000
-            fut = D.fetch_1m_window(client, sym, e_ms, end_ms, m1_cache)
+            # 진입=신호봉 종가(다음 봉부터 청산 판정). 1h봉 (ts,o,h,l,c,v)→(ts,high,low,close)
+            fut = [(b[0], b[2], b[3], b[4]) for b in bars[i + 1:i + 1 + max_hold]]
             xp, reason, held = simulate_exit(entry, direction, ma, sigma,
-                                             cfg["z_stop"], cfg["max_hold_h"] * 60, fut)
+                                             cfg["z_stop"], max_hold * 60, fut)
             if reason == "nodata":
                 continue
             gross = (entry - xp) / entry if direction == "short" else (xp - entry) / entry
             net = gross * 100 - (C.FEE + 2 * C.SLIPPAGE_ONEWAY) * 100
-            day = datetime.fromtimestamp(e_ms / 1000, timezone.utc).date().isoformat()
+            day = datetime.fromtimestamp((bars[i][0] + 3600000) / 1000, timezone.utc).date().isoformat()
             trades.append({"pnl_pct": net, "reason": reason, "day": day, "symbol": sym})
     agg = aggregate(trades)
     drought_days = {t["day"] for t in trades} - mom_trade_days
@@ -237,17 +239,14 @@ def main():
     # 신호 심볼에서 BTC는 제외(추세 기준용일 뿐 fade 대상 아님)
     sig_klines = {s: v for s, v in klines.items() if s != "BTCUSDT"}
     pre = precompute(sig_klines)
-    print("precompute done")
-    m1_cache = {}
+    print("precompute done", flush=True)
     results = []
     for k, cfg in enumerate(C.all_combos(), 1):
-        r = run_combo(cfg, pre, btc_atr_by_ts, client, m1_cache,
-                      mom_trade_days, momentum_daily)
+        r = run_combo(cfg, pre, btc_atr_by_ts, mom_trade_days, momentum_daily)
         results.append(r)
-        D.flush_1m_cache(m1_cache)
         print(f"combo {k}/48 n={cfg['n']} ze={cfg['z_entry']} "
               f"zs={cfg['z_stop']} ac={cfg['atr_ceiling']} mh={cfg['max_hold_h']} "
-              f"→ trades={r['n']} ev%={r['ev_pct']:+.3f}")
+              f"→ trades={r['n']} ev%={r['ev_pct']:+.3f}", flush=True)
     j = judge(results)
     meta = {"run": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
             "span": _span(klines), "n_sym": len(sig_klines)}

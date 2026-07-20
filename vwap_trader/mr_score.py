@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Gate 1 채점 (순수). 집계·부트스트랩·보완성."""
-import random
+import numpy as np
 from collections import Counter, defaultdict
 
 
@@ -20,17 +20,20 @@ def aggregate(trades):
 
 
 def bootstrap_pneg(trades, iters, seed):
-    """P(재표집 평균 EV <= 0). 빈 표본은 1.0."""
+    """P(재표집 평균 EV <= 0). 빈 표본은 1.0. numpy 벡터화(대형 표본 대응, 메모리 청크)."""
     if not trades:
         return 1.0
-    pn = [t["pnl_pct"] for t in trades]
+    pn = np.array([t["pnl_pct"] for t in trades], dtype=float)
     n = len(pn)
-    rng = random.Random(seed)
+    rng = np.random.default_rng(seed)
     neg = 0
-    for _ in range(iters):
-        s = sum(pn[rng.randrange(n)] for _ in range(n))
-        if s <= 0:
-            neg += 1
+    block = max(1, min(iters, 2_000_000 // n))   # b*n ≤ 2M float(16MB) 청크
+    done = 0
+    while done < iters:
+        b = min(block, iters - done)
+        sums = pn[rng.integers(0, n, size=(b, n))].sum(axis=1)
+        neg += int((sums <= 0).sum())
+        done += b
     return neg / iters
 
 
