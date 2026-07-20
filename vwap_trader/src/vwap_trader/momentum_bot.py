@@ -206,6 +206,8 @@ class MomentumBot:
         self._be_cf_enabled = self.cfg["strategy"].get("be_counterfactual_enabled", True)
         # 결함① 수리: real 청산 후에도 그림자를 계속 추적하는 유령 목록 (state 저장/복원)
         self.ghosts: list[dict] = []
+        # order_failed 상세 사유 (shadow 기록용 — 로깅 전용)
+        self._last_order_error = ""
         self._trades_lines_at_start = 0
         self._trades_appended = 0
 
@@ -475,9 +477,11 @@ class MomentumBot:
                 return result
             else:
                 logger.error("Order failed %s: %s", symbol, resp)
+                self._last_order_error = f"retCode={resp.get('retCode')} {resp.get('retMsg', '')}"[:200]
                 return None
         except Exception as e:
             logger.error("Order exception %s: %s", symbol, e)
+            self._last_order_error = str(e)[:200]
             return None
 
     def _fetch_actual_entry(self, symbol: str, side: str) -> float:
@@ -532,9 +536,11 @@ class MomentumBot:
                 return result
             else:
                 logger.error("Limit order failed %s: %s", symbol, resp)
+                self._last_order_error = f"retCode={resp.get('retCode')} {resp.get('retMsg', '')}"[:200]
                 return None
         except Exception as e:
             logger.error("Limit order exception %s: %s", symbol, e)
+            self._last_order_error = str(e)[:200]
             return None
 
     def _cancel_order(self, symbol: str, order_id: str) -> bool:
@@ -1560,7 +1566,7 @@ class MomentumBot:
         return ctx
 
     def _log_shadow(self, signal, direction_str: str, reason: str,
-                    btc_price: float, btc_1h_change: float):
+                    btc_price: float, btc_1h_change: float, fail_detail: str = ""):
         """v5.1+: fire 됐지만 진입 안 된 신호 기록 (생존편향 분석용).
         trades 로그와 동일 스키마(exit/pnl 제외 + shadow_reason). forward 성과는
         symbol+timestamp+signal_price로 추후 klines에서 소급 재구성."""
@@ -1590,6 +1596,8 @@ class MomentumBot:
             "signal_oi_chg": sig_ctx["oi_chg"],
             "signal_vol_ratio": sig_ctx["vol_ratio"],
         }
+        if fail_detail:
+            record["fail_detail"] = fail_detail  # order_failed 거래소 사유 (로깅 전용)
         with open(self._shadow_file, "a") as f:
             f.write(json.dumps(record) + "\n")
 
@@ -1765,7 +1773,8 @@ class MomentumBot:
                 result = self._place_limit_order(
                     symbol, side, size.qty, limit_price, sl_tp.sl, sl_tp.tp)
                 if result is None:
-                    shadow_list.append((signal, direction_str, "order_failed"))
+                    shadow_list.append((signal, direction_str, "order_failed",
+                                        self._last_order_error))
                     continue
 
                 pend = {
@@ -1798,7 +1807,8 @@ class MomentumBot:
                 result = self._place_market_order(
                     symbol, side, size.qty, sl_tp.sl, sl_tp.tp)
                 if result is None:
-                    shadow_list.append((signal, direction_str, "order_failed"))
+                    shadow_list.append((signal, direction_str, "order_failed",
+                                        self._last_order_error))
                     continue
 
                 actual = self._fetch_actual_entry(symbol, side)
@@ -1856,9 +1866,11 @@ class MomentumBot:
                 short_count += 1
             time.sleep(0.2)
 
-        # v5.1+: 진입 안 된 신호 전부 shadow 기록
-        for sig, d, reason in shadow_list:
-            self._log_shadow(sig, d, reason, btc_price, btc_1h_change)
+        # v5.1+: 진입 안 된 신호 전부 shadow 기록 (order_failed는 상세 사유 포함)
+        for item in shadow_list:
+            sig, d, reason = item[0], item[1], item[2]
+            detail = item[3] if len(item) > 3 else ""
+            self._log_shadow(sig, d, reason, btc_price, btc_1h_change, fail_detail=detail)
 
         cached_coins = len(self._candle_cache)
         logger.info("Scan done: %d entries, %d shadow, %d pending, %d positions (cache: %d)",
