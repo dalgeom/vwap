@@ -1359,7 +1359,7 @@ class MomentumBot:
                 st = {"best": pos.shadow_best_price, "be": pos.shadow_be_triggered, "sl": pos.shadow_sl}
                 exited, xp, rsn = update_shadow(
                     pos.direction, pos.entry_price, pos.atr_at_entry,
-                    pos.shadow_be_trigger, trail_mult, st, bar_high, bar_low, cur)
+                    pos.shadow_be_trigger, trail_mult, exit_mode, st, bar_high, bar_low, cur)
                 pos.shadow_best_price, pos.shadow_be_triggered, pos.shadow_sl = st["best"], st["be"], st["sl"]
                 if exited:
                     pos.shadow_exit_price = xp

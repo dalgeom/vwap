@@ -24,20 +24,14 @@ def pnl_of(entry, exit_price, direction, size_usd):
     return gross - size_usd * FEE
 
 
-def update_shadow(direction, entry, atr, be_trigger, trail_mult, st, bar_high, bar_low, cur):
-    """반대 arm 그림자 손절선 갱신. st={"best","be","sl"} in-place 변경.
-    반환 (exited, exit_price, reason). trailing 모드 가정(봇 exit_mode=trailing):
-    추적선은 항상 활성, be_trigger는 본전 바닥(entry)을 언제 깔지만 결정.
-    돌파는 이번 분 시작 sl 기준으로 먼저 검사(look-ahead 금지) 후 갱신."""
-    sl = st["sl"]
-    # 1) 돌파 우선 (이전 분 sl)
-    if direction == "long":
-        if bar_low <= sl:
-            return True, sl, ("TrailSL" if st["be"] else "SL")
-    else:
-        if bar_high >= sl:
-            return True, sl, ("TrailSL" if st["be"] else "SL")
-    # 2) 갱신
+def advance_stop(direction, entry, atr, be_trigger, trail_mult, exit_mode,
+                 st, bar_high, bar_low, cur):
+    """손절선 전진 정책 — 봇 _update_trailing_sl과 그림자가 공유하는 단일 진실(순수함수).
+    st={"best","be","sl"} in-place 갱신. 돌파 검사는 하지 않음(봇=거래소가, 그림자=update_shadow가).
+    exit_mode: "be_trail"=본전잠금 후에만 추적 / "trailing"=항상 추적 / "fixed"=무동작.
+    (결함③ 수리 2026-07-20: 구그림자는 추적선 항상 활성으로 봇 be_trail 정책과 달랐음 — §5.12 A)"""
+    if exit_mode == "fixed":
+        return
     be_level = be_trigger * atr
     trail_dist = trail_mult * atr
     if direction == "long":
@@ -47,11 +41,13 @@ def update_shadow(direction, entry, atr, be_trigger, trail_mult, st, bar_high, b
             st["be"] = True
             if entry > st["sl"]:
                 st["sl"] = entry
-        nsl = st["best"] - trail_dist            # trailing 항상 활성
-        if cur and nsl >= cur:                   # spike-retrace 가드(봇 동일)
-            nsl = entry if entry < cur else st["sl"]
-        if nsl > st["sl"]:
-            st["sl"] = nsl
+        if st["be"] or exit_mode == "trailing":
+            nsl = st["best"] - trail_dist
+            # spike-retrace 가드(봇과 동일): be 발동 시에만 entry 복귀
+            if cur and nsl >= cur:
+                nsl = entry if (st["be"] and entry < cur) else st["sl"]
+            if nsl > st["sl"]:
+                st["sl"] = nsl
     else:
         if bar_low < st["best"]:
             st["best"] = bar_low
@@ -59,11 +55,38 @@ def update_shadow(direction, entry, atr, be_trigger, trail_mult, st, bar_high, b
             st["be"] = True
             if entry < st["sl"]:
                 st["sl"] = entry
-        nsl = st["best"] + trail_dist
-        if cur and nsl <= cur:
-            nsl = entry if entry > cur else st["sl"]
-        if nsl < st["sl"]:
-            st["sl"] = nsl
+        if st["be"] or exit_mode == "trailing":
+            nsl = st["best"] + trail_dist
+            if cur and nsl <= cur:
+                nsl = entry if (st["be"] and entry > cur) else st["sl"]
+            if nsl < st["sl"]:
+                st["sl"] = nsl
+
+
+def shadow_exit_reason(direction, entry, sl, be):
+    """봇 _classify_exit_reason 미러 (tp=0 전제)."""
+    if not be:
+        return "SL"
+    if direction == "long" and sl > entry:
+        return "TrailSL"
+    if direction == "short" and sl < entry:
+        return "TrailSL"
+    return "BE"
+
+
+def update_shadow(direction, entry, atr, be_trigger, trail_mult, exit_mode,
+                  st, bar_high, bar_low, cur):
+    """그림자 갱신: 이번 분 시작 sl 기준 돌파 먼저(look-ahead 금지) → advance_stop.
+    반환 (exited, exit_price, reason). 봇과 같은 정책 공유(결함③ 수리)."""
+    sl = st["sl"]
+    if direction == "long":
+        if bar_low <= sl:
+            return True, sl, shadow_exit_reason(direction, entry, sl, st["be"])
+    else:
+        if bar_high >= sl:
+            return True, sl, shadow_exit_reason(direction, entry, sl, st["be"])
+    advance_stop(direction, entry, atr, be_trigger, trail_mult, exit_mode,
+                 st, bar_high, bar_low, cur)
     return False, None, None
 
 
