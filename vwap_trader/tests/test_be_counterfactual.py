@@ -1,6 +1,8 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-from vwap_trader.be_counterfactual import pnl_of, update_shadow, build_pair_record, append_pair, shadow_init_fields
+from vwap_trader.be_counterfactual import (pnl_of, update_shadow, build_pair_record,
+                                           append_pair, shadow_init_fields,
+                                           resolve_shadow_at_real_exit)
 
 
 def test_shadow_init_fields_A_and_B():
@@ -111,6 +113,35 @@ def test_append_pair_writes_jsonl(tmp_path):
     append_pair(p, {"trade_id": "t2", "real_pnl": 2.0})
     lines = p.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2 and json.loads(lines[1])["trade_id"] == "t2"
+
+
+def test_resolve_real_exit_breaches_shadow_sl_ususdt_replay():
+    # ★ 결함② 합성 주입(USUSDT 07-19 재현): real=A SL 체결가가 그림자 B의 본전선(entry) 너머.
+    # long entry 0.046658, 그림자 B be 발동(sl=entry), 실청산 0.04371 <= 0.046658
+    # → 그림자는 shadow_sl(entry)에서 BE로 먼저 이탈했어야 함. REAL_EXIT 금지.
+    st = {"best": 0.048, "be": True, "sl": 0.046658}
+    action, xp, rsn = resolve_shadow_at_real_exit("long", 0.046658, 0.04371, "SL", st)
+    assert action == "exit" and xp == 0.046658 and rsn == "BE"
+
+
+def test_resolve_real_exit_no_breach_promotes_ghost():
+    # ★ 결함① 진입로: real=B가 본전(entry)에서 나갔는데 그림자 A의 sl(85)은 안 깨짐 → 유령 승격.
+    st = {"best": 108.0, "be": False, "sl": 85.0}
+    action, xp, rsn = resolve_shadow_at_real_exit("long", 100.0, 100.0, "BE", st)
+    assert action == "ghost" and xp is None
+
+
+def test_resolve_timeout_closes_both_at_same_price():
+    # 시간만료: 두 arm 모두 같은 순간 강제 청산 → 그림자도 실청산가로 동률 마감.
+    st = {"best": 108.0, "be": False, "sl": 85.0}
+    action, xp, rsn = resolve_shadow_at_real_exit("long", 100.0, 103.0, "Timeout", st)
+    assert action == "exit" and xp == 103.0 and rsn == "Timeout"
+
+
+def test_resolve_short_breach():
+    st = {"best": 90.0, "be": True, "sl": 100.0}  # short 그림자 be, sl=entry
+    action, xp, rsn = resolve_shadow_at_real_exit("short", 100.0, 101.5, "SL", st)
+    assert action == "exit" and xp == 100.0 and rsn == "BE"
 
 
 def test_shadow_init_fields_marks_policy_v2():

@@ -27,7 +27,8 @@ from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
 from .integrity import backup_trades, count_lines, check_integrity
 from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
-                                shadow_init_fields, advance_stop)
+                                shadow_init_fields, advance_stop,
+                                resolve_shadow_at_real_exit)
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
@@ -203,6 +204,8 @@ class MomentumBot:
         # Step2: BE A/B 반사실 계측기 (기록 전용, 실매매 무관)
         self._be_cf_file = DATA_DIR / "be_counterfactual.jsonl"
         self._be_cf_enabled = self.cfg["strategy"].get("be_counterfactual_enabled", True)
+        # 결함① 수리: real 청산 후에도 그림자를 계속 추적하는 유령 목록 (state 저장/복원)
+        self.ghosts: list[dict] = []
         self._trades_lines_at_start = 0
         self._trades_appended = 0
 
@@ -833,21 +836,48 @@ class MomentumBot:
         if self._be_cf_enabled and getattr(pos, "shadow_arm", ""):
             try:
                 real_ms = int(now.timestamp() * 1000)
+                cf_ver = 2 if getattr(pos, "shadow_policy", "") == "v2" else None
                 if pos.shadow_exit_price is None:
-                    # 그림자 미청산 → 실제 청산가로 마감
-                    pos.shadow_exit_price = exit_price
-                    pos.shadow_exit_reason = "REAL_EXIT"
-                    pos.shadow_exit_ms = real_ms
-                rec = build_pair_record(
-                    trade_id=pos.trade_id, symbol=pos.symbol, direction=pos.direction,
-                    entry=pos.entry_price, atr=pos.atr_at_entry, size_usd=pos.position_size_usd,
-                    real_arm=getattr(pos, "ab_arm", ""), real_be=getattr(pos, "be_trigger_atr", 0.0),
-                    real_exit=exit_price, real_reason=reason,
-                    real_exchange_pnl=closed_pnl_usd, real_exit_ms=real_ms,
-                    shadow_arm=pos.shadow_arm, shadow_be=pos.shadow_be_trigger,
-                    shadow_exit=pos.shadow_exit_price, shadow_reason=pos.shadow_exit_reason,
-                    shadow_exit_ms=pos.shadow_exit_ms)
-                append_pair(self._be_cf_file, rec)
+                    st = {"best": pos.shadow_best_price, "be": pos.shadow_be_triggered,
+                          "sl": pos.shadow_sl}
+                    action, xp, rsn = resolve_shadow_at_real_exit(
+                        pos.direction, pos.entry_price, exit_price, reason, st)
+                    if action == "exit":
+                        # 결함② 수리: 실청산가가 그림자 sl 통과 → 그림자 선(先)이탈 확정
+                        pos.shadow_exit_price = xp
+                        pos.shadow_exit_reason = rsn
+                        pos.shadow_exit_ms = real_ms
+                    else:
+                        # 결함① 수리: 그림자 미청산 → 유령 승격, 쌍 기록은 유령 청산까지 유예
+                        self.ghosts.append({
+                            "trade_id": pos.trade_id, "symbol": pos.symbol,
+                            "direction": pos.direction, "entry_price": pos.entry_price,
+                            "atr_at_entry": pos.atr_at_entry,
+                            "position_size_usd": pos.position_size_usd,
+                            "entry_bar": pos.entry_bar,
+                            "real_arm": getattr(pos, "ab_arm", ""),
+                            "real_be_trigger": getattr(pos, "be_trigger_atr", 0.0),
+                            "real_exit_price": exit_price, "real_exit_reason": reason,
+                            "real_exchange_pnl": closed_pnl_usd, "real_exit_ms": real_ms,
+                            "shadow_arm": pos.shadow_arm,
+                            "shadow_be_trigger": pos.shadow_be_trigger,
+                            "best": pos.shadow_best_price, "be": pos.shadow_be_triggered,
+                            "sl": pos.shadow_sl,
+                            "policy": getattr(pos, "shadow_policy", ""),
+                        })
+                        logger.info("be_cf ghost opened %s (real=%s@%.6f, shadow_sl=%.6f)",
+                                    pos.symbol, reason, exit_price, pos.shadow_sl)
+                if pos.shadow_exit_price is not None:
+                    rec = build_pair_record(
+                        trade_id=pos.trade_id, symbol=pos.symbol, direction=pos.direction,
+                        entry=pos.entry_price, atr=pos.atr_at_entry, size_usd=pos.position_size_usd,
+                        real_arm=getattr(pos, "ab_arm", ""), real_be=getattr(pos, "be_trigger_atr", 0.0),
+                        real_exit=exit_price, real_reason=reason,
+                        real_exchange_pnl=closed_pnl_usd, real_exit_ms=real_ms,
+                        shadow_arm=pos.shadow_arm, shadow_be=pos.shadow_be_trigger,
+                        shadow_exit=pos.shadow_exit_price, shadow_reason=pos.shadow_exit_reason,
+                        shadow_exit_ms=pos.shadow_exit_ms, cf_version=cf_ver)
+                    append_pair(self._be_cf_file, rec)
             except Exception as e:
                 logger.warning("be_cf pair record failed %s: %s", pos.symbol, e)
 

@@ -91,6 +91,23 @@ def update_shadow(direction, entry, atr, be_trigger, trail_mult, exit_mode,
     return False, None, None
 
 
+def resolve_shadow_at_real_exit(direction, entry, real_exit_price, real_reason, st):
+    """실청산 순간의 그림자 처리 결정(결함② 수리 — §5.12 A).
+    반환 ("exit", price, reason) — 실청산가가 그림자 sl을 이미 통과(그림자가 먼저 이탈했어야 함)
+       | ("exit", real_exit_price, "Timeout") — 시간만료는 두 arm 동시 강제청산(동률)
+       | ("ghost", None, None) — 그림자 미청산 → 유령 승격(결함① 경로)."""
+    if real_reason == "Timeout":
+        return "exit", real_exit_price, "Timeout"
+    sl = st["sl"]
+    if direction == "long":
+        if real_exit_price <= sl:
+            return "exit", sl, shadow_exit_reason(direction, entry, sl, st["be"])
+    else:
+        if real_exit_price >= sl:
+            return "exit", sl, shadow_exit_reason(direction, entry, sl, st["be"])
+    return "ghost", None, None
+
+
 def build_pair_record(*, trade_id, symbol, direction, entry, atr, size_usd,
                       real_arm, real_be, real_exit, real_reason, real_exchange_pnl, real_exit_ms,
                       shadow_arm, shadow_be, shadow_exit, shadow_reason, shadow_exit_ms,
