@@ -26,7 +26,8 @@ from vwap_trader.core.position_sizer import compute_position_size
 from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
 from .integrity import backup_trades, count_lines, check_integrity
-from .be_counterfactual import update_shadow, build_pair_record, append_pair, shadow_init_fields
+from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
+                                shadow_init_fields, advance_stop)
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
@@ -1280,9 +1281,6 @@ class MomentumBot:
         # v6 A/B: per-position BE trigger (0.0/absent => config default = arm A/legacy)
         be_trigger = getattr(pos, "be_trigger_atr", 0.0) or \
             self.cfg["strategy"].get("be_trigger_atr", 1.5)
-        trail_dist = trail_mult * pos.atr_at_entry
-        be_level = be_trigger * pos.atr_at_entry
-
         # Get current high/low from candle cache for best price update
         cached = self._candle_cache.get(pos.symbol)
         if cached and len(cached) >= 1:
@@ -1296,52 +1294,18 @@ class MomentumBot:
             bar_high = bar_low = price
 
         old_sl = pos.sl
+        was_be = pos.be_triggered
 
-        if pos.direction == "long":
-            # Update best price
-            if bar_high > pos.best_price:
-                pos.best_price = bar_high
-
-            # Check breakeven trigger
-            if not pos.be_triggered and pos.best_price >= pos.entry_price + be_level:
-                pos.be_triggered = True
-                new_sl = max(pos.sl, pos.entry_price)
-                if new_sl > pos.sl:
-                    pos.sl = new_sl
-                    logger.info("BE triggered %s: SL → %.4f (entry)", pos.symbol, new_sl)
-
-            # Trail from best price (after BE or always for pure trailing)
-            if pos.be_triggered or exit_mode == "trailing":
-                new_sl = pos.best_price - trail_dist
-                # Spike-retrace guard: best_price = intra-bar high already retraced
-                # past, so trail sits at/above current price → Bybit rejects (10001).
-                # Assert the BE floor (entry) instead of an invalid over-trail; this
-                # also repairs a position whose SL was rolled back while be_triggered.
-                cur = price_map.get(pos.symbol)
-                if cur and new_sl >= cur:
-                    new_sl = pos.entry_price if (pos.be_triggered and pos.entry_price < cur) else pos.sl
-                if new_sl > pos.sl:
-                    pos.sl = new_sl
-        else:  # short
-            if bar_low < pos.best_price:
-                pos.best_price = bar_low
-
-            if not pos.be_triggered and pos.best_price <= pos.entry_price - be_level:
-                pos.be_triggered = True
-                new_sl = min(pos.sl, pos.entry_price)
-                if new_sl < pos.sl:
-                    pos.sl = new_sl
-                    logger.info("BE triggered %s: SL → %.4f (entry)", pos.symbol, new_sl)
-
-            if pos.be_triggered or exit_mode == "trailing":
-                new_sl = pos.best_price + trail_dist
-                # Spike-retrace guard (mirror of long): short SL must stay above mark;
-                # assert BE floor (entry) if trail would sit at/below current price.
-                cur = price_map.get(pos.symbol)
-                if cur and new_sl <= cur:
-                    new_sl = pos.entry_price if (pos.be_triggered and pos.entry_price > cur) else pos.sl
-                if new_sl < pos.sl:
-                    pos.sl = new_sl
+        # 정책은 그림자와 공유하는 단일 순수함수(결함③ 근본 처방 — PLAN §5.12 A).
+        # spike-retrace 가드 포함: best = 이미 되밀린 봉내 고점이면 trail이 현재가 위에
+        # 앉아 Bybit 10001 거부 → be 발동 시 entry 바닥 복귀 (advance_stop 내부, 봇 로직 동일).
+        st_real = {"best": pos.best_price, "be": pos.be_triggered, "sl": pos.sl}
+        cur = price_map.get(pos.symbol)
+        advance_stop(pos.direction, pos.entry_price, pos.atr_at_entry,
+                     be_trigger, trail_mult, exit_mode, st_real, bar_high, bar_low, cur)
+        pos.best_price, pos.be_triggered, pos.sl = st_real["best"], st_real["be"], st_real["sl"]
+        if pos.be_triggered and not was_be:
+            logger.info("BE triggered %s: SL → %.4f (entry)", pos.symbol, pos.sl)
 
         # If SL changed, update on Bybit
         if pos.sl != old_sl:
@@ -1355,7 +1319,6 @@ class MomentumBot:
         # ── Step2 be_counterfactual: 그림자(반대 arm) 갱신 — 기록 전용, 거래소 미접촉 ──
         if self._be_cf_enabled and getattr(pos, "shadow_arm", "") and pos.shadow_exit_price is None:
             try:
-                cur = price_map.get(pos.symbol)
                 st = {"best": pos.shadow_best_price, "be": pos.shadow_be_triggered, "sl": pos.shadow_sl}
                 exited, xp, rsn = update_shadow(
                     pos.direction, pos.entry_price, pos.atr_at_entry,
