@@ -98,7 +98,8 @@ class OpenPosition:
                  shadow_arm: str = "", shadow_be_trigger: float = 0.0,
                  shadow_best_price: float = 0.0, shadow_be_triggered: bool = False,
                  shadow_sl: float = 0.0, shadow_exit_price: float | None = None,
-                 shadow_exit_reason: str | None = None, shadow_exit_ms: int | None = None):
+                 shadow_exit_reason: str | None = None, shadow_exit_ms: int | None = None,
+                 shadow_policy: str = ""):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -139,6 +140,7 @@ class OpenPosition:
         self.shadow_exit_price = shadow_exit_price
         self.shadow_exit_reason = shadow_exit_reason
         self.shadow_exit_ms = shadow_exit_ms
+        self.shadow_policy = shadow_policy  # "v2"=결함 수리 후 정책 / ""=수리 전(레거시)
 
     def to_dict(self) -> dict:
         return vars(self)

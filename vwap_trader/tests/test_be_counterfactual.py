@@ -113,6 +113,31 @@ def test_append_pair_writes_jsonl(tmp_path):
     assert len(lines) == 2 and json.loads(lines[1])["trade_id"] == "t2"
 
 
+def test_shadow_init_fields_marks_policy_v2():
+    a = shadow_init_fields("A", 100.0, 85.0)
+    assert a["shadow_policy"] == "v2"
+
+
+def test_build_pair_record_cf_version():
+    kw = dict(trade_id="t1", symbol="X", direction="long", entry=100.0, atr=10.0, size_usd=1000.0,
+              real_arm="A", real_be=1.5, real_exit=110.0, real_reason="TrailSL",
+              real_exchange_pnl=None, real_exit_ms=1, shadow_arm="B", shadow_be=0.75,
+              shadow_exit=100.0, shadow_reason="SL", shadow_exit_ms=1)
+    assert build_pair_record(**kw, cf_version=2)["cf_version"] == 2
+    assert "cf_version" not in build_pair_record(**kw)  # 레거시(구정책 잔여 포지션)는 무마킹
+
+
+def test_openposition_shadow_policy_roundtrip():
+    from vwap_trader.momentum_bot import OpenPosition
+    p = OpenPosition(symbol="X", direction="long", entry_price=100.0, qty=1.0, sl=85.0,
+                     tp=0.0, entry_time="2026-07-20T00:00:00+00:00", entry_bar=1,
+                     intended_price=100.0, shadow_policy="v2")
+    assert OpenPosition.from_dict(p.to_dict()).shadow_policy == "v2"
+    legacy = {"symbol": "Y", "direction": "short", "entry_price": 1.0, "qty": 1.0, "sl": 1.1,
+              "tp": 0.0, "entry_time": "2026-07-20T00:00:00+00:00", "entry_bar": 1, "intended_price": 1.0}
+    assert OpenPosition.from_dict(legacy).shadow_policy == ""  # 배포 전 진입분 → 레거시
+
+
 def test_openposition_shadow_roundtrip_and_legacy():
     from vwap_trader.momentum_bot import OpenPosition
     # 신규: shadow 필드 지정 → to_dict/from_dict 왕복

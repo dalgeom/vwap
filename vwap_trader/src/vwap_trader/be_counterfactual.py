@@ -15,7 +15,8 @@ def shadow_init_fields(real_arm, entry_price, sl, be_trigger_a=1.5, be_trigger_b
     else:
         s_arm, s_be = "A", be_trigger_a
     return {"shadow_arm": s_arm, "shadow_be_trigger": s_be,
-            "shadow_best_price": entry_price, "shadow_be_triggered": False, "shadow_sl": sl}
+            "shadow_best_price": entry_price, "shadow_be_triggered": False, "shadow_sl": sl,
+            "shadow_policy": "v2"}  # 결함 수리 후 정책 마킹 — 재수집 카운터는 v2만 집계
 
 
 def pnl_of(entry, exit_price, direction, size_usd):
@@ -92,8 +93,9 @@ def update_shadow(direction, entry, atr, be_trigger, trail_mult, exit_mode,
 
 def build_pair_record(*, trade_id, symbol, direction, entry, atr, size_usd,
                       real_arm, real_be, real_exit, real_reason, real_exchange_pnl, real_exit_ms,
-                      shadow_arm, shadow_be, shadow_exit, shadow_reason, shadow_exit_ms):
-    return {
+                      shadow_arm, shadow_be, shadow_exit, shadow_reason, shadow_exit_ms,
+                      cf_version=None):
+    rec = {
         "trade_id": trade_id, "symbol": symbol, "direction": direction,
         "entry_price": entry, "atr_at_entry": atr, "position_size_usd": round(size_usd, 2),
         "real_arm": real_arm, "real_be_trigger": real_be,
@@ -105,6 +107,9 @@ def build_pair_record(*, trade_id, symbol, direction, entry, atr, size_usd,
         "real_exchange_pnl": real_exchange_pnl,
         "real_exit_ms": real_exit_ms, "shadow_exit_ms": shadow_exit_ms,
     }
+    if cf_version is not None:
+        rec["cf_version"] = cf_version
+    return rec
 
 
 def append_pair(path, record):
