@@ -942,6 +942,7 @@ class MomentumBot:
             "daily_pnl": self.daily_pnl,
             "daily_trades": self.daily_trades,
             "slippage_cooldown": cooldown_serialized,
+            "ghosts": self.ghosts,
             "last_save": datetime.now(timezone.utc).isoformat(),
         }
         with open(self._state_file, "w") as f:
@@ -957,6 +958,7 @@ class MomentumBot:
             self.bar_counter = state.get("bar_counter", 0)
             self.daily_pnl = state.get("daily_pnl", 0.0)
             self.daily_trades = state.get("daily_trades", 0)
+            self.ghosts = state.get("ghosts", [])
             # v5.1: slippage_cooldown 복원 (만료된 항목은 건너뜀)
             now = datetime.now(timezone.utc)
             cd_raw = state.get("slippage_cooldown", {})
@@ -972,8 +974,8 @@ class MomentumBot:
             # Restore cooldown state in strategy from open positions
             for pos in self.positions:
                 self.strategy.sync_cooldown_after_entry(pos.symbol, pos.entry_bar)
-            logger.info("State loaded: %d positions, bar=%d, slip_cooldowns=%d",
-                        len(self.positions), self.bar_counter, restored)
+            logger.info("State loaded: %d positions, %d ghosts, bar=%d, slip_cooldowns=%d",
+                        len(self.positions), len(self.ghosts), self.bar_counter, restored)
         except Exception as e:
             logger.error("State load error: %s", e)
 
@@ -1178,6 +1180,9 @@ class MomentumBot:
 
             # 2. 포지션 관리: SL/TP/timeout/BE/Trail — 매 분
             price_map = self._manage_positions()
+
+            # 2.5 유령(청산 후 그림자) 추적 — 기록 전용, 거래소 미접촉 (결함① 수리)
+            self._manage_ghosts(price_map)
 
             # 3. Scan for new signals — 정각(분=0)에만 1회
             if is_scan_tick:
@@ -1451,6 +1456,59 @@ class MomentumBot:
                 self.positions.remove(pos)
 
         return price_map
+
+    def _manage_ghosts(self, price_map: dict[str, float]):
+        """결함① 수리: real 청산 후에도 그림자를 캔들만으로 계속 추적(유령, 거래소 미접촉).
+        자체 스탑/타임아웃 도달 시점으로 쌍 기록. forward 실시간 추적 — §8.9+ 강등 무관."""
+        if not self._be_cf_enabled or not self.ghosts:
+            return
+        exit_mode = self.cfg["strategy"].get("exit_mode", "fixed")
+        if exit_mode == "fixed":
+            return
+        trail_mult = self.cfg["strategy"].get("trail_atr_mult", 2.0)
+        open_syms = {p.symbol for p in self.positions}
+        done = []
+        for g in self.ghosts:
+            try:
+                if g["symbol"] not in open_syms:
+                    self._fetch_candles(g["symbol"])
+                    time.sleep(0.4)  # rate limit (포지션 관리와 동일)
+                cached = self._candle_cache.get(g["symbol"])
+                cur = price_map.get(g["symbol"])
+                if cached and len(cached) >= 1:
+                    bar_high, bar_low = cached[-1][2], cached[-1][3]
+                    last_close = cached[-1][4]
+                elif cur:
+                    bar_high = bar_low = last_close = cur
+                else:
+                    continue  # 데이터 없음 — 다음 분 재시도
+                st = {"best": g["best"], "be": g["be"], "sl": g["sl"]}
+                exited, xp, rsn = update_shadow(
+                    g["direction"], g["entry_price"], g["atr_at_entry"],
+                    g["shadow_be_trigger"], trail_mult, exit_mode, st,
+                    bar_high, bar_low, cur)
+                g["best"], g["be"], g["sl"] = st["best"], st["be"], st["sl"]
+                if not exited and self.strategy.hold_expired(g["entry_bar"], self.bar_counter):
+                    exited, xp, rsn = True, (cur or last_close), "Timeout"
+                if exited:
+                    rec = build_pair_record(
+                        trade_id=g["trade_id"], symbol=g["symbol"], direction=g["direction"],
+                        entry=g["entry_price"], atr=g["atr_at_entry"],
+                        size_usd=g["position_size_usd"],
+                        real_arm=g["real_arm"], real_be=g["real_be_trigger"],
+                        real_exit=g["real_exit_price"], real_reason=g["real_exit_reason"],
+                        real_exchange_pnl=g["real_exchange_pnl"], real_exit_ms=g["real_exit_ms"],
+                        shadow_arm=g["shadow_arm"], shadow_be=g["shadow_be_trigger"],
+                        shadow_exit=xp, shadow_reason=rsn,
+                        shadow_exit_ms=int(time.time() * 1000),
+                        cf_version=(2 if g.get("policy") == "v2" else None))
+                    append_pair(self._be_cf_file, rec)
+                    logger.info("be_cf ghost closed %s %s@%.6f", g["symbol"], rsn, xp)
+                    done.append(g)
+            except Exception as e:
+                logger.warning("be_cf ghost update failed %s: %s", g.get("symbol"), e)
+        for g in done:
+            self.ghosts.remove(g)
 
     def _quick_consec(self, symbol: str, direction: int) -> int:
         """cap 우선순위용 연속 동방향봉 수 (캐시 기반, OI 호출 없음)."""

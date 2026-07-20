@@ -169,6 +169,103 @@ def test_openposition_shadow_policy_roundtrip():
     assert OpenPosition.from_dict(legacy).shadow_policy == ""  # 배포 전 진입분 → 레거시
 
 
+def _mk_ghost_bot(tmp_path, candles):
+    """네트워크 없는 MomentumBot 골격 (유령 추적 단위테스트용)."""
+    from vwap_trader.momentum_bot import MomentumBot
+    bot = object.__new__(MomentumBot)
+    bot.cfg = {"strategy": {"exit_mode": "be_trail", "trail_atr_mult": 2.0,
+                            "be_trigger_atr": 1.5, "be_trigger_atr_b": 0.75}}
+    bot._be_cf_enabled = True
+    bot._be_cf_file = tmp_path / "pairs.jsonl"
+    bot._candle_cache = {"XUSDT": candles}
+    bot.positions = []
+    bot.bar_counter = 10
+    bot._fetch_candles = lambda sym: None  # 캐시 주입으로 대체
+
+    class _Strat:
+        def hold_expired(self, entry_bar, current_bar):
+            return current_bar - entry_bar >= 48
+    bot.strategy = _Strat()
+    bot.ghosts = []
+    return bot
+
+
+def _mk_ghost(**over):
+    g = {"trade_id": "g1", "symbol": "XUSDT", "direction": "long", "entry_price": 100.0,
+         "atr_at_entry": 10.0, "position_size_usd": 1000.0, "entry_bar": 9,
+         "real_arm": "B", "real_be_trigger": 0.75, "real_exit_price": 100.0,
+         "real_exit_reason": "BE", "real_exchange_pnl": -1.1, "real_exit_ms": 1,
+         "shadow_arm": "A", "shadow_be_trigger": 1.5,
+         "best": 108.0, "be": False, "sl": 85.0, "policy": "v2"}
+    g.update(over)
+    return g
+
+
+def test_ghost_censored_divergence_recorded(tmp_path):
+    # ★ 결함① 합성 주입(검열 7쌍 재현): real=B가 본전에서 나감, 유령 A(sl=85, be 미발동)는 계속 추적
+    # → 가격이 85까지 하락 → 유령 A는 SL 이탈 → real(-0) vs shadow(-15%) 분기 쌍 기록!
+    import json
+    bot = _mk_ghost_bot(tmp_path, [(0, 0.0, 100.0, 84.0, 85.0, 0.0)])
+    bot.ghosts.append(_mk_ghost())
+    bot._manage_ghosts({"XUSDT": 85.0})
+    assert bot.ghosts == []  # 청산돼 제거
+    rows = [json.loads(l) for l in (tmp_path / "pairs.jsonl").read_text().splitlines()]
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["cf_version"] == 2
+    assert r["shadow_exit_reason"] == "SL" and r["shadow_exit_price"] == 85.0
+    assert round(r["real_pnl"], 2) != round(r["shadow_pnl"], 2)  # ★ 분기가 기록됨
+
+
+def test_ghost_survives_until_breach(tmp_path):
+    # 가격이 그림자 sl에 안 닿으면 유령 유지 + 정책대로 be 발동·추적선 전진.
+    bot = _mk_ghost_bot(tmp_path, [(0, 0.0, 120.0, 100.0, 118.0, 0.0)])
+    bot.ghosts.append(_mk_ghost(best=100.0))
+    bot._manage_ghosts({"XUSDT": 118.0})
+    assert len(bot.ghosts) == 1
+    g = bot.ghosts[0]
+    assert g["be"] is True and g["sl"] == 100.0  # 120=2.0ATR≥1.5 → be 발동, sl=entry
+
+
+def test_ghost_timeout(tmp_path):
+    import json
+    bot = _mk_ghost_bot(tmp_path, [(0, 0.0, 101.0, 99.0, 100.5, 0.0)])
+    bot.bar_counter = 100  # entry_bar 9 + 48 초과
+    bot.ghosts.append(_mk_ghost(best=100.0))
+    bot._manage_ghosts({"XUSDT": 100.5})
+    rows = [json.loads(l) for l in (tmp_path / "pairs.jsonl").read_text().splitlines()]
+    assert rows[0]["shadow_exit_reason"] == "Timeout" and bot.ghosts == []
+
+
+def test_ghost_state_roundtrip(tmp_path):
+    # 유령이 state 저장/복원을 통과해야 재시작에도 이어짐.
+    from vwap_trader.momentum_bot import MomentumBot
+    bot = object.__new__(MomentumBot)
+    bot.positions = []
+    bot.bar_counter = 5
+    bot.daily_pnl = 0.0
+    bot.daily_trades = 0
+    bot._slippage_cooldown = {}
+    bot._state_file = tmp_path / "state.json"
+    bot.ghosts = [{"trade_id": "g9", "symbol": "XUSDT", "sl": 85.0}]
+    bot._save_state()
+
+    bot2 = object.__new__(MomentumBot)
+    bot2.positions = []
+    bot2.bar_counter = 0
+    bot2.daily_pnl = 0.0
+    bot2.daily_trades = 0
+    bot2._slippage_cooldown = {}
+    bot2._state_file = bot._state_file
+
+    class _Strat:
+        def sync_cooldown_after_entry(self, *a): pass
+    bot2.strategy = _Strat()
+    bot2.ghosts = []
+    bot2._load_state()
+    assert bot2.ghosts and bot2.ghosts[0]["trade_id"] == "g9"
+
+
 def test_openposition_shadow_roundtrip_and_legacy():
     from vwap_trader.momentum_bot import OpenPosition
     # 신규: shadow 필드 지정 → to_dict/from_dict 왕복
