@@ -33,3 +33,4 @@ vwap_trader/data/_bt_delayed_klines_cache.json
 vwap_trader/data/_mr_1h_cache.json
 vwap_trader/data/_mr_1m_cache.json
 vwap_trader/data/_fund_hist_cache.json
+vwap_trader/data/_crowd_cache.json
