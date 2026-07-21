@@ -10,6 +10,7 @@ import json
 import logging
 import math
 import os
+import statistics
 import sys
 import time
 import threading
@@ -95,6 +96,7 @@ class OpenPosition:
                  signal_ret_6: float = 0.0, signal_ret_12: float = 0.0,
                  signal_ret_24: float = 0.0, signal_consec: int = 0,
                  signal_oi_chg: float = 0.0, signal_vol_ratio: float = 0.0,
+                 signal_dispersion: float | None = None,
                  be_trigger_atr: float = 0.0, ab_arm: str = "",
                  shadow_arm: str = "", shadow_be_trigger: float = 0.0,
                  shadow_best_price: float = 0.0, shadow_be_triggered: bool = False,
@@ -129,6 +131,8 @@ class OpenPosition:
         self.signal_consec = signal_consec    # 진입 전 연속 동방향 봉 수
         self.signal_oi_chg = signal_oi_chg    # 신호봉 직전 OI 변화율(%)
         self.signal_vol_ratio = signal_vol_ratio  # 신호봉 거래량/직전20봉평균
+        # 시장 분산: 스캔시점 유니버스 24h수익률 표준편차 (스캔 공통값, 로깅 전용)
+        self.signal_dispersion = signal_dispersion
         # v6 forward A/B: per-position BE trigger (0.0 => use config default = legacy/arm A)
         self.be_trigger_atr = be_trigger_atr
         self.ab_arm = ab_arm                  # "A" (control) / "B" (early BE) / "" (legacy)
@@ -229,6 +233,8 @@ class MomentumBot:
         self._btc_4h_return: float = 0.0
         self._btc_4h_atr: float = 0.0
         self._regime: str = "UNKNOWN"
+        # 시장 분산 (스캔마다 갱신, 로깅 전용 — 거래결정 무영향)
+        self._dispersion: float | None = None
 
     def _load_config(self) -> dict:
         with open(CONFIG_PATH, encoding="utf-8") as f:
@@ -833,6 +839,7 @@ class MomentumBot:
             "signal_consec": getattr(pos, "signal_consec", 0),
             "signal_oi_chg": round(getattr(pos, "signal_oi_chg", 0.0), 4),
             "signal_vol_ratio": round(getattr(pos, "signal_vol_ratio", 0.0), 3),
+            "signal_dispersion": _round_or_none(getattr(pos, "signal_dispersion", None), 6),
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -1595,6 +1602,7 @@ class MomentumBot:
             "signal_consec": sig_ctx["consec"],
             "signal_oi_chg": sig_ctx["oi_chg"],
             "signal_vol_ratio": sig_ctx["vol_ratio"],
+            "signal_dispersion": _round_or_none(self._dispersion, 6),
         }
         if fail_detail:
             record["fail_detail"] = fail_detail  # order_failed 거래소 사유 (로깅 전용)
@@ -1641,6 +1649,7 @@ class MomentumBot:
         # Phase 1: Collect all signals, then pick top N by signal_strength
         candidates = []
         shadow_list = []  # v5.1+: (signal, direction_str, reason) — fired but not entered
+        universe_rets_24h = []  # 시장 분산 로깅용 (거래결정 무영향)
         for symbol in self.universe:
             if symbol in open_symbols or symbol in pending_symbols:
                 continue
@@ -1653,6 +1662,12 @@ class MomentumBot:
             scanned += 1
 
             opens, highs, lows, closes = candle_data
+
+            # 시장 분산 수집 — 신호 유무와 무관하게 스캔된 전 코인 (로깅 전용)
+            ret_24h = coin_return_24h(closes)
+            if ret_24h is not None:
+                universe_rets_24h.append(ret_24h)
+
             signal = self.strategy.feed_candle(
                 symbol, opens, highs, lows, closes, bar_number=self.bar_counter)
             if signal is None:
@@ -1696,6 +1711,9 @@ class MomentumBot:
                     continue
 
             candidates.append((signal, direction_str))
+
+        # 시장 분산 확정 (스캔 공통값 — 이번 스캔 진입/그림자 전건에 같은 값)
+        self._dispersion = compute_dispersion(universe_rets_24h)
 
         # Sort by signal_strength descending, take top max_entries
         candidates.sort(key=lambda x: x[0].percentile_rank, reverse=True)
@@ -1846,6 +1864,7 @@ class MomentumBot:
                     signal_consec=sig_ctx["consec"],
                     signal_oi_chg=sig_ctx["oi_chg"],
                     signal_vol_ratio=sig_ctx["vol_ratio"],
+                    signal_dispersion=self._dispersion,
                 )
                 pos._btc_4h_return = self._btc_4h_return
                 pos._btc_4h_atr = self._btc_4h_atr
@@ -1899,6 +1918,28 @@ def compute_vol_ratio(vols: list, lookback: int = 20) -> float:
         return 0.0
     avg = sum(vols[-lookback - 1:-1]) / lookback
     return round(vols[-1] / avg, 3) if avg > 0 else 0.0
+
+
+def _round_or_none(v: float | None, digits: int) -> float | None:
+    """None은 None으로 유지, 숫자만 반올림 (0.0을 None으로 뭉개지 않음)."""
+    return None if v is None else round(v, digits)
+
+
+def coin_return_24h(closes: list, bars: int = 24) -> float | None:
+    """1h 종가에서 직전 24시간 수익률(close[-1]/close[-25]-1). 봉 부족·기준가0이면 None.
+    ★ 시장 분산 로깅 전용 — 거래결정 무영향."""
+    if len(closes) < bars + 1:
+        return None
+    base = closes[-(bars + 1)]
+    return (closes[-1] / base - 1) if base else None
+
+
+def compute_dispersion(returns: list, min_coins: int = 10) -> float | None:
+    """유니버스 코인별 24h 수익률의 표준편차(ddof=1) = 시장 분산.
+    유효 코인 min_coins 미만이면 None. ★ 로깅 전용 — 거래결정 무영향."""
+    if len(returns) < min_coins:
+        return None
+    return statistics.stdev(returns)
 
 
 # ── Notify helper ────────────────────────────────────────
