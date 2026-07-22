@@ -14,6 +14,13 @@ Set-Location "C:\Users\PC\Desktop\현진\code\vwap_trader"
 $log = "logs\daily_report.log"
 $claude = "$env:APPDATA\npm\claude.cmd"
 
+# 0. 횡단면 군중 역발상 forward 스냅샷 (봇 무관·순수 기록). 실패해도 리포트는 진행.
+try {
+    & ".\venv\Scripts\python.exe" "xcrowd_snapshot.py" *>> "logs\xcrowd_snapshot.log"
+} catch {
+    "xcrowd_snapshot step failed: $_" | Out-File -Append -Encoding utf8 "logs\xcrowd_snapshot.log"
+}
+
 # 1. 사실 리포트 생성 (기존 동작 — 모든 스트림 로그로)
 if ($Day) {
     & ".\venv\Scripts\python.exe" "daily_report.py" $Day *>> $log
