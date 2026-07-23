@@ -80,6 +80,7 @@ def order_fail_details(shadow: list, day: date) -> list:
 
 
 CF_DIV_RATE = 0.119  # §11.1 실측 분기창 비율 — 계측기 건강 점검 전용(판정기준 아님)
+JACKPOT_R = 7.8      # §11.1 잭팟 절대기준(정본 223건 top5 컷라인 실측=7.83R, 상수 고정)
 
 
 def cf_health_warning(n_pairs: int, n_div: int, div_rate: float = CF_DIV_RATE):
@@ -94,10 +95,30 @@ def cf_health_warning(n_pairs: int, n_div: int, div_rate: float = CF_DIV_RATE):
     return None
 
 
+def pair_r(row: dict) -> float:
+    """쌍의 R = max(pnl_A, pnl_B) ÷ 리스크(1.5×ATR÷entry×size). §11.1 arm-불변 정규화.
+    리스크 산출 불가(결손)면 0.0 — 판정 불가를 잭팟으로 오인하지 않도록."""
+    atr = row.get("atr_at_entry", 0) or 0
+    entry = row.get("entry_price", 0) or 0
+    size = row.get("position_size_usd", 0) or 0
+    risk = 1.5 * atr / entry * size if (atr and entry and size) else 0
+    if not risk:
+        return 0.0
+    best = max(row.get("real_pnl", 0) or 0, row.get("shadow_pnl", 0) or 0)
+    return best / risk
+
+
+def is_jackpot_pair(row: dict) -> bool:
+    """§11.1 잭팟 = R ≥ 7.8 (정본 223건 실측 컷라인, 상수 고정).
+    ※ 순위기준 'top5 제외'는 컷라인이 표본마다 움직여 구간 비교를 왜곡 → 폐기(§11.1)."""
+    return pair_r(row) >= JACKPOT_R
+
+
 def be_cf_summary(rows: list, day: date) -> dict:
-    """BE A/B 반사실 쌍 → arm별 손익 집계(오늘/누적, top5 제외 병행).
+    """BE A/B 반사실 쌍 → arm별 손익 집계(오늘/누적, 잭팟 제외 병행).
     각 쌍은 실제 arm + 반대 arm(shadow) 결과를 담으므로, 쌍마다 A·B 둘 다 기여.
-    ★ 수리(2026-07-20) 후 재수집분(cf_version=2)만 집계 — 구계측 잔재는 n_legacy로만 표기."""
+    ★ 수리(2026-07-20) 후 재수집분(cf_version=2)만 집계 — 구계측 잔재는 n_legacy로만 표기.
+    ★ 잭팟 제외분(a_ex/b_ex)은 절대기준 R≥7.8(§11.1). 2026-07-23 top5 기준에서 교체."""
     n_legacy = sum(1 for r in rows if r.get("cf_version") != 2)
     rows = [r for r in rows if r.get("cf_version") == 2]
 
@@ -114,8 +135,7 @@ def be_cf_summary(rows: list, day: date) -> dict:
 
     today = [r for r in rows if r.get("real_exit_ms") and
              datetime.fromtimestamp(r["real_exit_ms"] / 1000, KST).date() == day]
-    top5 = {r.get("trade_id") for r in sorted(rows, key=lambda x: -(x.get("real_pnl", 0) or 0))[:5]}
-    ex = [r for r in rows if r.get("trade_id") not in top5]
+    ex = [r for r in rows if not is_jackpot_pair(r)]
     a_t, b_t = arm_pnls(today)
     a_all, b_all = arm_pnls(rows)
     a_ex, b_ex = arm_pnls(ex)
@@ -124,7 +144,7 @@ def be_cf_summary(rows: list, day: date) -> dict:
                 if round(r.get("real_pnl", 0) or 0, 2) != round(r.get("shadow_pnl", 0) or 0, 2))
     last_ms = max((r.get("real_exit_ms", 0) or 0 for r in rows), default=0)
     return {"n_today": len(today), "n_all": len(rows), "n_div": n_div, "last_ms": last_ms,
-            "n_legacy": n_legacy,
+            "n_legacy": n_legacy, "n_jackpot": len(rows) - len(ex),
             "a_today": a_t, "b_today": b_t, "a_all": a_all, "b_all": b_all,
             "a_ex": a_ex, "b_ex": b_ex}
 

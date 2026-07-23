@@ -100,6 +100,62 @@ def test_be_cf_summary_empty():
     assert s["n_all"] == 0 and s["a_all"] == 0.0
 
 
+from daily_report import pair_r, is_jackpot_pair
+
+
+# ── §11.1 잭팟 = arm-불변 절대기준 R≥7.8 (순위기준 top5 제외는 폐기됨) ──
+
+def _pair(real_pnl, shadow_pnl, entry=100.0, atr=1.0, size=1000.0):
+    # risk = 1.5 × atr/entry × size = 1.5 × 0.01 × 1000 = $15
+    return {"trade_id": "x", "real_arm": "A", "real_pnl": real_pnl,
+            "shadow_pnl": shadow_pnl, "entry_price": entry,
+            "atr_at_entry": atr, "position_size_usd": size, "cf_version": 2}
+
+
+def test_pair_r_uses_max_of_both_arms():
+    # §11.1: 쌍별 max(pnl_A, pnl_B)를 R로 정규화 — arm 무관(불변)
+    assert pair_r(_pair(150.0, 30.0)) == 10.0   # max=150 ÷ 15
+    assert pair_r(_pair(30.0, 150.0)) == 10.0   # 반대여도 동일
+
+
+def test_pair_r_zero_when_risk_undefined():
+    assert pair_r(_pair(100.0, 0.0, atr=0.0)) == 0.0
+    assert pair_r(_pair(100.0, 0.0, size=0.0)) == 0.0
+
+
+def test_is_jackpot_pair_at_and_above_threshold():
+    assert is_jackpot_pair(_pair(117.0, 0.0)) is True    # R=7.8 정확히 → 잭팟
+    assert is_jackpot_pair(_pair(120.0, 0.0)) is True    # R=8.0
+    assert is_jackpot_pair(_pair(116.0, 0.0)) is False   # R≈7.73
+
+
+def test_jackpot_excluded_pnl_uses_absolute_threshold():
+    # 잭팟 1쌍(R=10) + 평범 2쌍 → 제외분은 평범 2쌍만 합산
+    rows = [_pair(150.0, 30.0), _pair(45.0, 15.0), _pair(30.0, 60.0)]
+    for i, r in enumerate(rows):
+        r["trade_id"] = f"t{i}"
+        r["real_exit_ms"] = i + 1
+    s = be_cf_summary(rows, date(2026, 7, 22))
+    # 전체: A = 150+45+30 = 225 / B = 30+15+60 = 105
+    assert abs(s["a_all"] - 225.0) < 1e-9 and abs(s["b_all"] - 105.0) < 1e-9
+    # 잭팟(첫 쌍) 제외: A = 45+30 = 75 / B = 15+60 = 75
+    assert abs(s["a_ex"] - 75.0) < 1e-9 and abs(s["b_ex"] - 75.0) < 1e-9
+
+
+def test_no_jackpot_means_excluded_equals_total():
+    # 잭팟이 없으면 제외분 = 전체 (옛 top5 기준은 여기서 5건을 억지로 잘라 왜곡됐음)
+    rows = []
+    for i in range(6):
+        r = _pair(10.0 + i, 5.0)
+        r["trade_id"] = f"t{i}"
+        r["real_exit_ms"] = i + 1
+        rows.append(r)
+    s = be_cf_summary(rows, date(2026, 7, 22))
+    assert abs(s["a_ex"] - s["a_all"]) < 1e-9
+    assert abs(s["b_ex"] - s["b_all"]) < 1e-9
+    assert s["n_jackpot"] == 0
+
+
 def test_be_cf_summary_filters_v2_only():
     # 수리 전(cf_version 없음) 쌍은 재수집 카운터에서 제외(§11.1 29쌍 폐기).
     rows = [
