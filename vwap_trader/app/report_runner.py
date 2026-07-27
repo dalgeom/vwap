@@ -103,11 +103,15 @@ def add_reflection(report_path: Path, backlog_path: Path,
         if log_root:
             _log_line(log_root, f"성찰 실패: {type(e).__name__}: {e}")
         return False
-    if r.returncode != 0 or not reflection:
+    if r.returncode != 0:
         if log_root:
-            _log_line(log_root,
-                      f"성찰 실패: rc={r.returncode} "
-                      f"stderr={r.stderr.decode('utf-8', errors='replace')[:200]}")
+            stderr = (r.stderr.decode("utf-8", errors="replace")[:200]
+                      .replace("\n", " ").replace("\r", " "))
+            _log_line(log_root, f"성찰 실패: rc={r.returncode} stderr={stderr}")
+        return False
+    if not reflection:
+        if log_root:
+            _log_line(log_root, "성찰 빈 출력 — placeholder 유지")
         return False
     day = report_path.stem
     # 백로그 먼저 — 교체가 실패해도 제안은 남는다 (재시도 시 중복 1줄 가능, 소실보다 낫다)

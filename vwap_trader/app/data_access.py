@@ -94,10 +94,12 @@ def _equity_path(project_root: Path) -> Path:
 
 
 def append_equity(project_root: Path, ts_utc: datetime, equity: float) -> None:
+    ts = ts_utc if ts_utc.tzinfo else ts_utc.replace(tzinfo=timezone.utc)
     p = _equity_path(project_root)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8") as f:
-        f.write(json.dumps({"ts": ts_utc.isoformat(), "equity": round(equity, 2)}) + "\n")
+        f.write(json.dumps({"ts": ts.astimezone(timezone.utc).isoformat(),
+                            "equity": round(equity, 2)}) + "\n")
 
 
 def read_equity_history(project_root: Path) -> list[dict]:

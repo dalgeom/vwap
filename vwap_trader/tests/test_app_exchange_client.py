@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pytest
 
 import pybit._helpers as pybit_helpers
-from app.exchange_client import _friendly_error, apply_clock_offset, get_equity
+from app.exchange_client import apply_clock_offset, friendly_error, get_equity
 
 
 @pytest.fixture
@@ -33,15 +33,23 @@ def test_apply_clock_offset_shifts_and_is_idempotent(restore_pybit_ts):
 
 
 def test_friendly_error_clock():
-    assert "시계" in _friendly_error(Exception("ErrCode: 10002 something"))
+    assert "시계" in friendly_error(Exception("ErrCode: 10002 something"))
 
 
 def test_friendly_error_bad_key():
-    assert "API 키" in _friendly_error(Exception("API key is invalid. (ErrCode: 10003)\nRequest → GET ..."))
+    assert "API 키" in friendly_error(Exception("API key is invalid. (ErrCode: 10003)\nRequest → GET ..."))
 
 
 def test_friendly_error_fallback_first_line():
-    assert _friendly_error(Exception("first line\nsecond line")) == "first line"
+    assert friendly_error(Exception("first line\nsecond line")) == "first line"
+
+
+def test_friendly_error_clock_wins_over_retries_exceeded():
+    assert "시계" in friendly_error(Exception("Retries exceeded (ErrCode: 10002)"))
+
+
+def test_friendly_error_retries_exceeded():
+    assert "지연" in friendly_error(Exception("Retries exceeded max limit"))
 
 
 class _FakeClient:

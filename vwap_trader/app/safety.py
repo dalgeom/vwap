@@ -12,10 +12,12 @@ ALREADY_RUNNING = ("봇이 이미 실행 중입니다 (같은 계좌 이중 실�
 
 def measure_clock_offset_ms(public_session=None) -> float | None:
     """서버시간 − 로컬시간 (ms, 왕복 중점 보정). 실패 시 None(네트워크 문제는 시작을 막지 않음)."""
+    created = False
     try:
         if public_session is None:
             from pybit.unified_trading import HTTP
             public_session = HTTP(testnet=False, timeout=3)
+            created = True
         t0 = time.time() * 1000
         r = public_session.get_server_time()
         t1 = time.time() * 1000
@@ -23,6 +25,12 @@ def measure_clock_offset_ms(public_session=None) -> float | None:
         return server_ms - (t0 + t1) / 2
     except Exception:
         return None
+    finally:
+        if created:
+            try:
+                public_session.client.close()
+            except Exception:
+                pass
 
 
 def blocking_problems(problems: list[str]) -> list[str]:

@@ -25,7 +25,7 @@ def build_private_client(project_root: Path) -> HTTP:
     if offset is not None:
         apply_clock_offset(offset)
     demo = read_demo_flag(project_root / "config" / "momentum_config.yaml")
-    return HTTP(testnet=False, demo=demo, timeout=5, max_retries=1,
+    return HTTP(testnet=False, demo=demo, timeout=5, max_retries=1, retry_delay=1,
                 api_key=keys["BYBIT_API_KEY"], api_secret=keys["BYBIT_API_SECRET"])
 
 
@@ -54,13 +54,15 @@ def get_positions(client: HTTP) -> list[dict]:
     return out
 
 
-def _friendly_error(e: Exception) -> str:
+def friendly_error(e: Exception) -> str:
     m = str(e)
-    if "10002" in m or "Retries exceeded" in m or "retries exceeded" in m:
+    if "10002" in m:
         return ("PC 시계가 거래소 서버와 어긋난 것 같습니다 — 관리자 PowerShell에서 "
                 "'w32tm /resync /force' 실행 후 다시 시도하세요.")
     if any(c in m for c in ("10003", "10004", "10005")):
         return "API 키/시크릿이 올바르지 않거나 읽기 권한이 부족합니다."
+    if "Retries exceeded" in m or "retries exceeded" in m:
+        return "거래소 응답이 지연되고 있습니다 — 잠시 후 다시 시도하세요."
     return m.splitlines()[0] if m else "알 수 없는 오류"
 
 
@@ -68,12 +70,12 @@ def validate_keys(api_key: str, api_secret: str, demo: bool) -> tuple[bool, str]
     """저장 전 키 검증 — 잔고 조회 1회. (성공여부, 메시지)."""
     c = None
     try:
-        c = HTTP(testnet=False, demo=demo, timeout=5, max_retries=1,
+        c = HTTP(testnet=False, demo=demo, timeout=5, max_retries=1, retry_delay=1,
                  api_key=api_key, api_secret=api_secret)
         eq = get_equity(c)
         return True, f"연결 성공 — 현재 자산 ${eq:,.2f}"
     except Exception as e:
-        return False, f"연결 실패: {_friendly_error(e)}"
+        return False, f"연결 실패: {friendly_error(e)}"
     finally:
         try:
             if c is not None:
