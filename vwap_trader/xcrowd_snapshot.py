@@ -28,12 +28,14 @@
 부재해, 이 docstring이 사전등록 사양의 유일 정본이다(2026-07-22 확인).
 """
 import json
+import os
 import time
 import sys
 from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+_ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
+ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parent
 OUT = ROOT / "data" / "xcrowd_snapshots.jsonl"
 LOG = ROOT / "logs" / "xcrowd_snapshot.log"
 MIN_VOL = 10_000_000

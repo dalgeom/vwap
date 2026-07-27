@@ -76,7 +76,8 @@ def _resync_clock_offset() -> int:
 logger = logging.getLogger("momentum_bot")
 
 # ── Paths ────────────────────────────────────────────────
-ROOT = Path(__file__).resolve().parents[2]
+_ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
+ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "data"
 CONFIG_PATH = ROOT / "config" / "momentum_config.yaml"
 ENV_PATH = ROOT / "config" / ".env"

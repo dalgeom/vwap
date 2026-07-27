@@ -4,11 +4,13 @@
 스냅샷 파일 생성: python build_canonical.py → data/trades_canonical.jsonl
 """
 import json
+import os
 from pathlib import Path
 
 from corrections import apply_corrections
 
-ROOT = Path(__file__).resolve().parent
+_ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
+ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parent
 RAW = ROOT / "data" / "trades_momentum.jsonl"
 CORRECTED = ROOT / "data" / "trades_momentum_corrected.jsonl"
 OUT = ROOT / "data" / "trades_canonical.jsonl"

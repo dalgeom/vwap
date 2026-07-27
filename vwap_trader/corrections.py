@@ -1,8 +1,11 @@
 """거래소 실값 정정 오버레이 (A-2). 원본 trades는 절대 수정하지 않는다."""
 import json
+import os
 from pathlib import Path
 
-CORRECTIONS_FILE = Path(__file__).resolve().parent / "data" / "pnl_corrections.jsonl"
+_ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
+_ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parent
+CORRECTIONS_FILE = _ROOT / "data" / "pnl_corrections.jsonl"
 
 
 def read_corrections(path=None) -> dict:
