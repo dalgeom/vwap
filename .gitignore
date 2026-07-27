@@ -29,8 +29,10 @@ vwap_trader/data/trades_canonical.jsonl
 vwap_trader/data/_bt_delayed_klines_cache.json
 
 # 데스크톱 앱 빌드 환경·산출물 (build_exe.ps1로 재생성)
+# ★ dist/MomentumBot(실행파일 폴더)만 git에 포함 — PC 간 pull로 exe를 나르기 위함(사용자 결정 2026-07-27)
 vwap_trader/venv_app/
-vwap_trader/dist/
+vwap_trader/dist/*
+!vwap_trader/dist/MomentumBot/
 vwap_trader/build/
 vwap_trader/data/equity_history.jsonl
 vwap_trader/data/app_settings.json

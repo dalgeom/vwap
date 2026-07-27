@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Momentum Bot</title>
+<link rel="stylesheet" href="style.css">
+<script src="vendor/chart.umd.js"></script>
+<script src="vendor/marked.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand">Momentum Bot <span id="bot-version"></span></div>
+  <div id="account-badge" class="badge demo">데모 계좌</div>
+  <div id="bot-status" class="badge stopped">● 정지됨</div>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="status">상태</button>
+  <button class="tab" data-tab="equity">자산</button>
+  <button class="tab" data-tab="positions">포지션</button>
+  <button class="tab" data-tab="trades">거래기록</button>
+  <button class="tab" data-tab="reports">리포트</button>
+  <button class="tab" data-tab="settings">설정</button>
+</nav>
+
+<main>
+  <section id="tab-status" class="pane active">
+    <div class="controls">
+      <button id="btn-start" class="primary">봇 시작</button>
+      <button id="btn-stop" class="danger">봇 정지</button>
+      <span id="start-problems" class="warn"></span>
+    </div>
+    <h3>봇 로그</h3>
+    <pre id="log-view"></pre>
+  </section>
+
+  <section id="tab-equity" class="pane">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">현재 자산</div><div id="equity-now" class="stat-value">-</div></div>
+    </div>
+    <canvas id="equity-chart" height="120"></canvas>
+    <p class="hint">자산 곡선은 이 프로그램이 켜져 있는 동안 1시간마다 기록됩니다. 과거는 일일 리포트에서 복원.</p>
+  </section>
+
+  <section id="tab-positions" class="pane">
+    <table id="pos-table">
+      <thead><tr><th>코인</th><th>방향</th><th>수량</th><th>진입가</th><th>현재가</th><th>미실현 손익</th><th>손절선</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p id="pos-empty" class="hint">지금 들고 있는 포지션이 없습니다.</p>
+  </section>
+
+  <section id="tab-trades" class="pane">
+    <div class="stat-row" id="trade-summary"></div>
+    <p id="trades-empty" class="hint hidden">아직 거래 기록이 없습니다 — 봇이 첫 거래를 하면 여기 표시됩니다.</p>
+    <div class="filters">
+      <input id="f-symbol" placeholder="코인 검색 (예: ZAMA)">
+      <select id="f-result"><option value="">전체</option><option value="win">이익만</option><option value="loss">손실만</option><option value="jackpot">잭팟만</option></select>
+    </div>
+    <table id="trade-table">
+      <thead><tr><th>청산 시각</th><th>코인</th><th>방향</th><th>진입가</th><th>청산가</th><th>손익($)</th><th>보유(시간)</th><th>본전잠금 그룹</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="tab-reports" class="pane">
+    <div class="report-layout">
+      <ul id="report-list"></ul>
+      <article id="report-body">왼쪽에서 날짜를 선택하세요.</article>
+    </div>
+  </section>
+
+  <section id="tab-settings" class="pane">
+    <h3>API 키</h3>
+    <div class="form-row"><label>API Key</label><span id="cur-key" class="mono"></span>
+      <input id="in-key" placeholder="새 키 입력"></div>
+    <div class="form-row"><label>API Secret</label><span id="cur-secret" class="mono"></span>
+      <input id="in-secret" type="password" placeholder="새 시크릿 입력"></div>
+    <button id="btn-save-keys" class="primary">저장 (잔고 조회로 검증)</button>
+    <span id="keys-msg"></span>
+
+    <h3>계좌 모드</h3>
+    <div class="form-row">
+      <label><input type="radio" name="mode" id="mode-demo" value="demo"> 데모 (가짜 돈)</label>
+      <label><input type="radio" name="mode" id="mode-real" value="real"> 실전 ⚠ 진짜 돈이 거래됩니다</label>
+    </div>
+    <div id="real-confirm-row" class="hidden">
+      <p class="danger-text">⚠ 실전 계좌로 전환하면 진짜 돈으로 주문이 나갑니다. 계속하려면 REAL 을 입력하세요.</p>
+      <input id="in-real-confirm" placeholder="REAL">
+    </div>
+    <button id="btn-save-mode">계좌 모드 저장</button>
+    <span id="mode-msg"></span>
+
+    <h3>프로그램 동작</h3>
+    <label><input type="checkbox" id="chk-auto-report"> 매일 00:30 일일 리포트 자동 생성</label><br>
+    <label><input type="checkbox" id="chk-autostart"> Windows 부팅 시 자동 실행</label>
+    <span id="app-msg"></span>
+
+    <h3>봇 파라미터 (읽기 전용 — 수정은 config/momentum_config.yaml)</h3>
+    <pre id="config-view"></pre>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
