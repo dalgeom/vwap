@@ -78,6 +78,14 @@ def test_equity_history_append_read(tmp_path):
     assert last_equity_ts(tmp_path) == ts
 
 
+def test_last_equity_ts_normalizes_naive(tmp_path):
+    p = tmp_path / "data" / "equity_history.jsonl"
+    p.parent.mkdir(parents=True)
+    p.write_text('{"ts": "2026-07-27T03:00:00", "equity": 1.0}\n', encoding="utf-8")
+    ts = last_equity_ts(tmp_path)
+    assert ts.tzinfo is not None
+
+
 def test_backfill_from_reports(tmp_path):
     rd = tmp_path / "reports"
     rd.mkdir(parents=True)

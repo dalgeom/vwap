@@ -120,7 +120,8 @@ def last_equity_ts(project_root: Path) -> datetime | None:
     hist = read_equity_history(project_root)
     if not hist:
         return None
-    return datetime.fromisoformat(hist[-1]["ts"])
+    ts = datetime.fromisoformat(hist[-1]["ts"])
+    return ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
 
 
 def backfill_from_reports(project_root: Path) -> list[dict]:

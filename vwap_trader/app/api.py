@@ -3,7 +3,7 @@
 (재생성 시 build_private_client가 시계 오프셋을 재측정 = 자가 회복).
 on_tick의 각 단계는 개별 격리 + logs/app_scheduler.log 기록 — 침묵 실패 금지."""
 import threading
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from app import data_access, settings
@@ -32,12 +32,14 @@ class JsApi:
         self._client = None
         self._client_demo: bool | None = None
         self._client_lock = threading.Lock()
+        self._ctrl_lock = threading.Lock()
         self._last_report_attempt: datetime | None = None
+        self._equity_fail_until: datetime | None = None
 
     # ── 내부 ──
     def _get_client(self):
         from app.exchange_client import build_private_client
-        demo = settings.read_demo_flag(self.config_path)
+        demo = settings.read_demo_flag(self.config_path)  # demo는 build_private_client가 재확인 — 이 값은 캐시 무효화 힌트일 뿐
         with self._client_lock:
             if self._client is None or self._client_demo != demo:
                 self._client = build_private_client(self.root)  # 빌드 시 시계 오프셋 측정·적용
@@ -46,7 +48,7 @@ class JsApi:
 
     def _invalidate_client(self):
         with self._client_lock:
-            self._client = None
+            self._client = None  # 이전 세션은 close하지 않는다 — 락 밖 in-flight 요청이 쓰고 있을 수 있음(refcount로 회수)
             self._client_demo = None
 
     def _log(self, msg: str) -> None:
@@ -72,17 +74,19 @@ class JsApi:
 
     def start_bot(self) -> dict:
         def go():
-            offset = measure_clock_offset_ms()
-            problems = prestart_checks(self.ctrl, offset)
-            if blocking_problems(problems):
-                return {"ok": False, "problems": problems}
-            self.ctrl.start()
+            offset = measure_clock_offset_ms()      # 네트워크는 락 밖
+            with self._ctrl_lock:                   # 검사~spawn 원자화
+                problems = prestart_checks(self.ctrl, offset)
+                if blocking_problems(problems):
+                    return {"ok": False, "problems": problems}
+                self.ctrl.start()
             return {"ok": True, "problems": problems}   # 시계 경고 등 비차단은 그대로 전달
         return _safe(go)
 
     def stop_bot(self) -> dict:
         def go():
-            self.ctrl.request_stop()
+            with self._ctrl_lock:
+                self.ctrl.request_stop()
             return {"ok": True, "status": self.ctrl.status()}
         return _safe(go)
 
@@ -137,11 +141,12 @@ class JsApi:
     def save_api_keys(self, api_key: str, api_secret: str) -> dict:
         def go():
             from app.exchange_client import validate_keys
+            key, secret = api_key.strip(), api_secret.strip()
             demo = settings.read_demo_flag(self.config_path)
-            ok, msg = validate_keys(api_key.strip(), api_secret.strip(), demo)
+            ok, msg = validate_keys(key, secret, demo)
             if not ok:
                 return {"ok": False, "msg": msg}
-            settings.write_env_keys(self.env_path, api_key, api_secret)
+            settings.write_env_keys(self.env_path, key, secret)
             self._invalidate_client()
             running = self.ctrl.status() != "stopped"
             return {"ok": True, "msg": msg + (" — 봇 재시작 후 적용됩니다" if running else "")}
@@ -184,17 +189,20 @@ class JsApi:
             return
         # 1) 자산 기록 (1시간 간격) — 매시 시계 오프셋 재측정(장기 상주 드리프트 방어)
         try:
-            if due_equity(now_utc, data_access.last_equity_ts(self.root)):
+            if (self._equity_fail_until is None or now_utc >= self._equity_fail_until) \
+                    and due_equity(now_utc, data_access.last_equity_ts(self.root)):
                 from app.exchange_client import apply_clock_offset, get_equity
-                off = measure_clock_offset_ms()
-                if off is not None:
-                    apply_clock_offset(off)
                 try:
-                    data_access.append_equity(self.root, now_utc,
-                                              get_equity(self._get_client()))
+                    c = self._get_client()          # 키 없으면 여기서 즉시 실패 — 공개 호출 없음
+                    off = measure_clock_offset_ms() # 매시 오프셋 재측정(장기 상주 드리프트 방어)
+                    if off is not None:
+                        apply_clock_offset(off)
+                    data_access.append_equity(self.root, now_utc, get_equity(c))
+                    self._equity_fail_until = None
                 except Exception as e:
                     self._invalidate_client()
-                    self._log(f"자산 기록 실패: {type(e).__name__}: {e}")
+                    self._equity_fail_until = now_utc + timedelta(minutes=15)
+                    self._log(f"자산 기록 실패(15분 후 재시도): {type(e).__name__}: {e}")
         except Exception as e:
             self._log(f"자산 기록 판단 실패: {type(e).__name__}: {e}")
         # 2) 일일 리포트 (00:30 KST + 보충)
