@@ -33,6 +33,9 @@ vwap_trader/data/_bt_delayed_klines_cache.json
 vwap_trader/venv_app/
 vwap_trader/dist/*
 !vwap_trader/dist/MomentumBot/
+# ★ 위 '보안' 섹션의 *.pem이 exe 번들의 TLS 인증서(certifi/cacert.pem)까지 잡아
+#   pull 받은 PC에서 거래소 통신이 전멸했던 사고(2026-07-27) — 이 폴더 안만 예외
+!vwap_trader/dist/MomentumBot/**/*.pem
 vwap_trader/build/
 vwap_trader/data/equity_history.jsonl
 vwap_trader/data/app_settings.json

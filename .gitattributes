@@ -1,0 +1,4 @@
+# PyInstaller 산출물은 빌드된 바이트 그대로 전달 — 줄바꿈 자동 변환 금지.
+# (core.autocrlf=true 환경에서 certifi/cacert.pem이 CRLF로 풀리는 것을 막는다.
+#  2026-07-27: 이 인증서가 .gitignore의 *.pem에 걸려 누락 → 거래소 통신 전멸 사고)
+vwap_trader/dist/MomentumBot/** -text
