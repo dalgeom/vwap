@@ -12,6 +12,7 @@ if (-not (Test-Path "venv_app")) {
 
 Write-Host "PyInstaller 빌드..."
 .\venv_app\Scripts\pyinstaller.exe momentum_app.spec --noconfirm
+if ($LASTEXITCODE -ne 0) { throw "PyInstaller 빌드 실패 (exit $LASTEXITCODE) — 앱/exe가 실행 중이면 종료 후 재시도" }
 
 # 스모크: --version이 앱 버전을 찍고 종료하는지
 # console=False(GUI subsystem) exe라 PowerShell의 `&` 직접 캡처가 stdout을 못 읽음 → 파일 리다이렉트로 캡처
