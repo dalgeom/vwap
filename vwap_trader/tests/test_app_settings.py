@@ -1,6 +1,5 @@
 import os
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -37,9 +36,21 @@ def test_write_preserves_other_lines(tmp_path):
     assert "BYBIT_API_SECRET=newsecret" in text
 
 
+def test_write_env_keys_strips_whitespace_and_newlines(tmp_path):
+    env = tmp_path / ".env"
+    write_env_keys(env, "  key\n", "secret\r\n")
+    keys = read_env_keys(env)
+    assert keys["BYBIT_API_KEY"] == "key"
+    assert keys["BYBIT_API_SECRET"] == "secret"
+    # 파일에 잉여 줄이 없어야 함 (개행 주입으로 인한 쓰레기 변수 차단)
+    assert len([l for l in env.read_text(encoding="utf-8").splitlines() if l]) == 2
+
+
 def test_mask():
     assert mask("abcdef123456") == "abcd••••••"
     assert mask("") == "(없음)"
+    assert mask("abcd") == "••••••"
+    assert mask("a") == "••••••"
 
 
 def test_demo_flag_roundtrip_preserves_comments(tmp_path):
@@ -69,3 +80,9 @@ def test_app_settings_defaults_and_save(tmp_path):
     s["auto_report"] = False
     save_app_settings(p, s)
     assert load_app_settings(p)["auto_report"] is False
+
+
+def test_app_settings_non_dict_json_falls_back(tmp_path):
+    p = tmp_path / "app_settings.json"
+    p.write_text("[1, 2, 3]", encoding="utf-8")
+    assert load_app_settings(p) == {"auto_report": True, "boot_autostart": False}

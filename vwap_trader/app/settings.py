@@ -21,6 +21,8 @@ def read_env_keys(env_path: Path) -> dict:
 
 
 def write_env_keys(env_path: Path, api_key: str, api_secret: str) -> None:
+    api_key = api_key.strip()
+    api_secret = api_secret.strip()
     p = Path(env_path)
     lines = p.read_text(encoding="utf-8").splitlines() if p.exists() else []
     values = {"BYBIT_API_KEY": api_key, "BYBIT_API_SECRET": api_secret}
@@ -41,6 +43,8 @@ def write_env_keys(env_path: Path, api_key: str, api_secret: str) -> None:
 def mask(value: str) -> str:
     if not value:
         return "(없음)"
+    if len(value) <= 4:
+        return "•" * 6
     return value[:4] + "•" * 6
 
 
@@ -66,7 +70,9 @@ def load_app_settings(path: Path) -> dict:
     p = Path(path)
     if p.exists():
         try:
-            s.update(json.loads(p.read_text(encoding="utf-8")))
+            data = json.loads(p.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                s.update(data)
         except (json.JSONDecodeError, OSError):
             pass
     return s
