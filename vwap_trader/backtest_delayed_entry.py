@@ -7,7 +7,11 @@ import os, json, time
 from pathlib import Path
 from datetime import datetime, timezone
 
-ROOT = Path(__file__).resolve().parent
+# ★ 앱(frozen exe)이 xcrowd_snapshot → build_client() 경로로 이 모듈의 .env를 읽는다.
+#   __file__ 기준이면 번들 내부를 가리켜 키를 못 찾으므로 env 오버라이드를 존중한다
+#   (app/paths.py 주석의 경고 사례 — 2026-07-28 xcrowd 스냅샷 누락).
+_ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
+ROOT = Path(_ENV_ROOT).resolve() if _ENV_ROOT else Path(__file__).resolve().parent
 CACHE = ROOT / "data" / "_bt_delayed_klines_cache.json"
 
 SL_MULT = 1.5

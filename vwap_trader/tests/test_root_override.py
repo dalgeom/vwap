@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 PROJ = Path(__file__).resolve().parents[1]  # vwap_trader/
 
 _SCRIPT_MODS = ["build_canonical", "corrections", "fix_estimated",
-                "daily_report", "xcrowd_snapshot"]
+                "daily_report", "xcrowd_snapshot", "backtest_delayed_entry"]
 
 
 def _reload(modname):
@@ -95,3 +95,18 @@ def test_momentum_bot_root_no_env():
     assert root == str(PROJ)
     assert data_dir == str(PROJ / "data")
     assert env_path == str(PROJ / "config" / ".env")
+
+
+# ── backtest_delayed_entry: xcrowd_snapshot이 build_client()로 .env를 읽는 경로 ──
+# exe에서 __file__ 기준이면 번들 내부를 가리켜 키를 못 찾는다
+# (2026-07-28 00:30 앱 리포트 중 "BYBIT_API_KEY 없음"으로 xcrowd 스냅샷 누락).
+
+def test_backtest_delayed_entry_root_follows_env(tmp_root):
+    mod = _reload("backtest_delayed_entry")
+    assert mod.ROOT == tmp_root
+
+
+def test_backtest_delayed_entry_root_without_env(monkeypatch):
+    monkeypatch.delenv("VWAP_PROJECT_ROOT", raising=False)
+    mod = _reload("backtest_delayed_entry")
+    assert mod.ROOT == PROJ

@@ -1,10 +1,13 @@
 """프로젝트 루트 해석 — 앱의 모든 경로는 여기서 출발.
 우선순위: VWAP_PROJECT_ROOT env > (frozen) exe 위치에서 마커 탐색 > (dev) 이 파일 기준.
 마커 = config/momentum_config.yaml. 루트 확정 후 env로 고정해 자식 프로세스·후속 import에 전파.
-★ env를 존중하는 소스는 6개뿐: momentum_bot / daily_report / build_canonical /
-  corrections / fix_estimated / xcrowd_snapshot. 다른 최상위 분석 스크립트들은
-  여전히 파일 위치 기준 — 앱에서 새 스크립트를 호출하게 되면 그 파일에도 같은
-  오버라이드를 추가할 것."""
+★ env를 존중하는 소스는 7개뿐: momentum_bot / daily_report / build_canonical /
+  corrections / fix_estimated / xcrowd_snapshot / backtest_delayed_entry. 다른
+  최상위 분석 스크립트들은 여전히 파일 위치 기준 — 앱에서 새 스크립트를 호출하게
+  되면 그 파일에도 같은 오버라이드를 추가할 것.
+  (backtest_delayed_entry는 xcrowd_snapshot이 build_client()로 간접 호출하는데
+   빠져 있어 2026-07-28 00:30 스냅샷이 'BYBIT_API_KEY 없음'으로 누락됐다 —
+   간접 호출되는 모듈까지 확인할 것.)"""
 import os
 import sys
 from pathlib import Path
@@ -12,7 +15,8 @@ from pathlib import Path
 MARKER = ("config", "momentum_config.yaml")
 
 _ROOT_AWARE_MODULES = ("daily_report", "build_canonical", "corrections",
-                       "fix_estimated", "xcrowd_snapshot", "vwap_trader.momentum_bot")
+                       "fix_estimated", "xcrowd_snapshot", "backtest_delayed_entry",
+                       "vwap_trader.momentum_bot")
 
 
 def _has_marker(base: Path) -> bool:
