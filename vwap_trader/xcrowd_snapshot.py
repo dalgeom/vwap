@@ -35,7 +35,7 @@ from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
 
 _ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
-ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parent
+ROOT = Path(_ENV_ROOT).resolve() if _ENV_ROOT else Path(__file__).resolve().parent
 OUT = ROOT / "data" / "xcrowd_snapshots.jsonl"
 LOG = ROOT / "logs" / "xcrowd_snapshot.log"
 MIN_VOL = 10_000_000

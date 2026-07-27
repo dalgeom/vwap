@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 _ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
-_ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parent
+_ROOT = Path(_ENV_ROOT).resolve() if _ENV_ROOT else Path(__file__).resolve().parent
 CORRECTIONS_FILE = _ROOT / "data" / "pnl_corrections.jsonl"
 
 

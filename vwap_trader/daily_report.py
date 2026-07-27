@@ -9,7 +9,7 @@ from datetime import datetime, timezone, date, timedelta
 from pathlib import Path
 
 _ENV_ROOT = os.environ.get("VWAP_PROJECT_ROOT")
-ROOT = Path(_ENV_ROOT) if _ENV_ROOT else Path(__file__).resolve().parent
+ROOT = Path(_ENV_ROOT).resolve() if _ENV_ROOT else Path(__file__).resolve().parent
 TRADES = ROOT / "data" / "trades_momentum.jsonl"
 SHADOW = ROOT / "data" / "shadow_momentum.jsonl"
 STATE = ROOT / "data" / "state_momentum.json"
