@@ -38,6 +38,22 @@ def _fatal(msg: str) -> None:
         pass
 
 
+_MUTEX_HANDLE = None   # 프로세스 생존 동안 참조 유지 (GC로 핸들 닫힘 방지)
+
+
+def _acquire_single_instance() -> bool:
+    """앱(UI) 단일 실행 보장 — Windows 명명 뮤텍스. True면 이 인스턴스가 유일.
+    ★ --bot 자식 프로세스는 이 가드를 타지 않는다(run_bot_mode가 UI 분기 전에 return)."""
+    global _MUTEX_HANDLE
+    import ctypes
+    kernel32 = ctypes.windll.kernel32
+    handle = kernel32.CreateMutexW(None, False, "MomentumBotDesktopApp")
+    if kernel32.GetLastError() == 183:   # ERROR_ALREADY_EXISTS
+        return False
+    _MUTEX_HANDLE = handle
+    return True
+
+
 def main():
     if "--bot" in sys.argv:
         run_bot_mode()
@@ -48,6 +64,17 @@ def main():
         return
 
     try:
+        if not _acquire_single_instance():
+            _fatal_notice = ("Momentum Bot이 이미 실행 중입니다.\n"
+                             "창이 안 보이면 작업표시줄 오른쪽 트레이(시계 옆 ▲)에서 "
+                             "아이콘을 더블클릭하세요.")
+            try:
+                import ctypes
+                ctypes.windll.user32.MessageBoxW(None, _fatal_notice, "Momentum Bot", 0x40)
+            except Exception:
+                print(_fatal_notice)
+            return
+
         import webview
         from app.api import JsApi
         from app.paths import init_project_root
