@@ -10,6 +10,7 @@ from app.data_access import (
     load_trades, summarize, trades_for_ui, trade_r,
     list_reports, read_report,
     append_equity, read_equity_history, last_equity_ts, backfill_from_reports,
+    equity_series,
 )
 
 
@@ -86,3 +87,40 @@ def test_backfill_from_reports(tmp_path):
     pts = backfill_from_reports(tmp_path)
     assert len(pts) == 1
     assert pts[0]["equity"] == 31234.56
+
+
+def test_equity_series_merges_backfill_before_live(tmp_path):
+    rd = tmp_path / "reports"
+    rd.mkdir(parents=True)
+    (rd / "2026-07-25.md").write_text("현재 자산은 **$30,000.00** 입니다", encoding="utf-8")
+    ts = datetime(2026, 7, 27, 3, 0, tzinfo=timezone.utc)
+    append_equity(tmp_path, ts, 31656.13)
+    series = equity_series(tmp_path)
+    assert len(series) == 2                       # 백필 + 라이브 (백필이 버려지면 1)
+    assert series[0]["equity"] == 30000.0
+    assert series[1]["equity"] == 31656.13
+
+
+def test_equity_series_backfill_only(tmp_path):
+    rd = tmp_path / "reports"
+    rd.mkdir(parents=True)
+    (rd / "2026-07-25.md").write_text("현재 자산은 **$30,000.00** 입니다", encoding="utf-8")
+    assert len(equity_series(tmp_path)) == 1
+
+
+def test_trades_for_ui_unknown_side_and_naive_ts():
+    t = _trade("x", 1.0)
+    t["side"] = None
+    t["exit_timestamp_utc"] = "2026-07-25T04:00:00"   # naive → UTC 간주
+    row = trades_for_ui([t])[0]
+    assert row["side"] == "?"
+    assert row["ts"] == "2026-07-25 13:00"            # UTC+9
+
+
+def test_equity_regex_matches_daily_report_format():
+    # daily_report.render_report의 자산 문구 포맷과 백필 정규식의 계약 테스트
+    from app.data_access import _EQUITY_RE
+    eq_s = f"${31234.56:,.2f}"
+    line = f"사장님, 오늘 운영 결과를 보고드립니다. 현재 자산은 **{eq_s}** 입니다 (bar 1, 심장박동 ?)."
+    m = _EQUITY_RE.search(line)
+    assert m and float(m.group(1).replace(",", "")) == 31234.56

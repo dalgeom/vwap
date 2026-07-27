@@ -82,6 +82,15 @@ def order_fail_details(shadow: list, day: date) -> list:
 
 CF_DIV_RATE = 0.119  # §11.1 실측 분기창 비율 — 계측기 건강 점검 전용(판정기준 아님)
 JACKPOT_R = 7.8      # §11.1 잭팟 절대기준(정본 223건 top5 컷라인 실측=7.83R, 상수 고정)
+RISK_ATR_MULT = 1.5  # ★ JACKPOT_R(7.8) 측정 시점에 고정된 값 — config sl_atr_mult에서 읽지 말 것 (소급 재스케일 방지)
+
+
+def risk_usd(row: dict) -> float:
+    """진입 시점 손절 각오액($). 산출 불가(결손)면 0.0."""
+    atr = row.get("atr_at_entry", 0) or 0
+    entry = row.get("entry_price", 0) or 0
+    size = row.get("position_size_usd", 0) or 0
+    return RISK_ATR_MULT * atr / entry * size if (atr and entry and size) else 0.0
 
 
 def cf_health_warning(n_pairs: int, n_div: int, div_rate: float = CF_DIV_RATE):
@@ -99,10 +108,7 @@ def cf_health_warning(n_pairs: int, n_div: int, div_rate: float = CF_DIV_RATE):
 def pair_r(row: dict) -> float:
     """쌍의 R = max(pnl_A, pnl_B) ÷ 리스크(1.5×ATR÷entry×size). §11.1 arm-불변 정규화.
     리스크 산출 불가(결손)면 0.0 — 판정 불가를 잭팟으로 오인하지 않도록."""
-    atr = row.get("atr_at_entry", 0) or 0
-    entry = row.get("entry_price", 0) or 0
-    size = row.get("position_size_usd", 0) or 0
-    risk = 1.5 * atr / entry * size if (atr and entry and size) else 0
+    risk = risk_usd(row)
     if not risk:
         return 0.0
     best = max(row.get("real_pnl", 0) or 0, row.get("shadow_pnl", 0) or 0)

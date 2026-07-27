@@ -25,10 +25,8 @@ def load_trades(project_root: Path) -> list:
 
 def trade_r(t: dict) -> float:
     """손절 각오액 대비 몇 배 벌었나. 리스크 산출 불가(결손)면 0.0 — 잭팟 오인 방지."""
-    atr = t.get("atr_at_entry", 0) or 0
-    entry = t.get("entry_price", 0) or 0
-    size = t.get("position_size_usd", 0) or 0
-    risk = 1.5 * atr / entry * size if (atr and entry and size) else 0
+    from daily_report import risk_usd
+    risk = risk_usd(t)
     if not risk:
         return 0.0
     return (t.get("pnl_usd", 0) or 0) / risk
@@ -40,14 +38,11 @@ def _jackpot_r() -> float:
 
 
 def summarize(trades: list) -> dict:
-    pnls = [(t.get("pnl_usd") or 0) for t in trades]
-    n = len(trades)
-    wins = sum(1 for p in pnls if p > 0)
+    from daily_report import _agg
+    a = _agg(trades)   # 일일 리포트와 같은 계산기 — 화면·리포트 숫자 불일치 방지
     cut = _jackpot_r()
-    return {"n": n,
-            "total": round(sum(pnls), 2),
-            "win_rate": round(wins / n * 100, 1) if n else 0.0,
-            "ev": round(sum(pnls) / n, 2) if n else 0.0,
+    return {"n": a["n"], "total": round(a["total"], 2),
+            "win_rate": round(a["wr"], 1), "ev": round(a["ev"], 2),
             "jackpots": sum(1 for t in trades if trade_r(t) >= cut)}
 
 
@@ -57,13 +52,16 @@ def trades_for_ui(trades: list) -> list:
     for t in reversed(trades):   # 최신 먼저
         ts = t.get("exit_timestamp_utc") or t.get("timestamp_utc") or ""
         try:
-            ts_kst = datetime.fromisoformat(ts).astimezone(KST).strftime("%Y-%m-%d %H:%M")
-        except ValueError:
+            dt = datetime.fromisoformat(ts)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)   # naive → UTC 간주
+            ts_kst = dt.astimezone(KST).strftime("%Y-%m-%d %H:%M")
+        except (ValueError, TypeError):
             ts_kst = ts
         out.append({
             "ts": ts_kst,
             "symbol": t.get("symbol", "?"),
-            "side": "롱" if t.get("side") == "long" else "숏",
+            "side": {"long": "롱", "short": "숏"}.get(t.get("side"), "?"),
             "entry": t.get("entry_price"),
             "exit": t.get("exit_price"),
             "pnl": round(t.get("pnl_usd", 0) or 0, 2),
@@ -136,3 +134,14 @@ def backfill_from_reports(project_root: Path) -> list[dict]:
         out.append({"ts": ts.astimezone(timezone.utc).isoformat(),
                     "equity": float(m.group(1).replace(",", ""))})
     return out
+
+
+def equity_series(project_root: Path) -> list[dict]:
+    """차트용 자산 시계열 — 리포트 백필(라이브 이전 구간) + 라이브 기록 병합.
+    라이브 점이 생겨도 과거 백필 이력은 유지된다."""
+    live = read_equity_history(project_root)
+    backfill = backfill_from_reports(project_root)
+    if not live:
+        return backfill
+    first_live = live[0]["ts"]
+    return [p for p in backfill if p["ts"] < first_live] + live
