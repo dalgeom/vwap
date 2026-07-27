@@ -5,16 +5,29 @@
   사고가 나도 사실 리포트는 이미 저장돼 있다.
 ★ 성찰 삽입은 tmp 파일 + os.replace 원자 교체 — 도중에 앱이 죽어도 리포트가
   부분 상태로 남지 않는다 (부분 파일 = due_report의 exists() 가드가 영구 스킵하는 함정)."""
+import contextlib
+import io
 import os
 import re
 import shutil
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 PLACEHOLDER = "_오늘의 자아성찰은 매일 AI가 직접 작성합니다 (Claude Code CLI 로그인 후 자동 활성)._"
 CLAUDE_TIMEOUT_SEC = 180
+
+
+def _log_line(project_root: Path, msg: str) -> None:
+    """ps1 원본과 같은 logs/daily_report.log에 흔적 — 실패는 조용히 무시."""
+    try:
+        p = Path(project_root) / "logs" / "daily_report.log"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now(timezone.utc).isoformat()} {msg}\n")
+    except Exception:
+        pass
 
 
 def find_claude_cmd() -> str | None:
@@ -51,9 +64,26 @@ def _atomic_write(path: Path, text: str) -> None:
     os.replace(tmp, path)
 
 
+def _append_backlog(backlog_path: Path, day: str, reflection: str) -> None:
+    """성찰 제안 → 백로그 승격 (ps1과 동일 규칙, PLAN §5.12 C)."""
+    backlog_path = Path(backlog_path)
+    if not backlog_path.exists():
+        backlog_path.write_text("# 성찰 제안 백로그 (daily_report 자동 누적)\n", encoding="utf-8")
+    m = re.search(r"제안\s*[::]\s*(.+)", reflection)
+    if m:
+        prop = re.sub(r"\s+", " ", m.group(1).strip())
+        line = f"- [ ] {day} — {prop}"
+    else:
+        line = f"- [ ] {day} — (제안 표식 없음, 성찰 전문은 reports/{day}.md 참조)"
+    with open(backlog_path, "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+
 def add_reflection(report_path: Path, backlog_path: Path,
-                   claude_cmd: str | None, fixed_ctx_path: Path | None = None) -> bool:
-    """성찰 생성·삽입 + 백로그 승격. 실패는 조용히 False(사실 리포트는 이미 안전)."""
+                   claude_cmd: str | None, fixed_ctx_path: Path | None = None,
+                   log_root: Path | None = None) -> bool:
+    """성찰 생성·삽입 + 백로그 승격. 실패는 조용히 False(사실 리포트는 이미 안전).
+    log_root가 주어지면 실패 지점을 logs/daily_report.log에 남긴다(관측성)."""
     if not claude_cmd:
         return False
     report_path = Path(report_path)
@@ -69,49 +99,63 @@ def add_reflection(report_path: Path, backlog_path: Path,
             input=_reflection_prompt(facts, fixed_ctx).encode("utf-8"),
             capture_output=True, timeout=CLAUDE_TIMEOUT_SEC, shell=False)
         reflection = r.stdout.decode("utf-8", errors="replace").strip()
-    except (subprocess.TimeoutExpired, OSError):
+    except (subprocess.TimeoutExpired, OSError) as e:
+        if log_root:
+            _log_line(log_root, f"성찰 실패: {type(e).__name__}: {e}")
         return False
-    if not reflection:
+    if r.returncode != 0 or not reflection:
+        if log_root:
+            _log_line(log_root,
+                      f"성찰 실패: rc={r.returncode} "
+                      f"stderr={r.stderr.decode('utf-8', errors='replace')[:200]}")
         return False
-    _atomic_write(report_path, facts.replace(PLACEHOLDER, reflection))
-    # 성찰 제안 → 백로그 승격 (ps1과 동일 규칙, PLAN §5.12 C)
-    backlog_path = Path(backlog_path)
-    if not backlog_path.exists():
-        backlog_path.write_text("# 성찰 제안 백로그 (daily_report 자동 누적)\n", encoding="utf-8")
     day = report_path.stem
-    m = re.search(r"제안\s*[::]\s*(.+)", reflection)
-    if m:
-        prop = re.sub(r"\s+", " ", m.group(1).strip())
-        line = f"- [ ] {day} — {prop}"
-    else:
-        line = f"- [ ] {day} — (제안 표식 없음, 성찰 전문은 reports/{day}.md 참조)"
-    with open(backlog_path, "a", encoding="utf-8") as f:
-        f.write(line + "\n")
+    # 백로그 먼저 — 교체가 실패해도 제안은 남는다 (재시도 시 중복 1줄 가능, 소실보다 낫다)
+    try:
+        _append_backlog(Path(backlog_path), day, reflection)
+    except OSError as e:
+        if log_root:
+            _log_line(log_root, f"백로그 실패(성찰 삽입은 진행): {e}")
+    try:
+        _atomic_write(report_path, facts.replace(PLACEHOLDER, reflection))
+    except OSError as e:
+        if log_root:
+            _log_line(log_root, f"성찰 삽입 실패: {e}")
+        return False
+    if log_root:
+        _log_line(log_root, f"성찰 삽입 완료: {report_path.name}")
     return True
 
 
 def generate_report(project_root: Path, day: date) -> Path | None:
-    """사실 리포트 생성(+xcrowd). 성공 시 리포트 경로. 예외는 호출측 로깅용으로 전파."""
-    root = Path(project_root)
+    """사실 리포트 생성(+xcrowd). 성공 시 리포트 경로.
+    daily_report.main()/xcrowd_snapshot.run()의 print()가 cp949 콘솔에서
+    이모지·특수문자(—)로 죽는 사고(실측 재현)를 막기 위해 stdout을 리다이렉트한다
+    — 감싸지 않으면 사실 리포트는 이미 저장됐는데 예외가 전파돼 성찰이 영구
+    누락된다. 그 외 예외(예: 거래소 API 실패)는 호출측 로깅용으로 그대로 전파."""
+    root = Path(project_root).resolve()
     os.environ["VWAP_PROJECT_ROOT"] = str(root)
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))     # daily_report 등 최상위 모듈 import 경로
     try:
         import xcrowd_snapshot
-        xcrowd_snapshot.run()             # 실패해도 리포트는 진행 (ps1과 동일)
-    except Exception:
-        pass
+        with contextlib.redirect_stdout(io.StringIO()):
+            xcrowd_snapshot.run()         # 실패해도 리포트는 진행 (ps1과 동일)
+    except Exception as e:
+        _log_line(root, f"xcrowd 실패(리포트는 진행): {type(e).__name__}: {e}")
     import daily_report
     argv_backup = sys.argv
     sys.argv = ["daily_report.py", day.isoformat()]
     try:
-        daily_report.main()
+        with contextlib.redirect_stdout(io.StringIO()):
+            out = daily_report.main()
     finally:
         sys.argv = argv_backup
-    report_path = root / "reports" / f"{day.isoformat()}.md"
+    report_path = Path(out) if out else root / "reports" / f"{day.isoformat()}.md"
     if not report_path.exists():
         return None
     add_reflection(report_path, root / "reports" / "backlog.md",
                    claude_cmd=find_claude_cmd(),
-                   fixed_ctx_path=root / "reports" / "_reflection_context.md")
+                   fixed_ctx_path=root / "reports" / "_reflection_context.md",
+                   log_root=root)
     return report_path
