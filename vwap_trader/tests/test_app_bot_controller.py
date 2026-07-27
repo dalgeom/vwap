@@ -57,6 +57,7 @@ def test_status_stopped_after_our_child_exits_despite_fresh_heartbeat(tmp_path):
     c.proc.wait(timeout=30)
     c.heartbeat_file.write_text("x", encoding="utf-8")  # 잔상 heartbeat
     assert c.status() == "stopped"
+    assert c.status() == "stopped"  # 반복 호출에도 잔상을 external로 오판하지 않음
 
 
 def test_start_raises_when_already_running(tmp_path):
@@ -97,3 +98,27 @@ def test_bot_command_dev_branch(tmp_path):
     cmd = c.bot_command()
     assert cmd[1:] == ["-m", "vwap_trader.momentum_bot"]
     assert "venv" in cmd[0]
+
+
+def test_status_external_when_heartbeat_advances_after_child_exit(tmp_path):
+    c = _ctrl(tmp_path)
+    c.start(command_override=[sys.executable, "-c", "print()"])
+    c.proc.wait(timeout=30)
+    c.heartbeat_file.write_text("x", encoding="utf-8")
+    assert c.status() == "stopped"                    # 잔상 = stopped
+    future = time.time() + 1
+    os.utime(c.heartbeat_file, (future, future))      # 외부 봇이 갱신한 상황 (mtime 전진, 결정적)
+    assert c.status() == "external"
+
+
+def test_restart_allowed_after_stop_despite_fresh_heartbeat(tmp_path):
+    c = _ctrl(tmp_path)
+    c.start(command_override=[sys.executable, "-c", "print()"])
+    c.proc.wait(timeout=30)
+    c.heartbeat_file.write_text("x", encoding="utf-8")
+    assert c.status() == "stopped"
+    c.start(command_override=[sys.executable, "-c", "import time; time.sleep(30)"])  # 봉쇄 없이 재시작
+    try:
+        assert c.status() == "ours"
+    finally:
+        c.proc.kill()

@@ -19,6 +19,7 @@ class BotController:
         self.log_file = self.root / "logs" / "momentum_bot.log"
         self.proc: subprocess.Popen | None = None
         self._stop_requested = False
+        self._exit_hb_mtime: float | None = None  # 자식 종료 시점 heartbeat 기준선
 
     def heartbeat_age(self) -> float | None:
         try:
@@ -30,17 +31,28 @@ class BotController:
         age = self.heartbeat_age()
         return age is not None and age < HEARTBEAT_FRESH_SEC
 
+    def _hb_mtime(self) -> float | None:
+        try:
+            return self.heartbeat_file.stat().st_mtime
+        except OSError:
+            return None
+
     def status(self) -> str:
+        if self.proc is not None and self.proc.poll() is None:
+            return "stopping" if self._stop_requested else "ours"
         if self.proc is not None:
-            if self.proc.poll() is None:
-                return "stopping" if self._stop_requested else "ours"
-            # 우리 자식이 종료됨 — heartbeat 잔상과 무관하게 정지 처리
+            # 우리 자식이 종료됨 — 이 시점의 heartbeat를 잔상 기준선으로 고정
+            if self._exit_hb_mtime is None:
+                self._exit_hb_mtime = self._hb_mtime()
             self.proc = None
             self._stop_requested = False
-            return "stopped"
         if self._heartbeat_fresh():
-            return "external"
+            m = self._hb_mtime()
+            if self._exit_hb_mtime is None or (m is not None and m > self._exit_hb_mtime):
+                return "external"      # 기준선 이후에도 갱신 중 = 진짜 외부 봇
+            return "stopped"           # 우리 자식의 잔상
         self._stop_requested = False
+        self._exit_hb_mtime = None
         return "stopped"
 
     def bot_command(self) -> list[str]:
@@ -65,6 +77,7 @@ class BotController:
         finally:
             stderr_log.close()
         self._stop_requested = False
+        self._exit_hb_mtime = None
 
     def request_stop(self) -> None:
         self.stop_file.parent.mkdir(parents=True, exist_ok=True)
