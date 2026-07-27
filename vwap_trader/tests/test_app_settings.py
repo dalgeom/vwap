@@ -44,6 +44,12 @@ def test_write_env_keys_strips_whitespace_and_newlines(tmp_path):
     assert keys["BYBIT_API_SECRET"] == "secret"
     # 파일에 잉여 줄이 없어야 함 (개행 주입으로 인한 쓰레기 변수 차단)
     assert len([l for l in env.read_text(encoding="utf-8").splitlines() if l]) == 2
+    # 내부 개행 주입도 차단 (키 절단·쓰레기 변수 방지)
+    write_env_keys(env, "AAA\nBBB", "S1\r\nS2")
+    keys = read_env_keys(env)
+    assert keys["BYBIT_API_KEY"] == "AAABBB"
+    assert keys["BYBIT_API_SECRET"] == "S1S2"
+    assert len([l for l in env.read_text(encoding="utf-8").splitlines() if l]) == 2
 
 
 def test_mask():
