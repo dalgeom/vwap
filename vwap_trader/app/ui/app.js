@@ -155,7 +155,7 @@ $("#btn-save-mode").addEventListener("click", async () => {
   const demo = $("#mode-demo").checked;
   const r = await api("set_demo_mode", demo, $("#in-real-confirm").value);
   $("#mode-msg").textContent = r.msg || r.error;
-  if (r.ok) loadSettings();
+  if (r.ok) { $("#in-real-confirm").value = ""; loadSettings(); }
 });
 $("#chk-auto-report").addEventListener("change", async (e) => {
   const r = await api("set_app_setting", "auto_report", e.target.checked);

@@ -131,6 +131,16 @@ def add_reflection(report_path: Path, backlog_path: Path,
     return True
 
 
+def _ensure_source_path(root: Path) -> None:
+    """dev 실행에서만 프로젝트 루트를 import 경로에 추가.
+    frozen exe에서는 번들된 모듈(daily_report 등)이 정본 — 루트를 넣으면
+    디스크 소스가 번들을 가려 '동결 스냅샷' 계약이 깨진다."""
+    if getattr(sys, "frozen", False):
+        return
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
+
 def generate_report(project_root: Path, day: date) -> Path | None:
     """사실 리포트 생성(+xcrowd). 성공 시 리포트 경로.
     daily_report.main()/xcrowd_snapshot.run()의 print()가 cp949 콘솔에서
@@ -139,8 +149,7 @@ def generate_report(project_root: Path, day: date) -> Path | None:
     누락된다. 그 외 예외(예: 거래소 API 실패)는 호출측 로깅용으로 그대로 전파."""
     root = Path(project_root).resolve()
     os.environ["VWAP_PROJECT_ROOT"] = str(root)
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))     # daily_report 등 최상위 모듈 import 경로
+    _ensure_source_path(root)     # daily_report 등 최상위 모듈 import 경로
     try:
         import xcrowd_snapshot
         with contextlib.redirect_stdout(io.StringIO()):

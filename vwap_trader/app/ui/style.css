@@ -5,7 +5,7 @@ header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; back
 .badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
 .badge.demo { background: #b58900; color: #14181f; }
 .badge.real { background: #d9534f; color: #fff; }
-.badge.running { background: #2e7d32; color: #fff; }
+.badge.ours { background: #2e7d32; color: #fff; }
 .badge.stopped { background: #444c5a; color: #cfd6e1; }
 .badge.stopping, .badge.external { background: #b58900; color: #14181f; }
 nav { display: flex; gap: 2px; padding: 8px 16px 0; background: #0e1116; }
@@ -33,7 +33,7 @@ pre#config-view { background: #0e1116; border: 1px solid #262c36; border-radius:
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #262c36; }
 th { color: #9aa5b3; font-weight: 600; font-size: 12px; }
-td.pos { color: #58d68d; } td.neg { color: #ff7b72; }
+.pos { color: #58d68d; } .neg { color: #ff7b72; }
 tr.jackpot td { background: rgba(181, 137, 0, 0.12); }
 .filters { display: flex; gap: 8px; margin-bottom: 10px; }
 .filters input, .filters select, .form-row input { background: #0e1116; border: 1px solid #262c36; color: #e6e9ef; padding: 6px 10px; border-radius: 6px; }

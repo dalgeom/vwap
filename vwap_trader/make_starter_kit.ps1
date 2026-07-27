@@ -22,10 +22,8 @@ foreach ($d in "data", "reports", "logs") {
 }
 
 # 3) .env 템플릿 (키는 앱 설정 화면에서 입력)
-@"
-BYBIT_API_KEY=
-BYBIT_API_SECRET=
-"@ | Out-File -Encoding utf8 "$kit\vwap_trader\config\.env"
+$envPath = Join-Path $PSScriptRoot "$kit\vwap_trader\config\.env"
+[IO.File]::WriteAllText($envPath, "BYBIT_API_KEY=`nBYBIT_API_SECRET=`n", [Text.UTF8Encoding]::new($false))
 
 # 4) exe + 문서
 Copy-Item -Recurse "dist\MomentumBot" "$kit\MomentumBot"

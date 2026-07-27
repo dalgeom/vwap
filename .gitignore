@@ -32,6 +32,8 @@ vwap_trader/data/_bt_delayed_klines_cache.json
 vwap_trader/venv_app/
 vwap_trader/dist/
 vwap_trader/build/
+vwap_trader/data/equity_history.jsonl
+vwap_trader/data/app_settings.json
 
 # Claude Code 로컬 설정 (머신별 권한 목록 — PC마다 자동 수정되어 pull 충돌 유발)
 .claude/settings.local.json

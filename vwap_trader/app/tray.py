@@ -31,6 +31,15 @@ class AppTray:
 
     def start(self):
         threading.Thread(target=self.icon.run, daemon=True, name="tray").start()
+        def _refresh_loop():
+            import time
+            while True:
+                time.sleep(10)
+                try:
+                    self.refresh()
+                except Exception:
+                    pass
+        threading.Thread(target=_refresh_loop, daemon=True, name="tray-refresh").start()
 
     def refresh(self):
         self.icon.icon = _icon_image(self._bot_is_running())

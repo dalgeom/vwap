@@ -88,3 +88,22 @@ def test_backlog_no_proposal_fallback(tmp_path):
     backlog = tmp_path / "backlog.md"
     assert add_reflection(report, backlog, claude_cmd=str(fake)) is True
     assert "제안 표식 없음" in backlog.read_text(encoding="utf-8")
+
+
+def test_ensure_source_path_skips_when_frozen(tmp_path, monkeypatch):
+    import sys as _sys
+    from app.report_runner import _ensure_source_path
+    monkeypatch.setattr(_sys, "frozen", True, raising=False)
+    _ensure_source_path(tmp_path)
+    assert str(tmp_path) not in _sys.path
+
+
+def test_ensure_source_path_inserts_in_dev(tmp_path, monkeypatch):
+    import sys as _sys
+    from app.report_runner import _ensure_source_path
+    monkeypatch.delattr(_sys, "frozen", raising=False)
+    _ensure_source_path(tmp_path)
+    try:
+        assert str(tmp_path) in _sys.path
+    finally:
+        _sys.path.remove(str(tmp_path))
