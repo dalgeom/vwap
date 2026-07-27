@@ -103,7 +103,9 @@ class OpenPosition:
                  shadow_best_price: float = 0.0, shadow_be_triggered: bool = False,
                  shadow_sl: float = 0.0, shadow_exit_price: float | None = None,
                  shadow_exit_reason: str | None = None, shadow_exit_ms: int | None = None,
-                 shadow_policy: str = ""):
+                 shadow_policy: str = "",
+                 _btc_4h_return: float | None = None,
+                 _btc_4h_atr: float | None = None, _regime: str | None = None):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -147,6 +149,17 @@ class OpenPosition:
         self.shadow_exit_reason = shadow_exit_reason
         self.shadow_exit_ms = shadow_exit_ms
         self.shadow_policy = shadow_policy  # "v2"=결함 수리 후 정책 / ""=수리 전(레거시)
+        # 진입시점 시장국면 스냅샷 (기록 전용). 평소엔 진입 직후 봇이 직접 붙이고,
+        # 생성자 인자는 state 복원 경로 전용 — from_dict가 __init__ 파라미터만
+        # 통과시켜 재시작마다 유실되던 것을 살린다(2026-07-27).
+        # 값이 없으면 속성을 만들지 않는다: 기록측 getattr(pos, "_regime", self._regime)
+        # 폴백을 그대로 보존하기 위함.
+        if _btc_4h_return is not None:
+            self._btc_4h_return = _btc_4h_return
+        if _btc_4h_atr is not None:
+            self._btc_4h_atr = _btc_4h_atr
+        if _regime is not None:
+            self._regime = _regime
 
     def to_dict(self) -> dict:
         return vars(self)

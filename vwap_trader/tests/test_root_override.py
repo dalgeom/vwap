@@ -72,11 +72,13 @@ def _bot_paths(tmp_root: Path | None) -> list[str]:
     env.pop("VWAP_PROJECT_ROOT", None)
     if tmp_root is not None:
         env["VWAP_PROJECT_ROOT"] = str(tmp_root)
+    env["PYTHONIOENCODING"] = "utf-8"   # 경로에 한글이 있으면 기본 cp949로 깨짐
     code = ("import sys; sys.path.insert(0, 'src'); "
             "from vwap_trader import momentum_bot as m; "
             "print(m.ROOT); print(m.DATA_DIR); print(m.ENV_PATH)")
     r = subprocess.run([sys.executable, "-c", code], capture_output=True,
-                       text=True, env=env, cwd=str(PROJ), timeout=60)
+                       text=True, encoding="utf-8", env=env, cwd=str(PROJ),
+                       timeout=60)
     assert r.returncode == 0, r.stderr
     return r.stdout.strip().splitlines()
 
