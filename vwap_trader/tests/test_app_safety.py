@@ -38,3 +38,35 @@ def test_warns_on_clock_drift(tmp_path):
 def test_all_clear(tmp_path):
     c = _ctrl(tmp_path)
     assert prestart_checks(c, clock_offset_ms=120) == []
+
+
+def test_stop_file_unlink_failure_warns_but_does_not_block(tmp_path):
+    c = _ctrl(tmp_path)
+    c.stop_file.mkdir()   # 디렉터리로 만들어 unlink 실패를 흉내 (Windows에서 PermissionError)
+    problems = prestart_checks(c, clock_offset_ms=0)
+    assert any("지우지 못했습니다" in p for p in problems)
+    assert not any("이미 실행" in p for p in problems)   # 차단 문제는 아님
+    assert c.stop_file.exists()   # 못 지웠으니 그대로 남아있음
+
+
+def test_measure_clock_offset_fake_session():
+    import time as _time
+    from app.safety import measure_clock_offset_ms
+
+    class FakeSession:
+        def get_server_time(self):
+            now_ns = int(_time.time() * 1e9) + 5_000_000_000  # 서버가 5초 앞
+            return {"result": {"timeSecond": str(now_ns // 10**9), "timeNano": str(now_ns)}}
+
+    off = measure_clock_offset_ms(public_session=FakeSession())
+    assert off is not None and 4000 < off < 6000  # ns→ms 단위 오류면 크게 벗어남
+
+
+def test_measure_clock_offset_failure_returns_none():
+    from app.safety import measure_clock_offset_ms
+
+    class BrokenSession:
+        def get_server_time(self):
+            raise ConnectionError("no network")
+
+    assert measure_clock_offset_ms(public_session=BrokenSession()) is None
