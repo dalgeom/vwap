@@ -1,7 +1,10 @@
 import os
 import sys
+import threading
 import time
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -46,3 +49,51 @@ def test_start_spawns_and_status_ours(tmp_path):
         assert c.status() == "ours"
     finally:
         c.proc.kill()
+
+
+def test_status_stopped_after_our_child_exits_despite_fresh_heartbeat(tmp_path):
+    c = _ctrl(tmp_path)
+    c.start(command_override=[sys.executable, "-c", "print()"])
+    c.proc.wait(timeout=30)
+    c.heartbeat_file.write_text("x", encoding="utf-8")  # 잔상 heartbeat
+    assert c.status() == "stopped"
+
+
+def test_start_raises_when_already_running(tmp_path):
+    c = _ctrl(tmp_path)
+    c.start(command_override=[sys.executable, "-c", "import time; time.sleep(30)"])
+    try:
+        with pytest.raises(RuntimeError):
+            c.start(command_override=[sys.executable, "-c", "print()"])
+    finally:
+        c.proc.kill()
+
+
+def test_stop_and_wait_noop_when_stopped_leaves_no_stop_file(tmp_path):
+    c = _ctrl(tmp_path)
+    assert c.stop_and_wait(timeout_sec=5) is True
+    assert not c.stop_file.exists()
+
+
+def test_stop_and_wait_ours_child_exit(tmp_path):
+    c = _ctrl(tmp_path)
+    c.start(command_override=[sys.executable, "-c", "import time; time.sleep(2)"])
+    assert c.stop_and_wait(timeout_sec=30) is True
+    assert c.status() == "stopped"
+
+
+def test_stop_and_wait_external_stop_file_consumed(tmp_path):
+    c = _ctrl(tmp_path)
+    c.heartbeat_file.write_text("x", encoding="utf-8")  # 외부 봇 fresh 상태 흉내
+    def consume():
+        time.sleep(1)
+        c.stop_file.unlink()  # 외부 봇이 STOP을 감지·소비하는 동작
+    threading.Thread(target=consume, daemon=True).start()
+    assert c.stop_and_wait(timeout_sec=15) is True
+
+
+def test_bot_command_dev_branch(tmp_path):
+    c = _ctrl(tmp_path)
+    cmd = c.bot_command()
+    assert cmd[1:] == ["-m", "vwap_trader.momentum_bot"]
+    assert "venv" in cmd[0]

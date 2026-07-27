@@ -13,7 +13,7 @@ HEARTBEAT_FRESH_SEC = 90
 
 class BotController:
     def __init__(self, project_root: Path):
-        self.root = Path(project_root)
+        self.root = Path(project_root).resolve()
         self.stop_file = self.root / "data" / "STOP_MOMENTUM"
         self.heartbeat_file = self.root / "data" / "heartbeat_momentum"
         self.log_file = self.root / "logs" / "momentum_bot.log"
@@ -31,9 +31,13 @@ class BotController:
         return age is not None and age < HEARTBEAT_FRESH_SEC
 
     def status(self) -> str:
-        ours_alive = self.proc is not None and self.proc.poll() is None
-        if ours_alive:
-            return "stopping" if self._stop_requested else "ours"
+        if self.proc is not None:
+            if self.proc.poll() is None:
+                return "stopping" if self._stop_requested else "ours"
+            # 우리 자식이 종료됨 — heartbeat 잔상과 무관하게 정지 처리
+            self.proc = None
+            self._stop_requested = False
+            return "stopped"
         if self._heartbeat_fresh():
             return "external"
         self._stop_requested = False
@@ -46,15 +50,20 @@ class BotController:
                 "-m", "vwap_trader.momentum_bot"]
 
     def start(self, command_override: list[str] | None = None) -> None:
-        (self.root / "logs").mkdir(exist_ok=True)
+        if self.status() != "stopped":
+            raise RuntimeError("봇이 이미 실행 중입니다 — 같은 계좌 이중 실행 금지")
+        (self.root / "logs").mkdir(parents=True, exist_ok=True)
         env = {**os.environ, "VWAP_PROJECT_ROOT": str(self.root)}
         stderr_log = open(self.root / "logs" / "bot_stderr.log", "ab")
         flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
-        self.proc = subprocess.Popen(
-            command_override or self.bot_command(),
-            cwd=str(self.root), env=env,
-            stdout=subprocess.DEVNULL, stderr=stderr_log,
-            creationflags=flags)
+        try:
+            self.proc = subprocess.Popen(
+                command_override or self.bot_command(),
+                cwd=str(self.root), env=env,
+                stdout=subprocess.DEVNULL, stderr=stderr_log,
+                creationflags=flags)
+        finally:
+            stderr_log.close()
         self._stop_requested = False
 
     def request_stop(self) -> None:
@@ -62,16 +71,17 @@ class BotController:
         self.stop_file.touch()
         self._stop_requested = True
 
-    def stop_and_wait(self, timeout_sec: int = 90) -> bool:
-        """graceful 종료 후 True. 타임아웃 시 False(강제 kill은 하지 않음 — 주문 중 kill 금지)."""
+    def stop_and_wait(self, timeout_sec: int = 150) -> bool:
+        """graceful 종료 후 True. 타임아웃 시 False(강제 kill은 하지 않음 — 주문 중 kill 금지).
+        봇은 STOP 파일을 감지하면 스스로 지운다 — 파일 소멸 = 감지 완료 신호."""
+        if self.status() == "stopped":
+            return True
         self.request_stop()
         deadline = time.time() + timeout_sec
         while time.time() < deadline:
-            if self.proc is not None and self.proc.poll() is not None:
-                self._stop_requested = False
+            if self.status() == "stopped":
                 return True
-            if self.proc is None and not self._heartbeat_fresh():
-                self._stop_requested = False
+            if self.proc is None and not self.stop_file.exists():
                 return True
             time.sleep(2)
         return False
