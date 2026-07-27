@@ -58,3 +58,40 @@ def test_due_report_retry_cooldown(tmp_path):
 def test_avoid_minute_zero():
     assert avoid_minute_zero(datetime(2026, 7, 27, 5, 0, 30, tzinfo=timezone.utc)) is True
     assert avoid_minute_zero(datetime(2026, 7, 27, 5, 1, 30, tzinfo=timezone.utc)) is False
+
+
+def test_due_report_normalizes_utc_input(tmp_path):
+    # UTC로 들어와도 KST로 정규화 — 2026-07-27 00:00Z = 07-27 09:00 KST → 어제 due
+    (tmp_path / "reports").mkdir()
+    now_utc = datetime(2026, 7, 27, 0, 0, tzinfo=timezone.utc)
+    assert due_report(now_utc, tmp_path, True, None) == date(2026, 7, 26)
+
+
+def test_scheduler_thread_ticks_and_survives_exceptions(tmp_path):
+    import time as _t
+    from app.scheduler import SchedulerThread
+    calls = []
+    def cb(now):
+        calls.append(now)
+        raise RuntimeError("boom")
+    log = tmp_path / "logs" / "app_scheduler.log"
+    th = SchedulerThread(cb, tick_sec=0.02, log_path=log)
+    th.start()
+    _t.sleep(0.2)
+    th.stop()
+    th.join(timeout=5)
+    assert not th.is_alive()
+    assert len(calls) >= 2                      # 예외에도 계속 틱
+    assert "RuntimeError: boom" in log.read_text(encoding="utf-8")
+
+
+def test_scheduler_thread_stop_is_fast():
+    import time as _t
+    from app.scheduler import SchedulerThread
+    th = SchedulerThread(lambda now: None, tick_sec=30)
+    th.start()
+    t0 = _t.time()
+    th.stop()
+    th.join(timeout=5)
+    assert not th.is_alive()
+    assert _t.time() - t0 < 2                   # 30초 틱 대기 중에도 즉시 종료

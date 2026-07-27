@@ -28,9 +28,10 @@ def due_report(now_kst: datetime, project_root: Path, auto_on: bool,
                retry_min: int = RETRY_COOLDOWN_MIN) -> date | None:
     """생성해야 할 '어제(KST)' 날짜 반환, 아니면 None.
     이미 파일이 있으면 절대 재생성하지 않음(과거 리포트 재생성 금지 규율)."""
+    now_kst = now_kst.astimezone(KST)
     if not auto_on:
         return None
-    if now_kst.timetz().replace(tzinfo=None) < REPORT_AT:
+    if now_kst.time() < REPORT_AT:
         return None
     day = (now_kst - timedelta(days=1)).date()
     if (Path(project_root) / "reports" / f"{day.isoformat()}.md").exists():
@@ -44,18 +45,26 @@ def due_report(now_kst: datetime, project_root: Path, auto_on: bool,
 class SchedulerThread(threading.Thread):
     """tick_sec마다 on_tick(now_utc) 호출. daemon — 앱 종료와 함께 사라짐."""
 
-    def __init__(self, on_tick, tick_sec: int = 30):
+    def __init__(self, on_tick, tick_sec: int = 30, log_path: Path | None = None):
         super().__init__(daemon=True, name="app-scheduler")
         self._on_tick = on_tick
         self._tick_sec = tick_sec
+        self._log_path = log_path
         self._stop = threading.Event()
 
     def run(self):
         while not self._stop.is_set():
             try:
                 self._on_tick(datetime.now(timezone.utc))
-            except Exception:
-                pass   # 스케줄러는 어떤 경우에도 죽지 않는다
+            except Exception as e:   # 스케줄러는 어떤 경우에도 죽지 않는다 — 대신 흔적은 남긴다
+                try:
+                    if self._log_path is not None:
+                        self._log_path.parent.mkdir(parents=True, exist_ok=True)
+                        with open(self._log_path, "a", encoding="utf-8") as f:
+                            f.write(f"{datetime.now(timezone.utc).isoformat()} "
+                                    f"{type(e).__name__}: {e}\n")
+                except OSError:
+                    pass
             self._stop.wait(self._tick_sec)
 
     def stop(self):
