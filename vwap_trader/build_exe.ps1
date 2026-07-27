@@ -1,4 +1,4 @@
-# Momentum Bot 데스크톱 앱 빌드 (Python 3.12 venv_app 사용)
+﻿# Momentum Bot 데스크톱 앱 빌드 (Python 3.12 venv_app 사용)
 # 사용: .\build_exe.ps1   → dist\MomentumBot\momentum_app.exe
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
