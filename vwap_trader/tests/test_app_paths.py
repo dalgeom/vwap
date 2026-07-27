@@ -58,9 +58,11 @@ def test_marker_not_found_raises(tmp_path, monkeypatch):
 
 
 def test_init_project_root_sets_env_and_validates(tmp_path, monkeypatch):
-    for mod in ("daily_report", "build_canonical", "corrections",
-                "fix_estimated", "xcrowd_snapshot", "vwap_trader.momentum_bot"):
-        monkeypatch.delitem(sys.modules, mod, raising=False)
+    # pytest collection이 형제 테스트 모듈을 import하면서 root-aware 모듈들이 이미
+    # sys.modules에 들어와 있을 수 있다 — init_project_root의 early-import 가드 오탐 방지용 격리
+    from app.paths import _ROOT_AWARE_MODULES
+    for name in _ROOT_AWARE_MODULES:
+        monkeypatch.delitem(sys.modules, name, raising=False)
     proj = tmp_path / "vwap_trader"
     (proj / "config").mkdir(parents=True)
     (proj / "config" / "momentum_config.yaml").write_text("x", encoding="utf-8")

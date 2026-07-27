@@ -9,7 +9,6 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 PROJ = Path(__file__).resolve().parents[1]  # vwap_trader/
 
@@ -25,8 +24,12 @@ def _reload(modname):
 
 @pytest.fixture(autouse=True)
 def _restore_script_modules():
+    saved = os.environ.get("VWAP_PROJECT_ROOT")
     yield
-    os.environ.pop("VWAP_PROJECT_ROOT", None)
+    if saved is None:
+        os.environ.pop("VWAP_PROJECT_ROOT", None)
+    else:
+        os.environ["VWAP_PROJECT_ROOT"] = saved
     for name in _SCRIPT_MODS:
         if name in sys.modules:
             importlib.reload(sys.modules[name])
@@ -73,7 +76,7 @@ def _bot_paths(tmp_root: Path | None) -> list[str]:
             "from vwap_trader import momentum_bot as m; "
             "print(m.ROOT); print(m.DATA_DIR); print(m.ENV_PATH)")
     r = subprocess.run([sys.executable, "-c", code], capture_output=True,
-                       text=True, env=env, cwd=str(PROJ))
+                       text=True, env=env, cwd=str(PROJ), timeout=60)
     assert r.returncode == 0, r.stderr
     return r.stdout.strip().splitlines()
 

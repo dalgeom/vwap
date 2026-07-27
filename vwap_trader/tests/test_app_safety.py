@@ -70,3 +70,11 @@ def test_measure_clock_offset_failure_returns_none():
             raise ConnectionError("no network")
 
     assert measure_clock_offset_ms(public_session=BrokenSession()) is None
+
+
+def test_blocking_problems_exact_match_only():
+    from app.safety import ALREADY_RUNNING, blocking_problems
+
+    problems = [ALREADY_RUNNING, "PC 시계가 서버보다 4.1초 느립니다...", "STOP 파일을 지우지 못했습니다..."]
+    assert blocking_problems(problems) == [ALREADY_RUNNING]
+    assert blocking_problems([]) == []
