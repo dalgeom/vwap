@@ -63,7 +63,7 @@ class SchedulerThread(threading.Thread):
                         with open(self._log_path, "a", encoding="utf-8") as f:
                             f.write(f"{datetime.now(timezone.utc).isoformat()} "
                                     f"{type(e).__name__}: {e}\n")
-                except OSError:
+                except Exception:
                     pass
             self._stop.wait(self._tick_sec)
 
