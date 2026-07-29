@@ -121,6 +121,22 @@ def is_jackpot_pair(row: dict) -> bool:
     return pair_r(row) >= JACKPOT_R
 
 
+def is_divergent_pair(row: dict) -> bool:
+    """§11.1 분기 = 두 arm의 **청산 시각이 다르거나 청산 사유가 다른** 쌍.
+    같은 시각·같은 사유면 동률 — 체결가/손익 차이는 슬리피지이므로 무시한다.
+    미결(그림자 유령 미청산)은 분기도 동률도 아니므로 False.
+
+    ★ 2026-07-29 눈금 확정(§11.1). 이전 구현은 real_pnl vs shadow_pnl 비교였으나
+    real은 거래소 실체결가·shadow는 이론상 shadow_sl로 계산되어 두 arm이 정책상
+    동일해도 손익이 항상 어긋난다 = 동률 성립 불가 → 38쌍 중 34쌍 위양성."""
+    r_ms, s_ms = row.get("real_exit_ms"), row.get("shadow_exit_ms")
+    if not r_ms or not s_ms:
+        return False
+    if row.get("real_exit_reason") != row.get("shadow_exit_reason"):
+        return True
+    return r_ms != s_ms
+
+
 def be_cf_summary(rows: list, day: date) -> dict:
     """BE A/B 반사실 쌍 → arm별 손익 집계(오늘/누적, 잭팟 제외 병행).
     각 쌍은 실제 arm + 반대 arm(shadow) 결과를 담으므로, 쌍마다 A·B 둘 다 기여.
@@ -146,9 +162,8 @@ def be_cf_summary(rows: list, day: date) -> dict:
     a_t, b_t = arm_pnls(today)
     a_all, b_all = arm_pnls(rows)
     a_ex, b_ex = arm_pnls(ex)
-    # 생존 카운터(§11.1 outcome-blind): 분기 쌍 수(두 arm 손익 다름) + 마지막 쌍 시각
-    n_div = sum(1 for r in rows
-                if round(r.get("real_pnl", 0) or 0, 2) != round(r.get("shadow_pnl", 0) or 0, 2))
+    # 생존 카운터(§11.1 outcome-blind): 분기 쌍 수(청산 시각/사유 기준) + 마지막 쌍 시각
+    n_div = sum(1 for r in rows if is_divergent_pair(r))
     last_ms = max((r.get("real_exit_ms", 0) or 0 for r in rows), default=0)
     return {"n_today": len(today), "n_all": len(rows), "n_div": n_div, "last_ms": last_ms,
             "n_legacy": n_legacy, "n_jackpot": len(rows) - len(ex),

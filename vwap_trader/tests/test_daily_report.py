@@ -72,24 +72,28 @@ def test_be_cf_summary_arm_attribution_and_today():
     ms_0706 = int(datetime(2026, 7, 6, 6, 0, 0, tzinfo=timezone.utc).timestamp() * 1000)  # 07-06 15:00 KST
     rows = [
         {"trade_id": "a", "real_arm": "A", "real_pnl": 100.0, "shadow_pnl": 50.0,
-         "real_exit_ms": ms_0706, "cf_version": 2},
+         "real_exit_ms": ms_0706, "shadow_exit_ms": ms_0706, "cf_version": 2,
+         "real_exit_reason": "TrailSL", "shadow_exit_reason": "BE"},
         {"trade_id": "b", "real_arm": "B", "real_pnl": 30.0, "shadow_pnl": 80.0,
-         "real_exit_ms": ms_0706, "cf_version": 2},
+         "real_exit_ms": ms_0706, "shadow_exit_ms": ms_0706, "cf_version": 2,
+         "real_exit_reason": "BE", "shadow_exit_reason": "TrailSL"},
     ]
     s = be_cf_summary(rows, date(2026, 7, 6))
     # A = a.real(100) + b.shadow(80) = 180 ; B = a.shadow(50) + b.real(30) = 80
     assert abs(s["a_all"] - 180.0) < 1e-9 and abs(s["b_all"] - 80.0) < 1e-9
     assert s["n_all"] == 2 and s["n_today"] == 2
-    assert s["n_div"] == 2 and s["last_ms"] == ms_0706  # 두 쌍 다 손익 다름=분기
+    assert s["n_div"] == 2 and s["last_ms"] == ms_0706  # 두 쌍 다 청산 사유 다름=분기
 
 
 def test_be_cf_summary_divergence_counts_only_differing_pairs():
-    # 동률 쌍(real==shadow)은 분기 아님
+    # 동률 쌍(같은 시각·같은 사유)은 분기 아님 — 손익이 슬리피지만큼 어긋나도 동률
     rows = [
-        {"trade_id": "t", "real_arm": "A", "real_pnl": 10.0, "shadow_pnl": 10.0,
-         "real_exit_ms": 1, "cf_version": 2},
+        {"trade_id": "t", "real_arm": "A", "real_pnl": 10.0, "shadow_pnl": 9.97,
+         "real_exit_ms": 1, "shadow_exit_ms": 1, "cf_version": 2,
+         "real_exit_reason": "SL", "shadow_exit_reason": "SL"},
         {"trade_id": "d", "real_arm": "A", "real_pnl": 10.0, "shadow_pnl": -5.0,
-         "real_exit_ms": 2, "cf_version": 2},
+         "real_exit_ms": 2, "shadow_exit_ms": 2, "cf_version": 2,
+         "real_exit_reason": "BE", "shadow_exit_reason": "SL"},
     ]
     s = be_cf_summary(rows, date(2026, 7, 6))
     assert s["n_all"] == 2 and s["n_div"] == 1
@@ -160,14 +164,63 @@ def test_be_cf_summary_filters_v2_only():
     # 수리 전(cf_version 없음) 쌍은 재수집 카운터에서 제외(§11.1 29쌍 폐기).
     rows = [
         {"trade_id": "a", "real_arm": "A", "real_pnl": 1.0, "shadow_pnl": 1.0,
-         "real_exit_ms": 1, "cf_version": 2},
+         "real_exit_ms": 1, "shadow_exit_ms": 1, "cf_version": 2,
+         "real_exit_reason": "SL", "shadow_exit_reason": "SL"},          # 동률
         {"trade_id": "b", "real_arm": "B", "real_pnl": 5.0, "shadow_pnl": -2.0,
-         "real_exit_ms": 2, "cf_version": 2},
+         "real_exit_ms": 2, "shadow_exit_ms": 2, "cf_version": 2,
+         "real_exit_reason": "BE", "shadow_exit_reason": "SL"},          # 분기
         {"trade_id": "legacy", "real_arm": "A", "real_pnl": 9.0, "shadow_pnl": 9.0,
-         "real_exit_ms": 3},  # 구계측 잔재 → 제외
+         "real_exit_ms": 3, "shadow_exit_ms": 3,
+         "real_exit_reason": "BE", "shadow_exit_reason": "SL"},  # 구계측 잔재 → 제외
     ]
     s = be_cf_summary(rows, date(2026, 7, 20))
     assert s["n_all"] == 2 and s["n_legacy"] == 1 and s["n_div"] == 1
+
+
+# ── §11.1 분기/동률 눈금 (2026-07-29 확정): 타임스탬프·사유 기준, 손익 비교 아님 ──
+
+def _cfpair(**over):
+    p = {"trade_id": "x", "real_arm": "A", "cf_version": 2,
+         "real_exit_ms": 1000, "shadow_exit_ms": 1000,
+         "real_exit_reason": "SL", "shadow_exit_reason": "SL",
+         "real_pnl": -50.0, "shadow_pnl": -50.0}
+    p.update(over)
+    return p
+
+
+def test_same_time_same_reason_is_tie_even_if_pnl_differs():
+    # ★ 위양성 차단: 두 arm이 같은 시각·같은 자리에서 나갔으면 동률.
+    # 체결가 차이(슬리피지)로 손익이 어긋나도 분기가 아니다 — 2026-07-29 사고의 핵심.
+    from daily_report import is_divergent_pair
+    assert is_divergent_pair(_cfpair(real_pnl=-50.04, shadow_pnl=-49.98)) is False
+
+
+def test_different_exit_reason_is_divergent():
+    from daily_report import is_divergent_pair
+    assert is_divergent_pair(_cfpair(real_exit_reason="BE",
+                                     shadow_exit_reason="SL")) is True
+
+
+def test_different_exit_timestamp_is_divergent():
+    # 사유가 같아도 다른 시점에 나갔으면 정책이 갈린 것(유령 추적 등)
+    from daily_report import is_divergent_pair
+    assert is_divergent_pair(_cfpair(shadow_exit_ms=9999)) is True
+
+
+def test_unresolved_shadow_is_not_counted_as_divergent():
+    # 그림자(유령)가 아직 청산 전 = 미결 → 분기도 동률도 아님
+    from daily_report import is_divergent_pair
+    assert is_divergent_pair(_cfpair(shadow_exit_ms=None)) is False
+
+
+def test_n_div_uses_timestamp_reason_not_pnl():
+    # be_cf_summary의 카운터도 같은 눈금을 써야 한다
+    rows = [
+        _cfpair(trade_id="tie", real_pnl=-50.04, shadow_pnl=-49.98),   # 슬리피지 = 동률
+        _cfpair(trade_id="div", real_exit_reason="BE", real_pnl=-1.0),  # 사유 다름 = 분기
+    ]
+    s = be_cf_summary(rows, date(2026, 7, 29))
+    assert s["n_all"] == 2 and s["n_div"] == 1
 
 
 def test_cf_health_warning_boundary():

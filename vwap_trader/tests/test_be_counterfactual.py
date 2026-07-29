@@ -1,8 +1,10 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vwap_trader.be_counterfactual import (pnl_of, update_shadow, build_pair_record,
                                            append_pair, shadow_init_fields,
                                            resolve_shadow_at_real_exit)
+from daily_report import is_divergent_pair as _is_div  # §11.1 분기 눈금(2026-07-29)
 
 
 def test_shadow_init_fields_A_and_B():
@@ -214,7 +216,29 @@ def test_ghost_censored_divergence_recorded(tmp_path):
     r = rows[0]
     assert r["cf_version"] == 2
     assert r["shadow_exit_reason"] == "SL" and r["shadow_exit_price"] == 85.0
-    assert round(r["real_pnl"], 2) != round(r["shadow_pnl"], 2)  # ★ 분기가 기록됨
+    assert _is_div(r) is True  # ★ 분기가 기록됨 (real=BE vs shadow=SL, 청산 시각도 다름)
+
+
+def test_synthetic_same_policy_exit_is_recorded_as_tie():
+    """★ 위양성 검출(2026-07-29, 07-20 처방⑤ 확장): 두 arm이 같은 정책으로 같은 시점에
+    나가면 체결가가 슬리피지만큼 어긋나도 '동률'로 집계돼야 한다.
+    기존 주입 테스트는 '분기가 기록되는가'(위음성)만 봤고 반대 방향을 놓쳤다 —
+    실운영에서 38쌍 중 34쌍이 위양성으로 집계돼 게이트가 가짜로 채워졌다."""
+    # 그림자도 본전잠금 미발동·같은 최초 손절선(85) = 정책상 완전히 같은 자리
+    st = {"best": 104.0, "be": False, "sl": 85.0}
+    action, xp, rsn = resolve_shadow_at_real_exit("long", 100.0, 84.9, "SL", st)
+    assert action == "exit" and xp == 85.0 and rsn == "SL"
+    ms = 1_700_000_000_000
+    rec = build_pair_record(
+        trade_id="tie1", symbol="XUSDT", direction="long", entry=100.0, atr=10.0,
+        size_usd=1000.0,
+        real_arm="A", real_be=1.5, real_exit=84.9, real_reason="SL",   # 실체결가 84.9
+        real_exchange_pnl=-152.0, real_exit_ms=ms,
+        shadow_arm="B", shadow_be=0.75, shadow_exit=xp, shadow_reason=rsn,  # 이론가 85.0
+        shadow_exit_ms=ms, cf_version=2)
+    # 손익은 슬리피지만큼 다르다 — 낡은 눈금(손익 비교)이면 여기서 '분기'로 셌다
+    assert round(rec["real_pnl"], 2) != round(rec["shadow_pnl"], 2)
+    assert _is_div(rec) is False  # ★ 새 눈금: 같은 시각·같은 사유 = 동률
 
 
 def test_ghost_survives_until_breach(tmp_path):
