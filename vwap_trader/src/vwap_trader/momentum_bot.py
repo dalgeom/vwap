@@ -1966,8 +1966,21 @@ def notify(msg: str):
 
 
 # ── Entry point ──────────────────────────────────────────
+def force_utf8_streams(streams=None) -> None:
+    """콘솔 인코딩이 UTF-8이 아니어도 로그의 '—' 같은 문자가 깨지지 않게 한다.
+    ★ frozen exe(PyInstaller)는 파이썬을 자체 설정으로 초기화해 PYTHONIOENCODING을
+    무시하므로 env로는 해결되지 않는다(2026-07-29 실측). 프로세스 안에서 직접 재구성.
+    실패는 조용히 무시 — 로그 설정 때문에 봇이 죽어선 안 된다."""
+    for s in (streams if streams is not None else (sys.stdout, sys.stderr)):
+        try:
+            s.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
 def main():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+    force_utf8_streams()
 
     logging.basicConfig(
         level=logging.INFO,
