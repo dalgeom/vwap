@@ -65,7 +65,10 @@ class BotController:
         if self.status() != "stopped":
             raise RuntimeError("봇이 이미 실행 중입니다 — 같은 계좌 이중 실행 금지")
         (self.root / "logs").mkdir(parents=True, exist_ok=True)
-        env = {**os.environ, "VWAP_PROJECT_ROOT": str(self.root)}
+        # PYTHONIOENCODING: 봇 로그의 '—' 같은 문자가 cp949 stdout에서 터져
+        # bot_stderr.log에 트레이스백만 쌓이던 문제 차단 (파일 로그는 원래 무손상)
+        env = {**os.environ, "VWAP_PROJECT_ROOT": str(self.root),
+               "PYTHONIOENCODING": "utf-8"}
         stderr_log = open(self.root / "logs" / "bot_stderr.log", "ab")
         flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
         try:

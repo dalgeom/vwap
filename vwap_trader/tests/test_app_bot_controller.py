@@ -93,6 +93,20 @@ def test_stop_and_wait_external_stop_file_consumed(tmp_path):
     assert c.stop_and_wait(timeout_sec=15) is True
 
 
+def test_start_gives_child_utf8_io_encoding(tmp_path, monkeypatch):
+    # 봇 로그의 줄표(—)가 cp949 stdout에서 UnicodeEncodeError를 내
+    # bot_stderr.log에 트레이스백만 쌓이던 문제(2026-07-29). 파일 로그는 무손상.
+    # 부모 환경이 이미 utf-8이면 통과해버리므로 지우고 검증한다 — 보장 주체는 컨트롤러.
+    monkeypatch.delenv("PYTHONIOENCODING", raising=False)
+    c = _ctrl(tmp_path)
+    out = tmp_path / "enc.txt"
+    code = ("import sys, pathlib; "
+            f"pathlib.Path(r'{out}').write_text(sys.stdout.encoding or 'none')")
+    c.start(command_override=[sys.executable, "-c", code])
+    c.proc.wait(timeout=30)
+    assert out.read_text().lower().replace("_", "-").startswith("utf-8")
+
+
 def test_bot_command_dev_branch(tmp_path):
     c = _ctrl(tmp_path)
     cmd = c.bot_command()
