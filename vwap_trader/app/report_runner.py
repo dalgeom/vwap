@@ -58,6 +58,20 @@ def _reflection_prompt(facts: str, fixed_ctx: str) -> str:
 """
 
 
+def _hidden_window():
+    """claude 호출 시 콘솔 창을 숨긴다 — 창이 뜨면 사용자가 실수로 닫아 성찰이 죽는다
+    (2026-07-30 실사고: 창 닫힘 → rc=0xC000013A, 성찰 유실).
+    ★ CREATE_NO_WINDOW를 쓰면 안 된다 — claude는 .cmd 래퍼라 콘솔을 아예 없애면
+    cmd.exe가 '지정된 경로를 찾을 수 없습니다'(rc=1)로 실패한다(실측).
+    콘솔은 만들되 SW_HIDE로 감추는 방식만 안전하다."""
+    if sys.platform != "win32":
+        return None
+    si = subprocess.STARTUPINFO()
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    si.wShowWindow = subprocess.SW_HIDE
+    return si
+
+
 def _atomic_write(path: Path, text: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(text, encoding="utf-8")
@@ -97,7 +111,8 @@ def add_reflection(report_path: Path, backlog_path: Path,
         r = subprocess.run(
             [claude_cmd, "-p", "--output-format", "text"],
             input=_reflection_prompt(facts, fixed_ctx).encode("utf-8"),
-            capture_output=True, timeout=CLAUDE_TIMEOUT_SEC, shell=False)
+            capture_output=True, timeout=CLAUDE_TIMEOUT_SEC, shell=False,
+            startupinfo=_hidden_window())
         reflection = r.stdout.decode("utf-8", errors="replace").strip()
     except (subprocess.TimeoutExpired, OSError) as e:
         if log_root:

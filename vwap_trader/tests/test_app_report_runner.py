@@ -90,6 +90,39 @@ def test_backlog_no_proposal_fallback(tmp_path):
     assert "제안 표식 없음" in backlog.read_text(encoding="utf-8")
 
 
+def test_reflection_call_hides_console_window(tmp_path, monkeypatch):
+    """성찰 호출 시 콘솔 창이 뜨면 사용자가 실수로 닫아 성찰이 죽는다
+    (2026-07-30 실사고: 창을 닫아 rc=0xC000013A로 성찰 유실).
+    봇 spawn과 동일하게 CREATE_NO_WINDOW로 창 없이 호출한다."""
+    import subprocess as sp
+    from app import report_runner as rr
+
+    captured = {}
+
+    class _R:
+        returncode = 0
+        stdout = "성찰 문단. 제안: 확인".encode("utf-8")
+        stderr = b""
+
+    def fake_run(cmd, **kw):
+        captured.update(kw)
+        return _R()
+
+    monkeypatch.setattr(rr.subprocess, "run", fake_run)
+    report = tmp_path / "2026-07-29.md"
+    report.write_text(f"## 오늘의 자아성찰\n{PLACEHOLDER}\n", encoding="utf-8")
+    assert add_reflection(report, tmp_path / "backlog.md", claude_cmd="claude") is True
+    si = captured.get("startupinfo")
+    if sys.platform == "win32":
+        assert si is not None
+        assert si.dwFlags & sp.STARTF_USESHOWWINDOW
+        assert si.wShowWindow == sp.SW_HIDE
+        # ★ CREATE_NO_WINDOW는 금지 — .cmd 래퍼가 rc=1로 깨진다(실측)
+        assert captured.get("creationflags") in (None, 0)
+    else:
+        assert si is None
+
+
 def test_ensure_source_path_skips_when_frozen(tmp_path, monkeypatch):
     import sys as _sys
     from app.report_runner import _ensure_source_path

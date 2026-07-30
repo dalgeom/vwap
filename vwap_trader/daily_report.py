@@ -4,6 +4,7 @@
 """
 import os
 import json
+import re
 from collections import Counter
 from datetime import datetime, timezone, date, timedelta
 from pathlib import Path
@@ -78,6 +79,34 @@ def order_fail_details(shadow: list, day: date) -> list:
             continue
         out.append(f"{r.get('symbol')} — {r.get('fail_detail') or '(사유 미기록)'}")
     return out
+
+
+_ERRCODE_RE = re.compile(r"ErrCode:\s*(\d+)")
+
+
+def order_fail_code_counts(shadow: list, day: date) -> dict:
+    """당일 주문실패를 거래소 오류코드별로 집계 (backlog 2026-07-24).
+    거부가 진입을 얼마나 막는지 수치로만 계측 — 유니버스·로직은 손대지 않는다."""
+    c = Counter()
+    for r in shadow:
+        if r.get("shadow_reason") != "order_failed":
+            continue
+        ts = r.get("timestamp_utc")
+        if not ts or datetime.fromisoformat(ts).astimezone(KST).date() != day:
+            continue
+        m = _ERRCODE_RE.search(r.get("fail_detail") or "")
+        c[m.group(1) if m else "(코드없음)"] += 1
+    return dict(c)
+
+
+def mfe_giveback(trade: dict) -> float | None:
+    """보유 중 도달한 최고 미실현(%) − 종료 손익(%) = 반납폭(%p). (backlog 2026-07-25·07-27)
+    추적손절이 정점 대비 얼마를 되돌려주고 끝나는지 관찰용. 값 없으면 None."""
+    mfe = trade.get("max_favorable_excursion")
+    pnl = trade.get("pnl_pct")
+    if mfe is None or pnl is None:
+        return None
+    return mfe - pnl
 
 
 CF_DIV_RATE = 0.119  # §11.1 실측 분기창 비율 — 계측기 건강 점검 전용(판정기준 아님)
@@ -209,12 +238,27 @@ def render_report(ctx: dict) -> str:
         for t in ctx["todays"]:
             p = t.get("pnl_usd", 0) or 0
             mark = "🟢" if p >= 0 else "🔴"
+            gb = mfe_giveback(t)
+            gb_s = (f" (정점 {t.get('max_favorable_excursion'):+.2f}% → 반납 {gb:.2f}%p)"
+                    if gb is not None else "")
             L.append(f"- {mark} {t['symbol']} {t.get('side')} {t.get('exit_reason')} "
-                     f"${p:+.2f}")
+                     f"${p:+.2f}{gb_s}")
         L.append("")
         L.append(f"오늘 총 **{len(ctx['todays'])}건** 청산했습니다. "
                  f"벌어들인 건 **+${wins:,.2f}**, 잃은 건 **−${abs(losses):,.2f}**, "
                  f"합쳐서 순 **${net:+,.2f}** 입니다.")
+        # backlog 07-25·07-27: 사유별 평균 반납폭 — 추적손절이 정점을 얼마나 되돌려주는지
+        by_reason = {}
+        for t in ctx["todays"]:
+            gb = mfe_giveback(t)
+            if gb is not None:
+                by_reason.setdefault(t.get("exit_reason") or "?", []).append(gb)
+        if by_reason:
+            L.append("- 사유별 평균 반납: "
+                     + ", ".join(f"{k} {sum(v2)/len(v2):.1f}%p({len(v2)}건)"
+                                 for k, v2 in sorted(by_reason.items(),
+                                                     key=lambda kv: -sum(kv[1])/len(kv[1])))
+                     + " — 관찰 기록일 뿐, 청산 규칙은 동결 상태입니다.")
     else:
         L.append("오늘은 청산한 거래가 없습니다.")
     L.append("")
@@ -232,6 +276,10 @@ def render_report(ctx: dict) -> str:
         L.append(f"- 생존: 총 **{cf['n_all']}쌍** / 분기 **{cf['n_div']}쌍** "
                  f"(판정 게이트 = 분기 30) | 오늘 {cf['n_today']}쌍 | 마지막 쌍 {last} KST")
         L.append("- ※ 판정용 A vs B 손익은 게이트 도달 전까지 **비공개** — 사전등록 peeking 금지(§11.1).")
+        if cf["n_all"]:
+            L.append(f"- 분기율 {cf['n_div'] / cf['n_all'] * 100:.0f}% "
+                     f"(눈금: 청산 시각·사유 기준, 2026-07-29 확정). 유령 추적 도입 후의 "
+                     f"기준선을 아직 쌓는 중이라 §11.1 기대치 11.9%(봉 근사)와 직접 비교하지 않습니다.")
         hw = cf_health_warning(cf["n_all"], cf["n_div"])
         if hw:
             L.append(f"- {hw}")
@@ -247,6 +295,12 @@ def render_report(ctx: dict) -> str:
     if sc:
         L.append("오늘 이런 이유로 신호를 걸렀습니다: "
                  + ", ".join(f"{k} {v2}건" for k, v2 in sc.items()) + ".")
+        fc = ctx.get("fail_codes") or {}
+        if fc:
+            L.append("- 주문실패 오류코드별: "
+                     + ", ".join(f"{k} {v2}건" for k, v2
+                                 in sorted(fc.items(), key=lambda kv: -kv[1]))
+                     + " (거부가 진입을 얼마나 막는지 계측 — 유니버스는 손대지 않음)")
         for od in ctx.get("order_fails", []):
             L.append(f"  - 주문실패 상세: {od}")
         L.append("- ※ 이 신호들이 좋았는지 나빴는지는 아직 판정하지 않습니다. "
@@ -358,6 +412,7 @@ def main():
         "stats": build_stats(trades),
         "shadow_counts": shadow_reason_counts(shadow, day),
         "order_fails": order_fail_details(shadow, day),
+        "fail_codes": order_fail_code_counts(shadow, day),
         "be_cf": be_cf_summary(_load_jsonl(BE_CF), day),
         "ghosts_pending": len(state.get("ghosts", [])),
         "infra": {"estimated": est_left, "imminent": est_imminent,

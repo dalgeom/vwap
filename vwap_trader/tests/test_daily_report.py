@@ -1,5 +1,8 @@
 import sys, os
 from datetime import date
+
+import pytest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from daily_report import build_stats
 
@@ -177,6 +180,56 @@ def test_be_cf_summary_filters_v2_only():
     assert s["n_all"] == 2 and s["n_legacy"] == 1 and s["n_div"] == 1
 
 
+# ── backlog 07-24: 주문실패를 오류코드별로 집계 (거부가 진입을 얼마나 막는지) ──
+
+def _of(sym, code, day="2026-07-29"):
+    return {"shadow_reason": "order_failed", "symbol": sym,
+            "timestamp_utc": f"{day}T05:00:00+00:00",
+            "fail_detail": f"You must sign... (ErrCode: {code}) (ErrTime: 14:01:05)."}
+
+
+def test_order_fail_code_counts_groups_by_errcode():
+    from daily_report import order_fail_code_counts
+    shadow = [_of("SKHYNIXUSDT", 110126), _of("DRAMUSDT", 110126), _of("CLUSDT", 110125)]
+    assert order_fail_code_counts(shadow, date(2026, 7, 29)) == {"110126": 2, "110125": 1}
+
+
+def test_order_fail_code_counts_ignores_other_days_and_reasons():
+    from daily_report import order_fail_code_counts
+    shadow = [_of("A", 110126), _of("B", 110126, day="2026-07-28"),
+              {"shadow_reason": "low_vol_coin", "timestamp_utc": "2026-07-29T05:00:00+00:00"}]
+    assert order_fail_code_counts(shadow, date(2026, 7, 29)) == {"110126": 1}
+
+
+def test_order_fail_code_counts_handles_missing_code():
+    from daily_report import order_fail_code_counts
+    shadow = [{"shadow_reason": "order_failed", "symbol": "X",
+               "timestamp_utc": "2026-07-29T05:00:00+00:00", "fail_detail": "타임아웃"}]
+    assert order_fail_code_counts(shadow, date(2026, 7, 29)) == {"(코드없음)": 1}
+
+
+# ── backlog 07-25·07-27: 최고 미실현 대비 얼마를 반납하고 끝났는지 ──
+
+def test_mfe_giveback_is_peak_minus_final():
+    from daily_report import mfe_giveback
+    # 정점 +21.20%에서 +4.96%로 끝 → 16.24%p 반납
+    assert mfe_giveback({"max_favorable_excursion": 21.2017,
+                         "pnl_pct": 4.96}) == pytest.approx(16.2417, abs=1e-4)
+
+
+def test_mfe_giveback_counts_loss_side_too():
+    from daily_report import mfe_giveback
+    # 정점 +0.45%였다가 −10.81% 손절 → 11.26%p 반납
+    assert mfe_giveback({"max_favorable_excursion": 0.4532,
+                         "pnl_pct": -10.8105}) == pytest.approx(11.2637, abs=1e-4)
+
+
+def test_mfe_giveback_none_when_field_missing():
+    from daily_report import mfe_giveback
+    assert mfe_giveback({"pnl_pct": 1.0}) is None
+    assert mfe_giveback({"max_favorable_excursion": 1.0}) is None
+
+
 # ── §11.1 분기/동률 눈금 (2026-07-29 확정): 타임스탬프·사유 기준, 손익 비교 아님 ──
 
 def _cfpair(**over):
@@ -282,6 +335,33 @@ def test_render_estimated_permanent_note():
     }
     md = render_report(ctx)
     assert "영구 정정 불가" in md
+
+
+def test_render_shows_giveback_faildcodes_and_divrate():
+    # backlog 07-24 / 07-25·07-27 표시 + §11.1 분기율 표기가 리포트에 실제로 나오는지
+    ctx = {
+        "day": date(2026, 7, 29), "equity": 31789.12, "bar": 1593, "hb_age_min": 0.4,
+        "positions": [],
+        "todays": [
+            {"symbol": "BTWUSDT", "side": "long", "exit_reason": "TrailSL",
+             "pnl_usd": 45.6, "pnl_pct": 4.96, "max_favorable_excursion": 21.2017},
+            {"symbol": "WLDUSDT", "side": "short", "exit_reason": "SL",
+             "pnl_usd": -20.0, "pnl_pct": -1.6644, "max_favorable_excursion": 0.5326},
+        ],
+        "stats": build_stats([]),
+        "shadow_counts": {"order_failed": 3},
+        "fail_codes": {"110126": 2, "110125": 1},
+        "be_cf": {"n_today": 0, "n_all": 39, "n_div": 14, "n_legacy": 1, "last_ms": 0,
+                  "a_today": 0.0, "b_today": 0.0, "a_all": 0.0, "b_all": 0.0,
+                  "a_ex": 0.0, "b_ex": 0.0},
+        "infra": {"estimated": 0, "imminent": 0, "lost": 0, "cooldowns": [], "corrections": 0},
+        "warnings": [], "ghosts_pending": 0,
+    }
+    md = render_report(ctx)
+    assert "반납 16.24%p" in md          # 정점 21.20 → 종료 4.96
+    assert "사유별 평균 반납" in md
+    assert "110126 2건" in md            # 오류코드별 집계, 많은 순
+    assert "분기율 36%" in md            # 14/39
 
 
 def test_render_cf_health_and_ghosts():
