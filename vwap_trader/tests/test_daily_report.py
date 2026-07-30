@@ -28,10 +28,12 @@ def test_build_stats_empty():
 
 
 def test_build_stats_version_split():
+    # v11: 구간 키는 "v10" 고정에서 "cur"(현행 버전 자동판별)로 바뀜
     trades = [_tr(100, "v10"), _tr(-30, "v7"), _tr(50, "v10")]
-    out = build_stats(trades)
+    out = build_stats(trades, version="v10")
     assert out["all"]["n"] == 3
-    assert out["v10"]["n"] == 2 and abs(out["v10"]["total"] - 150.0) < 1e-9
+    assert out["cur"]["n"] == 2 and abs(out["cur"]["total"] - 150.0) < 1e-9
+    assert out["cur_version"] == "v10"
 
 
 def test_build_stats_pf_infinite_when_no_losses():

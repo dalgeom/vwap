@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pytest
 
 from app.api import JsApi, _safe
+from app.version import BOT_VERSION
 
 
 @pytest.fixture
@@ -31,7 +32,7 @@ def test_get_status_offline(api):
     assert s["bot"] == "stopped"
     assert s["demo"] is True
     assert s["log_tail"] == []
-    assert s["bot_version"] == "v10"
+    assert s["bot_version"] == BOT_VERSION   # 버전 리터럴 고정 금지 (v11에서 깨졌던 지점)
 
 
 def test_get_settings_masks(api):

@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 from pybit.unified_trading import HTTP
 
 from vwap_trader.strategy.momentum import MomentumStrategy, MomentumSignal
-from vwap_trader.core.position_sizer import compute_position_size
+from vwap_trader.core.position_sizer import MIN_NOTIONAL, compute_position_size
 from vwap_trader.models import PositionSizeResult
 from vwap_trader import notifier as _notifier_mod
 from .integrity import backup_trades, count_lines, check_integrity
@@ -81,6 +81,39 @@ ROOT = Path(_ENV_ROOT).resolve() if _ENV_ROOT else Path(__file__).resolve().pare
 DATA_DIR = ROOT / "data"
 CONFIG_PATH = ROOT / "config" / "momentum_config.yaml"
 ENV_PATH = ROOT / "config" / ".env"
+
+# 거래로직 버전 — trades 로그의 "bot_version" 단일 출처.
+# ★ app/version.py 의 BOT_VERSION 과 반드시 일치 (tests/test_v11_sizing.py 가 강제).
+BOT_VERSION = "v11"
+
+SIZING_MODES = ("atr", "fixed", "equity_pct")
+
+
+def validate_risk_cfg(cfg: dict) -> None:
+    """사이징 설정 검증 — 잘못된 설정으로 조용히 다른 전략을 돌리는 사고를 막는다(v11).
+
+    거래 중 무음 폴백(예: position_pct 누락 → ATR 모드로 진입) 대신 시작 시점에
+    즉시 ValueError 로 실패시킨다. bool 은 int 하위형이라 명시적으로 배제한다
+    (`position_pct: true` → 1.0 = 자산 100% 베팅 사고 방지).
+    """
+    risk = cfg.get("risk") or {}
+    mode = risk.get("sizing_mode")
+    if mode not in SIZING_MODES:
+        raise ValueError(
+            f"risk.sizing_mode 가 잘못됐습니다: {mode!r} (허용: {' | '.join(SIZING_MODES)})")
+
+    def _num(key, upper):
+        v = risk.get(key)
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not (0 < v <= upper):
+            raise ValueError(
+                f"risk.{key} 가 필요합니다 (0 초과 {upper} 이하의 숫자): {v!r}")
+
+    if mode == "equity_pct":
+        _num("position_pct", 1.0)
+    elif mode == "fixed":
+        _num("fixed_notional_usd", 1_000_000.0)
+    else:
+        _num("risk_pct", 1.0)
 
 
 # ── Open Position ────────────────────────────────────────
@@ -177,6 +210,7 @@ class MomentumBot:
     def __init__(self):
         load_dotenv(ENV_PATH)
         self.cfg = self._load_config()
+        validate_risk_cfg(self.cfg)   # v11: 사이징 설정 오류는 진입 전에 즉시 실패
         self.dry_run = os.environ.get("DRY_RUN", "").lower() == "true"
 
         api_key = os.environ.get("BYBIT_API_KEY", "")
@@ -300,7 +334,7 @@ class MomentumBot:
             )
 
         new_notional = new_qty * entry_price
-        if new_notional < 50.0:  # MIN_NOTIONAL
+        if new_notional < MIN_NOTIONAL:
             return PositionSizeResult(
                 qty=0, notional=0, effective_leverage=0,
                 leverage_setting=size.leverage_setting,
@@ -811,7 +845,7 @@ class MomentumBot:
         mae_pct = (pos.mae / pos.entry_price * 100) if pos.entry_price > 0 else 0.0
 
         record = {
-            "bot_version": "v10",
+            "bot_version": BOT_VERSION,
             "trade_id": pos.trade_id,
             "timestamp_utc": pos.entry_time,
             "exit_timestamp_utc": now.isoformat(),
@@ -1594,7 +1628,7 @@ class MomentumBot:
         sig_ctx = self._compute_signal_context(signal.symbol, signal.direction)
         now = datetime.now(timezone.utc)
         record = {
-            "bot_version": "v10",
+            "bot_version": BOT_VERSION,
             "timestamp_utc": now.isoformat(),
             "symbol": signal.symbol,
             "side": direction_str,
@@ -1771,8 +1805,12 @@ class MomentumBot:
                 signal.close_price, signal.direction, signal.atr)
             lot_size = self._get_lot_size(symbol)
             risk_cfg = self.cfg["risk"]
+            mode = risk_cfg.get("sizing_mode")
             fixed_notional = (risk_cfg.get("fixed_notional_usd")
-                              if risk_cfg.get("sizing_mode") == "fixed" else None)
+                              if mode == "fixed" else None)
+            # v11: 자산비례. validate_risk_cfg 가 시작 시점에 존재·범위를 보장한다.
+            equity_pct = (risk_cfg.get("position_pct")
+                          if mode == "equity_pct" else None)
             size = compute_position_size(
                 balance=balance,
                 entry_price=signal.close_price,
@@ -1780,6 +1818,7 @@ class MomentumBot:
                 lot_size=lot_size,
                 risk_pct=risk_cfg["risk_pct"],
                 fixed_notional=fixed_notional,
+                equity_pct=equity_pct,
             )
             if not size.valid:
                 shadow_list.append((signal, direction_str, "size_invalid"))

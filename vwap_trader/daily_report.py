@@ -34,10 +34,32 @@ def _agg(rows: list) -> dict:
             "total": total, "ev": total / n, "pf": pf}
 
 
-def build_stats(trades: list) -> dict:
-    """전체 및 v10 구간 통계. trades는 load_canonical() 정본 리스트."""
+def latest_bot_version(trades: list) -> str:
+    """정본에서 가장 최근 청산 거래의 bot_version. 없으면 빈 문자열.
+
+    v11: 구간 통계 라벨을 "v10" 하드코딩에서 자동 판별로 바꾼다 — 버전이 올라갈 때마다
+    리포트를 고쳐야 하는 결함 제거. 타임스탬프는 전부 ISO+00:00 이라 문자열 비교로 충분.
+    """
+    best_ts, best_ver = "", ""
+    for r in trades:
+        ver = r.get("bot_version") or ""
+        if not ver:
+            continue
+        ts = r.get("exit_timestamp_utc") or r.get("timestamp_utc") or ""
+        if ts >= best_ts:
+            best_ts, best_ver = ts, ver
+    return best_ver
+
+
+def build_stats(trades: list, version: str | None = None) -> dict:
+    """전체 및 현행 버전 구간 통계. trades는 load_canonical() 정본 리스트.
+
+    version 미지정 시 정본 최신 거래의 bot_version 으로 자동 판별한다.
+    """
+    ver = version if version is not None else latest_bot_version(trades)
     return {"all": _agg(trades),
-            "v10": _agg([r for r in trades if r.get("bot_version") == "v10"])}
+            "cur": _agg([r for r in trades if r.get("bot_version") == ver]),
+            "cur_version": ver}
 
 
 def todays_closes(trades: list, day: date) -> list:
@@ -309,11 +331,12 @@ def render_report(ctx: dict) -> str:
         L.append("오늘은 걸러낸 신호가 없습니다.")
     L.append("")
 
-    a, v = ctx["stats"]["all"], ctx["stats"]["v10"]
+    a, v = ctx["stats"]["all"], ctx["stats"]["cur"]
+    ver = ctx["stats"].get("cur_version") or "현행"
     L.append("## 누적 성적")
     L.append(f"- 전체 {a['n']}건 | 승률 {a['wr']:.1f}% | EV ${a['ev']:+.2f} "
              f"| PF {_fmt_pf(a['pf'])} | 누적 ${a['total']:+.2f}")
-    L.append(f"- v10 {v['n']}건 | 승률 {v['wr']:.1f}% | EV ${v['ev']:+.2f} "
+    L.append(f"- {ver} {v['n']}건 | 승률 {v['wr']:.1f}% | EV ${v['ev']:+.2f} "
              f"| PF {_fmt_pf(v['pf'])} | 누적 ${v['total']:+.2f}")
     L.append("- ※ 누적/통계는 정본 기준(A-1 load_canonical). 자산 지표는 위 현재 자산.")
     L.append("")
