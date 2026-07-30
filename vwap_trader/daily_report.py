@@ -19,6 +19,11 @@ REPORTS = ROOT / "reports"
 BE_CF = ROOT / "data" / "be_counterfactual.jsonl"
 KST = timezone(timedelta(hours=9))
 
+# v11 표시 경계 — 자산비례 사이징 전환 + 데모 자산 695 USDT 재설정 시각(§10 2026-07-30).
+# 화면(앱 3탭)과 리포트 본문을 이 시점부터 새로 시작한다. 이전 322건(v5.1~v10)은
+# 정본 jsonl에 그대로 남아 분석·백테스트에 계속 쓰인다 — 감추는 것이지 지우는 게 아니다.
+DISPLAY_SINCE = datetime(2026, 7, 30, 14, 33, tzinfo=KST)
+
 
 def _agg(rows: list) -> dict:
     n = len(rows)
@@ -49,6 +54,25 @@ def latest_bot_version(trades: list) -> str:
         if ts >= best_ts:
             best_ts, best_ver = ts, ver
     return best_ver
+
+
+def _visible_close(trade: dict) -> bool:
+    """v11 표시 경계(DISPLAY_SINCE) 이후 청산인가. 시각이 없거나 깨졌으면 감춘다(옛 기록 간주)."""
+    ts = trade.get("exit_timestamp_utc") or trade.get("timestamp_utc")
+    if not ts:
+        return False
+    try:
+        dt = datetime.fromisoformat(ts)
+    except (ValueError, TypeError):
+        return False
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)   # 옛 naive 기록은 UTC 간주
+    return dt >= DISPLAY_SINCE
+
+
+def visible_trades(trades: list) -> list:
+    """v11 표시 경계 이후 청산만 — 화면·리포트 공용. 정본 리스트 자체는 건드리지 않는다."""
+    return [t for t in trades if _visible_close(t)]
 
 
 def build_stats(trades: list, version: str | None = None) -> dict:
@@ -283,6 +307,10 @@ def render_report(ctx: dict) -> str:
                      + " — 관찰 기록일 뿐, 청산 규칙은 동결 상태입니다.")
     else:
         L.append("오늘은 청산한 거래가 없습니다.")
+    ex = ctx.get("todays_excluded", 0)
+    if ex:
+        L.append(f"- ※ v11 전환({DISPLAY_SINCE:%m-%d %H:%M} KST) 이전 청산 {ex}건은 "
+                 "이 리포트에서 제외했습니다 — 정본에는 그대로 있습니다.")
     L.append("")
 
     L.append("## 계측기 — 빠른잠금 A/B 반사실 (생존 카운터)")
@@ -331,14 +359,14 @@ def render_report(ctx: dict) -> str:
         L.append("오늘은 걸러낸 신호가 없습니다.")
     L.append("")
 
-    a, v = ctx["stats"]["all"], ctx["stats"]["cur"]
+    v = ctx["stats"]["cur"]
     ver = ctx["stats"].get("cur_version") or "현행"
     L.append("## 누적 성적")
-    L.append(f"- 전체 {a['n']}건 | 승률 {a['wr']:.1f}% | EV ${a['ev']:+.2f} "
-             f"| PF {_fmt_pf(a['pf'])} | 누적 ${a['total']:+.2f}")
     L.append(f"- {ver} {v['n']}건 | 승률 {v['wr']:.1f}% | EV ${v['ev']:+.2f} "
              f"| PF {_fmt_pf(v['pf'])} | 누적 ${v['total']:+.2f}")
-    L.append("- ※ 누적/통계는 정본 기준(A-1 load_canonical). 자산 지표는 위 현재 자산.")
+    L.append("- ※ 정본 기준(A-1 load_canonical), **현행 버전 구간만** 집계합니다. "
+             "이전 버전 거래는 정본에 보존되어 있고 화면·리포트에서만 감춥니다. "
+             "자산 지표는 위 현재 자산.")
     L.append("")
 
     inf = ctx["infra"]
@@ -421,6 +449,10 @@ def main():
         elif age_days >= 5:  # days_left <= 2, fix_estimated와 동일 기준
             est_imminent += 1
 
+    # v11 표시 경계 — 전환 이전 청산은 리포트에서 감춘다(정본은 무손상, 제외 건수는 본문에 남김)
+    todays_all = todays_closes(trades, day)
+    visible_closes = visible_trades(todays_all)
+
     hb_age = _heartbeat_age_min(now)
     warnings = []
     if hb_age is not None and hb_age > 10:
@@ -431,8 +463,9 @@ def main():
     ctx = {
         "day": day, "equity": equity, "bar": state.get("bar_counter", 0),
         "hb_age_min": hb_age, "positions": positions,
-        "todays": todays_closes(trades, day),
-        "stats": build_stats(trades),
+        "todays": visible_closes,
+        "todays_excluded": len(todays_all) - len(visible_closes),
+        "stats": build_stats(visible_trades(trades)),   # 누적도 v11부터 새로 — 새 출발
         "shadow_counts": shadow_reason_counts(shadow, day),
         "order_fails": order_fail_details(shadow, day),
         "fail_codes": order_fail_code_counts(shadow, day),

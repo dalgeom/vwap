@@ -23,6 +23,12 @@ def load_trades(project_root: Path) -> list:
         corrections=corr)
 
 
+def visible_trades(trades: list) -> list:
+    """v11 표시 경계 이후 청산만 — 화면용. 정본(load_trades)은 전량 그대로 둔다."""
+    from daily_report import visible_trades as _filter   # 리포트와 같은 경계를 쓴다(DRY)
+    return _filter(trades)
+
+
 def trade_r(t: dict) -> float:
     """손절 각오액 대비 몇 배 벌었나. 리스크 산출 불가(결손)면 0.0 — 잭팟 오인 방지."""
     from daily_report import risk_usd
@@ -79,6 +85,13 @@ def list_reports(project_root: Path) -> list[str]:
         return []
     days = [f.stem for f in rd.glob("*.md") if _REPORT_DAY_RE.match(f.stem)]
     return sorted(days, reverse=True)
+
+
+def visible_reports(project_root: Path) -> list[str]:
+    """v11 표시 경계 날짜부터 — 화면용. 백필·연구는 list_reports(전체)를 계속 쓴다."""
+    from daily_report import DISPLAY_SINCE
+    cut = DISPLAY_SINCE.astimezone(KST).date().isoformat()
+    return [d for d in list_reports(project_root) if d >= cut]
 
 
 def read_report(project_root: Path, day: str) -> str | None:
@@ -148,3 +161,16 @@ def equity_series(project_root: Path) -> list[dict]:
         return backfill
     first_live = live[0]["ts"]
     return [p for p in backfill if p["ts"] < first_live] + live
+
+
+def visible_equity_series(project_root: Path) -> list[dict]:
+    """v11 표시 경계 이후 구간만 — 감액(31,632→695)이 만든 절벽을 곡선에서 걷어낸다."""
+    from daily_report import DISPLAY_SINCE
+    out = []
+    for p in equity_series(project_root):
+        ts = datetime.fromisoformat(p["ts"])
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        if ts >= DISPLAY_SINCE:
+            out.append(p)
+    return out

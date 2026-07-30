@@ -102,7 +102,7 @@ class JsApi:
                 self._invalidate_client()   # 다음 호출에서 재생성 → 오프셋 재측정(자가 회복)
                 raise
             return {"equity": eq, "positions": pos,
-                    "history": data_access.equity_series(self.root)}
+                    "history": data_access.visible_equity_series(self.root)}
         return _safe(go)
 
     # ── 거래기록 ──
@@ -115,13 +115,14 @@ class JsApi:
                 return {"summary": {"n": 0, "total": 0.0, "win_rate": 0.0,
                                     "ev": 0.0, "jackpots": 0},
                         "rows": [], "empty": True}
-            return {"summary": data_access.summarize(trades),
-                    "rows": data_access.trades_for_ui(trades)}
+            shown = data_access.visible_trades(trades)   # v11 표시 경계 — 정본은 전량 보존
+            return {"summary": data_access.summarize(shown),
+                    "rows": data_access.trades_for_ui(shown)}
         return _safe(go)
 
     # ── 리포트 ──
     def get_reports(self) -> dict:
-        return _safe(lambda: {"days": data_access.list_reports(self.root)})
+        return _safe(lambda: {"days": data_access.visible_reports(self.root)})
 
     def get_report(self, day: str) -> dict:
         return _safe(lambda: {"md": data_access.read_report(self.root, day) or "(리포트 없음)"})
