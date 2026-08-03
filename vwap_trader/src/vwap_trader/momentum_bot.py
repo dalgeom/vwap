@@ -402,31 +402,31 @@ class MomentumBot:
         try:
             if cached:
                 # Only fetch bars newer than our latest cached bar
+                # 마지막 캐시 봉은 저장 당시 진행 중이었을 수 있다(스캔은 매시 정각 직후).
+                # +1 하면 그 봉을 두 번 다시 못 받아 좁은 high/low로 박제되고 ATR이
+                # 과소계산된다 → 손절선이 설계보다 가까워짐. latest_ts 부터 다시 받는다.
                 latest_ts = cached[-1][0]
                 resp = self.public_session.get_kline(
                     category="linear", symbol=symbol,
                     interval=interval, limit=200,
-                    start=latest_ts + 1,
+                    start=latest_ts,
                 )
                 if resp.get("retCode") != 0:
                     logger.warning("Candle fetch failed %s: %s", symbol, resp.get("retMsg"))
                     return None
 
-                new_bars = []
-                existing_ts = {c[0] for c in cached}
+                # 같은 ts는 덮어쓴다 — 진행 중이던 봉이 완성본으로 갱신되도록.
+                by_ts = {c[0]: c for c in cached}
                 for r in resp["result"]["list"]:
                     ts = int(r[0])
-                    if ts not in existing_ts:
-                        new_bars.append((ts, float(r[1]), float(r[2]),
-                                         float(r[3]), float(r[4]), float(r[5])))
+                    by_ts[ts] = (ts, float(r[1]), float(r[2]),
+                                 float(r[3]), float(r[4]), float(r[5]))
 
-                if new_bars:
-                    cached.extend(new_bars)
-                    cached.sort(key=lambda x: x[0])
-                    # Trim to keep only what we need + buffer
-                    if len(cached) > needed + 200:
-                        cached = cached[-(needed + 100):]
-                    self._candle_cache[symbol] = cached
+                cached = sorted(by_ts.values(), key=lambda x: x[0])
+                # Trim to keep only what we need + buffer
+                if len(cached) > needed + 200:
+                    cached = cached[-(needed + 100):]
+                self._candle_cache[symbol] = cached
             else:
                 # First fetch: get full history
                 all_candles = []
