@@ -12,6 +12,8 @@ a = Analysis(
         # report_runner가 런타임 import하는 최상위 스크립트들
         "daily_report", "build_canonical", "corrections",
         "fix_estimated", "xcrowd_snapshot",
+        # daily_report가 지연 import하는 보드 모듈 (정적 분석이 놓친다)
+        "app.hypotheses", "app.metrics", "app.journal",
         # 거래소
         "pybit.unified_trading",
     ],

@@ -246,6 +246,35 @@ def be_cf_summary(rows: list, day: date) -> dict:
             "a_ex": a_ex, "b_ex": b_ex}
 
 
+def _board_context(project_root, day: str | None = None) -> dict:
+    """계기판 경보 + 가설보드 상태를 리포트 ctx 용으로 모은다.
+
+    계기판은 report_runner가 리포트 생성 '전에' 적재해 둔 오늘치를 읽는다.
+    app 패키지를 못 불러오거나(구버전 exe 등) 파일이 없으면 조용히 빈 값 —
+    이 섹션 때문에 사실 리포트가 죽으면 안 된다."""
+    empty = {"alerts": [], "pending_decisions": [], "observing": []}
+    try:
+        from app.hypotheses import load_hypotheses
+        from app.metrics import check_alerts, read_metrics
+    except Exception:
+        return empty
+    out = dict(empty)
+    try:
+        hist = read_metrics(project_root, days=30)
+        today = next((m for m in reversed(hist) if not day or m.get("day") == day), None)
+        if today is not None:
+            out["alerts"] = check_alerts(today, [m for m in hist if m is not today])
+    except Exception:
+        pass
+    try:
+        hs = load_hypotheses(project_root)
+        out["pending_decisions"] = [h for h in hs if h["status"] == "검증통과"]
+        out["observing"] = [h for h in hs if h["status"] == "관측중"]
+    except Exception:
+        pass
+    return out
+
+
 def render_report(ctx: dict) -> str:
     day = ctx["day"]
     eq = ctx["equity"]
@@ -260,6 +289,37 @@ def render_report(ctx: dict) -> str:
     for w in ctx["warnings"]:
         L.append(f"- {w}")
     L.append("")
+
+    # ── 사장님 결정 (평소에는 '없습니다'가 정상 — 매일 결정하라고 하면 backlog처럼 죽는다)
+    L.append("## 오늘 사장님 결정이 필요한 것")
+    pend = ctx.get("pending_decisions") or []
+    if not pend:
+        L.append("없습니다.")
+    for h in pend:
+        L.append(f"**{h['id']} 검증 완료 — 채택할까요?**")
+        L.append(f"- 내용: {h.get('title', '')}")
+        L.append(f"- 근거: {h.get('basis', '')}")
+        L.append(f"- 검증: {h.get('verify', '')}")
+        L.append(f"- 결과: {h.get('reason', '')}")
+        L.append(f"- → \"{h['id']} 채택\" 또는 \"{h['id']} 기각\" 이라고 알려주시면 됩니다.")
+    L.append("")
+
+    alerts = ctx.get("alerts") or []
+    if alerts:
+        L.append("## 계기판 경보")
+        for a in alerts:
+            L.append(f"- {a.get('message', a.get('key'))}")
+        L.append("- ※ 봇이 설계대로 도는지 보는 지표입니다. 시장 예측이 아닙니다.")
+        L.append("")
+
+    obs = ctx.get("observing") or []
+    if obs:
+        L.append("## 관측 중인 가설")
+        for h in obs:
+            prog = h.get("progress") or []
+            last = prog[-1]["note"] if prog else "아직 경과 없음"
+            L.append(f"- **{h['id']}** {h.get('title', '')} — {len(prog)}일 관측 | 최근: {last}")
+        L.append("")
 
     L.append("## 지금 들고 있는 포지션")
     if ctx["positions"]:
@@ -378,8 +438,9 @@ def render_report(ctx: dict) -> str:
                  "거래소 대조 제안은 무의미합니다.")
     L.append("")
 
-    L.append("## 오늘의 자아성찰")
-    L.append("_오늘의 자아성찰은 매일 AI가 직접 작성합니다 (Claude Code CLI 로그인 후 자동 활성)._")
+    L.append("## 오늘의 복기")
+    L.append(f"_거래 건별 복기는 `reports/journal/{day.isoformat()}.md` 에 따로 씁니다 "
+             "(매매일지 — 어제 일지와 대조해 반복 패턴을 찾습니다)._")
     L.append("")
     return "\n".join(L)
 
@@ -466,6 +527,7 @@ def main():
         "todays": visible_closes,
         "todays_excluded": len(todays_all) - len(visible_closes),
         "stats": build_stats(visible_trades(trades)),   # 누적도 v11부터 새로 — 새 출발
+        **_board_context(ROOT, day.isoformat()),        # 경보·결정 필요·관측 중
         "shadow_counts": shadow_reason_counts(shadow, day),
         "order_fails": order_fail_details(shadow, day),
         "fail_codes": order_fail_code_counts(shadow, day),
