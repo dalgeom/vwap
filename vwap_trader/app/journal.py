@@ -15,6 +15,7 @@
 """
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -52,9 +53,22 @@ _TASK = """너는 이 자동매매 봇의 트레이딩 일지를 쓴다. 오늘 
 
 [출력 형식]
 마크다운. 맨 위에 '## 오늘의 복기', 건별 소제목, 마지막에 '## 오늘 배운 것' 2~4줄.
-처방이 떠오르면 '제안:'으로 시작하는 줄에 쓰되, 반드시 검증 방법을 함께 적어라.
-검증할 수 없는 제안은 쓰지 마라 — 판정 못 하는 제안은 쌓이기만 하고 죽는다.
-파일을 수정하지 마라. 너에게는 읽기 권한만 있다. 결과는 표준출력으로만 낸다."""
+파일을 수정하지 마라. 너에게는 읽기 권한만 있다. 결과는 표준출력으로만 낸다.
+
+[보드 지시 블록 — 맨 마지막에 반드시 붙여라]
+너는 보드 파일을 직접 못 고친다. 아래 양식으로 남기면 래퍼가 대신 반영한다.
+바꿀 게 없으면 빈 블록으로 둬라. 양식이 틀린 줄은 버려진다.
+
+<!--BOARD
+JUDGE | H-02 | 기각 | 사유를 한 줄로
+REGISTER | 처방 제목 | 근거 | 검증 조건(반드시)
+PATTERN | 키 | 오늘 관찰한 내용
+-->
+
+- JUDGE 상태값은 관측중 / 검증통과 / 검증실패 / 기각 / 채택 중 하나.
+  '채택'은 쓰지 마라 — 채택은 사장님만 결정한다. 너는 검증통과까지만 올린다.
+- REGISTER는 검증 조건이 없으면 등록되지 않는다. 판정 못 하는 제안은 쌓이기만 하고 죽는다.
+- PATTERN은 서로 다른 날 2회 이상 쌓여야 확정된다. 오늘 본 것만 적어라."""
 
 
 def build_journal_prompt(day, report_md, metrics, recent_journals,
@@ -83,6 +97,41 @@ def build_journal_prompt(day, report_md, metrics, recent_journals,
 === 가설보드 ===
 {hypotheses or "(없음)"}
 """
+
+
+_BLOCK = re.compile(r"<!--BOARD\s*(.*?)-->", re.S)
+
+
+def parse_board_block(text: str) -> list[dict]:
+    """일지 끝의 지시 블록을 파싱한다.
+
+    일지는 읽기 전용이라 보드를 직접 못 고친다(안전 계약). 대신 정해진 양식으로
+    지시를 남기면 파이썬 래퍼가 대신 반영한다. 양식에 안 맞는 줄은 버린다 —
+    특히 검증 조건 없는 REGISTER는 여기서 걸러 보드까지 가지 않는다.
+
+        JUDGE    | H-02 | 기각 | 사유
+        REGISTER | 제목 | 근거 | 검증조건
+        PATTERN  | key  | 관찰
+    """
+    from app.hypotheses import STATUSES
+    m = _BLOCK.search(text or "")
+    if not m:
+        return []
+    out = []
+    for line in m.group(1).splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 3:
+            continue
+        kind = parts[0].upper()
+        if kind == "JUDGE" and len(parts) >= 4 and parts[2] in STATUSES:
+            out.append({"kind": "judge", "id": parts[1],
+                        "status": parts[2], "reason": parts[3]})
+        elif kind == "REGISTER" and len(parts) >= 4 and parts[3]:
+            out.append({"kind": "register", "title": parts[1],
+                        "basis": parts[2], "verify": parts[3]})
+        elif kind == "PATTERN":
+            out.append({"kind": "pattern", "key": parts[1], "note": parts[2]})
+    return out
 
 
 def read_recent_journals(project_root: Path, day: str, n: int = 3) -> list[str]:

@@ -206,6 +206,14 @@ def generate_report(project_root: Path, day: date) -> Path | None:
         out = journal.run_journal(root, day.isoformat(), find_claude_cmd(),
                                   metrics=read_metrics(root, days=30))
         _log_line(root, f"일지 {'생성' if out else '미생성'}: {day.isoformat()}")
+        if out:
+            # 일지는 읽기 전용이라 보드를 못 고친다 — 지시 블록을 여기서 반영한다
+            # (2026-08-05 수리: 08-04 일지의 H-02 기각 판정이 보드에 안 남았다)
+            from app.hypotheses import apply_directives
+            d = journal.parse_board_block(out.read_text(encoding="utf-8"))
+            if d:
+                res = apply_directives(root, d, day.isoformat())
+                _log_line(root, f"보드 반영: {res}")
     except Exception as e:
         _log_line(root, f"일지 실패(리포트는 진행): {type(e).__name__}: {e}")
 

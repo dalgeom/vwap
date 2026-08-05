@@ -156,6 +156,33 @@ def set_status(project_root: Path, hid: str, status: str, reason: str) -> None:
     _save(project_root, hs)
 
 
+def apply_directives(project_root: Path, directives: list[dict], day: str) -> dict:
+    """일지가 남긴 지시를 보드에 반영한다. 쓰기 권한은 여기(래퍼)에만 있다.
+
+    2026-08-05 수리: 08-04 일지가 H-02를 기각 판정했는데 보드는 '관측중'으로
+    남아 있었다 — 일지 텍스트와 보드가 따로 놀면 backlog와 같은 운명이 된다.
+    """
+    out = {"judged": [], "registered": [], "patterns": []}
+    for d in directives:
+        kind = d.get("kind")
+        if kind == "judge":
+            if any(h["id"] == d["id"] for h in load_hypotheses(project_root)):
+                set_status(project_root, d["id"], d["status"], d.get("reason", ""))
+                out["judged"].append(d["id"])
+        elif kind == "register":
+            titles = {h["title"] for h in load_hypotheses(project_root)}
+            if d["title"] in titles:      # 같은 제목이 이틀 연속 나와도 한 번만
+                continue
+            try:
+                out["registered"].append(register_hypothesis(project_root, d))
+            except ValueError:
+                continue                  # 검증 조건 없는 제안은 등록하지 않는다
+        elif kind == "pattern":
+            upsert_pattern(project_root, d["key"], d.get("note", ""), day)
+            out["patterns"].append(d["key"])
+    return out
+
+
 def pending_decisions(project_root: Path) -> list[dict]:
     """검증이 끝나 사장님 결정을 기다리는 가설."""
     return [h for h in load_hypotheses(project_root) if h["status"] == DECISION_STATUS]
