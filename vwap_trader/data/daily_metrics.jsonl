@@ -1,0 +1,2 @@
+{"day": "2026-08-03", "atr_accuracy": 0.5278, "position_match": true, "bar_gap": 0, "slippage_median_pct": 0.3278, "slippage_worst_pct": 0.3278, "order_fail_rate": 0.0, "sl_rate": 0.5, "n_entries": 2, "n_blocked": 0, "alerts": ["atr_accuracy"], "bar_counter": 1703}
+{"day": "2026-08-04", "atr_accuracy": null, "position_match": true, "bar_gap": 37, "slippage_median_pct": 0.0, "slippage_worst_pct": 0.0, "order_fail_rate": 0.0, "sl_rate": 0.0, "n_entries": 0, "n_blocked": 0, "alerts": ["bar_gap"], "bar_counter": 1714}
