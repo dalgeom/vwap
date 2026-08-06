@@ -18,6 +18,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from datetime import date
+
 from app import journal
 
 
@@ -226,3 +228,35 @@ def test_generate_report_survives_metrics_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(rr, "_collect_metrics",
                         lambda root, day: (_ for _ in ()).throw(RuntimeError("api down")))
     assert rr.generate_report(tmp_path, date(2026, 8, 2)) == rpt
+
+
+# ── 08-06 수리: bar_gap 기준일 ───────────────────────────
+def _state(tmp_path, bar):
+    (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "data" / "state_momentum.json").write_text(
+        f'{{"bar_counter": {bar}, "positions": []}}', encoding="utf-8")
+
+
+def test_bar_gap_uses_target_day_not_execution_day(tmp_path):
+    """리포트는 00:30에 '어제치'를 만든다. today를 쓰면 하루(24봉)가 더 얹힌다.
+
+    08-05 실측: bar 1714→1738 = 정확히 24 증가인데 gap이 24로 기록됐다
+    (실제 누락 0). 매일 +24씩 오염된다."""
+    from app.report_runner import _bar_gap
+    _state(tmp_path, 1738)
+    prev = [{"day": "2026-08-04", "bar_counter": 1714}]
+    assert _bar_gap(tmp_path, prev, date(2026, 8, 5)) == 0
+
+
+def test_bar_gap_detects_real_outage(tmp_path):
+    """08-04 실측: 키 만료로 13시간 정지 → 24-11=13 이 맞다."""
+    from app.report_runner import _bar_gap
+    _state(tmp_path, 1714)
+    prev = [{"day": "2026-08-03", "bar_counter": 1703}]
+    assert _bar_gap(tmp_path, prev, date(2026, 8, 4)) == 13
+
+
+def test_bar_gap_without_history(tmp_path):
+    from app.report_runner import _bar_gap
+    _state(tmp_path, 100)
+    assert _bar_gap(tmp_path, [], date(2026, 8, 5)) == 0

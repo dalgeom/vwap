@@ -87,17 +87,21 @@ def _median(xs: list[float]) -> float | None:
     return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
 
 
-def compute_metrics(*, day: str, trades: list, shadow: list, slippage: list,
-                    atr_ratios: list, position_match: bool, bar_gap: int,
-                    market: dict | None = None) -> dict:
+def compute_metrics(*, day: str, trades: list, entered: list, shadow: list,
+                    slippage: list, atr_ratios: list, position_match: bool,
+                    bar_gap: int, market: dict | None = None) -> dict:
     """하루치 지표 한 벌. 측정만 하고 판정은 check_alerts가 한다.
 
-    atr_ratios: 그날 진입 건별 (봇 atr_at_entry ÷ 같은 시점 재계산 ATR).
+    trades:     그날 '청산'된 거래 (승률·손절률의 모집단)
+    entered:    그날 '진입'한 거래 (신호 수·ATR 대조의 모집단)
+                ★ 2026-08-06 수리: 둘을 같은 인자로 받아 n_entries가 청산 수를,
+                  order_fail_rate가 청산을 신호로 세고 있었다(08-05 일지가 발견).
+    atr_ratios: 진입 건별 (봇 atr_at_entry ÷ 같은 시점 재계산 ATR).
                 진입이 없으면 빈 리스트 → atr_accuracy None(경보 대상 아님).
     market:     유니버스 전체 기준 시장 지표(경보 없음, 일지 재료).
     """
     sl = [s.get("slippage_pct") or 0.0 for s in slippage]
-    signals = len(trades) + len(shadow)
+    signals = len(entered) + len(shadow)
     fails = sum(1 for s in shadow if s.get("shadow_reason") == "order_failed")
     closed = [t for t in trades if t.get("exit_reason")]
     m = {
@@ -110,7 +114,8 @@ def compute_metrics(*, day: str, trades: list, shadow: list, slippage: list,
         "order_fail_rate": (fails / signals) if signals else 0.0,
         "sl_rate": (sum(1 for t in closed if t["exit_reason"] == "SL") / len(closed))
                    if closed else 0.0,
-        "n_entries": len(trades),
+        "n_entries": len(entered),
+        "n_closed": len(trades),
         "n_blocked": len(shadow),
         "alerts": [],
     }

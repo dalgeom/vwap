@@ -175,14 +175,14 @@ def _trade(day="2026-08-02", **kw):
 
 def test_compute_metrics_records_the_day():
     from app.metrics import compute_metrics
-    m = compute_metrics(day="2026-08-02", trades=[], shadow=[], slippage=[],
+    m = compute_metrics(day="2026-08-02", trades=[], entered=[], shadow=[], slippage=[],
                         atr_ratios=[], position_match=True, bar_gap=0)
     assert m["day"] == "2026-08-02"
 
 
 def test_compute_metrics_atr_accuracy_is_median_of_ratios():
     from app.metrics import compute_metrics
-    m = compute_metrics(day="2026-08-02", trades=[], shadow=[], slippage=[],
+    m = compute_metrics(day="2026-08-02", trades=[], entered=[], shadow=[], slippage=[],
                         atr_ratios=[0.6, 0.7, 0.8], position_match=True, bar_gap=0)
     assert m["atr_accuracy"] == 0.7
 
@@ -190,7 +190,7 @@ def test_compute_metrics_atr_accuracy_is_median_of_ratios():
 def test_compute_metrics_atr_accuracy_none_when_no_entries():
     """진입이 없는 날은 ATR을 잴 수 없다 — 경보도 울리지 않아야 한다."""
     from app.metrics import check_alerts, compute_metrics
-    m = compute_metrics(day="2026-08-02", trades=[], shadow=[], slippage=[],
+    m = compute_metrics(day="2026-08-02", trades=[], entered=[], shadow=[], slippage=[],
                         atr_ratios=[], position_match=True, bar_gap=0)
     assert m["atr_accuracy"] is None
     assert check_alerts(m, []) == []
@@ -198,7 +198,7 @@ def test_compute_metrics_atr_accuracy_none_when_no_entries():
 
 def test_compute_metrics_slippage_median_and_worst():
     from app.metrics import compute_metrics
-    m = compute_metrics(day="2026-08-02", trades=[], shadow=[],
+    m = compute_metrics(day="2026-08-02", trades=[], entered=[], shadow=[],
                         slippage=[{"slippage_pct": 0.1}, {"slippage_pct": 0.3},
                                   {"slippage_pct": 1.7}],
                         atr_ratios=[], position_match=True, bar_gap=0)
@@ -209,7 +209,7 @@ def test_compute_metrics_order_fail_rate_from_shadow():
     from app.metrics import compute_metrics
     shadow = [{"shadow_reason": "order_failed"}, {"shadow_reason": "order_failed"},
               {"shadow_reason": "low_vol_coin"}]
-    m = compute_metrics(day="2026-08-02", trades=[_trade()], shadow=shadow,
+    m = compute_metrics(day="2026-08-02", trades=[_trade()], entered=[_trade()], shadow=shadow,
                         slippage=[], atr_ratios=[], position_match=True, bar_gap=0)
     assert m["order_fail_rate"] == 0.5      # 실패 2 / 신호 4(진입1+차단3)
 
@@ -218,7 +218,7 @@ def test_compute_metrics_sl_rate_counts_only_stop_losses():
     from app.metrics import compute_metrics
     trades = [_trade(exit_reason="SL"), _trade(exit_reason="SL"),
               _trade(exit_reason="TrailSL"), _trade(exit_reason="BE")]
-    m = compute_metrics(day="2026-08-02", trades=trades, shadow=[], slippage=[],
+    m = compute_metrics(day="2026-08-02", trades=trades, entered=[], shadow=[], slippage=[],
                         atr_ratios=[], position_match=True, bar_gap=0)
     assert m["sl_rate"] == 0.5
 
@@ -226,7 +226,7 @@ def test_compute_metrics_sl_rate_counts_only_stop_losses():
 def test_compute_metrics_carries_alerts_field():
     """이력에 남는 alerts 키가 있어야 다음날 쿨다운 판정이 된다."""
     from app.metrics import compute_metrics
-    m = compute_metrics(day="2026-08-02", trades=[], shadow=[], slippage=[],
+    m = compute_metrics(day="2026-08-02", trades=[], entered=[], shadow=[], slippage=[],
                         atr_ratios=[], position_match=True, bar_gap=0)
     assert m["alerts"] == []
 
@@ -277,3 +277,31 @@ def test_atr_ratios_survives_fetch_failure():
     trades = [{"symbol": "XUSDT", "timestamp_utc": "2026-08-02T05:00:00+00:00",
                "atr_at_entry": 5.0}]
     assert atr_ratios_for_day(trades, boom) == []
+
+
+# ── 08-06 수리: 진입/청산 혼동 + bar_gap 기준일 ──────────
+def test_entries_and_closes_are_counted_separately():
+    """08-05 실측: 진입 0 / 청산 1 인데 n_entries=1 로 기록됐다.
+    지표를 읽는 사람과 일지가 '진입 1건인데 ATR이 왜 null?'로 오해한다."""
+    from app.metrics import compute_metrics
+    m = compute_metrics(day="2026-08-05", trades=[_trade()], entered=[],
+                        shadow=[], slippage=[], atr_ratios=[],
+                        position_match=True, bar_gap=0)
+    assert m["n_entries"] == 0 and m["n_closed"] == 1
+
+
+def test_order_fail_rate_uses_entries_not_closes():
+    """신호 수 = 진입 + 차단. 청산은 신호가 아니다."""
+    from app.metrics import compute_metrics
+    m = compute_metrics(day="2026-08-05", trades=[_trade(), _trade()], entered=[],
+                        shadow=[{"shadow_reason": "order_failed"},
+                                {"shadow_reason": "low_vol_coin"}],
+                        slippage=[], atr_ratios=[], position_match=True, bar_gap=0)
+    assert m["order_fail_rate"] == 0.5      # 실패 1 / 신호 2(진입0+차단2)
+
+
+def test_order_fail_rate_zero_when_no_signals():
+    from app.metrics import compute_metrics
+    m = compute_metrics(day="2026-08-05", trades=[_trade()], entered=[], shadow=[],
+                        slippage=[], atr_ratios=[], position_match=True, bar_gap=0)
+    assert m["order_fail_rate"] == 0.0

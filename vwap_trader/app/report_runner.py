@@ -126,8 +126,13 @@ def _position_match(root: Path) -> bool:
     return live == len(state.get("positions", []))
 
 
-def _bar_gap(root: Path, prev: list[dict]) -> int:
-    """어제 기록한 bar_counter 대비 증가량이 경과 시간과 맞는가."""
+def _bar_gap(root: Path, prev: list[dict], day: date) -> int:
+    """직전 기록 대비 bar_counter 증가량이 경과 시간과 맞는가.
+
+    ★ 2026-08-06 수리: date.today()를 쓰고 있었다. 리포트는 00:30에 '어제치'를
+      만들므로 today는 대상일보다 항상 하루 앞이고, 매일 24봉이 덧씌워졌다
+      (08-05 실측 기록 24 / 실제 0). 08-05 일지가 발견.
+    """
     if not prev:
         return 0
     last = prev[-1]
@@ -137,8 +142,8 @@ def _bar_gap(root: Path, prev: list[dict]) -> int:
     state = json.loads((root / "data" / "state_momentum.json").read_text(encoding="utf-8"))
     now_bar = state.get("bar_counter", 0)
     try:
-        days = (date.today() - date.fromisoformat(last["day"])).days
-    except (KeyError, ValueError):
+        days = (day - date.fromisoformat(last["day"])).days
+    except (KeyError, ValueError, TypeError):
         return 0
     return max(0, days * 24 - (now_bar - prev_bar))
 
@@ -165,12 +170,12 @@ def _collect_metrics(root: Path, day: date) -> dict:
     except Exception:
         matched = True          # 못 쟀으면 경보하지 않는다 (거짓 경보 방지)
     try:
-        gap = _bar_gap(root, prev)
+        gap = _bar_gap(root, prev, day)
     except Exception:
         gap = 0
 
-    m = compute_metrics(day=day.isoformat(), trades=closed, shadow=shadow,
-                        slippage=slip, atr_ratios=ratios,
+    m = compute_metrics(day=day.isoformat(), trades=closed, entered=entered,
+                        shadow=shadow, slippage=slip, atr_ratios=ratios,
                         position_match=matched, bar_gap=gap)
     try:
         state = json.loads((root / "data" / "state_momentum.json").read_text(encoding="utf-8"))
