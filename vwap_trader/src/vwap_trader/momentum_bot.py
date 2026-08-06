@@ -33,6 +33,23 @@ from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
+def drop_forming_bar(bars: list, now_ms: int, bar_ms: int) -> list:
+    """진행 중인 봉을 뺀 목록. 완성된 봉만 남긴다.
+
+    2026-08-06 긴급 수리. 스캔은 매시 정각 +40초에 돌고, 전략은 '마지막 봉의
+    close-to-close'를 신호로 쓴다. 08-03 캐시 수리 전에는 진행 중 봉이 박제돼
+    두 봉이 우연히 1시간 간격 두 시점이 되면서 올바른 1h 수익률이 나왔는데,
+    직전 봉을 완성본으로 갱신하자 '마지막(40초치) − 직전(정각 종가)'가 되어
+    신호가 40초치로 쪼그라들었다 → 08-04·05 신호 0건(임계 초과 후보는 26~27건 있었다).
+
+    bars: (ts, open, high, low, close, volume) 오름차순
+    """
+    if not bars:
+        return bars
+    cur_bar_start = now_ms - (now_ms % bar_ms)
+    return [b for b in bars if b[0] < cur_bar_start]
+
+
 def _sync_clock_offset() -> int:
     """Measure local-vs-Bybit clock offset (ms). Returns offset to subtract."""
     import requests
@@ -393,7 +410,13 @@ class MomentumBot:
 
     # ── Candle Fetch (with cache) ────────────────────────
     def _fetch_candles(self, symbol: str) -> tuple[list, list, list, list] | None:
-        """Fetch candles with incremental cache. Interval from config."""
+        """Fetch candles with incremental cache. Interval from config.
+
+        ★ 2026-08-06: 반환 전 '진행 중인 봉'을 뺀다(drop_forming_bar).
+          스캔은 매시 정각 +40초에 도는데 전략은 마지막 봉의 close-to-close를
+          신호로 쓴다. 진행 중 봉이 마지막이면 신호가 40초치가 되어 임계를 못 넘는다
+          (08-04·05 신호 0건의 원인). 신호도 ATR도 완성 봉만 쓴다.
+        """
         interval = self.cfg["exchange"]["candle_interval"]
         needed = self.cfg["exchange"]["candle_fetch_count"]
 
@@ -471,13 +494,17 @@ class MomentumBot:
                 cached = unique
                 self._candle_cache[symbol] = cached
 
-            if len(cached) < self.strategy.threshold_window + 50:
+            # 진행 중인 봉 제외 — 신호(마지막 봉 수익률)와 ATR 모두 완성 봉만 쓴다
+            bar_ms = int(interval) * 60_000
+            usable = drop_forming_bar(cached, int(time.time() * 1000), bar_ms)
+
+            if len(usable) < self.strategy.threshold_window + 50:
                 return None
 
-            opens = [c[1] for c in cached]
-            highs = [c[2] for c in cached]
-            lows = [c[3] for c in cached]
-            closes = [c[4] for c in cached]
+            opens = [c[1] for c in usable]
+            highs = [c[2] for c in usable]
+            lows = [c[3] for c in usable]
+            closes = [c[4] for c in usable]
             return opens, highs, lows, closes
 
         except Exception as e:

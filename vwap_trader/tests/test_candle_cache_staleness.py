@@ -148,3 +148,51 @@ def test_atr_recovers_once_bar_is_refreshed():
     refreshed[-1] = full[-1]          # 완성본으로 교체된 상태
 
     assert _atr(refreshed) == pytest.approx(_atr(full))
+
+
+# ── 2026-08-06 긴급: 진행 중 봉이 신호를 삼켰다 ──────────
+def test_forming_bar_is_excluded_from_returned_candles():
+    """스캔은 매시 정각 +40초에 돈다. 그때 마지막 봉은 진행 중이고,
+    전략은 '마지막 봉의 close-to-close'를 신호로 쓴다.
+
+    수정 전(start=latest_ts+1)에는 진행 중 봉이 박제돼 두 봉이 우연히 1시간
+    간격 두 시점이 됐고 올바른 1h 수익률이 나왔다. 08-03 수리로 직전 봉을
+    완성본으로 갱신하자 '마지막(진행 중 40초) − 직전(정각 종가)' = 40초치가
+    되어 임계를 영영 못 넘었다 — 08-04·05 신호 0건.
+
+    올바른 해법은 진행 중 봉을 아예 빼는 것이다."""
+    now_ms = 1_754_000_000_000
+    bar_ms = 3_600_000
+    cur_start = now_ms - (now_ms % bar_ms)
+    bars = _bars(60, base=cur_start - 59 * bar_ms)   # 마지막이 현재 진행 중 봉
+    assert bars[-1][0] == cur_start
+
+    from vwap_trader.momentum_bot import drop_forming_bar
+    kept = drop_forming_bar(bars, now_ms, bar_ms)
+    assert kept[-1][0] == cur_start - bar_ms
+    assert len(kept) == len(bars) - 1
+
+
+def test_completed_last_bar_is_kept():
+    now_ms = 1_754_000_000_000
+    bar_ms = 3_600_000
+    cur_start = now_ms - (now_ms % bar_ms)
+    bars = _bars(60, base=cur_start - 60 * bar_ms)   # 마지막이 직전 완성 봉
+    from vwap_trader.momentum_bot import drop_forming_bar
+    assert drop_forming_bar(bars, now_ms, bar_ms) == bars
+
+
+def test_drop_forming_bar_on_empty():
+    from vwap_trader.momentum_bot import drop_forming_bar
+    assert drop_forming_bar([], 1_754_000_000_000, 3_600_000) == []
+
+
+def test_signal_uses_full_hour_after_dropping_forming_bar():
+    """진행 중 봉을 빼면 마지막 두 봉이 온전한 1시간 간격이 된다."""
+    now_ms = 1_754_000_000_000
+    bar_ms = 3_600_000
+    cur_start = now_ms - (now_ms % bar_ms)
+    bars = _bars(60, base=cur_start - 59 * bar_ms)
+    from vwap_trader.momentum_bot import drop_forming_bar
+    kept = drop_forming_bar(bars, now_ms, bar_ms)
+    assert kept[-1][0] - kept[-2][0] == bar_ms
