@@ -16,3 +16,4 @@
 {"trade_id": "2721ad64", "symbol": "FIGHTUSDT", "pnl_usd": -0.30271009, "exit_price": 0.003418, "pnl_pct": -0.1752, "src": "exchange", "fixed_at": "2026-08-05T15:30:52.565670+00:00", "prev_estimated": -0.1812}
 {"trade_id": "17e3e344", "symbol": "BLESSUSDT", "pnl_usd": 1.34462503, "exit_price": 0.016881, "pnl_pct": 2.326, "src": "exchange", "fixed_at": "2026-08-08T15:30:31.063372+00:00", "prev_estimated": 1.533}
 {"trade_id": "b39d3229", "symbol": "HEIUSDT", "pnl_usd": 32.29345945, "exit_price": 0.21232, "pnl_pct": 46.9213, "src": "exchange", "fixed_at": "2026-08-08T15:30:31.063372+00:00", "prev_estimated": 30.1577}
+{"trade_id": "addebc13", "symbol": "BSBUSDT", "pnl_usd": 2.83554366, "exit_price": 0.16342, "pnl_pct": 4.5053, "src": "exchange", "fixed_at": "2026-08-09T15:30:43.058084+00:00", "prev_estimated": 3.0209}

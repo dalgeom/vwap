@@ -371,3 +371,9 @@
 {"symbol": "BLUAIUSDT", "direction": "short", "intended_price": 0.020356, "fill_price": 0.020832, "slippage_pct": 2.3384, "timestamp": "2026-08-09T06:00:41.385494+00:00"}
 {"symbol": "BICOUSDT", "direction": "short", "intended_price": 0.051805, "fill_price": 0.053654, "slippage_pct": 3.5692, "timestamp": "2026-08-09T09:00:41.036776+00:00"}
 {"symbol": "ARCUSDT", "direction": "long", "intended_price": 0.06968, "fill_price": 0.07009, "slippage_pct": 0.5884, "timestamp": "2026-08-09T11:01:33.802241+00:00"}
+{"symbol": "XMRUSDT", "direction": "long", "intended_price": 411.58, "fill_price": 411.39, "slippage_pct": 0.0462, "timestamp": "2026-08-09T15:00:38.793354+00:00"}
+{"symbol": "XMRUSDT", "direction": "short", "intended_price": 399.86, "fill_price": 400.34, "slippage_pct": 0.12, "timestamp": "2026-08-09T16:00:39.306478+00:00"}
+{"symbol": "SKYAI1USDT", "direction": "short", "intended_price": 0.098, "fill_price": 0.09898, "slippage_pct": 1.0, "timestamp": "2026-08-09T17:00:39.005243+00:00"}
+{"symbol": "BMTUSDT", "direction": "long", "intended_price": 0.029858, "fill_price": 0.029993, "slippage_pct": 0.4521, "timestamp": "2026-08-09T17:00:39.920501+00:00"}
+{"symbol": "XANUSDT", "direction": "long", "intended_price": 0.022255, "fill_price": 0.022016, "slippage_pct": 1.0739, "timestamp": "2026-08-10T00:00:58.849414+00:00"}
+{"symbol": "MUBARAKUSDT", "direction": "long", "intended_price": 0.028584, "fill_price": 0.028887, "slippage_pct": 1.06, "timestamp": "2026-08-10T01:00:43.666145+00:00"}
