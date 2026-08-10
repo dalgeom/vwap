@@ -72,7 +72,11 @@ def _run_facts_report(root: Path, day: date) -> Path | None:
             out = daily_report.main()
     finally:
         sys.argv = argv_backup
-    p = Path(out) if out else root / "reports" / f"{day.isoformat()}.md"
+    if out:
+        p = Path(out)
+    else:
+        from vwap_trader.mode_paths import read_demo_flag, reports_dir
+        p = reports_dir(root, read_demo_flag(root)) / f"{day.isoformat()}.md"
     return p if p.exists() else None
 
 
@@ -118,15 +122,16 @@ def _fetch_bars(root: Path):
     return fetch
 
 
-def _position_match(root: Path) -> bool:
+def _position_match(root: Path, demo: bool = True) -> bool:
     """거래소 실제 포지션 수와 state가 맞는가 (2026-07-27 고아 포지션 감시)."""
+    from vwap_trader.mode_paths import data_dir
     from app.exchange_client import build_private_client, get_positions
     live = len(get_positions(build_private_client(root)))
-    state = json.loads((root / "data" / "state_momentum.json").read_text(encoding="utf-8"))
+    state = json.loads((data_dir(root, demo) / "state_momentum.json").read_text(encoding="utf-8"))
     return live == len(state.get("positions", []))
 
 
-def _bar_gap(root: Path, prev: list[dict], day: date) -> int:
+def _bar_gap(root: Path, prev: list[dict], day: date, demo: bool = True) -> int:
     """직전 기록 대비 bar_counter 증가량이 경과 시간과 맞는가.
 
     ★ 2026-08-06 수리: date.today()를 쓰고 있었다. 리포트는 00:30에 '어제치'를
@@ -139,7 +144,8 @@ def _bar_gap(root: Path, prev: list[dict], day: date) -> int:
     prev_bar = last.get("bar_counter")
     if prev_bar is None:
         return 0
-    state = json.loads((root / "data" / "state_momentum.json").read_text(encoding="utf-8"))
+    from vwap_trader.mode_paths import data_dir
+    state = json.loads((data_dir(root, demo) / "state_momentum.json").read_text(encoding="utf-8"))
     now_bar = state.get("bar_counter", 0)
     try:
         days = (day - date.fromisoformat(last["day"])).days
@@ -148,17 +154,23 @@ def _bar_gap(root: Path, prev: list[dict], day: date) -> int:
     return max(0, days * 24 - (now_bar - prev_bar))
 
 
-def _collect_metrics(root: Path, day: date) -> dict:
+def _collect_metrics(root: Path, day: date, demo: bool = True) -> dict:
     """하루치 지표 한 벌. 거래소가 필요한 항목은 실패해도 나머지를 남긴다."""
+    from vwap_trader.mode_paths import data_dir
+    dd = data_dir(root, demo)
     from build_canonical import load_canonical
-    trades = load_canonical()
+    from corrections import read_corrections
+    trades = load_canonical(
+        raw_path=dd / "trades_momentum.jsonl",
+        corrected_path=dd / "trades_momentum_corrected.jsonl",
+        corrections=read_corrections(dd / "pnl_corrections.jsonl"))
     closed = _on_day(trades, day, "exit_timestamp_utc")
     entered = _on_day(trades, day, "timestamp_utc")
-    shadow = _on_day(_load_jsonl(root / "data" / "shadow_momentum.jsonl"),
+    shadow = _on_day(_load_jsonl(dd / "shadow_momentum.jsonl"),
                      day, "timestamp_utc")
-    slip = _on_day(_load_jsonl(root / "data" / "slippage_momentum.jsonl"),
+    slip = _on_day(_load_jsonl(dd / "slippage_momentum.jsonl"),
                    day, "timestamp")
-    prev = read_metrics(root, days=30)
+    prev = read_metrics(root, days=30, demo=demo)
 
     try:
         ratios = atr_ratios_for_day(entered, _fetch_bars(root))
@@ -166,11 +178,11 @@ def _collect_metrics(root: Path, day: date) -> dict:
         _log_line(root, f"ATR 대조 실패(나머지 지표는 진행): {type(e).__name__}: {e}")
         ratios = []
     try:
-        matched = _position_match(root)
+        matched = _position_match(root, demo)
     except Exception:
         matched = True          # 못 쟀으면 경보하지 않는다 (거짓 경보 방지)
     try:
-        gap = _bar_gap(root, prev, day)
+        gap = _bar_gap(root, prev, day, demo)
     except Exception:
         gap = 0
 
@@ -178,7 +190,7 @@ def _collect_metrics(root: Path, day: date) -> dict:
                         shadow=shadow, slippage=slip, atr_ratios=ratios,
                         position_match=matched, bar_gap=gap)
     try:
-        state = json.loads((root / "data" / "state_momentum.json").read_text(encoding="utf-8"))
+        state = json.loads((dd / "state_momentum.json").read_text(encoding="utf-8"))
         m["bar_counter"] = state.get("bar_counter", 0)
     except Exception:
         pass
@@ -190,13 +202,15 @@ def generate_report(project_root: Path, day: date) -> Path | None:
     root = Path(project_root).resolve()
     os.environ["VWAP_PROJECT_ROOT"] = str(root)
     _ensure_source_path(root)
+    from vwap_trader.mode_paths import read_demo_flag
+    demo = read_demo_flag(root)   # demo/real 분리 — 파이프라인 전체가 이 값 하나를 따른다
 
     # ── 계기판 (리포트보다 먼저 — 리포트가 오늘 경보를 실어야 한다)
     try:
-        m = _collect_metrics(root, day)
-        alerts = check_alerts(m, read_metrics(root, days=30))
+        m = _collect_metrics(root, day, demo=demo)
+        alerts = check_alerts(m, read_metrics(root, days=30, demo=demo))
         m["alerts"] = [a["key"] for a in alerts]
-        append_metrics(root, m)
+        append_metrics(root, m, demo=demo)
         if alerts:
             _log_line(root, "계기판 경보: " + ", ".join(m["alerts"]))
     except Exception as e:
@@ -209,7 +223,8 @@ def generate_report(project_root: Path, day: date) -> Path | None:
     # ── 매매일지 (실패해도 리포트는 남는다)
     try:
         out = journal.run_journal(root, day.isoformat(), find_claude_cmd(),
-                                  metrics=read_metrics(root, days=30))
+                                  metrics=read_metrics(root, days=30, demo=demo),
+                                  demo=demo)
         _log_line(root, f"일지 {'생성' if out else '미생성'}: {day.isoformat()}")
         if out:
             # 일지는 읽기 전용이라 보드를 못 고친다 — 지시 블록을 여기서 반영한다
@@ -217,7 +232,7 @@ def generate_report(project_root: Path, day: date) -> Path | None:
             from app.hypotheses import apply_directives
             d = journal.parse_board_block(out.read_text(encoding="utf-8"))
             if d:
-                res = apply_directives(root, d, day.isoformat())
+                res = apply_directives(root, d, day.isoformat(), demo=demo)
                 _log_line(root, f"보드 반영: {res}")
     except Exception as e:
         _log_line(root, f"일지 실패(리포트는 진행): {type(e).__name__}: {e}")

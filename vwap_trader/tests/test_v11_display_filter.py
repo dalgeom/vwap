@@ -157,7 +157,7 @@ def _api(tmp_path):
 def test_get_trades_screen_shows_only_v11(tmp_path, monkeypatch):
     import app.data_access as da
     api = _api(tmp_path)
-    monkeypatch.setattr(da, "load_trades", lambda root: [
+    monkeypatch.setattr(da, "load_trades", lambda root, demo=None: [
         _t("2026-07-29T10:00:00+00:00", symbol="COTIUSDT", pnl_usd=178.72, bot_version="v10"),
         _t("2026-07-30T06:00:00+00:00", symbol="NEWUSDT", pnl_usd=12.0),
     ])

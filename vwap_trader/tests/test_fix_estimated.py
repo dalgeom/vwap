@@ -85,7 +85,7 @@ def test_run_writes_corrections(tmp_path, monkeypatch):
                 {"side": "Sell", "createdTime": str(entry_ms + 1000),
                  "avgEntryPrice": "1.0", "avgExitPrice": "1.1", "closedPnl": "10.0"}]}}
 
-    res = fe.run(client=FakeClient())
+    res = fe.run(client=FakeClient(), trades_path=tmp_path / "t.jsonl", corr_path=corr_file)
     assert res["fixed"] == 1
     d = co.read_corrections(path=corr_file)
     assert d["a"]["pnl_usd"] == 10.0 and d["a"]["src"] == "exchange"

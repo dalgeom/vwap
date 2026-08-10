@@ -134,9 +134,18 @@ def parse_board_block(text: str) -> list[dict]:
     return out
 
 
-def read_recent_journals(project_root: Path, day: str, n: int = 3) -> list[str]:
+def _mode_reports(project_root: Path, demo: bool | None) -> Path:
+    """demo/real 분리(2026-08-10): real 일지·보드는 reports/real/ 아래에 산다."""
+    from vwap_trader.mode_paths import read_demo_flag, reports_dir
+    if demo is None:
+        demo = read_demo_flag(project_root)
+    return reports_dir(project_root, demo)
+
+
+def read_recent_journals(project_root: Path, day: str, n: int = 3,
+                         demo: bool | None = None) -> list[str]:
     """day 이전 일지를 최신순으로. 오늘치는 제외한다(아직 쓰는 중이므로)."""
-    d = Path(project_root).joinpath(*JOURNAL_DIR)
+    d = _mode_reports(project_root, demo) / JOURNAL_DIR[-1]
     if not d.exists():
         return []
     files = sorted((f for f in d.glob("*.md") if f.stem < day),
@@ -157,24 +166,26 @@ def _hidden_window():
 
 def run_journal(project_root: Path, day: str, claude_cmd: str | None,
                 timeout: int = JOURNAL_TIMEOUT_SEC,
-                metrics: list[dict] | None = None) -> Path | None:
+                metrics: list[dict] | None = None,
+                demo: bool | None = None) -> Path | None:
     """일지 생성 후 저장 경로. 실패는 조용히 None — 사실 리포트는 이미 안전하다."""
     if not claude_cmd:
         return None
     root = Path(project_root)
-    report = root / "reports" / f"{day}.md"
+    rdir = _mode_reports(root, demo)
+    report = rdir / f"{day}.md"
     if not report.exists():
         return None
 
-    def _txt(*parts):
-        p = root.joinpath(*parts)
+    def _txt(name):
+        p = rdir / name
         return p.read_text(encoding="utf-8") if p.exists() else ""
 
     prompt = build_journal_prompt(
         day=day, report_md=report.read_text(encoding="utf-8"),
-        metrics=metrics or [], recent_journals=read_recent_journals(root, day),
-        patterns=_txt("reports", "patterns.md"),
-        hypotheses=_txt("reports", "hypotheses.md"))
+        metrics=metrics or [], recent_journals=read_recent_journals(root, day, demo=demo),
+        patterns=_txt("patterns.md"),
+        hypotheses=_txt("hypotheses.md"))
 
     try:
         r = subprocess.run(
@@ -191,7 +202,7 @@ def run_journal(project_root: Path, day: str, claude_cmd: str | None,
     if not text:
         return None
 
-    out = root.joinpath(*JOURNAL_DIR, f"{day}.md")
+    out = rdir / JOURNAL_DIR[-1] / f"{day}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(".md.tmp")
     tmp.write_text(text, encoding="utf-8")

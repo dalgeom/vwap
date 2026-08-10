@@ -26,6 +26,14 @@ _H_FIELD = re.compile(r"^- (내용|근거|검증|사유): (.*)$")
 _H_PROG = re.compile(r"^  - (\d{4}-\d{2}-\d{2}) — (.*)$")
 
 
+def _mode_reports(project_root: Path, demo: bool | None) -> Path:
+    """demo/real 분리(2026-08-10): real 보드는 reports/real/에 산다."""
+    from vwap_trader.mode_paths import read_demo_flag, reports_dir
+    if demo is None:
+        demo = read_demo_flag(project_root)
+    return reports_dir(project_root, demo)
+
+
 def _read(path: Path) -> list[str]:
     return path.read_text(encoding="utf-8").splitlines() if path.exists() else []
 
@@ -38,9 +46,9 @@ def _write(path: Path, text: str) -> None:
 
 
 # ── 패턴 노트 ────────────────────────────────────────────
-def load_patterns(project_root: Path) -> list[dict]:
+def load_patterns(project_root: Path, demo: bool | None = None) -> list[dict]:
     out, cur = [], None
-    for line in _read(Path(project_root).joinpath(*PATTERNS_FILE)):
+    for line in _read(_mode_reports(project_root, demo) / PATTERNS_FILE[-1]):
         m = _PAT_HEAD.match(line)
         if m:
             cur = {"key": m.group(1), "count": int(m.group(2)),
@@ -64,9 +72,10 @@ def _render_patterns(pats: list[dict]) -> str:
     return "\n".join(L) + "\n"
 
 
-def upsert_pattern(project_root: Path, key: str, note: str, day: str) -> dict:
+def upsert_pattern(project_root: Path, key: str, note: str, day: str,
+                   demo: bool | None = None) -> dict:
     """관찰 하나를 기록하고 갱신된 패턴을 돌려준다. count는 '고유 날짜 수'다."""
-    pats = load_patterns(project_root)
+    pats = load_patterns(project_root, demo)
     cur = next((p for p in pats if p["key"] == key), None)
     if cur is None:
         cur = {"key": key, "count": 0, "confirmed": False, "observations": []}
@@ -74,14 +83,14 @@ def upsert_pattern(project_root: Path, key: str, note: str, day: str) -> dict:
     cur["observations"].append({"day": day, "note": note})
     cur["count"] = len({o["day"] for o in cur["observations"]})
     cur["confirmed"] = cur["count"] >= CONFIRM_THRESHOLD
-    _write(Path(project_root).joinpath(*PATTERNS_FILE), _render_patterns(pats))
+    _write(_mode_reports(project_root, demo) / PATTERNS_FILE[-1], _render_patterns(pats))
     return cur
 
 
 # ── 가설보드 ─────────────────────────────────────────────
-def load_hypotheses(project_root: Path) -> list[dict]:
+def load_hypotheses(project_root: Path, demo: bool | None = None) -> list[dict]:
     out, cur = [], None
-    for line in _read(Path(project_root).joinpath(*HYPOTHESES_FILE)):
+    for line in _read(_mode_reports(project_root, demo) / HYPOTHESES_FILE[-1]):
         m = _H_HEAD.match(line)
         if m:
             cur = {"id": m.group(1), "status": m.group(2), "title": "",
@@ -117,46 +126,49 @@ def _render_hypotheses(hs: list[dict]) -> str:
     return "\n".join(L) + "\n"
 
 
-def _save(project_root: Path, hs: list[dict]) -> None:
-    _write(Path(project_root).joinpath(*HYPOTHESES_FILE), _render_hypotheses(hs))
+def _save(project_root: Path, hs: list[dict], demo: bool | None = None) -> None:
+    _write(_mode_reports(project_root, demo) / HYPOTHESES_FILE[-1], _render_hypotheses(hs))
 
 
-def register_hypothesis(project_root: Path, h: dict) -> str:
+def register_hypothesis(project_root: Path, h: dict, demo: bool | None = None) -> str:
     """처방을 등록하고 ID를 돌려준다. 검증 조건이 없으면 거부한다."""
     if not (h.get("verify") or "").strip():
         raise ValueError(
             "검증 조건 없는 제안은 등록할 수 없다 — 판정할 수 없는 제안은 backlog처럼 죽는다")
-    hs = load_hypotheses(project_root)
+    hs = load_hypotheses(project_root, demo)
     hid = f"H-{len(hs) + 1:02d}"
     hs.append({"id": hid, "status": "관측중", "title": h.get("title", ""),
                "basis": h.get("basis", ""), "verify": h["verify"],
                "reason": "", "progress": []})
-    _save(project_root, hs)
+    _save(project_root, hs, demo)
     return hid
 
 
-def update_progress(project_root: Path, hid: str, day: str, note: str) -> None:
-    hs = load_hypotheses(project_root)
+def update_progress(project_root: Path, hid: str, day: str, note: str,
+                    demo: bool | None = None) -> None:
+    hs = load_hypotheses(project_root, demo)
     for h in hs:
         if h["id"] == hid:
             h["progress"].append({"day": day, "note": note})
             break
-    _save(project_root, hs)
+    _save(project_root, hs, demo)
 
 
-def set_status(project_root: Path, hid: str, status: str, reason: str) -> None:
+def set_status(project_root: Path, hid: str, status: str, reason: str,
+               demo: bool | None = None) -> None:
     if status not in STATUSES:
         raise ValueError(f"알 수 없는 상태: {status} (허용 {STATUSES})")
-    hs = load_hypotheses(project_root)
+    hs = load_hypotheses(project_root, demo)
     for h in hs:
         if h["id"] == hid:
             h["status"] = status
             h["reason"] = reason
             break
-    _save(project_root, hs)
+    _save(project_root, hs, demo)
 
 
-def apply_directives(project_root: Path, directives: list[dict], day: str) -> dict:
+def apply_directives(project_root: Path, directives: list[dict], day: str,
+                     demo: bool | None = None) -> dict:
     """일지가 남긴 지시를 보드에 반영한다. 쓰기 권한은 여기(래퍼)에만 있다.
 
     2026-08-05 수리: 08-04 일지가 H-02를 기각 판정했는데 보드는 '관측중'으로
@@ -166,23 +178,23 @@ def apply_directives(project_root: Path, directives: list[dict], day: str) -> di
     for d in directives:
         kind = d.get("kind")
         if kind == "judge":
-            if any(h["id"] == d["id"] for h in load_hypotheses(project_root)):
-                set_status(project_root, d["id"], d["status"], d.get("reason", ""))
+            if any(h["id"] == d["id"] for h in load_hypotheses(project_root, demo)):
+                set_status(project_root, d["id"], d["status"], d.get("reason", ""), demo)
                 out["judged"].append(d["id"])
         elif kind == "register":
-            titles = {h["title"] for h in load_hypotheses(project_root)}
+            titles = {h["title"] for h in load_hypotheses(project_root, demo)}
             if d["title"] in titles:      # 같은 제목이 이틀 연속 나와도 한 번만
                 continue
             try:
-                out["registered"].append(register_hypothesis(project_root, d))
+                out["registered"].append(register_hypothesis(project_root, d, demo))
             except ValueError:
                 continue                  # 검증 조건 없는 제안은 등록하지 않는다
         elif kind == "pattern":
-            upsert_pattern(project_root, d["key"], d.get("note", ""), day)
+            upsert_pattern(project_root, d["key"], d.get("note", ""), day, demo)
             out["patterns"].append(d["key"])
     return out
 
 
-def pending_decisions(project_root: Path) -> list[dict]:
+def pending_decisions(project_root: Path, demo: bool | None = None) -> list[dict]:
     """검증이 끝나 사장님 결정을 기다리는 가설."""
-    return [h for h in load_hypotheses(project_root) if h["status"] == DECISION_STATUS]
+    return [h for h in load_hypotheses(project_root, demo) if h["status"] == DECISION_STATUS]

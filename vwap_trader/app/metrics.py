@@ -193,19 +193,23 @@ def summarize_alerts(alerts: list[dict]) -> str:
 
 
 # ── 저장·조회 ────────────────────────────────────────────
-def _path(project_root: Path) -> Path:
-    return Path(project_root).joinpath(*METRICS_FILE)
+def _path(project_root: Path, demo: bool | None = None) -> Path:
+    """demo/real 분리(2026-08-10): real 지표는 data/real/에 산다. None이면 config로 판별."""
+    from vwap_trader.mode_paths import data_dir, read_demo_flag
+    if demo is None:
+        demo = read_demo_flag(project_root)
+    return data_dir(project_root, demo) / METRICS_FILE[-1]
 
 
-def append_metrics(project_root: Path, metrics: dict) -> None:
-    p = _path(project_root)
+def append_metrics(project_root: Path, metrics: dict, demo: bool | None = None) -> None:
+    p = _path(project_root, demo)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8") as f:
         f.write(json.dumps(metrics, ensure_ascii=False) + "\n")
 
 
-def read_metrics(project_root: Path, days: int = 30) -> list[dict]:
-    p = _path(project_root)
+def read_metrics(project_root: Path, days: int = 30, demo: bool | None = None) -> list[dict]:
+    p = _path(project_root, demo)
     if not p.exists():
         return []
     out = []

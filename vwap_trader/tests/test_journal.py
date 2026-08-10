@@ -182,13 +182,13 @@ def _stub_pipeline(monkeypatch, tmp_path, journal_result=None, journal_exc=None)
 
     monkeypatch.setattr(rr, "_run_facts_report", lambda root, day: rpt)
     monkeypatch.setattr(rr, "_collect_metrics",
-                        lambda root, day: {"day": "2026-08-02", "atr_accuracy": 0.68,
+                        lambda root, day, demo=True: {"day": "2026-08-02", "atr_accuracy": 0.68,
                                            "position_match": True, "bar_gap": 0,
                                            "slippage_median_pct": 0.0,
                                            "slippage_worst_pct": 0.0,
                                            "order_fail_rate": 0.0, "alerts": []})
 
-    def fake_journal(root, day, claude_cmd, timeout=900, metrics=None):
+    def fake_journal(root, day, claude_cmd, timeout=900, metrics=None, demo=True):
         if journal_exc:
             raise journal_exc
         return journal_result

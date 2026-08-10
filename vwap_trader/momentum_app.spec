@@ -9,6 +9,8 @@ a = Analysis(
     hiddenimports=[
         # 봇 (frozen --bot 모드)
         "vwap_trader.momentum_bot",
+        # demo/real 경로 규칙 단일 출처 (지연 import — 정적 분석 누락 대비)
+        "vwap_trader.mode_paths",
         # report_runner가 런타임 import하는 최상위 스크립트들
         "daily_report", "build_canonical", "corrections",
         "fix_estimated", "xcrowd_snapshot",

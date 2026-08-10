@@ -82,12 +82,22 @@ def _build_client():
                 api_secret=os.environ.get("BYBIT_API_SECRET", ""))
 
 
-def run(client=None):
+def run(client=None, demo=None, trades_path=None, corr_path=None):
+    """demo/real 분리(2026-08-10): 경로는 모드에서 파생. 테스트는 경로를 직접 주입한다
+    — 주입 없이 돌면 실제 corrections에 쓰므로 테스트 격리에 필수."""
     from corrections import read_corrections, append_correction
+    from vwap_trader.mode_paths import data_dir, read_demo_flag
     if client is None:
         client = _build_client()
-    trades = load_trades()
-    corrections = read_corrections()
+    if trades_path is None or corr_path is None:
+        if demo is None:
+            demo = read_demo_flag(ROOT)
+        _dd = data_dir(ROOT, demo)
+        trades_path = trades_path or _dd / "trades_momentum.jsonl"
+        corr_path = corr_path or _dd / "pnl_corrections.jsonl"
+    _corr_p = corr_path
+    trades = load_trades(trades_path)
+    corrections = read_corrections(_corr_p)
     targets = find_estimated_targets(trades, corrections)
     now = datetime.now(timezone.utc)
     fixed = matched_none = 0
@@ -103,7 +113,7 @@ def run(client=None):
                 imminent += 1
             continue
         pnl_usd, exit_price = m
-        append_correction({
+        append_correction(path=_corr_p, rec={
             "trade_id": t["trade_id"], "symbol": t["symbol"],
             "pnl_usd": pnl_usd, "exit_price": exit_price,
             "pnl_pct": recompute_pnl_pct(t["side"], t["entry_price"], exit_price),

@@ -34,7 +34,14 @@ def due_report(now_kst: datetime, project_root: Path, auto_on: bool,
     if now_kst.time() < REPORT_AT:
         return None
     day = (now_kst - timedelta(days=1)).date()
-    if (Path(project_root) / "reports" / f"{day.isoformat()}.md").exists():
+    # demo/real 분리(2026-08-10): 존재 확인도 모드 디렉토리에서 — 데모 리포트가
+    # 있다고 real 생성을 건너뛰면 실전 첫날 리포트가 영영 안 나온다
+    from vwap_trader.mode_paths import read_demo_flag, reports_dir
+    try:
+        demo = read_demo_flag(project_root)
+    except Exception:
+        demo = True
+    if (reports_dir(project_root, demo) / f"{day.isoformat()}.md").exists():
         return None
     if last_attempt_utc is not None:
         if (now_kst.astimezone(timezone.utc) - last_attempt_utc) < timedelta(minutes=retry_min):

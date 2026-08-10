@@ -33,6 +33,15 @@ from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
+def runtime_data_dir(cfg: dict) -> Path:
+    """계좌 모드에 따른 런타임 데이터 디렉토리 (mode_paths와 같은 규칙).
+
+    demo(기본) = data/ 그대로, real = data/real/. 플래그가 없으면 데모로 본다
+    — 실전은 명시적으로 선언해야만 켜진다."""
+    demo = (cfg.get("exchange") or {}).get("demo", True)
+    return DATA_DIR if demo else DATA_DIR / "real"
+
+
 def drop_forming_bar(bars: list, now_ms: int, bar_ms: int) -> list:
     """진행 중인 봉을 뺀 목록. 완성된 봉만 남긴다.
 
@@ -263,15 +272,22 @@ class MomentumBot:
         self._universe_volumes: dict[str, float] = {}   # symbol → 24h turnover USDT (tier 분류용)
         self._last_universe_refresh = ""
 
-        self._state_file = DATA_DIR / self.cfg["logging"]["state_file"]
-        self._trades_file = DATA_DIR / self.cfg["logging"]["trades_file"]
-        self._slippage_file = DATA_DIR / self.cfg["logging"]["slippage_file"]
-        self._shadow_file = DATA_DIR / self.cfg["logging"].get(
+        # 2026-08-10 demo/real 완전 분리 — 실전(demo:false)이면 런타임 파일 전부가
+        # data/real/ 아래에 산다. 데모 344건과 실전 체결이 한 파일에 섞이면
+        # 승률·EV·BE A/B 계측이 전부 오염되고, state 공유는 실전 봇이 데모
+        # 포지션을 관리하려 드는 사고로 이어진다.
+        runtime_dir = runtime_data_dir(self.cfg)
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        self._account_mode = "demo" if self.cfg["exchange"].get("demo", True) else "real"
+        self._state_file = runtime_dir / self.cfg["logging"]["state_file"]
+        self._trades_file = runtime_dir / self.cfg["logging"]["trades_file"]
+        self._slippage_file = runtime_dir / self.cfg["logging"]["slippage_file"]
+        self._shadow_file = runtime_dir / self.cfg["logging"].get(
             "shadow_file", "shadow_momentum.jsonl")
-        self._heartbeat_file = DATA_DIR / "heartbeat_momentum"
-        self._stop_file = DATA_DIR / "STOP_MOMENTUM"
+        self._heartbeat_file = runtime_dir / "heartbeat_momentum"
+        self._stop_file = runtime_dir / "STOP_MOMENTUM"
         # Step2: BE A/B 반사실 계측기 (기록 전용, 실매매 무관)
-        self._be_cf_file = DATA_DIR / "be_counterfactual.jsonl"
+        self._be_cf_file = runtime_dir / "be_counterfactual.jsonl"
         self._be_cf_enabled = self.cfg["strategy"].get("be_counterfactual_enabled", True)
         # 결함① 수리: real 청산 후에도 그림자를 계속 추적하는 유령 목록 (state 저장/복원)
         self.ghosts: list[dict] = []
@@ -873,6 +889,7 @@ class MomentumBot:
 
         record = {
             "bot_version": BOT_VERSION,
+            "account_mode": self._account_mode,   # demo/real — 파일이 섞여도 분석에서 가른다
             "trade_id": pos.trade_id,
             "timestamp_utc": pos.entry_time,
             "exit_timestamp_utc": now.isoformat(),
@@ -1656,6 +1673,7 @@ class MomentumBot:
         now = datetime.now(timezone.utc)
         record = {
             "bot_version": BOT_VERSION,
+            "account_mode": self._account_mode,
             "timestamp_utc": now.isoformat(),
             "symbol": signal.symbol,
             "side": direction_str,

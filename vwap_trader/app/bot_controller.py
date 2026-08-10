@@ -14,12 +14,28 @@ HEARTBEAT_FRESH_SEC = 90
 class BotController:
     def __init__(self, project_root: Path):
         self.root = Path(project_root).resolve()
-        self.stop_file = self.root / "data" / "STOP_MOMENTUM"
-        self.heartbeat_file = self.root / "data" / "heartbeat_momentum"
         self.log_file = self.root / "logs" / "momentum_bot.log"
         self.proc: subprocess.Popen | None = None
         self._stop_requested = False
         self._exit_hb_mtime: float | None = None  # 자식 종료 시점 heartbeat 기준선
+
+    @property
+    def stop_file(self) -> Path:
+        """demo/real 모드 디렉토리의 STOP — 봇이 감시하는 위치와 반드시 일치해야 한다.
+        설정 토글 후 앱 재시작 없이도 맞도록 접근 시마다 해석한다(2026-08-10 분리)."""
+        return self._mode_data_dir() / "STOP_MOMENTUM"
+
+    @property
+    def heartbeat_file(self) -> Path:
+        return self._mode_data_dir() / "heartbeat_momentum"
+
+    def _mode_data_dir(self) -> Path:
+        from vwap_trader.mode_paths import data_dir, read_demo_flag
+        try:
+            demo = read_demo_flag(self.root)
+        except Exception:
+            demo = True     # 관제 표시용 폴백 — 봇 자체는 config를 못 읽으면 안 뜬다
+        return data_dir(self.root, demo)
 
     def heartbeat_age(self) -> float | None:
         try:

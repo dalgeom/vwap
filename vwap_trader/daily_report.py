@@ -246,7 +246,7 @@ def be_cf_summary(rows: list, day: date) -> dict:
             "a_ex": a_ex, "b_ex": b_ex}
 
 
-def _board_context(project_root, day: str | None = None) -> dict:
+def _board_context(project_root, day: str | None = None, demo: bool | None = None) -> dict:
     """계기판 경보 + 가설보드 상태를 리포트 ctx 용으로 모은다.
 
     계기판은 report_runner가 리포트 생성 '전에' 적재해 둔 오늘치를 읽는다.
@@ -260,14 +260,14 @@ def _board_context(project_root, day: str | None = None) -> dict:
         return empty
     out = dict(empty)
     try:
-        hist = read_metrics(project_root, days=30)
+        hist = read_metrics(project_root, days=30, demo=demo)
         today = next((m for m in reversed(hist) if not day or m.get("day") == day), None)
         if today is not None:
             out["alerts"] = check_alerts(today, [m for m in hist if m is not today])
     except Exception:
         pass
     try:
-        hs = load_hypotheses(project_root)
+        hs = load_hypotheses(project_root, demo=demo)
         out["pending_decisions"] = [h for h in hs if h["status"] == "검증통과"]
         out["observing"] = [h for h in hs if h["status"] == "관측중"]
     except Exception:
@@ -451,11 +451,12 @@ def _load_jsonl(path: Path) -> list:
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
-def _heartbeat_age_min(now: datetime):
-    if not HEARTBEAT.exists():
+def _heartbeat_age_min(now: datetime, hb_path=None):
+    hb_path = hb_path or HEARTBEAT
+    if not hb_path.exists():
         return None
     try:
-        hb = datetime.fromisoformat(HEARTBEAT.read_text(encoding="utf-8").strip())
+        hb = datetime.fromisoformat(hb_path.read_text(encoding="utf-8").strip())
         return (now - hb.astimezone(timezone.utc)).total_seconds() / 60.0
     except Exception:
         return None
@@ -473,17 +474,26 @@ def main():
         day = date.fromisoformat(sys.argv[1].strip())  # 특정일 재생성용(예: python daily_report.py 2026-07-06)
     client = fe._build_client()
 
+    # demo/real 분리(2026-08-10) — 리포트 파이프라인 전체가 이 플래그 하나를 따른다
+    from vwap_trader.mode_paths import data_dir as _mp_data, read_demo_flag, reports_dir as _mp_reports
+    demo = read_demo_flag(ROOT)
+    ddir = _mp_data(ROOT, demo)
+    rdir = _mp_reports(ROOT, demo)
+
     # 1. estimated 정정 먼저 (실패해도 리포트는 계속)
     try:
-        fix = fe.run(client=client)
+        fix = fe.run(client=client, demo=demo)
     except Exception as e:
         fix = {"fixed": 0, "matched_none": 0, "imminent": 0, "lost": 0, "error": str(e)}
 
-    # 2. 정본 로드 (corrected+raw 유니온 + corrections 오버레이, A-1)
-    corr = read_corrections()
-    trades = load_canonical()
-    shadow = _load_jsonl(SHADOW)
-    state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
+    # 2. 정본 로드 (corrected+raw 유니온 + corrections 오버레이, A-1) — 모드 경로에서
+    corr = read_corrections(ddir / "pnl_corrections.jsonl")
+    trades = load_canonical(raw_path=ddir / "trades_momentum.jsonl",
+                            corrected_path=ddir / "trades_momentum_corrected.jsonl",
+                            corrections=corr)
+    shadow = _load_jsonl(ddir / "shadow_momentum.jsonl")
+    _state_p = ddir / "state_momentum.json"
+    state = json.loads(_state_p.read_text(encoding="utf-8")) if _state_p.exists() else {}
 
     # 3. 거래소 (실패 시 degrade)
     equity, positions = None, []
@@ -514,7 +524,7 @@ def main():
     todays_all = todays_closes(trades, day)
     visible_closes = visible_trades(todays_all)
 
-    hb_age = _heartbeat_age_min(now)
+    hb_age = _heartbeat_age_min(now, ddir / "heartbeat_momentum")
     warnings = []
     if hb_age is not None and hb_age > 10:
         warnings.append(f"⚠ heartbeat {hb_age:.0f}분 정체 — 봇 다운 의심")
@@ -527,11 +537,11 @@ def main():
         "todays": visible_closes,
         "todays_excluded": len(todays_all) - len(visible_closes),
         "stats": build_stats(visible_trades(trades)),   # 누적도 v11부터 새로 — 새 출발
-        **_board_context(ROOT, day.isoformat()),        # 경보·결정 필요·관측 중
+        **_board_context(ROOT, day.isoformat(), demo=demo),  # 경보·결정 필요·관측 중
         "shadow_counts": shadow_reason_counts(shadow, day),
         "order_fails": order_fail_details(shadow, day),
         "fail_codes": order_fail_code_counts(shadow, day),
-        "be_cf": be_cf_summary(_load_jsonl(BE_CF), day),
+        "be_cf": be_cf_summary(_load_jsonl(ddir / "be_counterfactual.jsonl"), day),
         "ghosts_pending": len(state.get("ghosts", [])),
         "infra": {"estimated": est_left, "imminent": est_imminent,
                   "lost": est_lost, "cooldowns": list(state.get("slippage_cooldown", {}).keys()),
@@ -539,8 +549,8 @@ def main():
         "warnings": warnings,
     }
     md = render_report(ctx)
-    REPORTS.mkdir(parents=True, exist_ok=True)
-    out = REPORTS / f"{day.isoformat()}.md"
+    rdir.mkdir(parents=True, exist_ok=True)
+    out = rdir / f"{day.isoformat()}.md"
     out.write_text(md, encoding="utf-8")
     print(md)
     print(f"\n[daily_report] saved: {out}")

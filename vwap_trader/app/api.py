@@ -91,6 +91,11 @@ class JsApi:
         return _safe(go)
 
     # ── 자산/포지션 ──
+    def _demo(self) -> bool:
+        """화면이 따라갈 계좌 모드 — 설정 토글 즉시 반영되도록 호출 시마다 해석
+        (demo/real 완전 분리, 2026-08-10)."""
+        return settings.read_demo_flag(self.config_path)
+
     def get_dashboard(self) -> dict:
         def go():
             from app.exchange_client import get_equity, get_positions
@@ -102,14 +107,14 @@ class JsApi:
                 self._invalidate_client()   # 다음 호출에서 재생성 → 오프셋 재측정(자가 회복)
                 raise
             return {"equity": eq, "positions": pos,
-                    "history": data_access.visible_equity_series(self.root)}
+                    "history": data_access.visible_equity_series(self.root, self._demo())}
         return _safe(go)
 
     # ── 거래기록 ──
     def get_trades(self) -> dict:
         def go():
             try:
-                trades = data_access.load_trades(self.root)
+                trades = data_access.load_trades(self.root, self._demo())
             except FileNotFoundError:
                 # 신규 설치(친구 스타터 킷) — 아직 거래 없음은 에러가 아니다
                 return {"summary": {"n": 0, "total": 0.0, "win_rate": 0.0,
@@ -122,10 +127,10 @@ class JsApi:
 
     # ── 리포트 ──
     def get_reports(self) -> dict:
-        return _safe(lambda: {"days": data_access.visible_reports(self.root)})
+        return _safe(lambda: {"days": data_access.visible_reports(self.root, self._demo())})
 
     def get_report(self, day: str) -> dict:
-        return _safe(lambda: {"md": data_access.read_report(self.root, day) or "(리포트 없음)"})
+        return _safe(lambda: {"md": data_access.read_report(self.root, day, self._demo()) or "(리포트 없음)"})
 
     # ── 설정 ──
     def get_settings(self) -> dict:
@@ -190,15 +195,16 @@ class JsApi:
             return
         # 1) 자산 기록 (1시간 간격) — 매시 시계 오프셋 재측정(장기 상주 드리프트 방어)
         try:
+            demo = self._demo()   # 자산 기록도 모드 파일로 — real 자산곡선이 demo에 섞이면 안 된다
             if (self._equity_fail_until is None or now_utc >= self._equity_fail_until) \
-                    and due_equity(now_utc, data_access.last_equity_ts(self.root)):
+                    and due_equity(now_utc, data_access.last_equity_ts(self.root, demo)):
                 from app.exchange_client import apply_clock_offset, get_equity
                 try:
                     c = self._get_client()          # 키 없으면 여기서 즉시 실패 — 공개 호출 없음
                     off = measure_clock_offset_ms() # 매시 오프셋 재측정(장기 상주 드리프트 방어)
                     if off is not None:
                         apply_clock_offset(off)
-                    data_access.append_equity(self.root, now_utc, get_equity(c))
+                    data_access.append_equity(self.root, now_utc, get_equity(c), demo)
                     self._equity_fail_until = None
                 except Exception as e:
                     self._invalidate_client()

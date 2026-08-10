@@ -151,12 +151,12 @@ def test_generate_report_applies_board_block(tmp_path, monkeypatch):
                   "-->\n", encoding="utf-8")
 
     monkeypatch.setattr(rr, "_run_facts_report", lambda root, day: rpt)
-    monkeypatch.setattr(rr, "_collect_metrics", lambda root, day: {
+    monkeypatch.setattr(rr, "_collect_metrics", lambda root, day, demo=True: {
         "day": "2026-08-05", "atr_accuracy": None, "position_match": True,
         "bar_gap": 0, "slippage_median_pct": 0.0, "slippage_worst_pct": 0.0,
         "order_fail_rate": 0.0, "alerts": []})
     monkeypatch.setattr(rr.journal, "run_journal",
-                        lambda root, day, claude_cmd, timeout=900, metrics=None: jp)
+                        lambda root, day, claude_cmd, timeout=900, metrics=None, demo=True: jp)
     monkeypatch.setattr(rr, "find_claude_cmd", lambda: "claude.cmd")
 
     rr.generate_report(tmp_path, date(2026, 8, 5))
@@ -179,12 +179,12 @@ def test_generate_report_survives_broken_board_block(tmp_path, monkeypatch):
     jp.write_text("## 복기\n<!--BOARD\n쓰레기 줄\n-->", encoding="utf-8")
 
     monkeypatch.setattr(rr, "_run_facts_report", lambda root, day: rpt)
-    monkeypatch.setattr(rr, "_collect_metrics", lambda root, day: {
+    monkeypatch.setattr(rr, "_collect_metrics", lambda root, day, demo=True: {
         "day": "2026-08-05", "atr_accuracy": None, "position_match": True,
         "bar_gap": 0, "slippage_median_pct": 0.0, "slippage_worst_pct": 0.0,
         "order_fail_rate": 0.0, "alerts": []})
     monkeypatch.setattr(rr.journal, "run_journal",
-                        lambda root, day, claude_cmd, timeout=900, metrics=None: jp)
+                        lambda root, day, claude_cmd, timeout=900, metrics=None, demo=True: jp)
     monkeypatch.setattr(rr, "find_claude_cmd", lambda: "claude.cmd")
 
     assert rr.generate_report(tmp_path, date(2026, 8, 5)) == rpt

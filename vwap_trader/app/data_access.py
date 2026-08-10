@@ -12,14 +12,29 @@ _REPORT_DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _EQUITY_RE = re.compile(r"현재 자산은 \*\*\$([\d,]+(?:\.\d+)?)\*\*")
 
 
-def load_trades(project_root: Path) -> list:
+def _mode_data(project_root: Path, demo: bool | None) -> Path:
+    """demo/real 분리(2026-08-10): real 계좌 산출물은 data/real/에 산다."""
+    from vwap_trader.mode_paths import data_dir, read_demo_flag
+    if demo is None:
+        demo = read_demo_flag(project_root)
+    return data_dir(project_root, demo)
+
+
+def _mode_reports(project_root: Path, demo: bool | None) -> Path:
+    from vwap_trader.mode_paths import read_demo_flag, reports_dir
+    if demo is None:
+        demo = read_demo_flag(project_root)
+    return reports_dir(project_root, demo)
+
+
+def load_trades(project_root: Path, demo: bool | None = None) -> list:
     from build_canonical import load_canonical
     from corrections import read_corrections
-    root = Path(project_root)
-    corr = read_corrections(root / "data" / "pnl_corrections.jsonl")
+    dd = _mode_data(project_root, demo)
+    corr = read_corrections(dd / "pnl_corrections.jsonl")
     return load_canonical(
-        raw_path=root / "data" / "trades_momentum.jsonl",
-        corrected_path=root / "data" / "trades_momentum_corrected.jsonl",
+        raw_path=dd / "trades_momentum.jsonl",
+        corrected_path=dd / "trades_momentum_corrected.jsonl",
         corrections=corr)
 
 
@@ -79,44 +94,45 @@ def trades_for_ui(trades: list) -> list:
 
 
 # ── 리포트 ──────────────────────────────────────────────
-def list_reports(project_root: Path) -> list[str]:
-    rd = Path(project_root) / "reports"
+def list_reports(project_root: Path, demo: bool | None = None) -> list[str]:
+    rd = _mode_reports(project_root, demo)
     if not rd.exists():
         return []
     days = [f.stem for f in rd.glob("*.md") if _REPORT_DAY_RE.match(f.stem)]
     return sorted(days, reverse=True)
 
 
-def visible_reports(project_root: Path) -> list[str]:
+def visible_reports(project_root: Path, demo: bool | None = None) -> list[str]:
     """v11 표시 경계 날짜부터 — 화면용. 백필·연구는 list_reports(전체)를 계속 쓴다."""
     from daily_report import DISPLAY_SINCE
     cut = DISPLAY_SINCE.astimezone(KST).date().isoformat()
-    return [d for d in list_reports(project_root) if d >= cut]
+    return [d for d in list_reports(project_root, demo) if d >= cut]
 
 
-def read_report(project_root: Path, day: str) -> str | None:
+def read_report(project_root: Path, day: str, demo: bool | None = None) -> str | None:
     if not _REPORT_DAY_RE.match(day):   # 경로 탈출 차단
         return None
-    p = Path(project_root) / "reports" / f"{day}.md"
+    p = _mode_reports(project_root, demo) / f"{day}.md"
     return p.read_text(encoding="utf-8") if p.exists() else None
 
 
 # ── 자산 이력 (exe가 기록자 — 설계 결정) ─────────────
-def _equity_path(project_root: Path) -> Path:
-    return Path(project_root).joinpath(*EQUITY_FILE)
+def _equity_path(project_root: Path, demo: bool | None = None) -> Path:
+    return _mode_data(project_root, demo) / EQUITY_FILE[-1]
 
 
-def append_equity(project_root: Path, ts_utc: datetime, equity: float) -> None:
+def append_equity(project_root: Path, ts_utc: datetime, equity: float,
+                  demo: bool | None = None) -> None:
     ts = ts_utc if ts_utc.tzinfo else ts_utc.replace(tzinfo=timezone.utc)
-    p = _equity_path(project_root)
+    p = _equity_path(project_root, demo)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8") as f:
         f.write(json.dumps({"ts": ts.astimezone(timezone.utc).isoformat(),
                             "equity": round(equity, 2)}) + "\n")
 
 
-def read_equity_history(project_root: Path) -> list[dict]:
-    p = _equity_path(project_root)
+def read_equity_history(project_root: Path, demo: bool | None = None) -> list[dict]:
+    p = _equity_path(project_root, demo)
     if not p.exists():
         return []
     out = []
@@ -129,19 +145,19 @@ def read_equity_history(project_root: Path) -> list[dict]:
     return out
 
 
-def last_equity_ts(project_root: Path) -> datetime | None:
-    hist = read_equity_history(project_root)
+def last_equity_ts(project_root: Path, demo: bool | None = None) -> datetime | None:
+    hist = read_equity_history(project_root, demo)
     if not hist:
         return None
     ts = datetime.fromisoformat(hist[-1]["ts"])
     return ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
 
 
-def backfill_from_reports(project_root: Path) -> list[dict]:
+def backfill_from_reports(project_root: Path, demo: bool | None = None) -> list[dict]:
     """일일 리포트의 자산 문구에서 과거 점 복원. 리포트는 D+1 00:30 KST 생성이므로 그 시각."""
     out = []
-    for day in sorted(list_reports(project_root)):
-        text = read_report(project_root, day) or ""
+    for day in sorted(list_reports(project_root, demo)):
+        text = read_report(project_root, day, demo) or ""
         m = _EQUITY_RE.search(text)
         if not m:
             continue
@@ -152,22 +168,22 @@ def backfill_from_reports(project_root: Path) -> list[dict]:
     return out
 
 
-def equity_series(project_root: Path) -> list[dict]:
+def equity_series(project_root: Path, demo: bool | None = None) -> list[dict]:
     """차트용 자산 시계열 — 리포트 백필(라이브 이전 구간) + 라이브 기록 병합.
     라이브 점이 생겨도 과거 백필 이력은 유지된다."""
-    live = read_equity_history(project_root)
-    backfill = backfill_from_reports(project_root)
+    live = read_equity_history(project_root, demo)
+    backfill = backfill_from_reports(project_root, demo)
     if not live:
         return backfill
     first_live = live[0]["ts"]
     return [p for p in backfill if p["ts"] < first_live] + live
 
 
-def visible_equity_series(project_root: Path) -> list[dict]:
+def visible_equity_series(project_root: Path, demo: bool | None = None) -> list[dict]:
     """v11 표시 경계 이후 구간만 — 감액(31,632→695)이 만든 절벽을 곡선에서 걷어낸다."""
     from daily_report import DISPLAY_SINCE
     out = []
-    for p in equity_series(project_root):
+    for p in equity_series(project_root, demo):
         ts = datetime.fromisoformat(p["ts"])
         if ts.tzinfo is None:
             ts = ts.replace(tzinfo=timezone.utc)
