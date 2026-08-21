@@ -17,3 +17,17 @@
 {"trade_id": "17e3e344", "symbol": "BLESSUSDT", "pnl_usd": 1.34462503, "exit_price": 0.016881, "pnl_pct": 2.326, "src": "exchange", "fixed_at": "2026-08-08T15:30:31.063372+00:00", "prev_estimated": 1.533}
 {"trade_id": "b39d3229", "symbol": "HEIUSDT", "pnl_usd": 32.29345945, "exit_price": 0.21232, "pnl_pct": 46.9213, "src": "exchange", "fixed_at": "2026-08-08T15:30:31.063372+00:00", "prev_estimated": 30.1577}
 {"trade_id": "addebc13", "symbol": "BSBUSDT", "pnl_usd": 2.83554366, "exit_price": 0.16342, "pnl_pct": 4.5053, "src": "exchange", "fixed_at": "2026-08-09T15:30:43.058084+00:00", "prev_estimated": 3.0209}
+{"trade_id": "5880250e", "symbol": "FARTCOINUSDT", "pnl_usd": -1.60276668, "exit_price": 0.13565, "pnl_pct": -2.2539, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -1.5782}
+{"trade_id": "8ffde09b", "symbol": "ICPUSDT", "pnl_usd": -0.07477822, "exit_price": 2.251, "pnl_pct": 0.0, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -0.075}
+{"trade_id": "f228893c", "symbol": "HOLOUSDT", "pnl_usd": -4.18346918, "exit_price": 0.08657, "pnl_pct": -6.0777, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -4.2426}
+{"trade_id": "b186b141", "symbol": "HOLOUSDT", "pnl_usd": -0.06723253, "exit_price": 0.09506, "pnl_pct": 0.0105, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -0.0741}
+{"trade_id": "86f9e97c", "symbol": "CRVUSDT", "pnl_usd": -2.33005959, "exit_price": 0.2723, "pnl_pct": -3.3397, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -2.3463}
+{"trade_id": "b17208db", "symbol": "XMRUSDT", "pnl_usd": -0.08682734, "exit_price": 391.55, "pnl_pct": -0.0204, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -0.0733}
+{"trade_id": "37b130f8", "symbol": "BEATUSDT", "pnl_usd": 8.61533663, "exit_price": 1.222, "pnl_pct": 12.5143, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": 8.9008}
+{"trade_id": "8c57218f", "symbol": "UNIUSDT", "pnl_usd": -0.07479956, "exit_price": 3.617, "pnl_pct": 0.0, "src": "exchange", "fixed_at": "2026-08-12T15:30:46.826269+00:00", "prev_estimated": -0.0748}
+{"trade_id": "eda1c011", "symbol": "BEATUSDT", "pnl_usd": 0.0498372, "exit_price": 1.029, "pnl_pct": 0.2907, "src": "exchange", "fixed_at": "2026-08-13T15:30:52.719525+00:00", "prev_estimated": -0.0741}
+{"trade_id": "3e02204a", "symbol": "ZECUSDT", "pnl_usd": -1.20083086, "exit_price": 488.01, "pnl_pct": -1.7436, "src": "exchange", "fixed_at": "2026-08-13T15:30:52.719525+00:00", "prev_estimated": -1.1903}
+{"trade_id": "fbdae8db", "symbol": "APRUSDT", "pnl_usd": -12.79445778, "exit_price": 0.4706, "pnl_pct": -18.6938, "src": "exchange", "fixed_at": "2026-08-13T15:30:52.719525+00:00", "prev_estimated": -12.5272}
+{"trade_id": "c9ed0c02", "symbol": "BLUAIUSDT", "pnl_usd": 9.79528887, "exit_price": 0.013316, "pnl_pct": 15.5773, "src": "exchange", "fixed_at": "2026-08-14T15:30:39.754331+00:00", "prev_estimated": 10.5423}
+{"trade_id": "68e95614", "symbol": "UNIUSDT", "pnl_usd": -0.12911225, "exit_price": 3.238, "pnl_pct": -0.0927, "src": "exchange", "fixed_at": "2026-08-15T15:30:33.648280+00:00", "prev_estimated": -0.0742}
+{"trade_id": "53263349", "symbol": "WLDUSDT", "pnl_usd": 4.88521595, "exit_price": 0.362, "pnl_pct": 7.8344, "src": "exchange", "fixed_at": "2026-08-20T15:30:54.826895+00:00", "prev_estimated": 4.9294}
