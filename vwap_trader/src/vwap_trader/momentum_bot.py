@@ -425,6 +425,47 @@ class MomentumBot:
         return self.universe
 
     # ── Candle Fetch (with cache) ────────────────────────
+    def _prefetch_candles(self, symbols, max_workers: int = 8,
+                          retry_wait: float = 0.5) -> dict:
+        """H-04(2026-08-21): 유니버스 캔들 병렬 선조회.
+
+        순차 조회(+심볼당 0.7s sleep)가 신호봉 마감→주문 체결을 중앙 56초로
+        늦췄고, 급등 중인 코인이 그 1분간 도망가 진입 슬리피지 평균 0.90%
+        (86건 중 유리 0건 = 계통적, 합계 −$52)를 만들었다 — 전략 총이익
+        +$65가 마찰비용에 전액 잠식돼 본전이 된 주범(§10 2026-08-21).
+
+        전략은 무변경: 신호·순위(top-2)·게이트 판정은 전부 기존 루프가 한다.
+        여기서는 네트워크 조회만 동시에 해서 시계를 초 단위로 당긴다.
+        실패분은 잠깐 쉬고 1회 재시도(레이트리밋 순간 거부 대비) — 그래도
+        None이면 그 심볼만 이번 스캔에서 빠진다(스캔 전체는 죽지 않는다).
+        """
+        out: dict = {}
+        if not symbols:
+            return out
+
+        def one(sym):
+            try:
+                return sym, self._fetch_candles(sym)
+            except Exception as e:
+                logger.debug("prefetch error %s: %s", sym, e)
+                return sym, None
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            for sym, data in ex.map(one, symbols):
+                out[sym] = data
+
+        misses = [s for s, d in out.items() if d is None]
+        if misses:
+            if retry_wait:
+                time.sleep(retry_wait)
+            for s in misses:
+                try:
+                    out[s] = self._fetch_candles(s)
+                except Exception:
+                    out[s] = None
+        return out
+
     def _fetch_candles(self, symbol: str) -> tuple[list, list, list, list] | None:
         """Fetch candles with incremental cache. Interval from config.
 
@@ -1743,13 +1784,17 @@ class MomentumBot:
         candidates = []
         shadow_list = []  # v5.1+: (signal, direction_str, reason) — fired but not entered
         universe_rets_24h = []  # 시장 분산 로깅용 (거래결정 무영향)
+        # H-04(2026-08-21): 전 심볼 병렬 선조회 — 순차 조회+0.7s sleep 제거.
+        # 신호봉 마감→주문 지연 중앙 56초 → 수 초. 루프는 메모리에서 소비만 한다.
+        scan_targets = [s for s in self.universe
+                        if s not in open_symbols and s not in pending_symbols]
+        candle_map = self._prefetch_candles(scan_targets)
+
         for symbol in self.universe:
             if symbol in open_symbols or symbol in pending_symbols:
                 continue
 
-            if scanned > 0:
-                time.sleep(0.7)  # v5.1: rate limit 완화 (0.5 → 0.7) — 매 정각 41회 발생, scan 시간 +8s
-            candle_data = self._fetch_candles(symbol)
+            candle_data = candle_map.get(symbol)
             if candle_data is None:
                 continue
             scanned += 1
