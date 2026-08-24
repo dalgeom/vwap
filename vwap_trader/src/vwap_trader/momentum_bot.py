@@ -33,6 +33,42 @@ from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
+def verify_closed_pnl(rec: dict, direction: str) -> dict:
+    """closed-pnl 레코드 즉석 검산 (2026-08-24, ONGUSDT 3c796367 실사례).
+
+    거래소(demo) get_closed_pnl의 closedPnl(+1.89)이 같은 레코드의
+    avgEntryPrice·avgExitPrice·qty·fee와 자체 모순(재계산 −10.40)인 사례가
+    확인됐다. pnl_source=exchange 라 fix_estimated 자동정정도 손대지 못하는
+    사각지대 — 레코드가 이미 가진 필드만으로 그 자리에서 재계산해, 크게
+    어긋나면 경고 로그 + 재계산값으로 대체한다. 추가 API 호출 없음.
+
+    허용오차 max($0.50, |재계산|의 10%): funding fee(재계산 미포함, 48h 보유에
+    ~0.1% 미만)와 반올림은 통과시키고, 부호 반전급 모순은 반드시 잡는다.
+    필드가 없거나 0이면 검산을 건너뛴다 — 기록 경로는 절대 죽으면 안 된다.
+    """
+    try:
+        entry = float(rec.get("avgEntryPrice", 0) or 0)
+        exit_p = float(rec.get("avgExitPrice", 0) or 0)
+        qty = float(rec.get("qty", 0) or 0)
+        open_fee = float(rec["openFee"])
+        close_fee = float(rec["closeFee"])
+        reported = float(rec.get("closedPnl", 0) or 0)
+    except (KeyError, TypeError, ValueError):
+        return rec
+    if entry <= 0 or exit_p <= 0 or qty <= 0:
+        return rec
+    gross = (exit_p - entry) * qty if direction == "long" else (entry - exit_p) * qty
+    recalc = gross - open_fee - close_fee
+    if abs(reported - recalc) > max(0.50, abs(recalc) * 0.10):
+        logger.warning(
+            "closedPnl 자체모순 감지 — 거래소값 %.4f vs 레코드 재계산 %.4f "
+            "(entry=%s exit=%s qty=%s fees=%.4f) → 재계산값으로 대체",
+            reported, recalc, entry, exit_p, qty, open_fee + close_fee)
+        rec["closedPnl"] = str(round(recalc, 8))
+        rec["closedPnlOriginal"] = str(reported)   # 원값 보존 — 사후 감사용
+    return rec
+
+
 def runtime_data_dir(cfg: dict) -> Path:
     """계좌 모드에 따른 런타임 데이터 디렉토리 (mode_paths와 같은 규칙).
 
@@ -878,7 +914,8 @@ class MomentumBot:
                             "Closed PnL matched %s: entry=%.6f exit=%.6f pnl=%s (try %d)",
                             pos.symbol, float(rec["avgEntryPrice"]),
                             float(rec["avgExitPrice"]), rec.get("closedPnl"), attempt + 1)
-                        return rec
+                        # 2026-08-24: 거래소 closedPnl 자체모순 방어 (ONGUSDT 사례)
+                        return verify_closed_pnl(rec, pos.direction)
             except Exception as e:
                 logger.warning("Closed PnL fetch error %s: %s", pos.symbol, e)
             if attempt < retries - 1:
