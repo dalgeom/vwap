@@ -33,6 +33,13 @@ from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
+def initial_sl(close: float, direction: int, atr: float, mult: float) -> float:
+    """진입 시 초기 손절선. direction: 1=롱(아래), -1=숏(위).
+
+    H-05(2026-08-24): 손절 폭이 arm별로 달라져(1.5/3.0 ATR) 산식을 한 곳으로 모았다."""
+    return close - mult * atr if direction == 1 else close + mult * atr
+
+
 def verify_closed_pnl(rec: dict, direction: str) -> dict:
     """closed-pnl 레코드 즉석 검산 (2026-08-24, ONGUSDT 3c796367 실사례).
 
@@ -200,7 +207,9 @@ class OpenPosition:
                  shadow_exit_reason: str | None = None, shadow_exit_ms: int | None = None,
                  shadow_policy: str = "",
                  _btc_4h_return: float | None = None,
-                 _btc_4h_atr: float | None = None, _regime: str | None = None):
+                 _btc_4h_atr: float | None = None, _regime: str | None = None,
+                 sl_ab_arm: str | None = None,
+                 sl_atr_mult_used: float | None = None):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -255,6 +264,12 @@ class OpenPosition:
             self._btc_4h_atr = _btc_4h_atr
         if _regime is not None:
             self._regime = _regime
+        # H-05(2026-08-24) 손절 폭 A/B 라벨 — 같은 유실 방지 패턴.
+        # None(구버전 state·실험 불참 경로)이면 속성을 만들지 않는다.
+        if sl_ab_arm is not None:
+            self.sl_ab_arm = sl_ab_arm
+        if sl_atr_mult_used is not None:
+            self.sl_atr_mult_used = sl_atr_mult_used
 
     def to_dict(self) -> dict:
         return vars(self)
@@ -977,6 +992,8 @@ class MomentumBot:
             "exit_price": exit_price,
             "position_size_usd": round(pos.position_size_usd, 2),
             "sl_price": pos.sl,
+            "sl_ab_arm": getattr(pos, "sl_ab_arm", None),      # H-05 손절폭 A/B
+            "sl_atr_mult": getattr(pos, "sl_atr_mult_used", None),
             "tp_price": pos.tp,
             "best_price": round(pos.best_price, 8),
             "be_triggered": pos.be_triggered,
@@ -1228,6 +1245,25 @@ class MomentumBot:
         # Volatility: 4h ATR relative threshold ($200 as rough median)
         vol = "HIGH" if btc_4h_atr > 200 else "LOW"
         return f"{trend}_{vol}"
+
+    def _assign_sl_ab(self, trade_id: str) -> tuple[str, float]:
+        """H-05 손절 폭 forward A/B: trade_id hex의 **두 번째 비트**로 배분.
+
+        BE A/B(_assign_ab)는 첫 번째 비트를 쓰므로 직교 — 2×2 균등 분할로
+        두 실험이 서로를 오염시키지 않는다. A=현행 1.5 ATR / B=3.0 ATR.
+        초기 손절 폭 하나만 다르고 BE·트레일·타임아웃은 불변(단일 변경 원칙).
+        판정은 forward 50건 1회(§11.1 문화) — 보드 H-05에 사전등록."""
+        strat = self.cfg["strategy"]
+        mult_a = strat.get("sl_atr_mult", 1.5)
+        if not strat.get("sl_ab_enabled", False):
+            return "A", mult_a
+        try:
+            is_b = (int(trade_id, 16) >> 1) % 2 == 1
+        except ValueError:
+            is_b = False
+        if is_b:
+            return "B", strat.get("sl_atr_mult_b", 3.0)
+        return "A", mult_a
 
     def _assign_ab(self, trade_id: str) -> tuple[str, float]:
         """v6 forward A/B: assign BE-trigger arm by trade_id hex parity (~50/50).
@@ -1928,8 +1964,15 @@ class MomentumBot:
                 continue
 
             symbol = signal.symbol
+            # H-05(2026-08-24): 손절선은 주문과 함께 나가므로 trade_id를 주문 전에
+            # 만들어 손절 폭 arm(A=1.5/B=3.0 ATR)을 먼저 배분한다. BE arm과 직교.
+            tid = str(uuid.uuid4())[:8]
+            arm, be_trig = self._assign_ab(tid)
+            sl_arm, sl_mult = self._assign_sl_ab(tid)
             sl_tp = self.strategy.calc_sl_tp(
                 signal.close_price, signal.direction, signal.atr)
+            sl_price = initial_sl(signal.close_price, signal.direction,
+                                  signal.atr, sl_mult)
             lot_size = self._get_lot_size(symbol)
             risk_cfg = self.cfg["risk"]
             mode = risk_cfg.get("sizing_mode")
@@ -1941,7 +1984,7 @@ class MomentumBot:
             size = compute_position_size(
                 balance=balance,
                 entry_price=signal.close_price,
-                sl_price=sl_tp.sl,
+                sl_price=sl_price,
                 lot_size=lot_size,
                 risk_pct=risk_cfg["risk_pct"],
                 fixed_notional=fixed_notional,
@@ -2003,7 +2046,7 @@ class MomentumBot:
             else:
                 # Fallback: market order (original behavior)
                 result = self._place_market_order(
-                    symbol, side, size.qty, sl_tp.sl, sl_tp.tp)
+                    symbol, side, size.qty, sl_price, sl_tp.tp)
                 if result is None:
                     shadow_list.append((signal, direction_str, "order_failed",
                                         self._last_order_error))
@@ -2016,9 +2059,6 @@ class MomentumBot:
 
                 sig_ctx = self._compute_signal_context(symbol, signal.direction)
 
-                tid = str(uuid.uuid4())[:8]
-                arm, be_trig = self._assign_ab(tid)
-
                 pos = OpenPosition(
                     symbol=symbol,
                     direction=direction_str,
@@ -2027,8 +2067,10 @@ class MomentumBot:
                     be_trigger_atr=be_trig,
                     ab_arm=arm,
                     qty=size.qty,
-                    sl=sl_tp.sl,
+                    sl=sl_price,
                     tp=sl_tp.tp,
+                    sl_ab_arm=sl_arm,
+                    sl_atr_mult_used=sl_mult,
                     entry_time=datetime.now(timezone.utc).isoformat(),
                     entry_bar=self.bar_counter,
                     intended_price=signal.close_price,
@@ -2052,11 +2094,12 @@ class MomentumBot:
                 self._init_shadow(pos, arm)  # Step2: 그림자 초기화 (실제 진입 경로 — 버그 수정 2026-07-09)
                 self.positions.append(pos)
 
-                logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f [arm %s be=%.2f]",
+                logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f "
+                            "[arm %s be=%.2f | sl_arm %s x%.1fATR]",
                             pos.trade_id, symbol, direction_str, pos.entry_price,
-                            size.qty, sl_tp.sl, sl_tp.tp, arm, be_trig)
+                            size.qty, sl_price, sl_tp.tp, arm, be_trig, sl_arm, sl_mult)
                 notify(f"[ENTRY] {symbol} {direction_str} @ {pos.entry_price:.4f} "
-                       f"qty={size.qty:.4f} SL={sl_tp.sl:.4f} TP={sl_tp.tp:.4f}")
+                       f"qty={size.qty:.4f} SL={sl_price:.4f} TP={sl_tp.tp:.4f}")
 
             entries_this_bar += 1
             if direction_str == "long":
