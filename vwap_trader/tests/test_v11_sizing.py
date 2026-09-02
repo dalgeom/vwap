@@ -168,10 +168,11 @@ def test_validate_accepts_live_config():
 
 
 def test_live_config_is_v11_equity_pct():
-    """실 설정이 v11 사이징인지 — 배포 사고 방지용 고정 확인."""
+    """실 설정이 자산비례 사이징인지 — 배포 사고 방지용 고정 확인.
+    v12(09-02): 손절 3.0 ATR 확대에 맞춰 base 10.5% → 7.5% 재균형."""
     risk = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))["risk"]
     assert risk["sizing_mode"] == "equity_pct"
-    assert risk["position_pct"] == 0.105
+    assert risk["position_pct"] == 0.075
 
 
 @pytest.mark.parametrize("mode", ["fixd", "", None, "equity", "EQUITY_PCT"])
@@ -212,9 +213,11 @@ def test_bot_version_single_source_matches_app_version():
     assert APP_SIDE == BOT_SIDE
 
 
-def test_bot_version_is_v11():
+def test_bot_version_matches_app_version():
+    """봇/앱 버전 단일 출처 동기화 — v12(09-02)부터 리터럴 대신 상호 일치를 강제."""
+    from app.version import BOT_VERSION as APP_V
     from vwap_trader.momentum_bot import BOT_VERSION
-    assert BOT_VERSION == "v11"
+    assert BOT_VERSION == APP_V == "v12"
 
 
 def test_no_hardcoded_version_literal_left_in_trade_logging():

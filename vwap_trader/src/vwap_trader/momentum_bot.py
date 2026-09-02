@@ -33,6 +33,19 @@ from .be_counterfactual import (update_shadow, build_pair_record, append_pair,
 from decimal import Decimal, ROUND_DOWN
 
 # ── Clock offset fix for Bybit timestamp validation ──────
+def is_exhausted(ret_24, lo: float, hi: float) -> bool:
+    """v12 소진 게이트: 신호 방향으로 직전 24h 이미 lo~hi% '어중간하게' 오른 뒤의
+    진입을 차단한다 (§10 2026-09-02 전수도출).
+
+    근거: ret24∈[10,30) 구간은 잭팟기·가뭄기 모두 적자(PF 0.50/0.24, n=83)이고
+    역대 잭팟 16건 중 0건 — 유일하게 잭팟-무결로 자를 수 있는 구간.
+    역행(<0, 반전 신호)과 초과열(>=30)은 잭팟 다발 구간이라 절대 건드리지 않는다.
+    필드가 없으면(구버전·캐시 부족) 통과 — 게이트는 확실할 때만 작동한다."""
+    if ret_24 is None:
+        return False
+    return lo <= ret_24 < hi
+
+
 def initial_sl(close: float, direction: int, atr: float, mult: float) -> float:
     """진입 시 초기 손절선. direction: 1=롱(아래), -1=숏(위).
 
@@ -153,7 +166,8 @@ ENV_PATH = ROOT / "config" / ".env"
 
 # 거래로직 버전 — trades 로그의 "bot_version" 단일 출처.
 # ★ app/version.py 의 BOT_VERSION 과 반드시 일치 (tests/test_v11_sizing.py 가 강제).
-BOT_VERSION = "v11"
+# v12 (2026-09-02, 사장님 총괄 판결): SL 3.0 ATR 전면 + 소진 게이트 + 세기별 사이징.
+BOT_VERSION = "v12"
 
 SIZING_MODES = ("atr", "fixed", "equity_pct")
 
@@ -1246,6 +1260,23 @@ class MomentumBot:
         vol = "HIGH" if btc_4h_atr > 200 else "LOW"
         return f"{trend}_{vol}"
 
+    def _strength_mult(self, trigger_ret: float) -> float:
+        """v12 신호세기별 사이징 배수 (§10 2026-09-02 전수도출).
+
+        차단이 아닌 사이징 — 6/29 대원칙("사이즈만이 잭팟 무관 안전 레버").
+        [8,15): 세 시대 전부 PF<1 만성 적자 구간 → x0.6 (BEAT 8.3·TUTU 13.6
+        잭팟이 있어 차단은 금지, 축소만). [20,∞): 세 시대 전부 흑자·잭팟 11건
+        → x1.3. 나머지(<8, 15~20)는 기본 1.0. config 키 없으면 전부 1.0."""
+        r = self.cfg["risk"]
+        s = abs(trigger_ret or 0.0)
+        w_lo, w_hi = r.get("strength_weak_lo"), r.get("strength_weak_hi")
+        if w_lo is not None and w_hi is not None and w_lo <= s < w_hi:
+            return float(r.get("strength_weak_mult", 1.0))
+        s_lo = r.get("strength_strong_lo")
+        if s_lo is not None and s >= s_lo:
+            return float(r.get("strength_strong_mult", 1.0))
+        return 1.0
+
     def _assign_sl_ab(self, trade_id: str) -> tuple[str, float]:
         """H-05 손절 폭 forward A/B: trade_id hex의 **두 번째 비트**로 배분.
 
@@ -1921,7 +1952,18 @@ class MomentumBot:
                     shadow_list.append((signal, direction_str, "btc_chaos"))
                     continue
 
-            candidates.append((signal, direction_str))
+            # v12 소진 게이트 + 신호 컨텍스트 선계산 (§10 09-02).
+            # ctx는 캔들 캐시 기반(+OI 1콜) — 무료 게이트들을 통과한 신호만 계산해
+            # H-04의 스캔 속도를 지킨다. 진입 시 재계산 없이 그대로 실어 보낸다.
+            sig_ctx = self._compute_signal_context(symbol, signal.direction)
+            if filters_cfg.get("exhausted_gate_enabled", False):
+                if is_exhausted(sig_ctx["ret_24"],
+                                filters_cfg.get("exhausted_ret24_min", 10.0),
+                                filters_cfg.get("exhausted_ret24_max", 30.0)):
+                    shadow_list.append((signal, direction_str, "exhausted_trend"))
+                    continue
+
+            candidates.append((signal, direction_str, sig_ctx))
 
         # 시장 분산 확정 (스캔 공통값 — 이번 스캔 진입/그림자 전건에 같은 값)
         self._dispersion = compute_dispersion(universe_rets_24h)
@@ -1933,7 +1975,7 @@ class MomentumBot:
 
         # v5.1+: 만석이면 진입 없이 잡힌 신호 전부 shadow 기록 후 종료
         if scan_only:
-            for sig, d in candidates:
+            for sig, d, _ in candidates:
                 shadow_list.append((sig, d, "max_pos_full"))
             for sig, d, reason in shadow_list:
                 self._log_shadow(sig, d, reason, btc_price, btc_1h_change)
@@ -1941,13 +1983,13 @@ class MomentumBot:
             return
 
         entries_this_bar = 0
-        for idx, (signal, direction_str) in enumerate(candidates):
+        for idx, (signal, direction_str, sig_ctx) in enumerate(candidates):
             if entries_this_bar >= max_entries:
-                for sig, d in candidates[idx:]:
+                for sig, d, _ in candidates[idx:]:
                     shadow_list.append((sig, d, "rank_cutoff"))
                 break
             if len(self.positions) + len(self._pending_orders) >= max_pos:
-                for sig, d in candidates[idx:]:
+                for sig, d, _ in candidates[idx:]:
                     shadow_list.append((sig, d, "max_pos_full"))
                 break
 
@@ -1979,8 +2021,11 @@ class MomentumBot:
             fixed_notional = (risk_cfg.get("fixed_notional_usd")
                               if mode == "fixed" else None)
             # v11: 자산비례. validate_risk_cfg 가 시작 시점에 존재·범위를 보장한다.
-            equity_pct = (risk_cfg.get("position_pct")
-                          if mode == "equity_pct" else None)
+            # v12: 신호세기별 배수 (약구간 x0.6 / 강구간 x1.3 — §10 09-02)
+            equity_pct = None
+            if mode == "equity_pct":
+                equity_pct = (risk_cfg.get("position_pct")
+                              * self._strength_mult(signal.trigger_ret))
             size = compute_position_size(
                 balance=balance,
                 entry_price=signal.close_price,
@@ -2056,8 +2101,6 @@ class MomentumBot:
                 fill_price = actual if actual > 0 else signal.close_price
                 self._log_slippage(symbol, direction_str, signal.close_price, fill_price)
                 entry_price = fill_price
-
-                sig_ctx = self._compute_signal_context(symbol, signal.direction)
 
                 pos = OpenPosition(
                     symbol=symbol,
