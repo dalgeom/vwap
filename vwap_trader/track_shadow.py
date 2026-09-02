@@ -21,7 +21,18 @@ ROOT = Path(__file__).resolve().parent
 SHADOW = ROOT / "data" / "shadow_momentum.jsonl"
 SCORES = ROOT / "data" / "shadow_scores.jsonl"
 
-SL_MULT, TRAIL_MULT, BE_TRIGGER = 1.5, 2.0, 1.5
+# v12 검수 수리(09-02): 그림자 재생 손절 폭을 현행 config에서 읽는다.
+# 1.5 고정이면 실제군(3.0)과 다른 규칙으로 재생돼 H-07 자동폐기 판정이
+# "그림자에 계통적으로 불리" 방향으로 편향된다(검수 에이전트 적발).
+def _live_sl_mult():
+    try:
+        import yaml
+        from pathlib import Path
+        cfg = yaml.safe_load((Path(__file__).parent / "config" / "momentum_config.yaml").read_text(encoding="utf-8"))
+        return float(cfg["strategy"].get("sl_atr_mult", 1.5))
+    except Exception:
+        return 1.5
+SL_MULT, TRAIL_MULT, BE_TRIGGER = _live_sl_mult(), 2.0, 1.5
 MAX_HOLD_MS = 48 * 3600 * 1000
 WAVE_MS = MAX_HOLD_MS  # 같은 파도 병합 창 = 재생 구간과 동일 48h
 RISK_USD = 115.0  # $ 추정 참고치(track_f1 계승, tier cap 무시)

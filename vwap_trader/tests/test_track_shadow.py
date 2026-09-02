@@ -2,6 +2,15 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import pytest
 from track_shadow import replay, MAX_HOLD_MS, key_of, needs_rescore, make_score, dedup_waves, aggregate
+import track_shadow as _ts
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _fixed_sl_mult(monkeypatch):
+    """메커니즘 테스트는 1.5 고정 — 라이브 config(v12=3.0)와 무관하게 재현 가능해야 한다."""
+    monkeypatch.setattr(_ts, "SL_MULT", 1.5)
+
 
 # bars = [(ts_ms, high, low, close), ...] / entry=100, atr=2 → 초기SL거리 3%(=1R)
 

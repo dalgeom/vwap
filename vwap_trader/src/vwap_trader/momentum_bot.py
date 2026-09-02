@@ -198,6 +198,34 @@ def validate_risk_cfg(cfg: dict) -> None:
     else:
         _num("risk_pct", 1.0)
 
+    # v12 검수 수리(09-02): strength_*/exhausted_* 오염 방어.
+    # 콤마 오타("0,6" → YAML 문자열)는 첫 신호에서 float() TypeError로 봇 전체를
+    # 죽이고(최악 타이밍), 들여쓰기 실수는 무음 풀사이즈가 된다 — 시작 시점 거부.
+    # 키가 아예 없으면 통과(구 config는 무배수·게이트 없음으로 정상 동작).
+    def _opt_num(section, d, key, lo, hi):
+        v = d.get(key)
+        if v is None:
+            return None
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not (lo <= v <= hi):
+            raise ValueError(
+                f"{section}.{key} 가 잘못됐습니다 ({lo}~{hi} 숫자): {v!r}")
+        return float(v)
+
+    w_lo = _opt_num("risk", risk, "strength_weak_lo", 0, 100)
+    w_hi = _opt_num("risk", risk, "strength_weak_hi", 0, 100)
+    _opt_num("risk", risk, "strength_weak_mult", 0.05, 3.0)
+    _opt_num("risk", risk, "strength_strong_lo", 0, 200)
+    _opt_num("risk", risk, "strength_strong_mult", 0.05, 3.0)
+    if w_lo is not None and w_hi is not None and w_lo >= w_hi:
+        raise ValueError(f"risk.strength_weak_lo({w_lo}) < strength_weak_hi({w_hi}) 여야 합니다")
+
+    filt = cfg.get("filters") or {}
+    e_lo = _opt_num("filters", filt, "exhausted_ret24_min", -1000, 1000)
+    e_hi = _opt_num("filters", filt, "exhausted_ret24_max", -1000, 1000)
+    if e_lo is not None and e_hi is not None and e_lo >= e_hi:
+        raise ValueError(
+            f"filters.exhausted_ret24_min({e_lo}) < exhausted_ret24_max({e_hi}) 여야 합니다")
+
 
 # ── Open Position ────────────────────────────────────────
 class OpenPosition:

@@ -161,11 +161,17 @@ RISK_ATR_MULT = 1.5  # ★ JACKPOT_R(7.8) 측정 시점에 고정된 값 — con
 
 
 def risk_usd(row: dict) -> float:
-    """진입 시점 손절 각오액($). 산출 불가(결손)면 0.0."""
+    """진입 시점 손절 각오액($). 산출 불가(결손)면 0.0.
+
+    v12 검수 수리(09-02): 거래 자신이 기록한 sl_atr_mult(H-05부터 기록)를 쓴다.
+    1.5 고정을 v12(3.0)에 그대로 쓰면 R이 2배 부풀어 잭팟 컷이 실질 3.9R로
+    무너진다(검수 에이전트 적발). 필드 없는 구기록은 1.5 고정 유지 — 원래
+    주석의 '소급 재스케일 방지' 원칙은 그대로 지켜진다."""
     atr = row.get("atr_at_entry", 0) or 0
     entry = row.get("entry_price", 0) or 0
     size = row.get("position_size_usd", 0) or 0
-    return RISK_ATR_MULT * atr / entry * size if (atr and entry and size) else 0.0
+    mult = row.get("sl_atr_mult") or RISK_ATR_MULT
+    return mult * atr / entry * size if (atr and entry and size) else 0.0
 
 
 def cf_health_warning(n_pairs: int, n_div: int, div_rate: float = CF_DIV_RATE):

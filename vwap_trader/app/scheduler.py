@@ -57,10 +57,10 @@ class SchedulerThread(threading.Thread):
         self._on_tick = on_tick
         self._tick_sec = tick_sec
         self._log_path = log_path
-        self._stop = threading.Event()
+        self._stop_evt = threading.Event()  # ★ _stop은 Thread 내부명(3.12 join/is_alive 충돌) — 가리지 말 것
 
     def run(self):
-        while not self._stop.is_set():
+        while not self._stop_evt.is_set():
             try:
                 self._on_tick(datetime.now(timezone.utc))
             except Exception as e:   # 스케줄러는 어떤 경우에도 죽지 않는다 — 대신 흔적은 남긴다
@@ -72,7 +72,7 @@ class SchedulerThread(threading.Thread):
                                     f"{type(e).__name__}: {e}\n")
                 except Exception:
                     pass
-            self._stop.wait(self._tick_sec)
+            self._stop_evt.wait(self._tick_sec)
 
     def stop(self):
-        self._stop.set()
+        self._stop_evt.set()
