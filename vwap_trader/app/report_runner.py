@@ -16,7 +16,7 @@ import json
 import os
 import shutil
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from app import journal
@@ -30,7 +30,10 @@ def _log_line(project_root: Path, msg: str) -> None:
         p = Path(project_root) / "logs" / "daily_report.log"
         p.parent.mkdir(parents=True, exist_ok=True)
         with open(p, "a", encoding="utf-8") as f:
-            f.write(f"{datetime.now(timezone.utc).isoformat()} {msg}\n")
+            # 2026-09-07: UTC로 찍으면 KST 00:30 실행분이 전날 날짜로 기록돼
+            # "오늘 로그가 없다" 착시를 만든다(실사례 — 09-07 결측 오인 사고). KST로.
+            kst = timezone(timedelta(hours=9))
+            f.write(f"{datetime.now(kst).isoformat()} {msg}\n")
     except Exception:
         pass
 

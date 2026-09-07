@@ -550,8 +550,16 @@ class MomentumBot:
 
         misses = [s for s, d in out.items() if d is None]
         if misses:
-            if retry_wait:
-                time.sleep(retry_wait)
+            # 2026-09-07: 실패 다발(레이트리밋 10006 의심)이면 대기를 연장하고
+            # INFO로 가시화 — debug에 묻혀 09-06 10006 다발이 안 보이던 것 수리.
+            wait = retry_wait
+            if len(misses) >= 5 and retry_wait:
+                wait = max(retry_wait, 2.0)
+            if len(misses) >= 3:
+                logger.info("prefetch 실패 %d/%d심볼 — %.1fs 후 재시도 (레이트리밋 의심)",
+                            len(misses), len(out), wait or 0)
+            if wait:
+                time.sleep(wait)
             for s in misses:
                 try:
                     out[s] = self._fetch_candles(s)

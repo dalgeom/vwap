@@ -164,6 +164,22 @@ def _hidden_window():
     return si
 
 
+def _log_fail(root: Path, day: str, reason: str) -> None:
+    """일지 실패 사유를 daily_report.log에 남긴다 (2026-09-07 수리).
+
+    09-02·09-06 일지가 '일지 미생성' 한 줄만 남기고 사라져 타임아웃/종료코드/
+    빈출력 중 무엇인지 알 수 없었다 — 원인 없는 실패는 고칠 수 없다."""
+    try:
+        from datetime import datetime, timedelta, timezone
+        kst = timezone(timedelta(hours=9))
+        p = Path(root) / "logs" / "daily_report.log"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now(kst).isoformat()} 일지 실패({day}): {reason}\n")
+    except Exception:
+        pass
+
+
 def run_journal(project_root: Path, day: str, claude_cmd: str | None,
                 timeout: int = JOURNAL_TIMEOUT_SEC,
                 metrics: list[dict] | None = None,
@@ -194,12 +210,19 @@ def run_journal(project_root: Path, day: str, claude_cmd: str | None,
             input=prompt.encode("utf-8"), capture_output=True,
             timeout=timeout, shell=False, cwd=str(root),
             startupinfo=_hidden_window())
-    except (subprocess.TimeoutExpired, OSError):
+    except subprocess.TimeoutExpired:
+        _log_fail(root, day, f"timeout {timeout}s 초과")
+        return None
+    except OSError as e:
+        _log_fail(root, day, f"실행 불가(OSError): {e}")
         return None
     if r.returncode != 0:
+        err = r.stderr.decode("utf-8", errors="replace").strip()[:200]
+        _log_fail(root, day, f"rc={r.returncode} stderr: {err or '(없음)'}")
         return None
     text = r.stdout.decode("utf-8", errors="replace").strip()
     if not text:
+        _log_fail(root, day, "빈 출력 (claude가 아무것도 반환하지 않음)")
         return None
 
     out = rdir / JOURNAL_DIR[-1] / f"{day}.md"
