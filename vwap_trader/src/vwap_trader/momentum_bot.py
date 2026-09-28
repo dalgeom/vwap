@@ -1832,7 +1832,14 @@ class MomentumBot:
                     break
             ctx["consec"] = cc
             if cache and len(cache[-1]) > 5:
-                ctx["vol_ratio"] = compute_vol_ratio([c[5] for c in cache], 20)
+                # 2026-09-28 채굴 조사가 적발: 마지막 캐시 봉이 진행 중이면 ~40초치
+                # 거래량으로 나눠 기록이 0.01배로 붕괴(실측 6배). 완성봉만으로 계산.
+                # ret_6/12/24·consec은 그대로 둔다 — 소진 게이트가 기존 의미
+                # (현재가까지)로 캘리브레이션돼 있어 창을 바꾸면 어긋난다.
+                bar_ms = int(self.cfg["exchange"].get("candle_interval", "60")) * 60_000
+                done = drop_forming_bar(cache, int(time.time() * 1000), bar_ms)
+                if done and len(done[-1]) > 5:
+                    ctx["vol_ratio"] = compute_vol_ratio([c[5] for c in done], 20)
         try:
             resp = self.public_session.get_open_interest(
                 category="linear", symbol=symbol, intervalTime="1h", limit=2)
