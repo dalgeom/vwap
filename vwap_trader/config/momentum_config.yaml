@@ -136,6 +136,10 @@ universe:
 exchange:
   candle_interval: "60"     # 1 hour candles (v5: 5→60)
   candle_fetch_count: 600   # threshold_window + buffer
+  # ★ 2026-10-07 실전 전환 승인(사장님) — 단, 이 파일의 git 기본값은 demo:true 유지.
+  #  저장소를 받는 모든 PC가 실전으로 켜지는 사고를 막기 위해, 전환은 메인 PC에서만
+  #  앱 설정 탭 → 실전 전환(REAL 타이핑) 으로 수행한다(로컬 config만 false가 됨).
+  #  ⚠ 전환 전 .env에 '실전' API 키 교체 + IP 등록 필수. 실전 기록은 data/real/·reports/real/ 분리.
   demo: true
   leverage: 5
 
