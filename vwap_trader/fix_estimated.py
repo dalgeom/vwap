@@ -76,8 +76,9 @@ def recompute_pnl_pct(side: str, entry_price: float, exit_price: float) -> float
 def _build_client():
     from dotenv import load_dotenv
     from pybit.unified_trading import HTTP
+    from vwap_trader.mode_paths import read_demo_flag
     load_dotenv(ROOT / "config" / ".env")
-    return HTTP(testnet=False, demo=True,
+    return HTTP(testnet=False, demo=read_demo_flag(ROOT),
                 api_key=os.environ.get("BYBIT_API_KEY", ""),
                 api_secret=os.environ.get("BYBIT_API_SECRET", ""))
 

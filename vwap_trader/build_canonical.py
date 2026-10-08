@@ -51,7 +51,7 @@ def load_canonical(raw_path=RAW, corrected_path=CORRECTED, corrections=None) -> 
     raw = _load_jsonl(raw_path)
     corrected = _load_jsonl(corrected_path)
     if not corrected:
-        print(f"⚠ corrected 파일 없음/비어있음 — raw+corrections만으로 정본 생성: {corrected_path}")
+        print(f"[경고] corrected 파일 없음/비어있음 - raw+corrections만으로 정본 생성: {corrected_path}")
     return apply_corrections(merge_trades(raw, corrected), corrections)
 
 
