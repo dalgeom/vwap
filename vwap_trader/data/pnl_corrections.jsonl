@@ -61,3 +61,5 @@
 {"trade_id": "5a3a00fb", "symbol": "VIRTUALUSDT", "pnl_usd": -2.5585353, "exit_price": 0.7968, "pnl_pct": -4.5749, "src": "exchange", "fixed_at": "2026-10-01T15:30:50.877477+00:00", "prev_estimated": -2.5378}
 {"trade_id": "f96ac2a6", "symbol": "ADAUSDT", "pnl_usd": -2.53396314, "exit_price": 0.2501, "pnl_pct": -4.5569, "src": "exchange", "fixed_at": "2026-10-05T15:30:35.452866+00:00", "prev_estimated": -2.5213}
 {"trade_id": "e47b90fb", "symbol": "MAGMAUSDT", "pnl_usd": 15.21952818, "exit_price": 0.2093, "pnl_pct": 21.5811, "src": "exchange", "fixed_at": "2026-10-05T15:30:35.452866+00:00", "prev_estimated": 15.3006}
+{"trade_id": "291a4621", "symbol": "ATHUSDT", "pnl_usd": 3.28259435, "exit_price": 0.007308, "pnl_pct": 6.0668, "src": "exchange", "fixed_at": "2026-10-07T15:31:01.508717+00:00", "prev_estimated": 3.282}
+{"trade_id": "26f063d8", "symbol": "LYNUSDT", "pnl_usd": 7.33178929, "exit_price": 0.02082, "pnl_pct": 12.8141, "src": "exchange", "fixed_at": "2026-10-07T15:31:01.508717+00:00", "prev_estimated": 7.1624}
