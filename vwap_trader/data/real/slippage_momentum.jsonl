@@ -1,0 +1,17 @@
+{"symbol": "ALGOUSDT", "direction": "short", "intended_price": 0.1215, "fill_price": 0.12078857, "slippage_pct": 0.5855, "timestamp": "2026-10-08T14:00:16.590401+00:00"}
+{"symbol": "LITUSDT", "direction": "long", "intended_price": 3.745, "fill_price": 3.74, "slippage_pct": 0.1335, "timestamp": "2026-10-08T15:00:15.924140+00:00"}
+{"symbol": "SOLUSDT", "direction": "short", "intended_price": 108.5, "fill_price": 108.71, "slippage_pct": 0.1935, "timestamp": "2026-10-08T16:00:25.092881+00:00"}
+{"symbol": "XRPUSDT", "direction": "short", "intended_price": 1.3453, "fill_price": 1.3482, "slippage_pct": 0.2156, "timestamp": "2026-10-08T16:00:26.529558+00:00"}
+{"symbol": "ONDOUSDT", "direction": "long", "intended_price": 0.4872, "fill_price": 0.4877, "slippage_pct": 0.1026, "timestamp": "2026-10-08T19:00:16.159005+00:00"}
+{"symbol": "ETHFIUSDT", "direction": "long", "intended_price": 0.6903, "fill_price": 0.6907, "slippage_pct": 0.0579, "timestamp": "2026-10-08T20:00:17.445117+00:00"}
+{"symbol": "RLCUSDT", "direction": "long", "intended_price": 1.104, "fill_price": 1.14216677, "slippage_pct": 3.4571, "timestamp": "2026-10-09T06:00:17.427285+00:00"}
+{"symbol": "RLCUSDT", "direction": "short", "intended_price": 1.0329, "fill_price": 1.01133222, "slippage_pct": 2.0881, "timestamp": "2026-10-09T08:00:20.274251+00:00"}
+{"symbol": "GRAMUSDT", "direction": "long", "intended_price": 1.484, "fill_price": 1.485, "slippage_pct": 0.0674, "timestamp": "2026-10-09T10:00:19.202675+00:00"}
+{"symbol": "ADAUSDT", "direction": "long", "intended_price": 0.2536, "fill_price": 0.2534, "slippage_pct": 0.0789, "timestamp": "2026-10-10T02:00:13.130430+00:00"}
+{"symbol": "MAGICUSDT", "direction": "short", "intended_price": 0.11242, "fill_price": 0.10882272, "slippage_pct": 3.1999, "timestamp": "2026-10-10T08:00:17.673134+00:00"}
+{"symbol": "BATUSDT", "direction": "short", "intended_price": 0.13481, "fill_price": 0.13400596, "slippage_pct": 0.5964, "timestamp": "2026-10-10T13:00:21.362687+00:00"}
+{"symbol": "JCTUSDT", "direction": "short", "intended_price": 0.001597, "fill_price": 0.00161092, "slippage_pct": 0.8716, "timestamp": "2026-10-10T21:00:13.889981+00:00"}
+{"symbol": "STRKUSDT", "direction": "long", "intended_price": 0.11698, "fill_price": 0.11759, "slippage_pct": 0.5215, "timestamp": "2026-10-11T02:00:11.564601+00:00"}
+{"symbol": "LUMIAUSDT", "direction": "long", "intended_price": 0.1483, "fill_price": 0.14897597, "slippage_pct": 0.4558, "timestamp": "2026-10-11T05:00:12.354154+00:00"}
+{"symbol": "CFXUSDT", "direction": "long", "intended_price": 0.06919, "fill_price": 0.0692, "slippage_pct": 0.0145, "timestamp": "2026-10-11T07:00:13.472503+00:00"}
+{"symbol": "NEARUSDT", "direction": "long", "intended_price": 5.788, "fill_price": 5.743, "slippage_pct": 0.7775, "timestamp": "2026-10-11T16:00:16.550215+00:00"}
