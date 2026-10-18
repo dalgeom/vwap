@@ -111,4 +111,5 @@
 - 사유: 
 - 경과:
   - 2026-10-18 — 등록·적용: 메인 PC 코드(should_flip_short·flip_from 표식, 커밋됨) + 실전 PC 로컬 config flip_short_flat_to_long:true(커밋 안 함, 기본 꺼짐). 적용 전 기준선: 실전 41건 합 -$59.18 EV -$1.44/건, 숏 21건 -$58.7, 롱 20건 -$0.5, 자산 $673.6. 풀사이즈(position_pct 7.5%·신호세기 배수 그대로). T0는 재시작 후 로그 시각으로 이 보드에 추가 기록 예정. 서브 PC: pull 후 공식 dist 재빌드 필요(메인은 로컬 빌드로 가동).
+  - 2026-10-18 — ★T0 확정: 2026-10-18 13:04:45 KST(봇 재시작 로그 "Momentum Bot starting", 새 exe 빌드 13:04). 기존 포지션 3개 복원(State loaded: 3 positions, bar=229), 잔고 $674.47, 유니버스 57종. 이 시각 이후 스캔부터 flip_from=short 표식 거래를 forward로 센다. 첫 정시 스캔 14:00 KST.
 

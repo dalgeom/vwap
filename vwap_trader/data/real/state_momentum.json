@@ -129,11 +129,11 @@
       "shadow_exit_reason": "BE",
       "shadow_exit_ms": 1792289587125,
       "shadow_policy": "v2",
-      "sl_ab_arm": "A",
-      "sl_atr_mult_used": 3.0,
       "_btc_4h_return": 0.0047,
       "_btc_4h_atr": 385.14,
-      "_regime": "FLAT_HIGH"
+      "_regime": "FLAT_HIGH",
+      "sl_ab_arm": "A",
+      "sl_atr_mult_used": 3.0
     }
   ],
   "bar_counter": 229,
@@ -143,5 +143,5 @@
     "TRUTHUSDT": "2026-10-18T15:46:08.451636+00:00"
   },
   "ghosts": [],
-  "last_save": "2026-10-18T03:40:08.643284+00:00"
+  "last_save": "2026-10-18T04:05:11.757902+00:00"
 }
