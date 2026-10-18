@@ -15,6 +15,7 @@ import sys
 import time
 import threading
 import uuid
+from dataclasses import replace as _dc_replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -51,6 +52,15 @@ def initial_sl(close: float, direction: int, atr: float, mult: float) -> float:
 
     H-05(2026-08-24): 손절 폭이 arm별로 달라져(1.5/3.0 ATR) 산식을 한 곳으로 모았다."""
     return close - mult * atr if direction == 1 else close + mult * atr
+
+
+def should_flip_short(direction_str: str, regime: str, enabled: bool) -> bool:
+    """H-13(2026-10-18): 횡보(FLAT) 레짐에서 필터를 모두 통과한 숏 신호를 롱으로 뒤집는다.
+
+    근거: FLAT 레짐 숏 52건 -$144.7(데모 -83.5·실전 -61.2), 같은 시점 롱 반전 시뮬 +$79.2.
+    DOWN 레짐 숏은 유지(뒤집으면 손해), UP 레짐 숏은 counter_trend 필터가 이미 차단한다.
+    기본 꺼짐 — filters.flip_short_flat_to_long 이 true인 PC(실전)에서만 작동."""
+    return bool(enabled) and direction_str == "short" and str(regime or "").split("_")[0] == "FLAT"
 
 
 def verify_closed_pnl(rec: dict, direction: str) -> dict:
@@ -251,7 +261,8 @@ class OpenPosition:
                  _btc_4h_return: float | None = None,
                  _btc_4h_atr: float | None = None, _regime: str | None = None,
                  sl_ab_arm: str | None = None,
-                 sl_atr_mult_used: float | None = None):
+                 sl_atr_mult_used: float | None = None,
+                 flip_from: str | None = None):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -312,6 +323,9 @@ class OpenPosition:
             self.sl_ab_arm = sl_ab_arm
         if sl_atr_mult_used is not None:
             self.sl_atr_mult_used = sl_atr_mult_used
+        # H-13(2026-10-18) 뒤집기 표식 — 원래 신호 방향("short"). 같은 유실 방지 패턴.
+        if flip_from is not None:
+            self.flip_from = flip_from
 
     def to_dict(self) -> dict:
         return vars(self)
@@ -1077,6 +1091,7 @@ class MomentumBot:
             "signal_oi_chg": round(getattr(pos, "signal_oi_chg", 0.0), 4),
             "signal_vol_ratio": round(getattr(pos, "signal_vol_ratio", 0.0), 3),
             "signal_dispersion": _round_or_none(getattr(pos, "signal_dispersion", None), 6),
+            "flip_from": getattr(pos, "flip_from", None),   # H-13 뒤집기 표식
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -2006,6 +2021,17 @@ class MomentumBot:
                     shadow_list.append((signal, direction_str, "exhausted_trend"))
                     continue
 
+            # H-13(2026-10-18): 필터를 전부 통과한 FLAT 레짐 숏 → 롱으로 뒤집기.
+            # 신호·ctx를 롱 기준으로 다시 만들어 이후 손절·주문·정원·기록이 롱으로 일관된다.
+            if should_flip_short(direction_str, self._regime,
+                                 filters_cfg.get("flip_short_flat_to_long", False)):
+                logger.info("FLIP %s short->long (regime=%s sig=%.2f%%)",
+                            symbol, self._regime, signal.trigger_ret)
+                signal = _dc_replace(signal, direction=1)
+                direction_str = "long"
+                sig_ctx = self._compute_signal_context(symbol, signal.direction)
+                sig_ctx["flip_from"] = "short"
+
             candidates.append((signal, direction_str, sig_ctx))
 
         # 시장 분산 확정 (스캔 공통값 — 이번 스캔 진입/그림자 전건에 같은 값)
@@ -2173,6 +2199,7 @@ class MomentumBot:
                     signal_oi_chg=sig_ctx["oi_chg"],
                     signal_vol_ratio=sig_ctx["vol_ratio"],
                     signal_dispersion=self._dispersion,
+                    flip_from=sig_ctx.get("flip_from"),
                 )
                 pos._btc_4h_return = self._btc_4h_return
                 pos._btc_4h_atr = self._btc_4h_atr
