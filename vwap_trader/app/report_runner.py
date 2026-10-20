@@ -157,6 +157,34 @@ def _bar_gap(root: Path, prev: list[dict], day: date, demo: bool = True) -> int:
     return max(0, days * 24 - (now_bar - prev_bar))
 
 
+def _equity_fields(root: Path, demo: bool) -> dict:
+    """낙폭 경보 재료(자산 현재/피크/바닥선).
+
+    v13.1(2026-10-20 검수 F4a·F4b): raw 파일 직파싱을 버리고
+    data_access.visible_equity_series 재사용 — ①부식 라인은 건너뛴다
+    (1줄 깨짐에 경보 전체 침묵 금지, 07-27 부분 기록 전례) ②v11 감액
+    (31,554→695) 이전 점을 걷어내 가짜 -97% 낙폭 경보를 막는다."""
+    out: dict = {}
+    try:
+        from app.data_access import visible_equity_series
+        pts = visible_equity_series(root, demo)
+        if pts:
+            out["equity_last"] = pts[-1]["equity"]
+            out["equity_peak"] = max(p["equity"] for p in pts)
+    except Exception as e:
+        _log_line(root, f"낙폭지표(자산) 수집 실패: {type(e).__name__}: {e}")
+    try:
+        import yaml as _y
+        _cfg = _y.safe_load((root / "config" / "momentum_config.yaml")
+                            .read_text(encoding="utf-8")) or {}
+        _fl = (_cfg.get("risk") or {}).get("equity_floor_usd")
+        if _fl:
+            out["equity_floor"] = float(_fl)
+    except Exception as e:
+        _log_line(root, f"낙폭지표(바닥선) 수집 실패: {type(e).__name__}: {e}")
+    return out
+
+
 def _collect_metrics(root: Path, day: date, demo: bool = True) -> dict:
     """하루치 지표 한 벌. 거래소가 필요한 항목은 실패해도 나머지를 남긴다."""
     from vwap_trader.mode_paths import data_dir
@@ -194,19 +222,7 @@ def _collect_metrics(root: Path, day: date, demo: bool = True) -> dict:
                         position_match=matched, bar_gap=gap)
     # v13 낙폭 경보 재료(2026-10-20): 자산 피크/현재 + 최근 20건 합계.
     # 실패해도 나머지 지표는 남긴다(개별 격리 계약).
-    try:
-        eqs = [json.loads(l)["equity"]
-               for l in open(dd / "equity_history.jsonl", encoding="utf-8") if l.strip()]
-        if eqs:
-            m["equity_last"], m["equity_peak"] = eqs[-1], max(eqs)
-        import yaml as _y
-        _cfg = _y.safe_load((root / "config" / "momentum_config.yaml")
-                            .read_text(encoding="utf-8")) or {}
-        _fl = (_cfg.get("risk") or {}).get("equity_floor_usd")
-        if _fl:
-            m["equity_floor"] = float(_fl)
-    except Exception as e:
-        _log_line(root, f"낙폭지표(자산) 수집 실패: {type(e).__name__}: {e}")
+    m.update(_equity_fields(root, demo))
     try:
         done = sorted((t for t in trades if t.get("exit_timestamp_utc")),
                       key=lambda t: t["exit_timestamp_utc"])[-20:]

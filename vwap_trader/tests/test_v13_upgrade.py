@@ -2,7 +2,9 @@
 
 동시 반영 4종 (각자 롤백 스위치, 조기 채택임을 §10에 기록):
   ① H-13 뒤집기 — 채택 확정 (코드는 10-18 기존, 보드 스탬프만)
-  ② H-10 급반전 증액 — ret_6<-5 롱에 x1.3 (risk.reversal_boost_mult)
+  ② H-10 급반전 증액 — ret_6<=-5 진입에 x1.3 (risk.reversal_boost_mult)
+     ★적용 범위는 전 방향(채굴 H-10 정의 그대로 — ret_6는 방향 보정값).
+      숏 급반전(펌핑 후 급락 숏)도 포함: 10-20 실측 데모 숏 코호트 20건 +$757.
      ★겹침 방지: 세기 배수와 '곱'이 아니라 '최대값' — 야생마+급반전이 겹쳐도
      1.3x를 넘지 않는다(복리 증폭 금지, 사장님 수용 위험 한도 유지)
   ③ 스프레드 게이트 — 진입 순간 호가 스프레드 > max_spread_pct 면 차단
@@ -65,11 +67,14 @@ def test_reversal_off_without_config():
 
 
 # ── ③ 스프레드 게이트 ────────────────────────────────────
-def _scan_skeleton(spread, enabled=True):
+def _scan_skeleton(spread=None, enabled=True, direction=1, flip=False,
+                   btc4h=(0.0, 300.0)):
+    from vwap_trader.strategy.momentum import MomentumSignal
     bot = object.__new__(MomentumBot)
     bot.cfg = {"risk": {"max_positions": 10, "risk_pct": 0.005,
                         "sizing_mode": "equity_pct", "position_pct": 0.075},
-               "filters": {"spread_gate_enabled": enabled, "max_spread_pct": 0.8},
+               "filters": {"spread_gate_enabled": enabled, "max_spread_pct": 0.8,
+                           "flip_short_flat_to_long": flip},
                "strategy": {"sl_atr_mult": 3.0, "sl_ab_enabled": False},
                "exchange": {"demo": True}}
     bot.positions = []
@@ -77,13 +82,16 @@ def _scan_skeleton(spread, enabled=True):
     bot._slippage_cooldown = {}
     bot.universe = ["AUSDT"]
     bot.bar_counter = 1
-    sig = SimpleNamespace(symbol="AUSDT", direction=1, close_price=1.0, atr=0.05,
-                          percentile_rank=99.9, trigger_ret=12.0)
+    # flip 경로는 _dc_replace(dataclasses.replace)를 타므로 진짜 dataclass 신호.
+    sig = MomentumSignal(symbol="AUSDT", direction=direction,
+                         trigger_ret=12.0 * direction, threshold=5.0,
+                         close_price=1.0, atr=0.05, percentile_rank=99.9)
     bot.strategy = SimpleNamespace(
         feed_candle=lambda *a, **k: sig,
-        calc_sl_tp=lambda c, d, a: SimpleNamespace(sl=c - 3.0 * a, tp=0.0))
+        calc_sl_tp=lambda c, d, a: SimpleNamespace(
+            sl=c - 3.0 * a * (1 if d == 1 else -1), tp=0.0))
     bot._get_btc_data = lambda price_map=None: (60000.0, 0.0)
-    bot._get_btc_4h_data = lambda: (0.0, 300.0)
+    bot._get_btc_4h_data = lambda: btc4h
     bot._compute_signal_context = lambda s, d: {
         "ret_6": 0.0, "ret_12": 0.0, "ret_24": 0.0, "consec": 0,
         "oi_chg": 0.0, "vol_ratio": 0.0}
@@ -93,33 +101,65 @@ def _scan_skeleton(spread, enabled=True):
     bot._candle_cache = {}
     bot._last_order_error = None
     bot._prefetch_candles = lambda syms, **k: {sym: ([1], [1], [1], [1]) for sym in syms}
-    shadows = []
-    bot._log_shadow = (lambda sig_, d, reason, *a, **k: shadows.append(reason))
+    shadows = []   # (reason, direction_str, fail_detail)
+    bot._log_shadow = (lambda sig_, d, reason, *a, **k:
+                       shadows.append((reason, d, k.get("fail_detail", ""))))
     return bot, shadows
+
+
+def _reasons(shadows):
+    return [r for r, _, _ in shadows]
 
 
 def test_wide_spread_is_blocked():
     bot, shadows = _scan_skeleton(spread=1.5)
     MomentumBot._scan_universe(bot, balance=1.0)
-    assert "wide_spread" in shadows
+    assert "wide_spread" in _reasons(shadows)
+
+
+def test_wide_spread_records_measured_value():
+    """검수 F8: 차단된(가장 극단적인) 호가 값이 수치 없이 사유만 남으면
+    0.8% 임계 재보정이 불가능 — fail_detail에 실측값을 싣는다."""
+    bot, shadows = _scan_skeleton(spread=1.5)
+    MomentumBot._scan_universe(bot, balance=1.0)
+    details = [det for r, _, det in shadows if r == "wide_spread"]
+    assert details and "1.5" in details[0]
 
 
 def test_normal_spread_passes():
     bot, shadows = _scan_skeleton(spread=0.3)
     MomentumBot._scan_universe(bot, balance=1.0)       # 잔고 1달러 → 사이징에서 멈춤
-    assert "wide_spread" not in shadows and "size_invalid" in shadows
+    r = _reasons(shadows)
+    assert "wide_spread" not in r and "size_invalid" in r
 
 
 def test_spread_fetch_failure_never_blocks():
     bot, shadows = _scan_skeleton(spread=None)
     MomentumBot._scan_universe(bot, balance=1.0)
-    assert "wide_spread" not in shadows
+    assert "wide_spread" not in _reasons(shadows)
 
 
 def test_gate_disabled_skips_check():
     bot, shadows = _scan_skeleton(spread=9.9, enabled=False)
     MomentumBot._scan_universe(bot, balance=1.0)
-    assert "wide_spread" not in shadows
+    assert "wide_spread" not in _reasons(shadows)
+
+
+# ── F3 (검수 2026-10-20): BTC 4h 조회 실패 → 레짐 UNKNOWN, flip 금지 ──
+def test_btc4h_failure_means_unknown_regime_and_no_flip():
+    """조회 실패가 (0,0)→FLAT_LOW로 둔갑하면 그 시간 모든 숏이 롱으로
+    뒤집힌다(떨어지는 칼 매수) — 실패는 UNKNOWN으로 정직하게 남겨 flip 차단."""
+    bot, shadows = _scan_skeleton(direction=-1, flip=True, btc4h=(None, None))
+    MomentumBot._scan_universe(bot, balance=1.0)
+    assert bot._regime == "UNKNOWN"
+    assert ("size_invalid", "short") in [(r, d) for r, d, _ in shadows]
+
+
+def test_flat_regime_still_flips_short_to_long():
+    """대조군 — 진짜 FLAT이면 flip은 그대로 동작해야 한다(H-13 채택 유지)."""
+    bot, shadows = _scan_skeleton(direction=-1, flip=True, btc4h=(0.0, 300.0))
+    MomentumBot._scan_universe(bot, balance=1.0)
+    assert ("size_invalid", "long") in [(r, d) for r, d, _ in shadows]
 
 
 def test_spread_recorded_on_position_roundtrip():
@@ -160,6 +200,39 @@ def test_no_drawdown_alert_when_healthy():
          "pnl_last20": -10.0}
     keys = [a["key"] for a in check_alerts(m, [])]
     assert "drawdown" not in keys and "loss_streak" not in keys
+
+
+def test_drawdown_alert_ignores_cooldown():
+    """검수 F4c: 상태형(지속) 경보는 쿨다운 면제 — 낙폭이 이어지는 동안
+    '억제된 날=해소'로 오판돼 격일 침묵하던 결함의 수리. 매일 울려야 한다."""
+    from app.metrics import check_alerts
+    hist = [{"day": "2026-10-19", "alerts": ["drawdown"]}]
+    m = {"day": "2026-10-20", "equity_last": 660.0, "equity_peak": 752.2}
+    assert "drawdown" in [a["key"] for a in check_alerts(m, hist)]
+
+
+def test_loss_streak_alert_ignores_cooldown():
+    from app.metrics import check_alerts
+    hist = [{"day": "2026-10-19", "alerts": ["loss_streak"]}]
+    m = {"day": "2026-10-20", "pnl_last20": -55.0}
+    assert "loss_streak" in [a["key"] for a in check_alerts(m, hist)]
+
+
+def test_equity_fields_skip_corrupt_lines_and_pre_v11_peak(tmp_path):
+    """검수 F4a·F4b: ①부식 라인 1줄에 낙폭 경보 전체가 침묵하면 안 된다
+    ②v11 감액(31,554→695) 이전의 가짜 피크로 -97% 허위 경보를 울리면 안 된다."""
+    from app.report_runner import _equity_fields
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    (tmp_path / "reports").mkdir()
+    lines = ['{"ts": "2026-07-01T00:00:00+00:00", "equity": 31554.77}',
+             'CORRUPT{{{',
+             '{"ts": "2026-10-08T00:00:00+00:00", "equity": 735.02}',
+             '{"ts": "2026-10-20T00:00:00+00:00", "equity": 706.6}']
+    (dd / "equity_history.jsonl").write_text("\n".join(lines), encoding="utf-8")
+    out = _equity_fields(tmp_path, demo=True)
+    assert out["equity_last"] == 706.6
+    assert out["equity_peak"] == 735.02   # 31,554는 표시 경계 이전 — 피크에서 제외
 
 
 def test_report_puts_drawdown_in_decision_section():

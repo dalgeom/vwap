@@ -24,6 +24,10 @@ LOSS_STREAK_USD = -40.0
 
 # 같은 경보로 며칠간 재발동을 막는다 — 국면이 지속되면 매일 조사하는 낭비가 된다.
 COOLDOWN_DAYS = 5
+# v13.1(2026-10-20 검수 F4c): 낙폭·연속손실은 상태형(수 주 지속 가능) — 쿨다운을
+# 적용하면 '억제된 날(alerts=[])'이 해소로 오판돼 격일 발화가 되고, 억제된 날의
+# 리포트에 낙폭 중에도 '결정 필요: 없습니다'가 찍힌다. 매일 울리는 게 계약이다.
+PERSISTENT_KEYS = {"drawdown", "loss_streak"}
 # 이 기간 내내 조용하면 강제 점검 1회 — 조용한 게 꼭 정상은 아니다.
 QUIET_DAYS_FOR_SWEEP = 7
 
@@ -199,7 +203,8 @@ def check_alerts(today: dict, history: list[dict]) -> list[dict]:
     """오늘 울려야 할 경보 목록. 쿨다운·해소·주간점검을 반영한다."""
     out = []
     for key, msg in _violations(today):
-        if not _suppressed(key, today.get("day"), history):
+        if key in PERSISTENT_KEYS or \
+                not _suppressed(key, today.get("day"), history):
             out.append({"key": key, "message": msg})
     if not out and _needs_sweep(history):
         out.append({"key": "weekly_sweep",

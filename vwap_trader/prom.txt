@@ -1,16 +1,26 @@
-★★★★ [메인 PC 필독 — 2026-10-20 서브 PC] v13 적용 절차 (사장님 총괄 지시 반영분)
-v13 = H-13 뒤집기 채택 확정 + 급반전 x1.3 증액 + 스프레드 게이트 + 낙폭 경보. 적용 순서:
+★★★★ [메인 PC 필독 — 2026-10-20 서브 PC] v13.1 적용 절차 (사장님 총괄 지시 + 적대 검수 2기 수리 반영)
+v13 = H-13 뒤집기 채택 확정 + 급반전 x1.3 증액 + 스프레드 게이트 + 낙폭 경보.
+v13.1 = 검수 수리 4종: ①BTC 4h 조회 실패 시 레짐 UNKNOWN(순단 한 번에 숏 전체가 롱으로
+뒤집히는 오발동 차단) ②낙폭 경보 쿨다운 면제(지속 낙폭 중 격일 침묵 수리) + 자산 읽기를
+부식라인 내성·v11 경계 이후로 ③차단된 wide_spread의 실측값 기록 ④ENTRY 로그에 mult= 표기.
+적용 순서:
  ① 봇 정지 → 앱 종료
  ② git checkout -- vwap_trader/dist   ← 로컬 빌드본 폐기(이거 안 하면 pull 충돌)
- ③ git pull
+ ③ git pull   (v13이 건드렸던 config는 서브가 원복해 로컬 config와 충돌하지 않는다.
+    그래도 막히면 — 수정 파일명이 뜬다 — 다음으로 우회: git stash → git pull → git stash pop)
  ④ 로컬 config(momentum_config.yaml)에 4줄 추가:
       risk:    reversal_boost_mult: 1.3  /  reversal_ret6_max: -5.0
       filters: spread_gate_enabled: true  /  max_spread_pct: 0.8
     (선택) risk: equity_floor_usd: 640   ← 낙폭 경보 바닥선
     기존 로컬 키(demo:false, flip_short_flat_to_long:true, blacklist)는 그대로 유지
- ⑤ exe 실행(v13.0 확인) → 봇 시작
- 확인: ENTRY 로그에 배수 적용, 그림자에 wide_spread 사유 등장 가능, 리포트 '결정 필요'에
- 낙폭 경보 항목(해당 시). 낙폭 경보는 설정 없이 항상 켜짐(피크 -10% / 최근 20건 -$40).
+ ⑤ exe 실행 → 봇 시작
+ ★재시작 직후 3종 확인(하나라도 다르면 봇 정지 후 보고): 로그/앱에 버전 v13 표시,
+   Balance가 $7xx(0이면 demo 모드로 꺼진 것 — config demo:false 확인), 기록 경로가 data/real.
+ 가동 확인: ENTRY 로그 끝에 mult=0.6/1.0/1.3(급반전·강신호면 1.3), 그림자에 wide_spread
+ 사유 등장 가능(fail_detail에 spread=실측값), 리포트 '결정 필요'에 낙폭 경보(해당 시, 지속
+ 중엔 매일). 낙폭 경보는 설정 없이 항상 켜짐(피크 -10% / 최근 20건 -$40).
+ ⚠가급적 오늘 00:30 KST 전에 적용 — 일지가 hypotheses.md를 고치면 pull 충돌이 하나 더 생긴다
+ (막히면 위 ③의 stash 우회).
 
 ★★★ [메인 PC 필독 — 2026-10-12 서브 PC가 남김] dist(배포본) 관리 규칙
 ① 이 메시지가 보인다면 pull은 이미 성공한 것이다. 지금 메인 로컬의 dist는 10-08 자체 빌드본

@@ -1282,9 +1282,13 @@ class MomentumBot:
             logger.debug("BTC data fetch error: %s", e)
         return 0.0, 0.0
 
-    def _get_btc_4h_data(self) -> tuple[float, float]:
+    def _get_btc_4h_data(self) -> tuple[float, float] | tuple[None, None]:
         """Get BTC 4h return (%) and 4h ATR (volatility proxy).
-        Returns (btc_4h_return, btc_4h_atr)."""
+        Returns (btc_4h_return, btc_4h_atr), 조회 실패 시 (None, None).
+
+        v13.1(2026-10-20 검수 F3): 실패를 (0,0)으로 돌려주면 레짐이
+        FLAT_LOW로 둔갑해 네트워크 순단 한 번에 그 시간 모든 숏이 롱으로
+        뒤집힌다(H-13 flip 오발동) — 실패는 None으로 정직하게 알린다."""
         try:
             resp = self.public_session.get_kline(
                 category="linear", symbol="BTCUSDT",
@@ -1306,7 +1310,7 @@ class MomentumBot:
                 return round(btc_4h_ret, 4), round(btc_4h_atr, 2)
         except Exception as e:
             logger.debug("BTC 4h data fetch error: %s", e)
-        return 0.0, 0.0
+        return None, None
 
     def _classify_regime(self, btc_1h_ret: float, btc_4h_ret: float,
                          btc_4h_atr: float) -> str:
@@ -1975,8 +1979,16 @@ class MomentumBot:
         btc_price, btc_1h_change = self._get_btc_data(price_map)
 
         # Fetch BTC 4h data + regime (once per bar)
-        self._btc_4h_return, self._btc_4h_atr = self._get_btc_4h_data()
-        self._regime = self._classify_regime(btc_1h_change, self._btc_4h_return, self._btc_4h_atr)
+        r4, a4 = self._get_btc_4h_data()
+        if r4 is None:
+            # v13.1(검수 F3): 조회 실패 → UNKNOWN. flip·counter_trend는 접두사
+            # 불일치로 자동 비활성, 수치 게이트(btc_chaos 등)는 0.0으로 기존
+            # fail-open 동작 그대로 — 차단 실패가 '방향 반전'으로 격상되지 않는다.
+            self._btc_4h_return, self._btc_4h_atr = 0.0, 0.0
+            self._regime = "UNKNOWN"
+        else:
+            self._btc_4h_return, self._btc_4h_atr = r4, a4
+            self._regime = self._classify_regime(btc_1h_change, r4, a4)
         logger.info("Regime: %s (BTC 1h=%.2f%% 4h=%.2f%% ATR=$%.0f)",
                      self._regime, btc_1h_change, self._btc_4h_return, self._btc_4h_atr)
 
@@ -2078,7 +2090,10 @@ class MomentumBot:
                 spread = self._get_spread_pct(symbol)
                 sig_ctx["spread_pct"] = spread
                 if spread is not None and spread > filters_cfg.get("max_spread_pct", 0.8):
-                    shadow_list.append((signal, direction_str, "wide_spread"))
+                    # v13.1(검수 F8): 차단된 극단 호가의 실측값을 fail_detail에
+                    # 남긴다 — 0.8% 임계 재보정에 가장 중요한 표본.
+                    shadow_list.append((signal, direction_str, "wide_spread",
+                                        f"spread={spread:.4f}%"))
                     continue
 
             candidates.append((signal, direction_str, sig_ctx))
@@ -2141,10 +2156,11 @@ class MomentumBot:
             # v11: 자산비례. validate_risk_cfg 가 시작 시점에 존재·범위를 보장한다.
             # v12: 신호세기별 배수 (약구간 x0.6 / 강구간 x1.3 — §10 09-02)
             equity_pct = None
+            entry_mult = None
             if mode == "equity_pct":
-                equity_pct = (risk_cfg.get("position_pct")
-                              * self._entry_mult(signal.trigger_ret,
-                                                 sig_ctx.get("ret_6")))
+                entry_mult = self._entry_mult(signal.trigger_ret,
+                                              sig_ctx.get("ret_6"))
+                equity_pct = risk_cfg.get("position_pct") * entry_mult
             size = compute_position_size(
                 balance=balance,
                 entry_price=signal.close_price,
@@ -2258,10 +2274,13 @@ class MomentumBot:
                 self._init_shadow(pos, arm)  # Step2: 그림자 초기화 (실제 진입 경로 — 버그 수정 2026-07-09)
                 self.positions.append(pos)
 
+                # v13.1(검수 F7): mult를 함께 찍는다 — 메인 PC 적용 확인 절차가
+                # ENTRY 로그만으로 증액 작동을 검증할 수 있도록.
                 logger.info("ENTRY [%s] %s %s @ %.4f qty=%.4f sl=%.4f tp=%.4f "
-                            "[arm %s be=%.2f | sl_arm %s x%.1fATR]",
+                            "[arm %s be=%.2f | sl_arm %s x%.1fATR] mult=%s",
                             pos.trade_id, symbol, direction_str, pos.entry_price,
-                            size.qty, sl_price, sl_tp.tp, arm, be_trig, sl_arm, sl_mult)
+                            size.qty, sl_price, sl_tp.tp, arm, be_trig, sl_arm,
+                            sl_mult, entry_mult)
                 notify(f"[ENTRY] {symbol} {direction_str} @ {pos.entry_price:.4f} "
                        f"qty={size.qty:.4f} SL={sl_price:.4f} TP={sl_tp.tp:.4f}")
 
