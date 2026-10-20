@@ -42,3 +42,10 @@
 {"symbol": "ICNTUSDT", "direction": "short", "intended_price": 0.1885, "fill_price": 0.1879, "slippage_pct": 0.3183, "timestamp": "2026-10-17T11:00:14.422956+00:00"}
 {"symbol": "ICNTUSDT", "direction": "long", "intended_price": 0.2247, "fill_price": 0.223, "slippage_pct": 0.7566, "timestamp": "2026-10-17T17:00:14.118026+00:00"}
 {"symbol": "ALTUSDT", "direction": "short", "intended_price": 0.008612, "fill_price": 0.00861096, "slippage_pct": 0.0121, "timestamp": "2026-10-18T00:00:14.180651+00:00"}
+{"symbol": "XMRUSDT", "direction": "short", "intended_price": 581.45, "fill_price": 583.35, "slippage_pct": 0.3268, "timestamp": "2026-10-18T06:00:16.641675+00:00"}
+{"symbol": "QUSDT", "direction": "long", "intended_price": 0.1091, "fill_price": 0.1104, "slippage_pct": 1.1916, "timestamp": "2026-10-18T12:00:18.382617+00:00"}
+{"symbol": "AVAUSDT", "direction": "long", "intended_price": 0.3448, "fill_price": 0.3475, "slippage_pct": 0.7831, "timestamp": "2026-10-18T16:00:15.320700+00:00"}
+{"symbol": "FARTCOINUSDT", "direction": "long", "intended_price": 0.13473, "fill_price": 0.13504, "slippage_pct": 0.2301, "timestamp": "2026-10-18T20:00:16.872500+00:00"}
+{"symbol": "QUSDT", "direction": "long", "intended_price": 0.12403, "fill_price": 0.12586327, "slippage_pct": 1.4781, "timestamp": "2026-10-19T08:00:16.511080+00:00"}
+{"symbol": "APRUSDT", "direction": "short", "intended_price": 0.0251, "fill_price": 0.025, "slippage_pct": 0.3984, "timestamp": "2026-10-19T11:00:16.736939+00:00"}
+{"symbol": "ELSAUSDT", "direction": "long", "intended_price": 0.06469, "fill_price": 0.06425071, "slippage_pct": 0.6791, "timestamp": "2026-10-19T15:00:14.512520+00:00"}
