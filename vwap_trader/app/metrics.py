@@ -14,7 +14,13 @@ from pathlib import Path
 METRICS_FILE = ("data", "daily_metrics.jsonl")
 
 ALERT_KEYS = ("atr_accuracy", "position_match", "bar_gap",
-              "slippage", "order_fail_rate")
+              "slippage", "order_fail_rate", "drawdown", "loss_streak")
+
+# v13 낙폭 경보(2026-10-20): 실전 -$59 낙폭 동안 리포트가 '결정 필요: 없습니다'를
+# 유지한 구멍의 수리. 자산이 피크 대비 -10% 또는 바닥선(config) 하회, 또는
+# 최근 20건 합계 <= -$40 이면 리포트 '결정 필요'에 자동 상정된다.
+DRAWDOWN_PEAK_RATIO = 0.90
+LOSS_STREAK_USD = -40.0
 
 # 같은 경보로 며칠간 재발동을 막는다 — 국면이 지속되면 매일 조사하는 낭비가 된다.
 COOLDOWN_DAYS = 5
@@ -142,6 +148,19 @@ def _violations(m: dict) -> list[tuple[str, str]]:
     if med >= SLIPPAGE_MEDIAN_PCT or worst >= SLIPPAGE_WORST_PCT:
         out.append(("slippage",
                     f"슬리피지 중앙 {med:.2f}% / 최악 {worst:.2f}% — 체결이 밀립니다"))
+    eq, peak = m.get("equity_last"), m.get("equity_peak")
+    floor = m.get("equity_floor")
+    if eq is not None:
+        if peak and eq <= peak * DRAWDOWN_PEAK_RATIO:
+            out.append(("drawdown",
+                        f"자산 ${eq:.1f} — 고점 ${peak:.1f} 대비 {100*(eq/peak-1):.1f}%"))
+        elif floor and eq <= floor:
+            out.append(("drawdown",
+                        f"자산 ${eq:.1f} — 설정 바닥선 ${floor:.0f} 하회"))
+    p20 = m.get("pnl_last20")
+    if p20 is not None and p20 <= LOSS_STREAK_USD:
+        out.append(("loss_streak",
+                    f"최근 20건 합계 ${p20:+.2f} — 연속 손실 구간입니다"))
     fr = m.get("order_fail_rate") or 0.0
     if fr >= ORDER_FAIL_RATE:
         out.append(("order_fail_rate",

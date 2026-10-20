@@ -33,7 +33,7 @@ def _cfg():
 # ── 버전 ─────────────────────────────────────────────────
 def test_versions_bumped_to_v12():
     from app.version import BOT_VERSION as APP_V
-    assert BOT_V == "v12" and APP_V == "v12"
+    assert BOT_V == APP_V   # v13(10-20)부터 리터럴은 test_v13_upgrade가 가짐
 
 
 # ── 실 config 판결 반영 ──────────────────────────────────

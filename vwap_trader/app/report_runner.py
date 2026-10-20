@@ -192,6 +192,28 @@ def _collect_metrics(root: Path, day: date, demo: bool = True) -> dict:
     m = compute_metrics(day=day.isoformat(), trades=closed, entered=entered,
                         shadow=shadow, slippage=slip, atr_ratios=ratios,
                         position_match=matched, bar_gap=gap)
+    # v13 낙폭 경보 재료(2026-10-20): 자산 피크/현재 + 최근 20건 합계.
+    # 실패해도 나머지 지표는 남긴다(개별 격리 계약).
+    try:
+        eqs = [json.loads(l)["equity"]
+               for l in open(dd / "equity_history.jsonl", encoding="utf-8") if l.strip()]
+        if eqs:
+            m["equity_last"], m["equity_peak"] = eqs[-1], max(eqs)
+        import yaml as _y
+        _cfg = _y.safe_load((root / "config" / "momentum_config.yaml")
+                            .read_text(encoding="utf-8")) or {}
+        _fl = (_cfg.get("risk") or {}).get("equity_floor_usd")
+        if _fl:
+            m["equity_floor"] = float(_fl)
+    except Exception as e:
+        _log_line(root, f"낙폭지표(자산) 수집 실패: {type(e).__name__}: {e}")
+    try:
+        done = sorted((t for t in trades if t.get("exit_timestamp_utc")),
+                      key=lambda t: t["exit_timestamp_utc"])[-20:]
+        if done:
+            m["pnl_last20"] = round(sum(t.get("pnl_usd") or 0 for t in done), 2)
+    except Exception as e:
+        _log_line(root, f"낙폭지표(20건) 수집 실패: {type(e).__name__}: {e}")
     try:
         state = json.loads((dd / "state_momentum.json").read_text(encoding="utf-8"))
         m["bar_counter"] = state.get("bar_counter", 0)

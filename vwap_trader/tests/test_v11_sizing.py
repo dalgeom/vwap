@@ -217,7 +217,7 @@ def test_bot_version_matches_app_version():
     """봇/앱 버전 단일 출처 동기화 — v12(09-02)부터 리터럴 대신 상호 일치를 강제."""
     from app.version import BOT_VERSION as APP_V
     from vwap_trader.momentum_bot import BOT_VERSION
-    assert BOT_VERSION == APP_V == "v12"
+    assert BOT_VERSION == APP_V == "v13"
 
 
 def test_no_hardcoded_version_literal_left_in_trade_logging():

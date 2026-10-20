@@ -177,7 +177,9 @@ ENV_PATH = ROOT / "config" / ".env"
 # 거래로직 버전 — trades 로그의 "bot_version" 단일 출처.
 # ★ app/version.py 의 BOT_VERSION 과 반드시 일치 (tests/test_v11_sizing.py 가 강제).
 # v12 (2026-09-02, 사장님 총괄 판결): SL 3.0 ATR 전면 + 소진 게이트 + 세기별 사이징.
-BOT_VERSION = "v12"
+# v13 (2026-10-20, 사장님 총괄 지시 "재판 생략 전부 반영"): H-13 뒤집기 채택 확정
+# + H-10 급반전 증액(x1.3, 세기 배수와 max 결합) + 스프레드 게이트 + 낙폭 경보.
+BOT_VERSION = "v13"
 
 SIZING_MODES = ("atr", "fixed", "equity_pct")
 
@@ -229,7 +231,12 @@ def validate_risk_cfg(cfg: dict) -> None:
     if w_lo is not None and w_hi is not None and w_lo >= w_hi:
         raise ValueError(f"risk.strength_weak_lo({w_lo}) < strength_weak_hi({w_hi}) 여야 합니다")
 
+    _opt_num("risk", risk, "reversal_boost_mult", 0.05, 3.0)
+    _opt_num("risk", risk, "reversal_ret6_max", -100, 0)
+    _opt_num("risk", risk, "equity_floor_usd", 1, 1_000_000)
+
     filt = cfg.get("filters") or {}
+    _opt_num("filters", filt, "max_spread_pct", 0.05, 5.0)
     e_lo = _opt_num("filters", filt, "exhausted_ret24_min", -1000, 1000)
     e_hi = _opt_num("filters", filt, "exhausted_ret24_max", -1000, 1000)
     if e_lo is not None and e_hi is not None and e_lo >= e_hi:
@@ -262,7 +269,8 @@ class OpenPosition:
                  _btc_4h_atr: float | None = None, _regime: str | None = None,
                  sl_ab_arm: str | None = None,
                  sl_atr_mult_used: float | None = None,
-                 flip_from: str | None = None):
+                 flip_from: str | None = None,
+                 spread_at_entry: float | None = None):
         self.symbol = symbol
         self.direction = direction  # "long" / "short"
         self.entry_price = entry_price
@@ -326,6 +334,8 @@ class OpenPosition:
         # H-13(2026-10-18) 뒤집기 표식 — 원래 신호 방향("short"). 같은 유실 방지 패턴.
         if flip_from is not None:
             self.flip_from = flip_from
+        if spread_at_entry is not None:
+            self.spread_at_entry = spread_at_entry
 
     def to_dict(self) -> dict:
         return vars(self)
@@ -1092,6 +1102,7 @@ class MomentumBot:
             "signal_vol_ratio": round(getattr(pos, "signal_vol_ratio", 0.0), 3),
             "signal_dispersion": _round_or_none(getattr(pos, "signal_dispersion", None), 6),
             "flip_from": getattr(pos, "flip_from", None),   # H-13 뒤집기 표식
+            "spread_at_entry": getattr(pos, "spread_at_entry", None),  # v13 호가 기록
         }
         with open(self._trades_file, "a") as f:
             f.write(json.dumps(record) + "\n")
@@ -1310,6 +1321,20 @@ class MomentumBot:
         # Volatility: 4h ATR relative threshold ($200 as rough median)
         vol = "HIGH" if btc_4h_atr > 200 else "LOW"
         return f"{trend}_{vol}"
+
+    def _entry_mult(self, trigger_ret: float, ret_6) -> float:
+        """v13 진입 배수 = max(세기 배수, 급반전 배수) — 곱이 아니라 최대값.
+
+        H-10 조기 채택(2026-10-20 사장님 지시): ret_6<=기준(-5)의 급반전 진입은
+        역대 4시대 전부 흑자(채굴 09-28)라 x1.3. 세기 배수와 겹칠 때 곱(1.69x)이
+        아닌 max(1.3x)로 묶어 복리 증폭을 막는다 — 야생마+급반전 중첩 시에도
+        사장님이 수용한 위험 한도(강신호 1.3x) 안에 머문다. 키 없으면 무증액."""
+        base = self._strength_mult(trigger_ret)
+        r = self.cfg["risk"]
+        rv = r.get("reversal_boost_mult")
+        if rv is not None and ret_6 is not None                 and ret_6 <= r.get("reversal_ret6_max", -5.0):
+            return max(base, float(rv))
+        return base
 
     def _strength_mult(self, trigger_ret: float) -> float:
         """v12 신호세기별 사이징 배수 (§10 2026-09-02 전수도출).
@@ -1826,6 +1851,19 @@ class MomentumBot:
                 break
         return cc
 
+    def _get_spread_pct(self, symbol: str):
+        """진입 순간 호가 스프레드(%) — 실패 시 None(게이트는 확실할 때만 작동)."""
+        try:
+            r = self.public_session.get_tickers(category="linear", symbol=symbol)
+            t = r["result"]["list"][0]
+            bid, ask = float(t["bid1Price"]), float(t["ask1Price"])
+            if bid <= 0 or ask <= 0:
+                return None
+            return round((ask - bid) / ((ask + bid) / 2) * 100, 4)
+        except Exception as e:
+            logger.debug("spread fetch failed %s: %s", symbol, e)
+            return None
+
     def _compute_signal_context(self, symbol: str, direction: int) -> dict:
         """v5.1+: D-소급 검증된 변별 신호 계산 (로깅 전용, 거래 결정엔 영향 없음).
         선행추세(ret_6/12/24, 방향 반영), 연속 동방향봉, OI 변화율(%)."""
@@ -2032,6 +2070,17 @@ class MomentumBot:
                 sig_ctx = self._compute_signal_context(symbol, signal.direction)
                 sig_ctx["flip_from"] = "short"
 
+            # v13 스프레드 게이트(2026-10-20): 진입 순간 호가가 벌어진 코인 차단.
+            # 실측 — 평시 유니버스 전 종목 스프레드 <=0.35%, 실전 슬리피지 사고
+            # (RLC 3.46%·MAGIC 3.20%)는 폭발 순간의 스트레스 호가 → 0.8% 임계는
+            # 평시 오차단 0으로 사고 호가만 거른다. 값은 항상 기록(향후 재보정 광산).
+            if filters_cfg.get("spread_gate_enabled", False):
+                spread = self._get_spread_pct(symbol)
+                sig_ctx["spread_pct"] = spread
+                if spread is not None and spread > filters_cfg.get("max_spread_pct", 0.8):
+                    shadow_list.append((signal, direction_str, "wide_spread"))
+                    continue
+
             candidates.append((signal, direction_str, sig_ctx))
 
         # 시장 분산 확정 (스캔 공통값 — 이번 스캔 진입/그림자 전건에 같은 값)
@@ -2094,7 +2143,8 @@ class MomentumBot:
             equity_pct = None
             if mode == "equity_pct":
                 equity_pct = (risk_cfg.get("position_pct")
-                              * self._strength_mult(signal.trigger_ret))
+                              * self._entry_mult(signal.trigger_ret,
+                                                 sig_ctx.get("ret_6")))
             size = compute_position_size(
                 balance=balance,
                 entry_price=signal.close_price,
@@ -2200,6 +2250,7 @@ class MomentumBot:
                     signal_vol_ratio=sig_ctx["vol_ratio"],
                     signal_dispersion=self._dispersion,
                     flip_from=sig_ctx.get("flip_from"),
+                    spread_at_entry=sig_ctx.get("spread_pct"),
                 )
                 pos._btc_4h_return = self._btc_4h_return
                 pos._btc_4h_atr = self._btc_4h_atr

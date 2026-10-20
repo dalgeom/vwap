@@ -82,8 +82,10 @@ def test_market_indicators_never_alert():
 
 
 def test_alert_keys_cover_only_health_indicators():
+    """봇 건강 5종 + v13(10-20) 낙폭 2종 — 시장 예측 지표는 여전히 없음."""
     assert set(ALERT_KEYS) == {"atr_accuracy", "position_match", "bar_gap",
-                               "slippage", "order_fail_rate"}
+                               "slippage", "order_fail_rate",
+                               "drawdown", "loss_streak"}
 
 
 # ── 쿨다운 / 해소 ────────────────────────────────────────

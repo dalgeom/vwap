@@ -299,7 +299,14 @@ def render_report(ctx: dict) -> str:
     # ── 사장님 결정 (평소에는 '없습니다'가 정상 — 매일 결정하라고 하면 backlog처럼 죽는다)
     L.append("## 오늘 사장님 결정이 필요한 것")
     pend = ctx.get("pending_decisions") or []
-    if not pend:
+    # v13(2026-10-20): 낙폭·연속손실 경보는 계기판이 아니라 여기로 — 실전 -$59
+    # 낙폭 동안 '없습니다'가 매일 찍히던 구멍의 수리. 봇을 멈출지는 사장님 결정.
+    dd = [a_ for a_ in (ctx.get("alerts") or [])
+          if a_.get("key") in ("drawdown", "loss_streak")]
+    for a_ in dd:
+        L.append(f"**낙폭 경보 — {a_['message']}**")
+        L.append("- 봇을 계속 돌릴지, 축소/정지할지 결정이 필요합니다.")
+    if not pend and not dd:
         L.append("없습니다.")
     for h in pend:
         L.append(f"**{h['id']} 검증 완료 — 채택할까요?**")
