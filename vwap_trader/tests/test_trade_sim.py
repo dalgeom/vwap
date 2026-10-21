@@ -35,3 +35,28 @@ def test_short_mirror_symmetry():
     # 숏 진입 100, SL=106: 고가 107 → 즉사 -6%
     bars = [BAR(107, 99, 100)]
     assert sim_pct(-1, 100.0, 2.0, bars) == -6.0
+
+
+class _FakeCli:
+    def __init__(self, rows=None, boom=False):
+        self.rows, self.boom, self.kw = rows, boom, None
+
+    def get_kline(self, **kw):
+        self.kw = kw
+        if self.boom:
+            raise RuntimeError("net")
+        return {"result": {"list": self.rows}}
+
+
+def test_fetch_bars_contract():
+    import datetime
+    from app.trade_sim import fetch_bars
+    h10 = int(datetime.datetime(2026, 10, 1, 10, 0).timestamp() * 1000)
+    H = 3600_000
+    # 거래소는 최신순 반환 — 10:00 이전 봉(h10-H) 1개 포함
+    rows = [[str(h10 + i * H), "1", "2", "0.5", "1.5"] for i in (2, 1, 0, -1)]
+    cli = _FakeCli(rows)
+    out = fetch_bars(cli, "X", "2026-10-01T10:30:00", keep=2, sleep=0)
+    assert cli.kw["start"] == h10                      # 정시 내림
+    assert [b[0] for b in out] == [h10, h10 + H]       # 이전 봉 제거 + 정렬 + keep 컷
+    assert fetch_bars(_FakeCli(boom=True), "X", "2026-10-01T10:30:00", sleep=0) is None

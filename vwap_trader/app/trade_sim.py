@@ -8,20 +8,22 @@ import datetime
 import time
 
 
-def fetch_bars(cli, sym: str, ts_iso: str, limit: int = 56, sleep: float = 0.1):
-    """진입 시각부터 limit개의 1h봉 [(ts, o, h, l, c)] — 실패 시 None."""
-    t0 = datetime.datetime.fromisoformat(ts_iso)
-    start = int(t0.timestamp() * 1000)
+def fetch_bars(cli, sym: str, ts_iso: str, keep: int = 48, limit: int = 60,
+               sleep: float = 0.1):
+    """진입 시각(정시 내림)부터 keep개의 1h봉 [(ts, o, h, l, c)] — 실패 시 None.
+
+    원본(analysis_flip_mirror 2026-10-18, 숏 재현 상관 0.96 검증) 로직 보존:
+    정시 내림 → limit개 조회 → 진입 정시 이전 봉 제거 → keep개 컷(=48봉 만기 계약)."""
+    t0 = datetime.datetime.fromisoformat(ts_iso).replace(minute=0, second=0, microsecond=0)
+    ms = int(t0.timestamp() * 1000)
     try:
-        r = cli.get_kline(category="linear", symbol=sym, interval="60",
-                          start=start, limit=limit)
-        ks = sorted(r["result"]["list"], key=lambda k: int(k[0]))
-        out = [(int(k[0]), float(k[1]), float(k[2]), float(k[3]), float(k[4]))
-               for k in ks]
+        r = cli.get_kline(category="linear", symbol=sym, interval="60", start=ms, limit=limit)["result"]["list"]
+        b = sorted([(int(k[0]), float(k[1]), float(k[2]), float(k[3]), float(k[4])) for k in r])
+        b = [x for x in b if x[0] >= ms][:keep]
     except Exception:
-        out = None
+        b = None
     time.sleep(sleep)
-    return out
+    return b
 
 
 def sim_pct(dirn: int, entry: float, atr: float, bars,
