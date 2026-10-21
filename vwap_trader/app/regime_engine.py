@@ -79,6 +79,8 @@ def update_dial(root: Path, demo: bool, now_utc: datetime | None = None,
     fetch = fetch or fetch_bars
     sim = sim or sim_pct
     now = now_utc or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        raise ValueError("now_utc는 tz-aware 필수 — naive면 성숙 판정이 조용히 틀린다")
     dd = data_dir(root, demo)
 
     cache_p = dd / "dial_events.jsonl"

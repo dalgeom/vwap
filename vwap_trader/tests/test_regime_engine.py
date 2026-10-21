@@ -140,3 +140,25 @@ def test_bad_event_does_not_halt_observatory(tmp_path):
         "\n".join(json.dumps(t) for t in [bad, _t("good")]), encoding="utf-8")
     st = update_dial(tmp_path, demo=True, now_utc=NOW, fetch=OK_FETCH)
     assert st["n_events"] == 1
+
+
+def test_cache_man_exclude_filtered_from_dial(tmp_path):
+    """캐시에 MAN_EXCLUDE 오라벨 극단값이 있어도 다이얼에서 빠진다."""
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    base = NOW - timedelta(days=30)
+    recs = [{"trade_id": "4720d21e", "ts": (base - timedelta(hours=1)).isoformat(),
+             "symbol": "AUSDT", "adv_pct": -999.0}]
+    recs += [{"trade_id": f"n{i}", "ts": (base + timedelta(hours=i)).isoformat(),
+              "symbol": "AUSDT", "adv_pct": float(i + 1)} for i in range(5)]
+    chr_nl = chr(10)
+    (dd / "dial_events.jsonl").write_text(
+        chr_nl.join(json.dumps(r) for r in recs), encoding="utf-8")
+    st = update_dial(tmp_path, demo=True, now_utc=NOW, fetch=OK_FETCH)
+    assert st["dial"] == pytest.approx(3.0)      # (1+2+3+4+5)/5
+
+
+def test_naive_now_raises(tmp_path):
+    with pytest.raises(ValueError):
+        update_dial(tmp_path, demo=True, now_utc=datetime(2026, 10, 21, 0, 30),
+                    fetch=OK_FETCH)
