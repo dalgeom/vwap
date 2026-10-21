@@ -290,7 +290,9 @@ def _pilot_context(project_root, day: str, demo: bool | None = None) -> dict | N
         if demo is None:
             demo = read_demo_flag(project_root)
         p = Path(data_dir(project_root, demo)) / "shadow_pilot.jsonl"
-        rows = _load_jsonl(p)
+        # 깨진 줄 1개에 섹션이 침묵하면 안 된다(F4a 계약) — 관대한 로더 사용
+        from app.regime_engine import _load_jsonl as _tolerant_jsonl
+        rows = _tolerant_jsonl(p)
         return next((r for r in reversed(rows) if r.get("day") == day), None)
     except Exception:
         return None

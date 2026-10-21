@@ -247,13 +247,17 @@ def test_report_runner_calls_pilot(monkeypatch, tmp_path):
     import app.report_runner as rr
     import app.shadow_pilot as sp
     seen = {}
+    calls = []
     monkeypatch.setattr(sp, "run_pilot",
-                        lambda root, day, demo, **k: seen.update(day=day, demo=demo) or {"day": day})
+                        lambda root, day, demo, **k: (seen.update(day=day, demo=demo),
+                                                      calls.append("pilot"), {"day": day})[2])
     monkeypatch.setattr(rr, "_collect_metrics", lambda *a, **k: {"day": "2026-10-20"})
-    monkeypatch.setattr(rr, "_run_facts_report", lambda root, day: None)
+    monkeypatch.setattr(rr, "_run_facts_report",
+                        lambda root, day: calls.append("facts") or None)
     from datetime import date
     rr.generate_report(tmp_path, date(2026, 10, 20))
     assert seen.get("day") == "2026-10-20" and seen.get("demo") in (True, False)
+    assert calls == ["pilot", "facts"]       # 리포트보다 먼저
 
 
 def test_report_renders_pilot_section():
@@ -290,3 +294,14 @@ def test_pilot_context_reads_day_record(tmp_path):
         "\n".join(_json.dumps(r) for r in rows), encoding="utf-8")
     assert _pilot_context(tmp_path, "2026-10-20", demo=True)["dial"] == 2.0
     assert _pilot_context(tmp_path, "2026-10-18", demo=True) is None
+
+
+def test_pilot_context_survives_corrupt_line(tmp_path):
+    """깨진 줄 1개에 섹션이 침묵하면 안 된다(F4a)."""
+    from daily_report import _pilot_context
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    (dd / "shadow_pilot.jsonl").write_text(
+        '{"day": "2026-10-19", "dial": 1.0}\nCORRUPT{{{\n{"day": "2026-10-20", "dial": 2.0}\n',
+        encoding="utf-8")
+    assert _pilot_context(tmp_path, "2026-10-20", demo=True)["dial"] == 2.0
