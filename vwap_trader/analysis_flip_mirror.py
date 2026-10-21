@@ -7,11 +7,9 @@ H-13 forward 판정 시 flip_from='short' 거래의 '같은 신호 가상 숏'�
 실행: python analysis_flip_mirror.py   (venv, 프로젝트 루트, 인터넷 필요)
 """
 import collections
-import datetime
 import json
 import statistics as st
 import sys
-import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -27,36 +25,15 @@ for r in real: r["_s"] = "real"
 cli = HTTP(testnet=False)
 
 
+from app.trade_sim import fetch_bars, sim_pct
+
+
 def bars(sym, ts):
-    t0 = datetime.datetime.fromisoformat(ts).replace(minute=0, second=0, microsecond=0)
-    ms = int(t0.timestamp() * 1000)
-    try:
-        r = cli.get_kline(category="linear", symbol=sym, interval="60", start=ms, limit=60)["result"]["list"]
-        b = sorted([(int(k[0]), float(k[1]), float(k[2]), float(k[3]), float(k[4])) for k in r])
-        b = [x for x in b if x[0] >= ms][:48]
-    except Exception:
-        b = None
-    time.sleep(0.12)
-    return b
+    return fetch_bars(cli, sym, ts, keep=48, limit=60, sleep=0.12)
 
 
 def sim(dirn, e, a, bs, sl_mult=3.0, be_mult=1.5, tr_mult=2.0):
-    """dirn: +1 롱 / -1 숏. 반환: 수익률(%)."""
-    sl = e - dirn * sl_mult * a
-    be = False
-    best = e
-    for _, _, hi, lo, cl in bs:
-        if (dirn == 1 and lo <= sl) or (dirn == -1 and hi >= sl):
-            return dirn * (sl - e) / e * 100
-        fav = hi if dirn == 1 else lo
-        best = max(best, fav) if dirn == 1 else min(best, fav)
-        if not be and dirn * (best - e) >= be_mult * a:
-            be = True
-        if be:
-            ns = best - dirn * tr_mult * a
-            ns = max(e, ns) if dirn == 1 else min(e, ns)
-            sl = max(sl, ns) if dirn == 1 else min(sl, ns)
-    return dirn * (bs[-1][4] - e) / e * 100
+    return sim_pct(dirn, e, a, bs, sl_mult, be_mult, tr_mult)
 
 
 res = []
