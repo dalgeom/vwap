@@ -402,6 +402,8 @@ class MomentumBot:
         self._shadow_file = runtime_dir / self.cfg["logging"].get(
             "shadow_file", "shadow_momentum.jsonl")
         self._heartbeat_file = runtime_dir / "heartbeat_momentum"
+        # 2단계 관측소(2026-10-21): 시간당 날씨 스냅샷 — 거래 로직 무영향 로깅
+        self._regime_hourly_file = runtime_dir / "regime_hourly.jsonl"
         self._stop_file = runtime_dir / "STOP_MOMENTUM"
         # Step2: BE A/B 반사실 계측기 (기록 전용, 실매매 무관)
         self._be_cf_file = runtime_dir / "be_counterfactual.jsonl"
@@ -1947,6 +1949,52 @@ class MomentumBot:
         with open(self._shadow_file, "a") as f:
             f.write(json.dumps(record) + "\n")
 
+    def _log_regime_hourly(self, universe_rets_24h: list) -> None:
+        """시간당 날씨 스냅샷 — 3단계 스크리닝·향후 노브(H-14 후속)의 재료.
+
+        거래 결정에 전혀 쓰지 않는다(기록 전용). 전체를 try로 감싸 어떤 실패도
+        스캔을 멈추지 못한다. 티커 1콜 실패 시 로컬 지표만 부분 기록(None 채움).
+        브레드스 분모는 '이번 스캔에서 캔들을 읽은 코인'(보유·대기 중 제외)."""
+        try:
+            rets = [r for r in (universe_rets_24h or []) if r is not None]
+            funding_median = oi_sum = None
+            try:
+                resp = self.public_session.get_tickers(category="linear")
+                uni = set(self.universe)
+                fr, oi = [], 0.0
+                for t in resp["result"]["list"]:
+                    if t.get("symbol") not in uni:
+                        continue
+                    try:
+                        fr.append(float(t["fundingRate"]))
+                        oi += float(t["openInterestValue"])
+                    except (KeyError, ValueError, TypeError):
+                        continue        # 필드 결측 코인은 건너뜀
+                if fr:
+                    fr.sort()
+                    m = len(fr) // 2
+                    funding_median = round(
+                        fr[m] if len(fr) % 2 else (fr[m - 1] + fr[m]) / 2, 6)
+                    oi_sum = round(oi, 2)
+            except Exception as e:
+                logger.debug("regime_hourly 티커 실패(부분 기록): %s", e)
+            rec = {"ts": datetime.now(timezone.utc).isoformat(),
+                   "bar": self.bar_counter,
+                   "regime": self._regime,
+                   "btc_4h_ret": round(self._btc_4h_return, 4),
+                   "btc_4h_atr": round(self._btc_4h_atr, 2),
+                   "dispersion": _round_or_none(self._dispersion, 6),
+                   "n_scanned": len(rets),
+                   "breadth_up10": sum(1 for r in rets if r >= 10.0),
+                   "breadth_dn10": sum(1 for r in rets if r <= -10.0),
+                   "funding_median": funding_median,
+                   "oi_value_sum": oi_sum}
+            self._regime_hourly_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self._regime_hourly_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(rec) + "\n")
+        except Exception as e:
+            logger.debug("regime_hourly 기록 실패(스캔은 진행): %s", e)
+
     def _scan_universe(self, balance: float, price_map: dict[str, float] | None = None):
         """Scan all coins for momentum signals. Option G: cluster limit + pullback entry."""
         max_pos = self.cfg["risk"]["max_positions"]
@@ -2100,6 +2148,7 @@ class MomentumBot:
 
         # 시장 분산 확정 (스캔 공통값 — 이번 스캔 진입/그림자 전건에 같은 값)
         self._dispersion = compute_dispersion(universe_rets_24h)
+        self._log_regime_hourly(universe_rets_24h)   # 2단계 관측소 — 기록 전용
 
         # Sort by signal_strength descending, take top max_entries
         candidates.sort(key=lambda x: x[0].percentile_rank, reverse=True)
