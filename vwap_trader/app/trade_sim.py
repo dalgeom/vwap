@@ -13,7 +13,9 @@ def fetch_bars(cli, sym: str, ts_iso: str, keep: int = 48, limit: int = 60,
     """진입 시각(정시 내림)부터 keep개의 1h봉 [(ts, o, h, l, c)] — 실패 시 None.
 
     원본(analysis_flip_mirror 2026-10-18, 숏 재현 상관 0.96 검증) 로직 보존:
-    정시 내림 → limit개 조회 → 진입 정시 이전 봉 제거 → keep개 컷(=48봉 만기 계약)."""
+    정시 내림 → limit개 조회 → 진입 정시 이전 봉 제거 → keep개 컷(=48봉 만기 계약).
+    ts_iso는 tz 포함 문자열 전제(naive면 이 PC 로컬 시간으로 해석 — 원본 동작 보존).
+    거래소가 빈 목록을 주면 [] 반환, 예외면 None. sleep은 성공·실패 모두 실행."""
     t0 = datetime.datetime.fromisoformat(ts_iso).replace(minute=0, second=0, microsecond=0)
     ms = int(t0.timestamp() * 1000)
     try:
@@ -28,7 +30,8 @@ def fetch_bars(cli, sym: str, ts_iso: str, keep: int = 48, limit: int = 60,
 
 def sim_pct(dirn: int, entry: float, atr: float, bars,
             sl_mult: float = 3.0, be_mult: float = 1.5, tr_mult: float = 2.0) -> float:
-    """dirn: +1 롱 / -1 숏. 반환: 노셔널 대비 수익률(%)."""
+    """dirn: +1 롱 / -1 숏. 반환: 노셔널 대비 수익률(%).
+    bars가 비어 있으면 IndexError — 호출부가 `if not bs or len(bs) < 3` 가드 책임."""
     sl = entry - dirn * sl_mult * atr
     be = False
     best = entry

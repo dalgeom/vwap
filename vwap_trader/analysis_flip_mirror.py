@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "src"))
 from build_canonical import load_canonical
 from pybit.unified_trading import HTTP
+from app.trade_sim import fetch_bars, sim_pct
 
 MAN = {"4720d21e", "24257e28", "050d5faf"}
 demo = [r for r in load_canonical() if r.get("bot_version") == "v12" and r["trade_id"] not in MAN]
@@ -23,9 +24,6 @@ real = [json.loads(l) for l in open(ROOT / "data" / "real" / "trades_momentum.js
 for r in demo: r["_s"] = "demo"
 for r in real: r["_s"] = "real"
 cli = HTTP(testnet=False)
-
-
-from app.trade_sim import fetch_bars, sim_pct
 
 
 def bars(sym, ts):
