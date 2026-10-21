@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
+import pytest
+
 from app.regime_engine import (MIN_EVENTS, compute_dial, is_dial_event,
                                update_dial)
 
@@ -57,7 +59,8 @@ def test_update_dial_caches_and_appends_state(tmp_path):
     calls = []
     fake_fetch = lambda cli, sym, ts: calls.append(sym) or [(0, 100, 101, 99, 100.5)] * 3
     st = update_dial(tmp_path, demo=True, now_utc=NOW, fetch=fake_fetch)
-    assert st["n_events"] == 6 and st["dial"] is not None
+    assert st["n_events"] == 6
+    assert st["dial"] == pytest.approx(1.0)   # 롱 +0.5% − 숏 −0.5% (부호 = ON/OFF 판단)
     # 캐시·상태판 적재 확인
     assert len((dd / "dial_events.jsonl").read_text(encoding="utf-8").splitlines()) == 6
     assert len((dd / "regime_state.jsonl").read_text(encoding="utf-8").splitlines()) == 1
@@ -84,3 +87,56 @@ def test_update_dial_safe_on_fresh_machine(tmp_path):
     st = update_dial(tmp_path, demo=True, now_utc=NOW,
                      fetch=lambda cli, sym, ts: None)
     assert st["n_events"] == 0 and st["dial"] is None
+
+
+BARS = [(0, 100, 101, 99, 100.5)] * 3
+OK_FETCH = lambda cli, sym, ts: BARS
+
+
+def test_maturity_boundary(tmp_path):
+    """MATURITY_H=49 계약: +48h59m 제외, +49h00m 포함."""
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    just_before = (NOW - timedelta(hours=48, minutes=59)).isoformat()
+    exactly = (NOW - timedelta(hours=49)).isoformat()
+    (dd / "trades_momentum.jsonl").write_text(
+        "\n".join(json.dumps(t) for t in [_t("early", ts=just_before), _t("ontime", ts=exactly)]),
+        encoding="utf-8")
+    update_dial(tmp_path, demo=True, now_utc=NOW, fetch=OK_FETCH)
+    cached = [json.loads(l)["trade_id"] for l in
+              (dd / "dial_events.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert cached == ["ontime"]
+
+
+def test_dial_window_is_ts_sorted_last_k(tmp_path):
+    """캐시를 ts 뒤섞어 넣어도 다이얼 = ts 정렬 후 마지막 20건 평균."""
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    base = NOW - timedelta(days=30)
+    recs = [{"trade_id": f"c{i}", "ts": (base + timedelta(hours=i)).isoformat(),
+             "symbol": "AUSDT", "adv_pct": float(i)} for i in range(25)]
+    shuffled = recs[::2] + recs[1::2][::-1]          # 일부러 섞음
+    (dd / "dial_events.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in shuffled), encoding="utf-8")
+    st = update_dial(tmp_path, demo=True, now_utc=NOW, fetch=OK_FETCH)
+    assert st["n_events"] == 25
+    assert st["dial"] == pytest.approx(sum(range(5, 25)) / 20)   # 최신 20건 = i 5..24
+
+
+def test_state_day_is_kst(tmp_path):
+    """운영 실행 시각 UTC 15:30 = KST 다음날 00:30 → day는 KST 날짜."""
+    now = datetime(2026, 10, 20, 15, 30, tzinfo=timezone.utc)
+    st = update_dial(tmp_path, demo=True, now_utc=now, fetch=OK_FETCH)
+    assert st["day"] == "2026-10-21"
+
+
+def test_bad_event_does_not_halt_observatory(tmp_path):
+    """필드 타입이 깨진 사건 1건이 있어도 나머지는 처리된다."""
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    bad = _t("bad")
+    bad["entry_price"] = "oops"
+    (dd / "trades_momentum.jsonl").write_text(
+        "\n".join(json.dumps(t) for t in [bad, _t("good")]), encoding="utf-8")
+    st = update_dial(tmp_path, demo=True, now_utc=NOW, fetch=OK_FETCH)
+    assert st["n_events"] == 1

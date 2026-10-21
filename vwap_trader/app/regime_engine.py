@@ -71,7 +71,9 @@ def _load_trades(root: Path, demo: bool) -> list:
 def update_dial(root: Path, demo: bool, now_utc: datetime | None = None,
                 cli=None, fetch=None, sim=None) -> dict:
     """신규 성숙 사건을 양방향 시뮬해 캐시(dial_events.jsonl)에 쌓고,
-    오늘 상태판 레코드를 regime_state.jsonl에 적재한 뒤 반환한다."""
+    오늘 상태판 레코드를 regime_state.jsonl에 적재한 뒤 반환한다.
+    같은 day가 여러 줄일 수 있다 — 소비자는 해당 day의 마지막 줄을 쓴다.
+    now_utc는 tz-aware 필수."""
     from vwap_trader.mode_paths import data_dir
     from app.trade_sim import fetch_bars, sim_pct
     fetch = fetch or fetch_bars
@@ -94,31 +96,33 @@ def update_dial(root: Path, demo: bool, now_utc: datetime | None = None,
             continue
         try:
             entered = datetime.fromisoformat(t["timestamp_utc"])
-        except (KeyError, ValueError, TypeError):
-            continue
-        if entered.tzinfo is None:
-            # tz 없는 기록은 제외 — 성숙 판정(UTC)과 봉 조회(로컬 해석)가
-            # 9시간 어긋나 조용히 틀린다(2026-10-21 trade_sim 품질 검수 지적).
-            # 실데이터 timestamp_utc는 전부 +00:00이라 실제 영향 0.
-            continue
-        if now - entered < timedelta(hours=MATURITY_H):
-            continue                       # 미성숙 — 다음 날 재시도
-        e, a = t.get("entry_price"), t.get("atr_at_entry")
-        if not e or not a:
-            continue
-        bs = fetch(cli, t["symbol"], t["timestamp_utc"])
-        if not bs or len(bs) < 3:
-            continue                       # 봉 결측 — 다음 날 재시도(상폐 심볼은 매일 1콜 낭비 허용)
-        adv = round(sim(1, e, a, bs) - sim(-1, e, a, bs), 4)
-        rec = {"trade_id": tid, "ts": t["timestamp_utc"], "symbol": t["symbol"],
-               "adv_pct": adv}
-        _append_jsonl(cache_p, rec)
+            if entered.tzinfo is None:
+                # tz 없는 기록은 제외 — 성숙 판정(UTC)과 봉 조회(로컬 해석)가
+                # 9시간 어긋나 조용히 틀린다(2026-10-21 trade_sim 품질 검수 지적).
+                # 실데이터 timestamp_utc는 전부 +00:00이라 실제 영향 0.
+                continue
+            if now - entered < timedelta(hours=MATURITY_H):
+                continue                   # 미성숙 — 다음 날 재시도
+            e, a = t.get("entry_price"), t.get("atr_at_entry")
+            if not e or not a:
+                continue
+            bs = fetch(cli, t["symbol"], t["timestamp_utc"])
+            if not bs or len(bs) < 3:
+                continue                   # 봉 결측 — 다음 날 재시도(상폐 심볼은 매일 1콜 낭비 허용)
+            adv = round(sim(1, e, a, bs) - sim(-1, e, a, bs), 4)
+            rec = {"trade_id": tid, "ts": t["timestamp_utc"], "symbol": t["symbol"],
+                   "adv_pct": adv}
+            _append_jsonl(cache_p, rec)
+        except Exception:
+            continue   # 사건 1건의 불량(필드 타입 등)이 관측소 전체를 멈추면 안 된다
         cache.append(rec)
         seen.add(tid)
         new += 1
 
     cache.sort(key=lambda c: c.get("ts") or "")
-    dial = compute_dial([c["adv_pct"] for c in cache if c.get("adv_pct") is not None])
+    dial = compute_dial([c["adv_pct"] for c in cache
+                         if c.get("adv_pct") is not None
+                         and c.get("trade_id") not in MAN_EXCLUDE])
     state = {"day": now.astimezone(timezone(timedelta(hours=9))).date().isoformat(),
              "ts": now.isoformat(), "dial": dial,
              "n_events": len(cache), "new_events": new}
