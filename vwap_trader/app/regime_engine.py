@@ -104,8 +104,10 @@ def update_dial(root: Path, demo: bool, now_utc: datetime | None = None,
         if now - entered < timedelta(hours=MATURITY_H):
             continue                       # 미성숙 — 다음 날 재시도
         e, a = t.get("entry_price"), t.get("atr_at_entry")
+        if not e or not a:
+            continue
         bs = fetch(cli, t["symbol"], t["timestamp_utc"])
-        if not bs or len(bs) < 3 or not e or not a:
+        if not bs or len(bs) < 3:
             continue                       # 봉 결측 — 다음 날 재시도(상폐 심볼은 매일 1콜 낭비 허용)
         adv = round(sim(1, e, a, bs) - sim(-1, e, a, bs), 4)
         rec = {"trade_id": tid, "ts": t["timestamp_utc"], "symbol": t["symbol"],

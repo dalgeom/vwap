@@ -77,3 +77,10 @@ def test_update_dial_skips_unfetchable_event(tmp_path):
                      fetch=lambda cli, sym, ts: None)
     assert st["n_events"] == 0 and st["dial"] is None
     assert not (dd / "dial_events.jsonl").exists()
+
+
+def test_update_dial_safe_on_fresh_machine(tmp_path):
+    """trades 파일도 디렉터리도 없는 신규 PC에서 raise 없이 보류 상태를 기록한다."""
+    st = update_dial(tmp_path, demo=True, now_utc=NOW,
+                     fetch=lambda cli, sym, ts: None)
+    assert st["n_events"] == 0 and st["dial"] is None
