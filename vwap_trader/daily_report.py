@@ -281,6 +281,21 @@ def _board_context(project_root, day: str | None = None, demo: bool | None = Non
     return out
 
 
+def _pilot_context(project_root, day: str, demo: bool | None = None) -> dict | None:
+    """그림자 조종사(H-14)의 그날 기록 — 없으면 None(섹션 생략).
+
+    이 섹션 때문에 사실 리포트가 죽으면 안 된다(계기판과 같은 계약)."""
+    try:
+        from vwap_trader.mode_paths import data_dir, read_demo_flag
+        if demo is None:
+            demo = read_demo_flag(project_root)
+        p = Path(data_dir(project_root, demo)) / "shadow_pilot.jsonl"
+        rows = _load_jsonl(p)
+        return next((r for r in reversed(rows) if r.get("day") == day), None)
+    except Exception:
+        return None
+
+
 def render_report(ctx: dict) -> str:
     day = ctx["day"]
     eq = ctx["equity"]
@@ -332,6 +347,26 @@ def render_report(ctx: dict) -> str:
             prog = h.get("progress") or []
             last = prog[-1]["note"] if prog else "아직 경과 없음"
             L.append(f"- **{h['id']}** {h.get('title', '')} — {len(prog)}일 관측 | 최근: {last}")
+        L.append("")
+
+    pilot = ctx.get("pilot")
+    if pilot:
+        L.append("## 그림자 조종사 — 날씨 적응 관측 (H-14)")
+        d = pilot.get("dial")
+        dial_s = f"{d:+.2f}%p" if d is not None else "판단 보류(사건 부족)"
+        dec = {"ON": "뒤집기 유지", "OFF": "뒤집기 중단(숏 유지)"}.get(
+            pilot.get("decision"), "현상 유지(보류)")
+        L.append(f"- 연속성 다이얼 {dial_s} (사건 {pilot.get('n_events', 0)}건) "
+                 f"→ 그림자 판단: **{dec}** (내일 진입분부터의 가정)")
+        L.append(f"- 오늘 확정 {pilot.get('n_new', 0)}건 "
+                 f"(분기 {pilot.get('n_div', 0)}건, 평가 대기 {pilot.get('n_unresolved', 0)}건)")
+        for dv in (pilot.get("divergent") or []):
+            L.append(f"  - {dv.get('symbol')}: 실제 ${dv.get('actual', 0):+.2f} "
+                     f"vs 그림자 ${dv.get('shadow', 0):+.2f}")
+        L.append(f"- 누적(게이트 분기 {pilot.get('cum_div', 0)}/30): "
+                 f"실제 ${pilot.get('cum_actual', 0):+.2f} vs 그림자 ${pilot.get('cum_shadow', 0):+.2f} "
+                 f"(판단이 있던 사건만 집계)")
+        L.append("- ※ 기록만 하는 관측입니다 — 실제 거래는 바꾸지 않습니다.")
         L.append("")
 
     L.append("## 지금 들고 있는 포지션")
@@ -551,6 +586,7 @@ def main():
         "todays_excluded": len(todays_all) - len(visible_closes),
         "stats": build_stats(visible_trades(trades)),   # 누적도 v11부터 새로 — 새 출발
         **_board_context(ROOT, day.isoformat(), demo=demo),  # 경보·결정 필요·관측 중
+        "pilot": _pilot_context(ROOT, day.isoformat(), demo=demo),
         "shadow_counts": shadow_reason_counts(shadow, day),
         "order_fails": order_fail_details(shadow, day),
         "fail_codes": order_fail_code_counts(shadow, day),

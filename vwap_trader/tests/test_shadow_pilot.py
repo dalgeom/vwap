@@ -254,3 +254,39 @@ def test_report_runner_calls_pilot(monkeypatch, tmp_path):
     from datetime import date
     rr.generate_report(tmp_path, date(2026, 10, 20))
     assert seen.get("day") == "2026-10-20" and seen.get("demo") in (True, False)
+
+
+def test_report_renders_pilot_section():
+    from datetime import date
+    from daily_report import build_stats, render_report
+    ctx = {"day": date(2026, 10, 20), "equity": 700.0, "bar": 1, "hb_age_min": 0.1,
+           "positions": [], "todays": [], "stats": build_stats([]),
+           "shadow_counts": {}, "warnings": [], "alerts": [],
+           "pending_decisions": [], "observing": [],
+           "infra": {"estimated": 0, "imminent": 0, "lost": 0, "cooldowns": [],
+                     "corrections": 0},
+           "pilot": {"day": "2026-10-20", "dial": -1.25, "n_events": 20,
+                     "decision": "OFF", "n_new": 3, "n_unresolved": 1,
+                     "divergent": [{"trade_id": "t1", "symbol": "AUSDT",
+                                    "actual": -5.0, "shadow": 3.0}],
+                     "n_div": 1, "cum_div": 7,
+                     "cum_actual": -10.0, "cum_shadow": 4.5}}
+    md = render_report(ctx)
+    assert "그림자 조종사" in md and "-1.25" in md and "7/30" in md
+    assert "AUSDT" in md
+    sec = md.split("## 그림자 조종사")[1].split("##")[0]
+    assert "뒤집기 중단" in sec            # OFF 번역
+    ctx["pilot"] = None
+    assert "그림자 조종사" not in render_report(ctx)   # 데이터 없으면 섹션 생략
+
+
+def test_pilot_context_reads_day_record(tmp_path):
+    from daily_report import _pilot_context
+    import json as _json
+    dd = tmp_path / "data"
+    dd.mkdir(parents=True)
+    rows = [{"day": "2026-10-19", "dial": 1.0}, {"day": "2026-10-20", "dial": 2.0}]
+    (dd / "shadow_pilot.jsonl").write_text(
+        "\n".join(_json.dumps(r) for r in rows), encoding="utf-8")
+    assert _pilot_context(tmp_path, "2026-10-20", demo=True)["dial"] == 2.0
+    assert _pilot_context(tmp_path, "2026-10-18", demo=True) is None
