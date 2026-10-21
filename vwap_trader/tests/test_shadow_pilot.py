@@ -160,22 +160,65 @@ def test_missing_everything_is_safe(tmp_path):
 
 
 def test_cum_is_cache_sum(tmp_path):
-    """기존 캐시 2건(순서 섞음) + 신규 1건 → cum은 3건 합산."""
+    """캐시 3건(순서 섞음) + 신규 t1 -> cum은 applied 있는 사건만 합산.
+    x0(applied None)과 신규 t1(prev 기록 없어 applied None)은 제외.
+    actual = x2(-3) + x1(5) = 2.0 / shadow = x2(-3) + x1(1) = -2.0 / cum_div = x1 1건."""
     dd = _setup(tmp_path)
+    rows = [
+        {"trade_id": "x2", "applied": "ON", "actual": -3.0, "shadow": -3.0, "divergent": False},
+        {"trade_id": "x0", "applied": None, "actual": 100.0, "shadow": 100.0, "divergent": False},
+        {"trade_id": "x1", "applied": "OFF", "actual": 5.0, "shadow": 1.0, "divergent": True},
+    ]
     with open(dd / "pilot_events.jsonl", "w", encoding="utf-8") as f:
-        f.write(json.dumps({"trade_id": "x2", "symbol": "B",
-                            "entry_ts": "2026-10-01T00:00:00+00:00",
-                            "applied": "ON", "actual": -3.0, "shadow": -3.0,
-                            "divergent": False}) + "\n")
-        f.write(json.dumps({"trade_id": "x1", "symbol": "A",
-                            "entry_ts": "2026-09-01T00:00:00+00:00",
-                            "applied": "OFF", "actual": 5.0, "shadow": 1.0,
-                            "divergent": True}) + "\n")
+        for r in rows:
+            f.write(json.dumps({"symbol": "S", "entry_ts": "2026-09-01T00:00:00+00:00", **r}) + "\n")
     rec = _run(tmp_path, BARS_FLAT)
     assert rec["n_new"] == 1
     assert rec["cum_div"] == 1
-    assert rec["cum_actual"] == 12.0         # 5 - 3 + 10
-    assert rec["cum_shadow"] == 8.0          # 1 - 3 + 10
+    assert rec["cum_actual"] == 2.0          # -3 + 5 (x0, 신규 t1은 applied 없음 -> 제외)
+    assert rec["cum_shadow"] == -2.0         # -3 + 1
+
+
+def test_applied_boundary_picks_day_before_entry(tmp_path):
+    """C-1 경계: 이틀 전 ON / 전날 OFF / 진입 당일 ON -> 전날 OFF가 적용(분기, 가상 숏 2.5).
+    `<`->`<=` 변이(당일 ON 채택)와 cands[0] 변이(이틀 전 ON 채택)를 모두 잡는다."""
+    dd = _setup(tmp_path)
+    _seed_prev(dd, "ON", day="2026-10-16")
+    _seed_prev(dd, "OFF", day="2026-10-17")
+    _seed_prev(dd, "ON", day="2026-10-18")          # 진입 당일(KST 10-18)
+    rec = _run(tmp_path, BARS_SHORT_WIN)
+    assert rec["n_div"] == 1 and rec["divergent"][0]["shadow"] == 2.5
+    assert _lines(dd / "pilot_events.jsonl")[0]["applied"] == "OFF"
+
+
+def test_kst_date_boundary(tmp_path):
+    """진입 15:30Z = KST 다음날 00:30 -> 진입일은 KST 10-19, 전날(10-18) 레코드가 applied.
+    (UTC 날짜 10-18로 잘못 보면 10-17 ON이 뽑혀 분기가 안 생긴다.)"""
+    ts = "2026-10-18T15:30:00+00:00"
+    dd = _setup(tmp_path, _trade(ts=ts, exit_ts=ts))
+    _seed_prev(dd, "ON", day="2026-10-17")
+    _seed_prev(dd, "OFF", day="2026-10-18")
+    rec = _run(tmp_path, BARS_SHORT_WIN)
+    assert rec["n_div"] == 1
+    assert _lines(dd / "pilot_events.jsonl")[0]["applied"] == "OFF"
+
+
+def test_unexited_trade_not_evaluated(tmp_path):
+    """미청산(exit 없음) 사건은 평가·캐시하지 않는다."""
+    dd = _setup(tmp_path, _trade(exit_ts=None))
+    _seed_prev(dd, "OFF")
+    rec = _run(tmp_path, BARS_SHORT_WIN)
+    assert rec["n_new"] == 0 and rec["n_unresolved"] == 0
+    assert not (dd / "pilot_events.jsonl").exists()
+
+
+def test_two_bars_is_unresolved(tmp_path):
+    """분기 조건에서 봉이 2개뿐이면 미해결(캐시 미기록)."""
+    dd = _setup(tmp_path)
+    _seed_prev(dd, "OFF")
+    rec = _run(tmp_path, BARS_SHORT_WIN[:2])
+    assert rec["n_unresolved"] == 1 and rec["n_new"] == 0
+    assert not (dd / "pilot_events.jsonl").exists()
 
 
 def test_bad_day_format_raises(tmp_path):

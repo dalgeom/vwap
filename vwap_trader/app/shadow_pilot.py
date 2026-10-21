@@ -13,7 +13,10 @@
   divergent/n_div(오늘 새로 확정된 분기), cum_div/cum_actual/cum_shadow.
 - pilot_events.jsonl (사건별 1줄, trade_id 키): trade_id, symbol, entry_ts,
   applied, actual, shadow, divergent. 평가 실패는 기록하지 않고 다음 실행에서 재시도.
-- cum_*은 매번 pilot_events 전체 합산이라 결측일·역순·수동 재생성에 불변이다.
+- cum_*은 매번 pilot_events 합산이라 결측일·역순·수동 재생성에 불변이다. 합산 대상은
+  판단(applied)이 있던 사건만 — H-14 게이트의 공정 분모(판단 없던 시절 이력이 절대값을 오염시키지 않게).
+- 한계: 일일 레코드에는 ts가 없어 day 단위 walk-forward다 — 레코드가 수 시간 늦게 생성되면
+  그날 진입분에 약한 누수 가능(자기 사건 혼입은 아님).
 - actual은 체결 포함 실손익, shadow는 분기 시 공용 시뮬(수수료 미반영) — 분기 비교 전용.
   분기가 아니면 shadow = actual.
 평가 시점: 청산 완료 AND 진입+49h 경과(봉 48개 보장) AND 아직 평가 안 됨."""
@@ -116,11 +119,12 @@ def run_pilot(root: Path, day: str, demo: bool, now_utc=None,
             new_div.append({"trade_id": tid, "symbol": rec["symbol"],
                             "actual": actual, "shadow": shadow})
 
+    judged = [c for c in cache if c.get("applied") is not None]
     out = {"day": day, "dial": state.get("dial"), "n_events": state.get("n_events"),
            "decision": decision, "n_new": n_new, "n_unresolved": n_unresolved,
            "divergent": new_div, "n_div": len(new_div),
-           "cum_div": sum(1 for c in cache if c.get("divergent")),
-           "cum_actual": round(sum(c.get("actual") or 0.0 for c in cache), 2),
-           "cum_shadow": round(sum(c.get("shadow") or 0.0 for c in cache), 2)}
+           "cum_div": sum(1 for c in judged if c.get("divergent")),
+           "cum_actual": round(sum(c.get("actual") or 0.0 for c in judged), 2),
+           "cum_shadow": round(sum(c.get("shadow") or 0.0 for c in judged), 2)}
     _append_jsonl(log_p, out)
     return out
