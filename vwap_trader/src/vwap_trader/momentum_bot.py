@@ -404,6 +404,7 @@ class MomentumBot:
         self._heartbeat_file = runtime_dir / "heartbeat_momentum"
         # 2단계 관측소(2026-10-21): 시간당 날씨 스냅샷 — 거래 로직 무영향 로깅
         self._regime_hourly_file = runtime_dir / "regime_hourly.jsonl"
+        self._last_universe_rets: list = []
         self._stop_file = runtime_dir / "STOP_MOMENTUM"
         # Step2: BE A/B 반사실 계측기 (기록 전용, 실매매 무관)
         self._be_cf_file = runtime_dir / "be_counterfactual.jsonl"
@@ -1523,6 +1524,7 @@ class MomentumBot:
                 # Note: clock resync는 매 분 호출됨 (위)
                 self.refresh_universe()
                 self._scan_universe(balance, price_map)
+                self._log_regime_hourly(getattr(self, "_last_universe_rets", []))   # 2단계 관측소 — 주문 완료 후 기록 전용
                 last_scan_hour_bar = current_hour_bar
 
             # 4. Save state — 매 분
@@ -1966,10 +1968,11 @@ class MomentumBot:
                     if t.get("symbol") not in uni:
                         continue
                     try:
-                        fr.append(float(t["fundingRate"]))
-                        oi += float(t["openInterestValue"])
+                        f_, o_ = float(t["fundingRate"]), float(t["openInterestValue"])
                     except (KeyError, ValueError, TypeError):
                         continue        # 필드 결측 코인은 건너뜀
+                    fr.append(f_)
+                    oi += o_
                 if fr:
                     fr.sort()
                     m = len(fr) // 2
@@ -1977,7 +1980,7 @@ class MomentumBot:
                         fr[m] if len(fr) % 2 else (fr[m - 1] + fr[m]) / 2, 6)
                     oi_sum = round(oi, 2)
             except Exception as e:
-                logger.debug("regime_hourly 티커 실패(부분 기록): %s", e)
+                logger.warning("regime_hourly 티커 실패(부분 기록): %s", e)
             rec = {"ts": datetime.now(timezone.utc).isoformat(),
                    "bar": self.bar_counter,
                    "regime": self._regime,
@@ -1993,7 +1996,7 @@ class MomentumBot:
             with open(self._regime_hourly_file, "a", encoding="utf-8") as f:
                 f.write(json.dumps(rec) + "\n")
         except Exception as e:
-            logger.debug("regime_hourly 기록 실패(스캔은 진행): %s", e)
+            logger.warning("regime_hourly 기록 실패(스캔은 진행): %s", e)
 
     def _scan_universe(self, balance: float, price_map: dict[str, float] | None = None):
         """Scan all coins for momentum signals. Option G: cluster limit + pullback entry."""
@@ -2148,7 +2151,7 @@ class MomentumBot:
 
         # 시장 분산 확정 (스캔 공통값 — 이번 스캔 진입/그림자 전건에 같은 값)
         self._dispersion = compute_dispersion(universe_rets_24h)
-        self._log_regime_hourly(universe_rets_24h)   # 2단계 관측소 — 기록 전용
+        self._last_universe_rets = universe_rets_24h   # 2단계 스냅샷 재료 — 기록은 주문 뒤(_main_loop)에서(H-04: 주문 지연 금지)
 
         # Sort by signal_strength descending, take top max_entries
         candidates.sort(key=lambda x: x[0].percentile_rank, reverse=True)

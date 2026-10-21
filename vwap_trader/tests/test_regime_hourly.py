@@ -65,16 +65,21 @@ def test_snapshot_failure_never_raises(tmp_path):
 
 def test_write_failure_never_raises(tmp_path):
     bot = _bot(tmp_path)
-    bot._regime_hourly_file = tmp_path / "no_such_dir" / "x" / "f.jsonl"
+    (tmp_path / "blocker").write_text("file", encoding="utf-8")   # 부모 자리에 파일 -> mkdir 실패
+    bot._regime_hourly_file = tmp_path / "blocker" / "x" / "f.jsonl"
     MomentumBot._log_regime_hourly(bot, [1.0])      # mkdir 포함 — 그래도 실패 시 무음
 
 
-def test_scan_universe_calls_snapshot(tmp_path):
-    """스캔 1회 → 스냅샷 1줄 (기존 _scan_skeleton 재사용)."""
+def test_scan_universe_defers_snapshot_to_after_orders(tmp_path):
+    """H-04: _scan_universe는 기록하지 않고 재료만 저장 — 기록은 _main_loop에서 주문 뒤."""
     from test_v13_upgrade import _scan_skeleton
     bot, _ = _scan_skeleton(spread=None, enabled=False)
     bot._regime_hourly_file = tmp_path / "regime_hourly.jsonl"
     bot.public_session = SimpleNamespace(get_tickers=lambda **k: TICKERS)
+    bot._last_universe_rets = None                                   # 센티널
     MomentumBot._scan_universe(bot, balance=1.0)
+    assert not (tmp_path / "regime_hourly.jsonl").exists()          # (a) 주문 전 미기록
+    assert isinstance(bot._last_universe_rets, list)                 # (b) 재료 저장됨
+    MomentumBot._log_regime_hourly(bot, bot._last_universe_rets)     # (c) 이후 기록
     assert len((tmp_path / "regime_hourly.jsonl")
                .read_text(encoding="utf-8").splitlines()) == 1
