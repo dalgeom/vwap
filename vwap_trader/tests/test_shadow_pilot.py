@@ -225,3 +225,32 @@ def test_bad_day_format_raises(tmp_path):
     (tmp_path / "data").mkdir(parents=True)
     with pytest.raises(ValueError):
         _run(tmp_path, None, day="2026/10/20")
+
+
+def test_report_runner_isolates_pilot_failure(monkeypatch, tmp_path):
+    """그림자 조종사가 죽어도 사실 리포트는 진행 — 개별 격리 계약(2026-07-26)."""
+    import app.report_runner as rr
+    import app.shadow_pilot as sp
+    monkeypatch.setattr(sp, "run_pilot",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    calls = []
+    monkeypatch.setattr(rr, "_collect_metrics", lambda *a, **k: {"day": "2026-10-20"})
+    monkeypatch.setattr(rr, "_run_facts_report",
+                        lambda root, day: calls.append("facts") or None)
+    from datetime import date
+    rr.generate_report(tmp_path, date(2026, 10, 20))
+    assert "facts" in calls          # 조종사 폭발에도 사실 리포트 호출됨
+
+
+def test_report_runner_calls_pilot(monkeypatch, tmp_path):
+    """계기판 다음, 사실 리포트 전에 run_pilot(root, day, demo)가 불린다."""
+    import app.report_runner as rr
+    import app.shadow_pilot as sp
+    seen = {}
+    monkeypatch.setattr(sp, "run_pilot",
+                        lambda root, day, demo, **k: seen.update(day=day, demo=demo) or {"day": day})
+    monkeypatch.setattr(rr, "_collect_metrics", lambda *a, **k: {"day": "2026-10-20"})
+    monkeypatch.setattr(rr, "_run_facts_report", lambda root, day: None)
+    from datetime import date
+    rr.generate_report(tmp_path, date(2026, 10, 20))
+    assert seen.get("day") == "2026-10-20" and seen.get("demo") in (True, False)

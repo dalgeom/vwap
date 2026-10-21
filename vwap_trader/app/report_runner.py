@@ -257,6 +257,17 @@ def generate_report(project_root: Path, day: date) -> Path | None:
     except Exception as e:
         _log_line(root, f"계기판 실패(리포트는 진행): {type(e).__name__}: {e}")
 
+    # ── 그림자 조종사(H-14 관측) — 리포트가 오늘 판단을 실어야 하므로 리포트보다 먼저.
+    # 실패해도 사실 리포트는 진행한다(개별 격리 계약).
+    try:
+        from app import shadow_pilot
+        ps = shadow_pilot.run_pilot(root, day.isoformat(), demo=demo)
+        if ps:
+            _log_line(root, f"그림자 조종사: dial={ps.get('dial')} "
+                            f"decision={ps.get('decision')} div={ps.get('n_div')}")
+    except Exception as e:
+        _log_line(root, f"그림자 조종사 실패(리포트는 진행): {type(e).__name__}: {e}")
+
     report_path = _run_facts_report(root, day)
     if report_path is None:
         return None
