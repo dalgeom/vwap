@@ -63,6 +63,18 @@ def should_flip_short(direction_str: str, regime: str, enabled: bool) -> bool:
     return bool(enabled) and direction_str == "short" and str(regime or "").split("_")[0] == "FLAT"
 
 
+def high_atr_cap_mult(atr: float, close: float, cap_pct, cap_mult) -> float:
+    """H-15(2026-10-24): 변동성(ATR%)이 cap_pct 이상인 코인은 사이징을 cap_mult배로 줄인다.
+
+    근거: 손절 3ATR은 ATR에 비례해 ATR 15% 코인은 손절거리가 45%인데 사이징은 불변이라
+    건당 자산위험이 폭증한다(10-24 IOST -$25.15·DOOD -$18.36, 둘 다 손절 안 터진 채 48h 만기).
+    실전 ATR%>=10 전 거래 8건 -$45.3, 15% 이상 절반 크기 소급: 데모 +$22·실전 +$12(in-sample).
+    키가 없으면 무적용(1.0) — filters가 아닌 risk.high_atr_cap_pct / high_atr_cap_mult 둘 다 있어야 작동."""
+    if cap_pct is None or cap_mult is None or not close or close <= 0 or not atr:
+        return 1.0
+    return float(cap_mult) if atr / close * 100 >= float(cap_pct) else 1.0
+
+
 def verify_closed_pnl(rec: dict, direction: str) -> dict:
     """closed-pnl 레코드 즉석 검산 (2026-08-24, ONGUSDT 3c796367 실사례).
 
@@ -234,6 +246,11 @@ def validate_risk_cfg(cfg: dict) -> None:
     _opt_num("risk", risk, "reversal_boost_mult", 0.05, 3.0)
     _opt_num("risk", risk, "reversal_ret6_max", -100, 0)
     _opt_num("risk", risk, "equity_floor_usd", 1, 1_000_000)
+    cap_pct = _opt_num("risk", risk, "high_atr_cap_pct", 1, 200)
+    cap_mult = _opt_num("risk", risk, "high_atr_cap_mult", 0.05, 1.0)
+    if (cap_pct is None) != (cap_mult is None):
+        # 한쪽만 있으면 무음 미적용 — 오타로 상한이 꺼진 채 풀사이즈가 되는 사고를 시작 시점에 거부
+        raise ValueError("risk.high_atr_cap_pct 와 high_atr_cap_mult 는 둘 다 있거나 둘 다 없어야 합니다")
 
     filt = cfg.get("filters") or {}
     _opt_num("filters", filt, "max_spread_pct", 0.05, 5.0)
@@ -354,6 +371,10 @@ class MomentumBot:
         load_dotenv(ENV_PATH)
         self.cfg = self._load_config()
         validate_risk_cfg(self.cfg)   # v11: 사이징 설정 오류는 진입 전에 즉시 실패
+        _r = self.cfg.get("risk") or {}
+        if _r.get("high_atr_cap_pct") is not None:   # 재시작 후 적용 확인용(H-15)
+            logger.info("H-15 고변동 크기 상한 ON: ATR%%>=%s -> 크기 x%s",
+                        _r["high_atr_cap_pct"], _r["high_atr_cap_mult"])
         self.dry_run = os.environ.get("DRY_RUN", "").lower() == "true"
 
         api_key = os.environ.get("BYBIT_API_KEY", "")
@@ -2212,6 +2233,15 @@ class MomentumBot:
             if mode == "equity_pct":
                 entry_mult = self._entry_mult(signal.trigger_ret,
                                               sig_ctx.get("ret_6"))
+                # H-15(2026-10-24): 고변동(ATR%>=cap) 코인 크기 상한 — 전 진입(뒤집기 포함)에 적용
+                cap_m = high_atr_cap_mult(signal.atr, signal.close_price,
+                                          risk_cfg.get("high_atr_cap_pct"),
+                                          risk_cfg.get("high_atr_cap_mult"))
+                if cap_m != 1.0:
+                    logger.info("ATR CAP %s atr%%=%.1f x%.2f (mult %.2f -> %.2f)",
+                                symbol, signal.atr / signal.close_price * 100, cap_m,
+                                entry_mult, entry_mult * cap_m)
+                    entry_mult *= cap_m
                 equity_pct = risk_cfg.get("position_pct") * entry_mult
             size = compute_position_size(
                 balance=balance,
