@@ -21,3 +21,7 @@
 {"trade_id": "98b2ee79", "symbol": "AKEUSDT", "entry_ts": "2026-10-21T12:00:14.557476+00:00", "applied": null, "actual": -0.2796, "shadow": -0.2796, "divergent": false}
 {"trade_id": "5b382eb0", "symbol": "LITUSDT", "entry_ts": "2026-10-20T16:00:14.294457+00:00", "applied": null, "actual": 9.6754, "shadow": 9.6754, "divergent": false}
 {"trade_id": "a2b1257a", "symbol": "ENAUSDT", "entry_ts": "2026-10-20T16:00:13.441162+00:00", "applied": null, "actual": 7.2993, "shadow": 7.2993, "divergent": false}
+{"trade_id": "a65c9c9e", "symbol": "BIRBUSDT", "entry_ts": "2026-10-21T16:00:12.266557+00:00", "applied": "ON", "actual": -0.2358, "shadow": -0.2358, "divergent": false}
+{"trade_id": "fb1428bf", "symbol": "DOODUSDT", "entry_ts": "2026-10-21T16:00:11.423002+00:00", "applied": "ON", "actual": -18.3632, "shadow": -18.3632, "divergent": false}
+{"trade_id": "21be140e", "symbol": "IOSTUSDT", "entry_ts": "2026-10-21T23:00:13.825299+00:00", "applied": "ON", "actual": -25.1458, "shadow": -25.1458, "divergent": false}
+{"trade_id": "43101932", "symbol": "AKEUSDT", "entry_ts": "2026-10-23T07:00:14.127625+00:00", "applied": "ON", "actual": 4.3053, "shadow": 4.3053, "divergent": false}

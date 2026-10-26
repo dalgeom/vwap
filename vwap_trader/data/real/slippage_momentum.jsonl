@@ -69,3 +69,13 @@
 {"symbol": "FARTCOINUSDT", "direction": "long", "intended_price": 0.13886, "fill_price": 0.13897889, "slippage_pct": 0.0856, "timestamp": "2026-10-23T20:00:15.145584+00:00"}
 {"symbol": "ZECUSDT", "direction": "short", "intended_price": 1171.21, "fill_price": 1171.43, "slippage_pct": 0.0188, "timestamp": "2026-10-23T23:00:17.806332+00:00"}
 {"symbol": "BIRBUSDT", "direction": "long", "intended_price": 0.18646, "fill_price": 0.18631, "slippage_pct": 0.0804, "timestamp": "2026-10-24T04:00:13.889862+00:00"}
+{"symbol": "JCTUSDT", "direction": "long", "intended_price": 0.003909, "fill_price": 0.003647, "slippage_pct": 6.7025, "timestamp": "2026-10-24T08:00:16.265790+00:00"}
+{"symbol": "ARKUSDT", "direction": "long", "intended_price": 0.20023, "fill_price": 0.19821, "slippage_pct": 1.0088, "timestamp": "2026-10-24T09:00:17.152542+00:00"}
+{"symbol": "BIRBUSDT", "direction": "long", "intended_price": 0.1147, "fill_price": 0.11413, "slippage_pct": 0.4969, "timestamp": "2026-10-24T11:00:14.696923+00:00"}
+{"symbol": "MAGMAUSDT", "direction": "long", "intended_price": 0.283, "fill_price": 0.2855, "slippage_pct": 0.8834, "timestamp": "2026-10-24T14:00:16.455635+00:00"}
+{"symbol": "XPLUSDT", "direction": "short", "intended_price": 0.0724, "fill_price": 0.07238, "slippage_pct": 0.0276, "timestamp": "2026-10-24T15:00:14.736828+00:00"}
+{"symbol": "KATUSDT", "direction": "long", "intended_price": 0.004198, "fill_price": 0.00418973, "slippage_pct": 0.197, "timestamp": "2026-10-25T01:00:13.940513+00:00"}
+{"symbol": "ANIMEUSDT", "direction": "long", "intended_price": 0.003072, "fill_price": 0.003049, "slippage_pct": 0.7487, "timestamp": "2026-10-25T01:00:14.819033+00:00"}
+{"symbol": "LIGHTUSDT", "direction": "short", "intended_price": 0.28683, "fill_price": 0.2863, "slippage_pct": 0.1848, "timestamp": "2026-10-25T07:00:17.239918+00:00"}
+{"symbol": "APRUSDT", "direction": "short", "intended_price": 0.0362, "fill_price": 0.036, "slippage_pct": 0.5525, "timestamp": "2026-10-25T07:00:18.082591+00:00"}
+{"symbol": "LIGHTUSDT", "direction": "short", "intended_price": 0.23895, "fill_price": 0.23904, "slippage_pct": 0.0377, "timestamp": "2026-10-25T09:00:17.748937+00:00"}
