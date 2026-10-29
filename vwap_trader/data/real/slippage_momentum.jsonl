@@ -79,3 +79,8 @@
 {"symbol": "LIGHTUSDT", "direction": "short", "intended_price": 0.28683, "fill_price": 0.2863, "slippage_pct": 0.1848, "timestamp": "2026-10-25T07:00:17.239918+00:00"}
 {"symbol": "APRUSDT", "direction": "short", "intended_price": 0.0362, "fill_price": 0.036, "slippage_pct": 0.5525, "timestamp": "2026-10-25T07:00:18.082591+00:00"}
 {"symbol": "LIGHTUSDT", "direction": "short", "intended_price": 0.23895, "fill_price": 0.23904, "slippage_pct": 0.0377, "timestamp": "2026-10-25T09:00:17.748937+00:00"}
+{"symbol": "BTWUSDT", "direction": "long", "intended_price": 1.23704, "fill_price": 1.245376, "slippage_pct": 0.6739, "timestamp": "2026-10-26T18:00:16.052526+00:00"}
+{"symbol": "QUSDT", "direction": "long", "intended_price": 0.19763, "fill_price": 0.199315, "slippage_pct": 0.8526, "timestamp": "2026-10-26T23:00:16.373375+00:00"}
+{"symbol": "DOODUSDT", "direction": "long", "intended_price": 0.002736, "fill_price": 0.002754, "slippage_pct": 0.6579, "timestamp": "2026-10-27T02:00:17.293672+00:00"}
+{"symbol": "EVAAUSDT", "direction": "long", "intended_price": 1.124, "fill_price": 1.11132664, "slippage_pct": 1.1275, "timestamp": "2026-10-28T00:00:16.480689+00:00"}
+{"symbol": "HAEDALUSDT", "direction": "long", "intended_price": 0.02988, "fill_price": 0.02989032, "slippage_pct": 0.0345, "timestamp": "2026-10-28T03:00:10.839178+00:00"}

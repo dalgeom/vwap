@@ -3,3 +3,6 @@
 {"day": "2026-10-23", "dial": 15.4875, "n_events": 23, "decision": "ON", "n_new": 4, "n_unresolved": 0, "divergent": [], "n_div": 0, "cum_div": 0, "cum_actual": 0, "cum_shadow": 0}
 {"day": "2026-10-24", "dial": 5.6616, "n_events": 26, "decision": "ON", "n_new": 3, "n_unresolved": 0, "divergent": [], "n_div": 0, "cum_div": 0, "cum_actual": -43.74, "cum_shadow": -43.74}
 {"day": "2026-10-25", "dial": 7.778, "n_events": 27, "decision": "ON", "n_new": 1, "n_unresolved": 0, "divergent": [], "n_div": 0, "cum_div": 0, "cum_actual": -39.44, "cum_shadow": -39.44}
+{"day": "2026-10-26", "dial": -0.4704, "n_events": 32, "decision": "OFF", "n_new": 5, "n_unresolved": 0, "divergent": [], "n_div": 0, "cum_div": 0, "cum_actual": -73.22, "cum_shadow": -73.22}
+{"day": "2026-10-27", "dial": -2.4758, "n_events": 34, "decision": "OFF", "n_new": 2, "n_unresolved": 0, "divergent": [], "n_div": 0, "cum_div": 0, "cum_actual": -77.71, "cum_shadow": -77.71}
+{"day": "2026-10-28", "dial": -2.4758, "n_events": 34, "decision": "OFF", "n_new": 0, "n_unresolved": 0, "divergent": [], "n_div": 0, "cum_div": 0, "cum_actual": -77.71, "cum_shadow": -77.71}
